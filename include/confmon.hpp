@@ -10,28 +10,29 @@
  *
  *************************************************************************************/
 
-#ifndef _LEDMATRIX_H_
-#define _LEDMATRIX_H_
+#ifndef _CONFMON_H_
+#define _CONFMON_H_
 
-#ifdef __cplusplus
-#include <cstdint>
-#include <cstddef>
-extern "C" {
+#include <config.hpp>
+#include <QString>
 
-#else
-#include <stdint.h>
-#include <stddef.h>
-#endif
+namespace DigitalRooster {
 
+class ConfMon{
+public:
+	ConfMon() : cfgPath(SYSTEM_CONFIG_PATH.c_str()){};
 
+	const QString& getCfgPath(){
+		return cfgPath;
+	}
 
+private:
+	QString cfgPath;
 
-#ifdef __cplusplus
-} /* extern "C" */
-#endif
+};
 
-
-#endif /* _LEDMATRIX_H_ */
+}
+#endif /* _CONFMON_H_ */
 
 
 

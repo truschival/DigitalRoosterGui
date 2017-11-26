@@ -11,8 +11,16 @@ SET(COMPONENT_PATH ${LIBRARY_NAME})
 
 # Interface/binary version
 SET(LIBRARY_VERSION ${PROJECT_VERSION})
+
 # add . to the includes during the build
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+find_package(Qt5 COMPONENTS Core Multimedia REQUIRED)
+include_directories(${Qt5Core_INCLUDE_DIRS})
+
+# Instruct CMake to run moc automatically when needed.
+set(CMAKE_AUTOMOC ON)
 
 #------------------------------
 # add compile definitions

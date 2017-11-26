@@ -5,16 +5,15 @@ SET(BINARY_NAME "DigitalRoosterGui")
 # Use ${CMAKE_THREAD_LIBS_INIT} for the library
 find_package(Threads REQUIRED)
 
-# Find the QtWidgets library
-find_package(Qt5Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets Multimedia REQUIRED)
+
+#find_package(Qt5Widgets REQUIRED)
 MESSAGE(STATUS "Found Qt5 version: ${Qt5Widgets_VERSION_STRING}")
-include_directories(${Qt5Widgets_INCLUDES})
 
 #Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
-
 
 # --------------------------------------------------------------------------------
 # C++ Srcs
@@ -44,6 +43,7 @@ LIST(APPEND PROJECT_CORE_LIB digitalrooster)
 SET(CPP_DEFS "AWESOMEVAR=1" Foo )
 LIST(APPEND CPP_DEFS
   ${Qt5Widgets_COMPILE_DEFINITIONS}
+  ${Qt5Multimedia_COMPILE_DEFINITIONS}
   )
 
 #------------------------------
@@ -85,7 +85,7 @@ SET_TARGET_PROPERTIES(
 TARGET_LINK_LIBRARIES(
   ${BINARY_NAME}
   ${PROJECT_CORE_LIB}   # Units under test
-  Qt5::Widgets
+  Qt5::Widgets Qt5::Multimedia Qt5::Core
   )
 
 if(TEST_COVERAGE)
