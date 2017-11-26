@@ -1,0 +1,37 @@
+# Great idea taken from http://crascit.com/2015/07/25/cmake-gtest/
+
+cmake_minimum_required(VERSION 2.8.2)
+
+
+if(POLICY CMP0048)
+  MESSAGE(STATUS "Cmake Policy 0048 set to old!")
+  cmake_policy(PUSH)
+  cmake_policy(SET CMP0048 NEW)
+endif()
+
+
+PROJECT(GTestExternal NONE)
+set(PROJECT_VERSION 1.7 )
+
+include(ExternalProject)
+
+ExternalProject_Add(GTestExternal
+  GIT_REPOSITORY    https://github.com/google/googletest.git
+  GIT_TAG           master
+  TIMEOUT 10
+  SOURCE_DIR        "${GTEST_PREFIX}/googletest-src"
+  BINARY_DIR        "${GTEST_PREFIX}/googletest-build"
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
+  # CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+  # 	-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG:PATH=${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+  # 	-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE:PATH=${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+  )
+
+
+
+if(POLICY CMP0048)
+  cmake_policy(POP)
+endif()
