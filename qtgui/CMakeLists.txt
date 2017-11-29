@@ -20,9 +20,6 @@ set(CMAKE_AUTOMOC ON)
 # --------------------------------------------------------------------------------
 SET(SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/graphwidget.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/node.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/edge.cpp
   )
 
 # --------------------------------------------------------------------------------
@@ -54,16 +51,13 @@ LIST(APPEND CPP_DEFS
 #   )
 
 qt5_wrap_cpp(MOC_SRC
-#  graphwidget.h
-#  node.h
-#  edge.h
   )
 
 #------------------------------
 # Binary
 #------------------------------
 
-# UnitTests Executable (for target)
+# Executable (for target)
 add_executable(${BINARY_NAME}
   ${SRCS}
   ${UI_HDRS}

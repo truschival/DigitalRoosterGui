@@ -17,7 +17,6 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(Qt5 COMPONENTS Core Multimedia REQUIRED)
-include_directories(${Qt5Core_INCLUDE_DIRS})
 
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
@@ -26,7 +25,7 @@ set(CMAKE_AUTOMOC ON)
 # add compile definitions
 #------------------------------
 SET(CPP_DEFS "")
-LIST(APPEND CPP_DEFS ""  )
+LIST(APPEND CPP_DEFS "FOO_BAR=1")
 
 #------------------------------
 # normal sources
@@ -35,28 +34,29 @@ set(SRCS
    ${CMAKE_CURRENT_SOURCE_DIR}/confmon.cpp
 )
 
+# Moc any classes derived from QObject
+qt5_wrap_cpp(MOC_SRC ${PROJECT_INCLUDE_DIR}/confmon.hpp)
 
 #------------------------------
 # Output a library
 #------------------------------
-ADD_LIBRARY(${LIBRARY_NAME} STATIC ${SRCS})
+ADD_LIBRARY(${LIBRARY_NAME} STATIC ${SRCS} ${MOC_SRC})
 
 set_target_properties(
   ${LIBRARY_NAME} PROPERTIES
-# COMPILE_DEFINITIONS ${CPP_DEFS}
   VERSION ${LIBRARY_VERSION}
   SOVERSION ${LIBRARY_VERSION}
   )
 
 target_compile_definitions(${LIBRARY_NAME}
   PUBLIC
-  "FOO_BAR=1"
+  ${CPP_DEFS}
   )
 
 target_include_directories(
   ${LIBRARY_NAME}
   PRIVATE
-  $<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:"${PROJECT_INCLUDE_DIR};${Qt5Core_INCLUDE_DIRS}">  # Needs QT includes
   PUBLIC
   $<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>
   )

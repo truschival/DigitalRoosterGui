@@ -1,5 +1,4 @@
 #include <config.hpp>
-#include "graphwidget.h"
 
 #include <QApplication>
 #include <QTime>
@@ -9,6 +8,8 @@
 #include <QSettings>
 #include <QFileSystemWatcher>
 
+
+#include "confmon.hpp"
 
 int main(int argc, char *argv[])
 {

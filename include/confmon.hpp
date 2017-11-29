@@ -15,19 +15,29 @@
 
 #include <config.hpp>
 #include <QString>
+#include <QSettings>
 
 namespace DigitalRooster {
 
-class ConfMon{
+class ConfMon : public QSettings {
+	Q_OBJECT
 public:
+
 	ConfMon() : cfgPath(SYSTEM_CONFIG_PATH.c_str()){};
 
-	const QString& getCfgPath(){
-		return cfgPath;
-	}
+	const QString& getCfgPath();
+
+	void sendSignal();
+
+public slots:
+
+signals:
+	void config_changed(const AppConfig&);
 
 private:
 	QString cfgPath;
+
+	AppConfig appCfg;
 
 };
 

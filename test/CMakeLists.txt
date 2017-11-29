@@ -8,7 +8,8 @@ if(TEST_COVERAGE)
 endif(TEST_COVERAGE)
 
 #set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-find_package(Qt5 COMPONENTS Core Multimedia REQUIRED)
+find_package(Qt5 COMPONENTS Core Multimedia Test REQUIRED)
+
 # Threading library for gtest
 # Use ${CMAKE_THREAD_LIBS_INIT} for the library
 find_package(Threads REQUIRED)
@@ -144,16 +145,15 @@ endif(NOT BUILD_GTEST_FROM_SRC)
 # UnitTests Executable (for target)
 add_executable(${BINARY_NAME}
   ${TEST_HARNESS_SRCS}
+  ${UI_HDRS}
+  ${MOC_SRC}
   )
 
 SET_TARGET_PROPERTIES(
   ${BINARY_NAME}
   PROPERTIES
   COMPILE_DEFINITIONS "${CPP_DEFS}"
-#  COMPILE_FLAGS "-fPIC"  
-#  POSITION_INDEPENDENT_CODE True
   VERSION ${PROJECT_VERSION}
-#  INCLUDE_DIRECTORIES "${Qt5Core_INCLUDE_DIRS}" 
   )
 
 # Linkage with gtest_main coverage etc.
@@ -163,6 +163,7 @@ TARGET_LINK_LIBRARIES(
   GMock
   GMockMain # pulls in gtest as linklibrary
   Qt5::Core
+  Qt5::Test #needed for signal spy
   )
 
 
