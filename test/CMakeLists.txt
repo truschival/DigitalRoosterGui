@@ -20,7 +20,14 @@ find_package(Threads REQUIRED)
 SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_confmon.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_player.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_settings.cpp
   )
+
+# Moc any classes derived from QObject
+qt5_wrap_cpp(MOC_SRC 
+        ${CMAKE_CURRENT_SOURCE_DIR}/testplayer.hpp
+        )
 
 # --------------------------------------------------------------------------------
 # Add libraries to test here
@@ -141,7 +148,7 @@ endif(NOT BUILD_GTEST_FROM_SRC)
 #------------------------------
 # Binary
 #------------------------------
-
+MESSAGE(STATUS " UIHDRS: ${UI_HDRS}  MOC_SRC:  ${MOC_SRC}")
 # UnitTests Executable (for target)
 add_executable(${BINARY_NAME}
   ${TEST_HARNESS_SRCS}
@@ -163,6 +170,7 @@ TARGET_LINK_LIBRARIES(
   GMock
   GMockMain # pulls in gtest as linklibrary
   Qt5::Core
+  Qt5::Multimedia
   Qt5::Test #needed for signal spy
   )
 

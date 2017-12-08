@@ -13,7 +13,7 @@
 #ifndef _CONFMON_H_
 #define _CONFMON_H_
 
-#include <config.hpp>
+#include <config.h>
 #include <QString>
 #include <QSettings>
 

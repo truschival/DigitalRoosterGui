@@ -13,7 +13,7 @@ SET(COMPONENT_PATH ${LIBRARY_NAME})
 SET(LIBRARY_VERSION ${PROJECT_VERSION})
 
 # add . to the includes during the build
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+#set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 find_package(Qt5 COMPONENTS Core Multimedia REQUIRED)
@@ -32,10 +32,14 @@ LIST(APPEND CPP_DEFS "FOO_BAR=1")
 #------------------------------
 set(SRCS
    ${CMAKE_CURRENT_SOURCE_DIR}/confmon.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/configuration_manager.cpp
 )
 
 # Moc any classes derived from QObject
-qt5_wrap_cpp(MOC_SRC ${PROJECT_INCLUDE_DIR}/confmon.hpp)
+qt5_wrap_cpp(MOC_SRC 
+        ${PROJECT_INCLUDE_DIR}/confmon.hpp
+        ${PROJECT_INCLUDE_DIR}/mediaplayer.hpp
+        )
 
 #------------------------------
 # Output a library
