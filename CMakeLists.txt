@@ -108,9 +108,9 @@ export(PACKAGE ${PROJECT_NAME})
 SET(GCC_WARNING_FLAGS   " -Wall -Wextra -fmessage-length=0 -Wno-unused-parameter " )
 
 SET(CMAKE_C_FLAGS       " ${CMAKE_C_FLAGS} ${GCC_WARNING_FLAGS} ")
-SET(CMAKE_CXX_FLAGS     " --std=c++11 ${CMAKE_CXX_FLAGS} ${GCC_WARNING_FLAGS} ")
+SET(CMAKE_CXX_FLAGS     " ${CMAKE_CXX_FLAGS} ${GCC_WARNING_FLAGS} ")
 
-SET(CMAKE_CXX_FLAGS_RELEASE  " ${CMAKE_CXX_FLAGS_RELEASE} -ffunction-sections -fdata-sections  --std=c++11")
+SET(CMAKE_CXX_FLAGS_RELEASE  " ${CMAKE_CXX_FLAGS_RELEASE} -ffunction-sections -fdata-sections ")
 SET(CMAKE_C_FLAGS_RELEASE  " ${CMAKE_C_FLAGS_RELEASE} -ffunction-sections -fdata-sections ")
 
 # Link final Executable with Map, clean up unused sections

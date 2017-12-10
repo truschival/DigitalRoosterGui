@@ -38,7 +38,7 @@ set(SRCS
 # Moc any classes derived from QObject
 qt5_wrap_cpp(MOC_SRC 
         ${PROJECT_INCLUDE_DIR}/confmon.hpp
-        ${PROJECT_INCLUDE_DIR}/mediaplayer.hpp
+        ${PROJECT_INCLUDE_DIR}/mediaplayer_wrapper.hpp
         )
 
 #------------------------------
@@ -48,28 +48,28 @@ ADD_LIBRARY(${LIBRARY_NAME} STATIC ${SRCS} ${MOC_SRC})
 
 set_target_properties(
   ${LIBRARY_NAME} PROPERTIES
+  COMPILE_DEFINITIONS ${CPP_DEFS}
   VERSION ${LIBRARY_VERSION}
   SOVERSION ${LIBRARY_VERSION}
   )
 
-target_compile_definitions(${LIBRARY_NAME}
-  PUBLIC
-  ${CPP_DEFS}
-  )
+target_link_libraries(
+	${LIBRARY_NAME} 
+	PUBLIC
+	Qt5::Core 
+	Qt5::Multimedia
+	PRIVATE
+	Qt5::Core 
+	Qt5::Multimedia
+	)
 
 target_include_directories(
   ${LIBRARY_NAME}
   PRIVATE
-  $<BUILD_INTERFACE:"${PROJECT_INCLUDE_DIR};${Qt5Core_INCLUDE_DIRS}">  # Needs QT includes
+  $<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>
   PUBLIC
   $<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>
   )
-
-if(CMAKE_COMPILER_IS_GNUXX)
-target_link_libraries(${LIBRARY_NAME}
-  m #link libmath
-  )
-endif(CMAKE_COMPILER_IS_GNUXX)
 
 #-----
 # Install

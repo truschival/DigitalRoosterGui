@@ -37,11 +37,8 @@ LIST(APPEND PROJECT_CORE_LIB digitalrooster)
 #------------------------------
 # add compile definitions
 #------------------------------
-SET(CPP_DEFS "AWESOMEVAR=1" Foo )
-LIST(APPEND CPP_DEFS
-  ${Qt5Widgets_COMPILE_DEFINITIONS}
-  ${Qt5Multimedia_COMPILE_DEFINITIONS}
-  )
+SET(CPP_DEFS "")
+LIST(APPEND CPP_DEFS "AWESOME=1" )
 
 #------------------------------
 # QT magic
@@ -69,7 +66,6 @@ SET_TARGET_PROPERTIES(
   ${BINARY_NAME}
   PROPERTIES
   COMPILE_DEFINITIONS ${CPP_DEFS}
-  CXX_STANDARD 11
   VERSION ${PROJECT_VERSION}
   DEBUG_POSTFIX "_dbg"
   )
@@ -78,8 +74,8 @@ SET_TARGET_PROPERTIES(
 # Linkage with gtest_main coverage etc.
 TARGET_LINK_LIBRARIES(
   ${BINARY_NAME}
-  ${PROJECT_CORE_LIB}   # Units under test
-  Qt5::Widgets Qt5::Multimedia Qt5::Core
+  ${PROJECT_CORE_LIB}
+  Qt5::Widgets 
   )
 
 if(TEST_COVERAGE)
