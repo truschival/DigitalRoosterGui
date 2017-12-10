@@ -1,30 +1,34 @@
 #include <config.h>
 
+#include <QDebug>
+
 #include <QApplication>
 #include <QTime>
 #include <QMainWindow>
-#include <QMediaPlayer>
 #include <QFileSystemWatcher>
 #include <QSettings>
 #include <QFileSystemWatcher>
 
 
+#include <thread>
+#include <chrono>
+
+#include "mediaplayer_wrapper.hpp"
 #include "confmon.hpp"
+
+using namespace std::chrono_literals;
+
 
 int main(int argc, char *argv[])
 {
+	qDebug() << __FUNCTION__;
     QApplication app(argc, argv);
     qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
 
-    auto player = new QMediaPlayer;
-    player->setMedia(QUrl::fromLocalFile("/usr/share/sounds/Oxygen-Im-Connection-Lost.ogg"));
-    player->setVolume(50);
-    player->play();
+    MediaPlayerWrapper player;
+    player.play(QUrl::fromLocalFile("/data/Music/ACDC/Black Ice/15 - Black Ice.mp3"));
+    player.getMedia();
 
-    auto syswatch = new QFileSystemWatcher;
-    syswatch->addPath("/tmp/foo");
-    
-    QMainWindow::connect(syswatch,SIGNAL(fileChanged(const QString &)),player,SLOT(setMedia(qint64)));
-    
+
     return app.exec();
 }

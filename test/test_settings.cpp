@@ -132,10 +132,13 @@ TEST_F(SettingsFixture,addRadioStation_write) {
 		auto& v = cm.get_stream_sources();
 		ASSERT_EQ(2, v.size());
 		/* should write file in destructor */
+		cm.write_config_file();
 	}
 	ConfigurationManager control(filename);
-	;
 	auto& v = control.get_stream_sources();
 	ASSERT_EQ(2, v.size());
+
+	auto stream = v[0];
+	ASSERT_STREQ(stream.get_display_name().toStdString().c_str(),"foo");
 }
 

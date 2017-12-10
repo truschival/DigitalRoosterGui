@@ -7,18 +7,5 @@
  * \author ruschi
  *
  *************************************************************************************/
+#include "mediaplayer_wrapper.hpp"
 
-#include <QMediaPlayer>
-
-
-namespace DigitalRooster{
-
-class MediaPlayer : public QMediaPlayer{
-
-	public slots:
-
-	private:
-
-};
-
-}

@@ -30,9 +30,7 @@ public:
 	 */
 	ConfigurationManager(const std::string& filepath=DigitalRooster::SYSTEM_CONFIG_PATH);
 
-	virtual ~ConfigurationManager(){
-		qs.sync();
-	};
+	virtual ~ConfigurationManager()=default;
 
 	/**
 	 * get all radio stream sources
@@ -50,6 +48,10 @@ public:
 
 	void add_podcast_feed(PodcastSource& src);
 
+	/**
+	 * Write memory config to file - will overwrite changes in file
+	 */
+	void write_config_file();
 
 private:
 	QSettings qs;
@@ -60,6 +62,8 @@ private:
 	 * Fills the vector stream_sources with entries form settings file
 	 */
 	void read_radio_streams_from_file();
+
+
 };
 
 }//namespace
