@@ -8,13 +8,15 @@
  *
  *************************************************************************************/
 
-#include <configuration_manager.hpp>
 #include <gtest/gtest.h>
 #include <QSettings>
 
 #include <string>
 #include <fstream>
 #include <cstdio>
+
+
+#include "configuration_manager.hpp"
 
 using namespace DigitalRooster;
 
@@ -112,15 +114,15 @@ TEST_F(SettingsFixture,addRadioStation_no_write) {
 	ASSERT_EQ(2, v.size());
 }
 
-TEST_F(SettingsFixture, WritePersistentDestructor) {
+TEST_F(SettingsFixture, shouldNotWriteAfile) {
 	{
 		ConfigurationManager cm(filename);
 		cm.add_radio_station(RadioStreamSource("foo", "http://bar.baz"));
 		auto rs = RadioStreamSource { "ref", "http://gmx.net" };
 		cm.add_radio_station(rs);
 	}
-	bool failed = !std::ifstream(filename.c_str());
-	ASSERT_FALSE(failed);
+	bool no_stream = !std::ifstream(filename.c_str());
+	ASSERT_TRUE(no_stream);
 }
 
 TEST_F(SettingsFixture,addRadioStation_write) {

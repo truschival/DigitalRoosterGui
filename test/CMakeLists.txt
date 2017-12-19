@@ -167,8 +167,7 @@ SET_TARGET_PROPERTIES(
 TARGET_LINK_LIBRARIES(
   ${BINARY_NAME}
   ${DUT_LIBS}   # Units under test
-	GMock
-	GMockMain
+	GMock # main not required, implemented in test.cpp
 	Qt5::Test
   )
 

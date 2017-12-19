@@ -38,7 +38,6 @@ set(SRCS
 # Moc any classes derived from QObject
 qt5_wrap_cpp(MOC_SRC 
         ${PROJECT_INCLUDE_DIR}/confmon.hpp
-        ${PROJECT_INCLUDE_DIR}/mediaplayer_wrapper.hpp
         )
 
 #------------------------------

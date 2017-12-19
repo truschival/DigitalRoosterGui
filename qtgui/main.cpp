@@ -1,5 +1,6 @@
 #include <config.h>
 
+#include <QLoggingCategory>
 #include <QDebug>
 
 #include <QApplication>
@@ -13,7 +14,7 @@
 #include <thread>
 #include <chrono>
 
-#include "mediaplayer_wrapper.hpp"
+
 #include "confmon.hpp"
 
 using namespace std::chrono_literals;
@@ -21,13 +22,10 @@ using namespace std::chrono_literals;
 
 int main(int argc, char *argv[])
 {
+	QLoggingCategory::setFilterRules("*.debug=true");
 	qDebug() << __FUNCTION__;
     QApplication app(argc, argv);
     qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
-
-    MediaPlayerWrapper player;
-    player.play(QUrl::fromLocalFile("/data/Music/ACDC/Black Ice/15 - Black Ice.mp3"));
-    player.getMedia();
 
 
     return app.exec();
