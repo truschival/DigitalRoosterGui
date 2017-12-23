@@ -20,6 +20,7 @@
 
 #include "PlayableItem.hpp"
 
+namespace DigitalRooster{
 /**
  * Class to represent a RSS channel with items as episodes
  */
@@ -200,5 +201,6 @@ private:
 	 */
 	QString rss_feed_uri;
 
+};
 };
 #endif // _PODCASTSOURCECONFIGURATION_HPP_ 

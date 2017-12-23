@@ -10,6 +10,7 @@
 
 #include "PodcastSourceConfiguration.hpp"
 
+using namespace DigitalRooster;
 
 
 /*************************************************************************************/

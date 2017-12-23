@@ -56,6 +56,10 @@ public:
 
 private:
 	QSettings qs;
+
+	/**
+	 * Internet radio stream souces are directly read form INI file
+	 */
 	std::vector<PlayableItem> stream_sources;
 
 	/**

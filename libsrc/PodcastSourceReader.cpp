@@ -9,6 +9,8 @@
 
 #include "PodcastSourceReader.hpp"
 
+using namespace DigitalRooster;
+
 PodcastSourceReader::PodcastSourceReader() {
 
 }

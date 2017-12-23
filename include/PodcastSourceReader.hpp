@@ -22,6 +22,7 @@
 #include "PlayableItem.hpp"
 #include "PodcastSourceConfiguration.hpp"
 
+namespace DigitalRooster{
 /**
  * Class retrieves a podcast-rss feed from a PodcastSourceConfiguration and
  * updates a list of podcast-episodes
@@ -66,5 +67,6 @@ public:
 private:
 	std::vector<PodcastSourceConfiguration> podcastsources;
 
+};
 };
 #endif // _PODCASTSOURCEREADER_HPP_ 

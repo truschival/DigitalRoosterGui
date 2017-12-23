@@ -16,6 +16,7 @@
 #include <QString>
 #include <QDate>
 
+namespace DigitalRooster{
 /**
  * Self contained information to play
  */
@@ -125,5 +126,6 @@ public:
 	 */
 	QDate publication_date;
 
+};
 };
 #endif // _PLAYABLEITEM_HPP_ 
