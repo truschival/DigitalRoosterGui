@@ -16,7 +16,7 @@ SET(LIBRARY_VERSION ${PROJECT_VERSION})
 #set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(Qt5 COMPONENTS Core Multimedia REQUIRED)
+find_package(Qt5 COMPONENTS Core Multimedia Network REQUIRED)
 
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
@@ -35,6 +35,7 @@ set(SRCS
    ${CMAKE_CURRENT_SOURCE_DIR}/configuration_manager.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/PodcastSourceReader.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/PodcastSourceConfiguration.cpp 
+   ${CMAKE_CURRENT_SOURCE_DIR}/DownloadManager.cpp
 )
 
 # Moc any classes derived from QObject
@@ -62,6 +63,7 @@ target_link_libraries(
 	PRIVATE
 	Qt5::Core 
 	Qt5::Multimedia
+	Qt5::Network
 	)
 
 target_include_directories(

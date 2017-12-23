@@ -7,7 +7,10 @@
  * \author  ruschi 
  *************************************************************************************/
 
+#include "config.h"
 #include "PodcastSourceReader.hpp"
+#include <QDir>
+#include <QFile>
 
 using namespace DigitalRooster;
 
@@ -27,7 +30,7 @@ PodcastSourceConfiguration PodcastSourceReader::create_PodcastSource(
 
 /*************************************************************************************/
 QString PodcastSourceReader::download_rss(const QString& url) {
-	return QString("/tmp/foo.txt");
+	return QString("alternativlos.rss");
 }
 
 /*************************************************************************************/

@@ -22,6 +22,8 @@ SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test_confmon.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_player.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_settings.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_reader.cpp
+  
   )
 
 # Moc any classes derived from QObject
@@ -148,7 +150,10 @@ endif(NOT BUILD_GTEST_FROM_SRC)
 #------------------------------
 # Binary
 #------------------------------
-MESSAGE(STATUS " UIHDRS: ${UI_HDRS}  MOC_SRC:  ${MOC_SRC}")
+SET(RSS_FILE_GOOD "alternativlos.rss")
+MESSAGE(STATUS " Copying RSS file for test ${RSS_FILE_GOOD}")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_GOOD}" "${CMAKE_BINARY_DIR}/${RSS_FILE_GOOD}" COPYONLY)
+
 # UnitTests Executable (for target)
 add_executable(${BINARY_NAME}
   ${TEST_HARNESS_SRCS}

@@ -12,6 +12,7 @@
 
 #include <string>
 #include <vector>
+#include <QDir>
 
 namespace DigitalRooster{
 
@@ -43,6 +44,11 @@ namespace DigitalRooster{
 	 * Key for all nice names
 	 */
 	const std::string KEY_NAME("name");
+
+	/**
+	 * Directory for all downloaded RSS Files
+	 */
+	const QDir RSS_FILE_DIR("/tmp/rss/");
 
 	/**
 	 * Runtime configuration object
