@@ -16,7 +16,8 @@
 #include <QSettings>
 #include <vector>
 #include <string>
-#include "config_items.h"
+
+#include "PlayableItem.hpp"
 #include "config.h"
 
 namespace DigitalRooster{
@@ -35,7 +36,7 @@ public:
 	/**
 	 * get all radio stream sources
 	 */
-	const std::vector<RadioStreamSource>& get_stream_sources(){
+	const std::vector<PlayableItem>& get_stream_sources(){
 		return stream_sources;
 	}
 
@@ -43,10 +44,10 @@ public:
 	 * Append the radio stream to list - duplicates will not be checked
 	 * @param src the new stream source
 	 */
-	void add_radio_station(RadioStreamSource&& src);
-	void add_radio_station(const RadioStreamSource& src);
+	void add_radio_station(PlayableItem&& src);
+	void add_radio_station(const PlayableItem& src);
 
-	void add_podcast_feed(PodcastSource& src);
+	void add_podcast_feed(PlayableItem& src);
 
 	/**
 	 * Write memory config to file - will overwrite changes in file
@@ -55,8 +56,7 @@ public:
 
 private:
 	QSettings qs;
-	std::vector<PodcastSource> m_PodcastSource;
-	std::vector<RadioStreamSource> stream_sources;
+	std::vector<PlayableItem> stream_sources;
 
 	/**
 	 * Fills the vector stream_sources with entries form settings file

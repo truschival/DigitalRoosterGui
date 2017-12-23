@@ -34,12 +34,12 @@ void ConfigurationManager::read_radio_streams_from_file() {
 }
 
 /***********************************************************************************/
-void ConfigurationManager::add_radio_station(RadioStreamSource&& src) {
-	this->stream_sources.emplace_back(std::forward<RadioStreamSource>(src));
+void ConfigurationManager::add_radio_station(PlayableItem&& src) {
+	this->stream_sources.emplace_back(std::forward<PlayableItem>(src));
 }
 
 /***********************************************************************************/
-void ConfigurationManager::add_radio_station(const RadioStreamSource& src) {
+void ConfigurationManager::add_radio_station(const PlayableItem& src) {
 	this->stream_sources.push_back(src);
 }
 

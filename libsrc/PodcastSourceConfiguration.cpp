@@ -1,6 +1,6 @@
 /*************************************************************************************
- * \filename StreamSource.cpp
- * \brief Implementation of the Class StreamSource
+ * \filename PodcastSourceConfiguration.cpp
+ * \brief Implementation of the Class PodcastSourceConfiguration
  *
  * \details
  *
@@ -8,32 +8,18 @@
  *************************************************************************************/
 
 
-#include "StreamSource.hpp"
-
-
-RadioStreamSource::StreamSource(){
-
-}
-
-
-
-RadioStreamSource::~RadioStreamSource(){
-
-}
-
-
+#include "PodcastSourceConfiguration.hpp"
 
 
 
 /*************************************************************************************/
-QString& RadioStreamSource::get_display_name(){
+void PodcastSourceConfiguration::add_episode(PodcastEpisode& episodode){
 
-	return display_name;
 }
 
 
 /*************************************************************************************/
-QString& RadioStreamSource::get_url(){
+void PodcastSourceConfiguration::remove_episode(const QString& name){
 
-	return url_string;
+
 }

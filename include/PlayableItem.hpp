@@ -9,68 +9,71 @@
  *
  *************************************************************************************/
 
-
 #ifndef _PLAYABLEITEM_HPP_
 #define _PLAYABLEITEM_HPP_ 
 
-#include "QMediaContent.hpp"
+#include <QUrl>
+#include <QString>
+#include <QDate>
 
 /**
  * Self contained information to play
  */
-class PlayableItem
-{
+class PlayableItem {
 
 public:
-	PlayableItem();
-	virtual ~PlayableItem();
-	QMediaContent *m_QMediaContent;
-
-	QString& get_display_name();
 	/**
-	 * Acutal source of media file
+	 * Convenience constructor for testing
+	 * @param name
+	 * @param url
 	 */
-	QUrl get_media_url();
+	PlayableItem(const char* name, const char* url) :
+			display_name(name), uri(QString(url)) {
+	}
+	;
+
+	PlayableItem(const QString& name, const QUrl& url) :
+			display_name(name), uri(url) {
+	}
+	;
+
+	const QString& get_display_name() {
+		return display_name;
+	}
+
+	const QUrl& get_url() {
+		return uri;
+	}
+
+	/** default destructor */
+	virtual ~PlayableItem() = default;
 
 private:
 	/**
-	 * String to display for humans
+	 * Name of Radio stream
 	 */
-	const QString display_name;
+	QString display_name;
+
 	/**
-	 * Acutal source of media file
+	 * Location of stream
 	 */
-	QUrl media_url;
-
-};
-
-class PodCastEpisode : public SeekablePlayableItem
-{
-
-public:
-	PodCastEpisode();
-	virtual ~PodCastEpisode();
-
-	QString get_guid();
-
-private:
-	/**
-	 * Global Unique ID of item
-	 */
-	QString guid;
-	QDate publication_date;
+	QUrl uri;
 
 };
 
 /**
  * Media source with random access in time, player can go back and forth
  */
-class SeekablePlayableItem : public PlayableItem
-{
+class SeekablePlayableItem: public PlayableItem {
 
 public:
-	SeekablePlayableItem();
-	virtual ~SeekablePlayableItem();
+	SeekablePlayableItem(const QString& name, const QUrl& url) :
+			PlayableItem(name, url) {
+	}
+	;
+
+	/** default Destructor */
+	virtual ~SeekablePlayableItem()=default;
 
 	/**
 	 * Has it been played completely?
@@ -89,37 +92,37 @@ private:
 	/**
 	 * Percentage of already listened content
 	 */
-	int position_percent;
+	int position_percent = 0;
 
 };
 
-class PodcastEpisode : public SeekablePlayableItem
-{
+/**
+ * PodcastEpisode = item of RSS feed
+ */
+struct PodcastEpisode: public SeekablePlayableItem {
 
 public:
-	PodcastEpisode();
-	virtual ~PodcastEpisode();
+	PodcastEpisode(const QString& name, const QUrl& url) :
+			SeekablePlayableItem(name, url) {
+	}
+	;
+	virtual ~PodcastEpisode() = default;
 
-	QString& get_author();
-	/**
-	 * Synopsis of this episode
-	 */
-	QString& get_description();
-	QString get_guid();
-
-private:
 	/**
 	 * Author of the episode
 	 */
-	const QString author;
+	QString author;
 	/**
 	 * Synopsis of this episode
 	 */
-	const QString description;
+	QString description;
 	/**
 	 * Global Unique ID of item
 	 */
 	QString guid;
+	/**
+	 * Release date of episode (item)
+	 */
 	QDate publication_date;
 
 };

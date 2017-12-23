@@ -107,8 +107,8 @@ TEST_F(SettingsFixture,read_radio_streams_two_streams) {
 
 TEST_F(SettingsFixture,addRadioStation_no_write) {
 	ConfigurationManager cm(filename);
-	cm.add_radio_station(RadioStreamSource("foo", "http://bar.baz"));
-	auto rs = RadioStreamSource { "ref", "http://gmx.net" };
+	cm.add_radio_station(PlayableItem("foo", "http://bar.baz"));
+	auto rs = PlayableItem { "ref", "http://gmx.net" };
 	cm.add_radio_station(rs);
 	auto& v = cm.get_stream_sources();
 	ASSERT_EQ(2, v.size());
@@ -117,8 +117,8 @@ TEST_F(SettingsFixture,addRadioStation_no_write) {
 TEST_F(SettingsFixture, shouldNotWriteAfile) {
 	{
 		ConfigurationManager cm(filename);
-		cm.add_radio_station(RadioStreamSource("foo", "http://bar.baz"));
-		auto rs = RadioStreamSource { "ref", "http://gmx.net" };
+		cm.add_radio_station(PlayableItem("foo", "http://bar.baz"));
+		auto rs = PlayableItem { "ref", "http://gmx.net" };
 		cm.add_radio_station(rs);
 	}
 	bool no_stream = !std::ifstream(filename.c_str());
@@ -128,8 +128,8 @@ TEST_F(SettingsFixture, shouldNotWriteAfile) {
 TEST_F(SettingsFixture,addRadioStation_write) {
 	{
 		ConfigurationManager cm(filename);
-		cm.add_radio_station(RadioStreamSource("foo", "http://bar.baz"));
-		auto rs = RadioStreamSource { "ref", "http://gmx.net" };
+		cm.add_radio_station(PlayableItem("foo", "http://bar.baz"));
+		auto rs = PlayableItem { "ref", "http://gmx.net" };
 		cm.add_radio_station(rs);
 		auto& v = cm.get_stream_sources();
 		ASSERT_EQ(2, v.size());

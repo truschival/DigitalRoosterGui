@@ -33,6 +33,8 @@ LIST(APPEND CPP_DEFS "FOO_BAR=1")
 set(SRCS
    ${CMAKE_CURRENT_SOURCE_DIR}/confmon.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/configuration_manager.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/PodcastSourceReader.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/PodcastSourceConfiguration.cpp 
 )
 
 # Moc any classes derived from QObject
