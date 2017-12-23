@@ -39,29 +39,34 @@ void PodcastSourceReader::parse_episodes(
 		PodcastSourceConfiguration& podcastsource, QXmlStreamReader& xml) {
 	qDebug() << __FUNCTION__;
 
-	if (!xml.isStartElement() || xml.name() != "item") {
+	if (xml.tokenType() != QXmlStreamReader::StartElement
+			|| xml.name() != "item") {
 		qDebug() << "parse_episodes called but wrong XML element!";
+		qDebug() << xml.name() << " Tokentype " << xml.tokenType();
 		return;
 	}
 
 	QString ressource;
 	QString title;
 
-	while (xml.readNextStartElement()) {
-		if (xml.name() == "title") {
-			title = xml.readElementText();
-		} else if (xml.name() == "enclosure") {
-			ressource = xml.attributes().value("url").toString();
-		} else {
-			xml.skipCurrentElement();
+	while (!(xml.readNext() == QXmlStreamReader::EndElement
+			&& xml.name() == "item")) {
+
+		if (xml.tokenType() == QXmlStreamReader::StartElement) {
+			if (xml.name() == "title") {
+				xml.readNext();
+				title = xml.text().toString();
+			} else if (xml.name() == "enclosure") {
+				// no readnext if we look at attributes
+				ressource = xml.attributes().value("url").toString();
+			}
 		}
 	}
-	if (! ressource.isEmpty() &&  !title.isEmpty()) {
+	if (!ressource.isEmpty() && !title.isEmpty()) {
 		auto ep = std::make_shared<PodcastEpisode>(title, QUrl(ressource));
 		podcastsource.add_episode(ep);
 	} else {
 		qDebug() << "incomplete item! " << ressource << " : " << title;
-
 	}
 
 }
@@ -76,18 +81,27 @@ void PodcastSourceReader::parse_channel(
 		return;
 	}
 
-	while (xml.readNextStartElement()) {
-		if (xml.name() == "item") {
-			parse_episodes(podcastsource, xml);
-		} else if (xml.name() == "title") {
-			podcastsource.set_title(xml.readElementText());
-		} else if (xml.name() == "description") {
-			podcastsource.set_description(xml.readElementText());
-		} else if (xml.name() == "link") {
-			podcastsource.set_link(xml.readElementText());
-		} else {
-			xml.skipCurrentElement();
+	while (!(xml.readNext() == QXmlStreamReader::EndElement
+			&& xml.name() == "channel")) {
+
+		if (xml.tokenType() == QXmlStreamReader::StartElement) {
+			//qDebug() << "StartElement ("<<xml.tokenType()<<")" << xml.name();
+			if (xml.name() == "item") {
+				parse_episodes(podcastsource, xml);
+			} else if (xml.name() == "title") {
+				xml.readNext();
+				podcastsource.set_title(xml.text().toString());
+			} else if (xml.name() == "description") {
+				xml.readNext();
+				podcastsource.set_description(xml.text().toString());
+			} else if (xml.name() == "link") {
+				podcastsource.set_link(xml.text().toString());
+			} else {
+				//qDebug() << xml.name();
+			}
 		}
+		//qDebug() << __FUNCTION__ <<  xml.name() << " TokenType: " << xml.tokenType();
+
 	}
 }
 
@@ -113,17 +127,23 @@ void PodcastSourceReader::update_podcast(
 	while (!xml.atEnd() && !xml.hasError()) {
 		QXmlStreamReader::TokenType token = xml.readNext();
 
-		// Skip ahead to channel
-		if (token == QXmlStreamReader::StartElement
-				&& xml.name() == "channel") {
-			parse_channel(podcastsource, xml);
+		if (token == QXmlStreamReader::StartDocument) {
+			continue;
 		}
-		if (xml.tokenType() == QXmlStreamReader::Invalid)
-			xml.readNext();
+		if (token == QXmlStreamReader::StartElement) {
 
-		if (xml.hasError()) {
-			xml.raiseError();
-			qDebug() << xml.errorString();
+			if (xml.name() == "rss") {
+				qDebug() << xml.name() << " // continue";
+				continue;
+			} else if (xml.name() == "channel") {
+				qDebug() << xml.name() << " // parse_channel";
+				parse_channel(podcastsource, xml);
+//			} else if (xml.name() == "item") {
+//				qDebug() << "  from " << __FUNCTION__;
+//				parse_episodes(podcastsource, xml);
+			} else {
+				//qDebug() << xml.name();
+			}
 		}
 	}
 }
