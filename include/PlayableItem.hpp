@@ -15,6 +15,7 @@
 #include <QUrl>
 #include <QString>
 #include <QDate>
+#include <QDebug>
 
 namespace DigitalRooster{
 /**
@@ -105,6 +106,7 @@ struct PodcastEpisode: public SeekablePlayableItem {
 public:
 	PodcastEpisode(const QString& name, const QUrl& url) :
 			SeekablePlayableItem(name, url) {
+		qDebug() << __FUNCTION__;
 	}
 	;
 	virtual ~PodcastEpisode() = default;

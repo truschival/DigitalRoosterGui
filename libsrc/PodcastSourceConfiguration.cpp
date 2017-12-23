@@ -14,8 +14,8 @@ using namespace DigitalRooster;
 
 
 /*************************************************************************************/
-void PodcastSourceConfiguration::add_episode(PodcastEpisode& episodode){
-
+void PodcastSourceConfiguration::add_episode(std::shared_ptr<PodcastEpisode> episode){
+	episodes[episode->get_display_name()] = episode;
 }
 
 

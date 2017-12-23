@@ -17,7 +17,7 @@
 #include <QFile>
 #include <QMap>
 #include <cstddef> //size_t
-
+#include <memory>
 #include "PlayableItem.hpp"
 
 namespace DigitalRooster{
@@ -35,7 +35,7 @@ public:
 	/**
 	 * Add an episode to episodes
 	 */
-	void add_episode(PodcastEpisode& episode);
+	void add_episode(std::shared_ptr<PodcastEpisode>  episode);
 
 	/**
 	 * Deletes all episodes from list
@@ -110,7 +110,7 @@ public:
 	/**
 	 * Description of the Channel (mandatory by RSS2.0 spec)
 	 */
-	void set_description(QString& newVal) {
+	void set_description(QString newVal) {
 		description = newVal;
 	}
 
@@ -124,7 +124,7 @@ public:
 	/**
 	 * Website of RSS feed channel (not the rss xml URI but additional information)
 	 */
-	void set_link(QString& newVal) {
+	void set_link(QString newVal) {
 		link = newVal;
 	}
 
@@ -138,7 +138,7 @@ public:
 	/**
 	 * local XML file last read from internet
 	 */
-	void set_rss_feed(QString& filepath) {
+	void set_rss_feed(QString filepath) {
 		rss_file = filepath;
 	}
 
@@ -167,7 +167,7 @@ private:
 	/**
 	 * Map of episodes
 	 */
-	QMap<QString, PodcastEpisode> episodes;
+	QMap<QString, std::shared_ptr<PodcastEpisode>> episodes;
 	/**
 	 * When was this podcast source last scanned for new items
 	 */
