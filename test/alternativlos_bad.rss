@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+
+<channel>
+
+<title>Alternativlos</title>
+<link>http://www.alternativlos.org/</link>
+<language>de</language>
+<copyright>&#x2117; &amp; &#xA9; 2010-2016 Frank Rieger und Felix von Leitner</copyright>
+<atom:link href="http://alternativlos.org/alternativlos.rss" rel="self" type="application/rss+xml" />
+<itunes:subtitle>Der Podcast von Frank Rieger und Felix von Leitner</itunes:subtitle>
+<itunes:author>Felix von Leitner, Frank Rieger</itunes:author>
+<itunes:summary>Alternativlos ist der Boulevard-Podcast von Frank und Fefe, ��ber Politik, Technik, Verschw��rungstheorien und worauf wir sonst noch so Lust haben</itunes:summary>
+<itunes:explicit>no</itunes:explicit>
+<description>Alternativlos ist der Boulevard-Podcast von Frank und Fefe, ��ber Politik, Technik, Verschw��rungstheorien und worauf wir sonst noch so Lust haben.  Der Name orientiert sich an der Lieblingsbegr��ndung von Politikern f��r ihre Vorhaben (in Begr��ndungen von Gesetzen hei��t es praktisch immer den Absatz ���Alternativen: keine���).</description>
+
+<itunes:owner>
+<itunes:name>Frank+Fefe</itunes:name>
+<itunes:email>itunes@alternativlos.org</itunes:email>
+</itunes:owner>
+
+<itunes:image href="http://alternativlos.org/squarelogo.png" />
+<itunes:category text="News &amp; Politics" />
+
+<item>
+<title>ALT041: ��ber Kryptow��hrungen, k��nstliche Intelligenz, Verantwortung und die Weltlage</title>
+<itunes:author>Frank Rieger, Felix von Leitner</itunes:author>
+<itunes:subtitle>��ber Kryptow��hrungen, k��nstliche Intelligenz, Verantwortung und die Weltlage</itunes:subtitle>
+<itunes:summary>��ber Kryptow��hrungen, k��nstliche Intelligenz, Verantwortung und die Weltlage</itunes:summary>
+<description>��ber Kryptow��hrungen, k��nstliche Intelligenz, Verantwortung und die Weltlage</description>
+<enclosure url="http://alternativlos.cdn.as250.net/alternativlos-41.mp3	" length="91469069" type="audio/mp3" />
+<link>http://alternativlos.org/41/</link>
+<guid>http://alternativlos.cdn.as250.net/alternativlos-41.mp3</guid>
+<pubDate>Wed, 20 Dec 2017 08:00:00 GMT</pubDate>
+<itunes:duration>2:56:08</itunes:duration>
+<itunes:keywords>alternativlos, Kryptow��hrungen, Bitcoin, k��nstliche Intelligenz, KI</itunes:keywords>
+<itunes:explicit>no</itunes:explicit>
+<atom:link rel="payment" href="https://flattr.com/submit/auto?user_id=alternativlos&amp;url=http%3A%2F%2Falternativlos.org%2F41%2F" type="text/html" />
+</item>
+
+<item>
+<title>ALT040: mit Andrej Holm ��ber Stadtentwicklung und Gentrifizierung</title>
+<itunes:author>Frank Rieger, Felix von Leitner</itunes:author>
+<itunes:subtitle>mit Andrej Holm ��ber Stadtentwicklung und Gentrifizierung</itunes:subtitle>
+<itunes:summary>mit Andrej Holm ��ber Stadtentwicklung und Gentrifizierung</itunes:summary>
+<description>mit Andrej Holm ��ber Stadtentwicklung und Gentrifizierung</description>
+<enclosure url="http://alternativlos.cdn.as250.net/alternativlos-40.mp3" length="84009969" type="audio/mp3" />
+<link>http://alternativlos.org/40/</link>
+<guid>http://alternativlos.cdn.as250.net/alternativlos-40.mp3</guid>
+<pubDate>Mon, 29 May 2017 08:00:00 GMT</pubDate>
+<itunes:duration>2:32:50</itunes:duration>
+<itunes:keywords>alternativlos, Andrej Holm, Stadtentwicklung, Gentrifizierung</itunes:keywords>
+<itunes:explicit>no</itunes:explicit>
+<atom:link rel="payment" href="https://flattr.com/submit/auto?user_id=alternativlos&amp;url=http%3A%2F%2Falternativlos.org%2F40%2F" type="text/html" />
+</item>
+
+<item>
+<title>ALT039: ��ber Wannacry, Ransomware und Patches</title>
+<itunes:author>Frank Rieger, Felix von Leitner</itunes:author>
+<itunes:subtitle>��ber Wannacry, Ransomware und Patches</itunes:subtitle>
+<itunes:summary>��ber Wannacry, Ransomware und Patches</itunes:summary>
+<description>��ber Wannacry, Ransomware und Patches</description>
+<enclosure url="http://alternativlos.cdn.as250.net/alternativlos-39.mp3" length="60091293" type="audio/mp3" />
+<link>http://alternativlos.org/39/</link>
+<guid>http://alternativlos.cdn.as250.net/alternativlos-39.mp3</guid>
+<pubDate>Wed, 17 May 2017 08:00:00 GMT</pubDate>
+<itunes:duration>1:35:14</itunes:duration>
+<itunes:keywords>alternativlos, Wannacry, Ransomware, Bitcoin, Patches, Microsoft</itunes:keywords>
+<itunes:explicit>no</itunes:explicit>
+<atom:link rel="payment" href="https://flattr.com/submit/auto?user_id=alternativlos&amp;url=http%3A%2F%2Falternativlos.org%2F39%2F" type="text/html" />
+</Item>
+
+</channel>
+</rss>
+
+

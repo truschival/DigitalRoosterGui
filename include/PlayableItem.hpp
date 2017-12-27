@@ -14,7 +14,7 @@
 
 #include <QUrl>
 #include <QString>
-#include <QDate>
+#include <QDateTime>
 #include <QDebug>
 
 namespace DigitalRooster{
@@ -106,7 +106,6 @@ struct PodcastEpisode: public SeekablePlayableItem {
 public:
 	PodcastEpisode(const QString& name, const QUrl& url) :
 			SeekablePlayableItem(name, url) {
-		qDebug() << __FUNCTION__;
 	}
 	;
 	virtual ~PodcastEpisode() = default;
@@ -126,7 +125,7 @@ public:
 	/**
 	 * Release date of episode (item)
 	 */
-	QDate publication_date;
+	QDateTime publication_date;
 
 };
 };

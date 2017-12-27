@@ -20,7 +20,7 @@
 #include <memory>
 #include "PlayableItem.hpp"
 
-namespace DigitalRooster{
+namespace DigitalRooster {
 /**
  * Class to represent a RSS channel with items as episodes
  */
@@ -35,7 +35,7 @@ public:
 	/**
 	 * Add an episode to episodes
 	 */
-	void add_episode(std::shared_ptr<PodcastEpisode>  episode);
+	void add_episode(std::shared_ptr<PodcastEpisode> episode);
 
 	/**
 	 * Deletes all episodes from list
@@ -52,7 +52,7 @@ public:
 	/**
 	 * When was this podcast source last scanned for new items
 	 */
-	const QDate& get_last_updated() {
+	const QDateTime& get_last_updated() {
 		return last_updated;
 	}
 	;
@@ -117,7 +117,7 @@ public:
 	/**
 	 * When was this podcast source last scanned for new items
 	 */
-	void set_last_updated(QDate& newVal) {
+	void set_last_updated(QDateTime newVal) {
 		last_updated = newVal;
 	}
 
@@ -159,6 +159,20 @@ public:
 		update_period = period;
 	}
 
+	/**
+	 * Access to episodes as QList (the Playable items)
+	 */
+	QList<std::shared_ptr<PodcastEpisode>> get_episodes() {
+		return episodes.values();
+	}
+
+	/**
+	 * Access to episode names  as QList (the titles for display in a list)
+	 */
+	QList<QString> get_episodes_names() {
+		return episodes.keys();
+	}
+
 private:
 	/**
 	 * Description of the Channel (mandatory by RSS2.0 spec)
@@ -169,9 +183,9 @@ private:
 	 */
 	QMap<QString, std::shared_ptr<PodcastEpisode>> episodes;
 	/**
-	 * When was this podcast source last scanned for new items
+	 * When was this podcast source last updated (by the publisher)
 	 */
-	QDate last_updated;
+	QDateTime last_updated;
 	/**
 	 * Website of RSS feed channel (not the rss xml URI but additional information)
 	 */
@@ -179,7 +193,7 @@ private:
 	/**
 	 * show max_episodes in the list
 	 */
-	size_t max_episodes=5;
+	size_t max_episodes = 5;
 	/**
 	 * path local XML file for RSS feed
 	 */
@@ -194,7 +208,7 @@ private:
 	 * seconds until update is meaningful. Calculated from optional items skip_days
 	 * and skip_hours
 	 */
-	int update_period=0;
+	int update_period = 0;
 
 	/**
 	 * URL for rss feed of this podcast channel
@@ -202,5 +216,6 @@ private:
 	QString rss_feed_uri;
 
 };
-};
+}
+;
 #endif // _PODCASTSOURCECONFIGURATION_HPP_ 

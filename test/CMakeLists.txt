@@ -151,8 +151,9 @@ endif(NOT BUILD_GTEST_FROM_SRC)
 # Binary
 #------------------------------
 SET(RSS_FILE_GOOD "alternativlos.rss")
-MESSAGE(STATUS " Copying RSS file for test ${RSS_FILE_GOOD}")
+SET(RSS_FILE_BAD "alternativlos_bad.rss")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_GOOD}" "${CMAKE_BINARY_DIR}/${RSS_FILE_GOOD}" COPYONLY)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_BAD}" "${CMAKE_BINARY_DIR}/${RSS_FILE_BAD}" COPYONLY)
 
 # UnitTests Executable (for target)
 add_executable(${BINARY_NAME}
