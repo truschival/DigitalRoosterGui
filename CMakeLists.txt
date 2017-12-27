@@ -107,6 +107,7 @@ export(PACKAGE ${PROJECT_NAME})
 # #-------------------------------------------------------------------------------
 SET(GCC_WARNING_FLAGS   " -Wall -Wextra -fmessage-length=0 -Wno-unused-parameter " )
 
+
 SET(CMAKE_C_FLAGS       " ${CMAKE_C_FLAGS} ${GCC_WARNING_FLAGS} ")
 SET(CMAKE_CXX_FLAGS     " ${CMAKE_CXX_FLAGS} ${GCC_WARNING_FLAGS} ")
 
@@ -116,6 +117,12 @@ SET(CMAKE_C_FLAGS_RELEASE  " ${CMAKE_C_FLAGS_RELEASE} -ffunction-sections -fdata
 # Link final Executable with Map, clean up unused sections
 SET(CMAKE_EXE_LINKER_FLAGS_RELEASE
     " ${CMAKE_EXE_LINKER_FLAGS_RELEASE} -Wl,--gc-sections -Wl,-Map,Symbols.map ")
+
+if(TEST_COVERAGE)
+  include(CodeCoverage)
+  APPEND_COVERAGE_COMPILER_FLAGS()
+endif(TEST_COVERAGE)
+
 
 if(PROFILE) # manually add -g because it could be a profile-release build
     SET(CMAKE_C_FLAGS      " ${CMAKE_C_FLAGS} -g  -pg ")

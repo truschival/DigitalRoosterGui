@@ -23,15 +23,19 @@ TEST(TestPlayer, no_media){
 	QMediaPlayer mp;
 
 	QSignalSpy spy(&mp,  SIGNAL(foo));
-	auto url = QUrl("file:///usr/share/sounds/Oxygen-Im-Connection-Lost.ogg");
+	auto url = QUrl("http://alternativlos.cdn.as250.net/alternativlos-40.mp3");
 	mp.setMedia(url);
+	mp.setPosition(900);
 	mp.play();
 	spy.wait(300);
 	qDebug() << mp.position();
 	mp.pause();
+	mp.setPosition(2500);
 	qDebug() << mp.position();
+	mp.play();
+	spy.wait(1500);
 	auto media = mp.media().canonicalUrl();
-	ASSERT_STREQ("file:///usr/share/sounds/Oxygen-Im-Connection-Lost.ogg",media.toString().toStdString().c_str());
+	ASSERT_STREQ("http://alternativlos.cdn.as250.net/alternativlos-40.mp3",media.toString().toStdString().c_str());
 	mp.play();
 	spy.wait(500);
 	qDebug() << mp.position();
