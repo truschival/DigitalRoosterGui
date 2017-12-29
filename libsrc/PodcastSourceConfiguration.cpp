@@ -7,7 +7,7 @@
  * \author  ruschi 
  *************************************************************************************/
 
-
+#include <QDebug>
 #include "PodcastSourceConfiguration.hpp"
 
 using namespace DigitalRooster;
@@ -15,12 +15,16 @@ using namespace DigitalRooster;
 
 /*************************************************************************************/
 void PodcastSourceConfiguration::add_episode(std::shared_ptr<PodcastEpisode> episode){
-	episodes[episode->get_display_name()] = episode;
+	if(episodes.size() < max_episodes){
+		episodes[episode->get_display_name()] = episode;
+	}
+	else{
+		qDebug()<<"max_episodes reached! not adding " << episode->get_display_name();
+	}
 }
 
 
 /*************************************************************************************/
 void PodcastSourceConfiguration::remove_episode(const QString& name){
-
-
+	episodes.remove(name);
 }

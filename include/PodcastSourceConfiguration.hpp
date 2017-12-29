@@ -17,6 +17,7 @@
 #include <QFile>
 #include <QMap>
 #include <cstddef> //size_t
+#include <limits>
 #include <memory>
 #include "PlayableItem.hpp"
 
@@ -27,7 +28,11 @@ namespace DigitalRooster {
 class PodcastSourceConfiguration {
 
 public:
-	PodcastSourceConfiguration(const QString &url) :
+	/**
+	 * Preconfigured Podcast Source
+	 * @param url Feed URL
+	 */
+	PodcastSourceConfiguration(QString url) :
 			rss_feed_uri(url) {
 	}
 	;
@@ -75,7 +80,7 @@ public:
 	/**
 	 * path local XML file for RSS feed
 	 */
-	const QString& get_rss_feed() {
+	const QString& get_rss_file() {
 		return rss_file;
 	}
 
@@ -138,7 +143,7 @@ public:
 	/**
 	 * local XML file last read from internet
 	 */
-	void set_rss_feed(QString filepath) {
+	void set_rss_file(QString filepath) {
 		rss_file = filepath;
 	}
 
@@ -175,6 +180,16 @@ public:
 
 private:
 	/**
+	 * URL for rss feed of this podcast channel
+	 */
+	QString rss_feed_uri;
+
+	/**
+	 * title element of RSS channel
+	 */
+	QString title;
+
+	/**
 	 * Description of the Channel (mandatory by RSS2.0 spec)
 	 */
 	QString description;
@@ -193,27 +208,17 @@ private:
 	/**
 	 * show max_episodes in the list
 	 */
-	size_t max_episodes = 5;
+	size_t max_episodes = std::numeric_limits<size_t>::max();
 	/**
 	 * path local XML file for RSS feed
 	 */
 	QString rss_file;
 
 	/**
-	 * title element of RSS channel
-	 */
-	QString title;
-
-	/**
 	 * seconds until update is meaningful. Calculated from optional items skip_days
 	 * and skip_hours
 	 */
 	int update_period = 0;
-
-	/**
-	 * URL for rss feed of this podcast channel
-	 */
-	QString rss_feed_uri;
 
 };
 }

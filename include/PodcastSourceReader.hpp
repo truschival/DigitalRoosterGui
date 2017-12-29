@@ -29,19 +29,7 @@ namespace DigitalRooster {
 class PodcastSourceReader {
 
 public:
-	PodcastSourceReader();
-
-	virtual ~PodcastSourceReader();
-
-	/**
-	 * Create PodcastEpisode from a RSS Feed Item
-	 */
-	PodcastEpisode create_PodcastEpisode(QXmlStreamReader& xml);
-	/**
-	 * Create a Podcast Sourceconfiguration from a URL with name and max_episodes
-	 */
-	PodcastSourceConfiguration create_PodcastSource(const QString& display_name,
-			const QString& url, size_t max_episodes = 0);
+	PodcastSourceReader() = default;
 
 	/**
 	 * Download RSS feed an store locally

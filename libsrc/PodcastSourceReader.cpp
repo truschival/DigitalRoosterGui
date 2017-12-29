@@ -15,20 +15,6 @@
 
 using namespace DigitalRooster;
 
-PodcastSourceReader::PodcastSourceReader() {
-
-}
-
-PodcastSourceReader::~PodcastSourceReader() {
-
-}
-
-/*************************************************************************************/
-PodcastSourceConfiguration PodcastSourceReader::create_PodcastSource(
-		const QString& display_name, const QString& url, size_t max_episodes) {
-	return PodcastSourceConfiguration("");
-}
-
 /*************************************************************************************/
 QString PodcastSourceReader::download_rss(const QString& url) {
 	return QString("alternativlos.rss");
@@ -85,7 +71,6 @@ void PodcastSourceReader::parse_episodes(
 			ep->description=desc;
 		if(dt.isValid())
 			ep->publication_date = dt;
-
 		podcastsource.add_episode(ep);
 	} else {
 		qDebug() << "incomplete item! " << ressource << " : " << title;
@@ -153,7 +138,7 @@ void PodcastSourceReader::update_podcast(
 		PodcastSourceConfiguration& podcastsource) {
 	//qDebug() << __FUNCTION__;
 
-	QFile file(podcastsource.get_rss_feed());
+	QFile file(podcastsource.get_rss_file());
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		qDebug() << file.errorString();
 // maybe throw() ?
