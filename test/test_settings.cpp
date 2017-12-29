@@ -46,16 +46,6 @@ protected:
 
 };
 
-TEST_F(SettingsFixture, loadsNothing) {
-	QString sText = qs.value("text", "").toString();
-	ASSERT_STREQ("", sText.toLatin1().data());
-}
-
-TEST_F(SettingsFixture, WriteAndReadBack) {
-	qs.setValue("test/key1", 23);
-	QString sText = qs.value("test/key1", "").toString();
-	ASSERT_STREQ("23", sText.toLatin1().data());
-}
 
 TEST_F(SettingsFixture,read_radio_streams_file_empty) {
 	ConfigurationManager cm(filename);
@@ -107,9 +97,8 @@ TEST_F(SettingsFixture,read_radio_streams_two_streams) {
 
 TEST_F(SettingsFixture,addRadioStation_no_write) {
 	ConfigurationManager cm(filename);
-	cm.add_radio_station(PlayableItem("foo", "http://bar.baz"));
-	auto rs = PlayableItem { "ref", "http://gmx.net" };
-	cm.add_radio_station(rs);
+	cm.add_radio_station(std::make_unique<PlayableItem>("foo", "http://bar.baz"));
+	cm.add_radio_station(std::make_unique<PlayableItem>("ref", "http://gmx.net"));
 	auto& v = cm.get_stream_sources();
 	ASSERT_EQ(2, v.size());
 }
@@ -117,9 +106,8 @@ TEST_F(SettingsFixture,addRadioStation_no_write) {
 TEST_F(SettingsFixture, shouldNotWriteAfile) {
 	{
 		ConfigurationManager cm(filename);
-		cm.add_radio_station(PlayableItem("foo", "http://bar.baz"));
-		auto rs = PlayableItem { "ref", "http://gmx.net" };
-		cm.add_radio_station(rs);
+		cm.add_radio_station(std::make_unique<PlayableItem>("foo", "http://bar.baz"));
+		cm.add_radio_station(std::make_unique<PlayableItem>("ref", "http://gmx.net"));
 	}
 	bool no_stream = !std::ifstream(filename.c_str());
 	ASSERT_TRUE(no_stream);
@@ -128,9 +116,8 @@ TEST_F(SettingsFixture, shouldNotWriteAfile) {
 TEST_F(SettingsFixture,addRadioStation_write) {
 	{
 		ConfigurationManager cm(filename);
-		cm.add_radio_station(PlayableItem("foo", "http://bar.baz"));
-		auto rs = PlayableItem { "ref", "http://gmx.net" };
-		cm.add_radio_station(rs);
+		cm.add_radio_station(std::make_unique<PlayableItem>("foo", "http://bar.baz"));
+		cm.add_radio_station(std::make_unique<PlayableItem>("ref", "http://gmx.net"));
 		auto& v = cm.get_stream_sources();
 		ASSERT_EQ(2, v.size());
 		/* should write file in destructor */
@@ -141,6 +128,6 @@ TEST_F(SettingsFixture,addRadioStation_write) {
 	ASSERT_EQ(2, v.size());
 
 	auto stream = v[0];
-	ASSERT_STREQ(stream.get_display_name().toStdString().c_str(),"foo");
+	ASSERT_EQ(stream->get_display_name(),QString("foo"));
 }
 

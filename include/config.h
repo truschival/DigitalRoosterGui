@@ -36,6 +36,11 @@ namespace DigitalRooster{
 	const std::string KEY_GROUP_IRADIO_SOURCES("InternetRadio");
 
 	/**
+	 * Podcast feeds
+	 */
+	const std::string KEY_GROUP_PODCAST_SOURCES("Podcasts");
+
+	/**
 	 * Key for all URLs
 	 */
 	const std::string KEY_URL("url");
