@@ -28,9 +28,9 @@ TEST(PodcastSourceReader,parseInfo_good) {
 	ps.set_rss_file("./alternativlos.rss");
 	sr.update_podcast(ps);
 
-	EXPECT_STREQ(ps.get_title().toStdString().c_str(), "Alternativlos");
-	EXPECT_STREQ(ps.get_link().toStdString().c_str(),
-			"http://www.alternativlos.org/");
+	EXPECT_EQ(ps.get_title(), QString("Alternativlos"));
+	EXPECT_EQ(ps.get_link().toString(),
+			QString("http://www.alternativlos.org/"));
 	EXPECT_STREQ(ps.get_description().toStdString().substr(0, 58).c_str(),
 			"Alternativlos ist der Boulevard-Podcast von Frank und Fefe");
 }

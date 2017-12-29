@@ -32,7 +32,16 @@ public:
 	 * Preconfigured Podcast Source
 	 * @param url Feed URL
 	 */
-	PodcastSourceConfiguration(QString url) :
+	explicit PodcastSourceConfiguration(QUrl url) :
+			rss_feed_uri(url) {
+	}
+	;
+
+	/**
+	 * Preconfigured Podcast Source
+	 * @param url Feed URL
+	 */
+	explicit PodcastSourceConfiguration(const char* url) :
 			rss_feed_uri(url) {
 	}
 	;
@@ -65,7 +74,7 @@ public:
 	/**
 	 * Website of RSS feed channel (not the rss xml URI but additional information)
 	 */
-	const QString& get_link() {
+	const QUrl& get_link() {
 		return link;
 	}
 
@@ -102,7 +111,7 @@ public:
 	/**
 	 * URL for rss feed of this podcast
 	 */
-	const QString& get_url() {
+	const QUrl& get_url() {
 		return rss_feed_uri;
 	}
 
@@ -129,7 +138,7 @@ public:
 	/**
 	 * Website of RSS feed channel (not the rss xml URI but additional information)
 	 */
-	void set_link(QString newVal) {
+	void set_link(QUrl newVal) {
 		link = newVal;
 	}
 
@@ -182,7 +191,7 @@ private:
 	/**
 	 * URL for rss feed of this podcast channel
 	 */
-	QString rss_feed_uri;
+	QUrl rss_feed_uri;
 
 	/**
 	 * title element of RSS channel
@@ -204,7 +213,7 @@ private:
 	/**
 	 * Website of RSS feed channel (not the rss xml URI but additional information)
 	 */
-	QString link;
+	QUrl link;
 	/**
 	 * show max_episodes in the list
 	 */
