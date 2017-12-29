@@ -42,6 +42,12 @@ public:
 	}
 
 	/**
+	 * get all radio stream sources
+	 */
+	const std::vector<std::shared_ptr<PodcastSourceConfiguration>>& get_podcast_sources() {
+		return podcast_sources;
+	}
+	/**
 	 * Append the radio stream to list - duplicates will not be checked
 	 * @param src the new stream source - we take ownership
 	 */

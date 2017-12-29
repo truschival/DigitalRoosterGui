@@ -15,6 +15,7 @@ using namespace DigitalRooster;
 ConfigurationManager::ConfigurationManager(const std::string& filepath) :
 		qs(filepath.c_str(), QSettings::IniFormat) {
 	read_radio_streams_from_file();
+	read_podcasts_from_file();
 }
 ;
 

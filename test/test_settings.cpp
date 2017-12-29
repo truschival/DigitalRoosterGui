@@ -15,7 +15,6 @@
 #include <fstream>
 #include <cstdio>
 
-
 #include "configuration_manager.hpp"
 
 using namespace DigitalRooster;
@@ -33,7 +32,19 @@ public:
 	}
 
 	void SetUp() {
+		qs.beginGroup(DigitalRooster::KEY_GROUP_SOURCES.c_str());
+		qs.beginWriteArray(DigitalRooster::KEY_GROUP_PODCAST_SOURCES.c_str(),
+				2);
+		qs.setArrayIndex(0);
+		qs.setValue(DigitalRooster::KEY_URL.c_str(),
+				"https://alternativlos.org/alternativlos.rss");
+		qs.setArrayIndex(1);
+		qs.setValue(DigitalRooster::KEY_URL.c_str(),
+				"http://www.deutschlandfunk.de/podcast-essay-und-diskurs.1185.de.podcast.xml");
 
+		qs.endArray(); // Internet radio sources
+		qs.endGroup();
+		qs.sync();
 	}
 
 	void TearDown() {
@@ -45,7 +56,6 @@ protected:
 	QSettings qs;
 
 };
-
 
 TEST_F(SettingsFixture,read_radio_streams_file_empty) {
 	ConfigurationManager cm(filename);
@@ -97,27 +107,21 @@ TEST_F(SettingsFixture,read_radio_streams_two_streams) {
 
 TEST_F(SettingsFixture,addRadioStation_no_write) {
 	ConfigurationManager cm(filename);
-	cm.add_radio_station(std::make_unique<PlayableItem>("foo", "http://bar.baz"));
-	cm.add_radio_station(std::make_unique<PlayableItem>("ref", "http://gmx.net"));
+	cm.add_radio_station(
+			std::make_unique<PlayableItem>("foo", "http://bar.baz"));
+	cm.add_radio_station(
+			std::make_unique<PlayableItem>("ref", "http://gmx.net"));
 	auto& v = cm.get_stream_sources();
 	ASSERT_EQ(2, v.size());
-}
-
-TEST_F(SettingsFixture, shouldNotWriteAfile) {
-	{
-		ConfigurationManager cm(filename);
-		cm.add_radio_station(std::make_unique<PlayableItem>("foo", "http://bar.baz"));
-		cm.add_radio_station(std::make_unique<PlayableItem>("ref", "http://gmx.net"));
-	}
-	bool no_stream = !std::ifstream(filename.c_str());
-	ASSERT_TRUE(no_stream);
 }
 
 TEST_F(SettingsFixture,addRadioStation_write) {
 	{
 		ConfigurationManager cm(filename);
-		cm.add_radio_station(std::make_unique<PlayableItem>("foo", "http://bar.baz"));
-		cm.add_radio_station(std::make_unique<PlayableItem>("ref", "http://gmx.net"));
+		cm.add_radio_station(
+				std::make_unique<PlayableItem>("foo", "http://bar.baz"));
+		cm.add_radio_station(
+				std::make_unique<PlayableItem>("ref", "http://gmx.net"));
 		auto& v = cm.get_stream_sources();
 		ASSERT_EQ(2, v.size());
 		/* should write file in destructor */
@@ -128,6 +132,31 @@ TEST_F(SettingsFixture,addRadioStation_write) {
 	ASSERT_EQ(2, v.size());
 
 	auto stream = v[0];
-	ASSERT_EQ(stream->get_display_name(),QString("foo"));
+	ASSERT_EQ(stream->get_display_name(), QString("foo"));
+}
+
+TEST_F(SettingsFixture,read_2podcasts) {
+	ConfigurationManager cm(filename);
+	auto& v = cm.get_podcast_sources();
+	ASSERT_EQ(2, v.size());
+}
+
+TEST_F(SettingsFixture,read_PodcastUri) {
+	ConfigurationManager cm(filename);
+	auto& v = cm.get_podcast_sources();
+	ASSERT_EQ(v[0]->get_url(),
+			QString("https://alternativlos.org/alternativlos.rss"));
+	ASSERT_EQ(v[1]->get_url(),
+			QString(
+					"http://www.deutschlandfunk.de/podcast-essay-und-diskurs.1185.de.podcast.xml"));
+}
+
+TEST_F(SettingsFixture,podcastSource_incomplete) {
+	ConfigurationManager cm(filename);
+	auto& v = cm.get_podcast_sources();
+	ASSERT_EQ(v[0]->get_url(),
+			QString("https://alternativlos.org/alternativlos.rss"));
+	ASSERT_EQ(v[1]->get_description(),QString(""));
+	ASSERT_EQ(v[1]->get_episodes_names().size(),0);
 }
 
