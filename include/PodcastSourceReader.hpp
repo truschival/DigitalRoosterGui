@@ -12,14 +12,15 @@
 #ifndef _PODCASTSOURCEREADER_HPP_
 #define _PODCASTSOURCEREADER_HPP_ 
 
+#include <PodcastSource.hpp>
 #include <QString>
 #include <QDate>
 #include <QFile>
 #include <cstddef> //size_t
 #include <QXmlStreamReader>
 
+#include "PodcastSource.hpp"
 #include "PlayableItem.hpp"
-#include "PodcastSourceConfiguration.hpp"
 
 namespace DigitalRooster {
 /**
@@ -30,33 +31,20 @@ class PodcastSourceReader {
 
 public:
 	PodcastSourceReader() = default;
-
-	/**
-	 * Download RSS feed an store locally
-	 * @param url
-	 * @return path to xml file
-	 */
-	QString download_rss(const QString& url);
-
-	/**
-	 * Read max_episodes form file
-	 */
-	void update_episodes(PodcastSourceConfiguration& podcastsource);
-
 	/**
 	 * retrieve and parse RSS feed for general information, stores the retrieved RSS
 	 * in the PodcastSourceConfiguration
 	 */
-	void update_podcast(PodcastSourceConfiguration& podcastsource);
+	void update_podcast(DigitalRooster::PodcastSource& podcastsource);
 
 private:
-	std::vector<PodcastSourceConfiguration> podcastsources;
+	std::vector<DigitalRooster::PodcastSource> podcastsources;
 	/**
 	 * Take the RSS feed and extract information and update PodcastSourceConfig
 	 * @param podcastsource
 	 *  @param xml open xml stream reader set to channel element of rss-feed
 	 */
-	void parse_episodes(PodcastSourceConfiguration& podcastsource,
+	void parse_episodes(DigitalRooster::PodcastSource& podcastsource,
 			QXmlStreamReader& xml);
 
 	/**
@@ -64,9 +52,8 @@ private:
 	 * @param podcastsource
 	 * @param xml open xml stream reader set to channel element of rss-feed
 	 */
-	void parse_channel(PodcastSourceConfiguration& podcastsource,
+	void parse_channel(DigitalRooster::PodcastSource& podcastsource,
 			QXmlStreamReader& xml);
 };
-}
-;
+};
 #endif // _PODCASTSOURCEREADER_HPP_ 

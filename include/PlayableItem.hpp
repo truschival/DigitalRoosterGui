@@ -104,20 +104,27 @@ private:
 struct PodcastEpisode: public SeekablePlayableItem {
 
 public:
-	PodcastEpisode(const QString& name, const QUrl& url) :
-			SeekablePlayableItem(name, url) {
+	/**
+	 * Constructor
+	 * @param name episode title
+	 * @param url source uri
+	 * @param episode_guid (optinal, if none given URL will serve as GUID)
+	 */
+	PodcastEpisode(const QString& name, const QUrl& url, const QString & episode_guid="") :
+			SeekablePlayableItem(name, url), guid(episode_guid) {
+
+			if(guid.isEmpty()){
+				guid=url.toString();
+			}
 	}
 	;
 	virtual ~PodcastEpisode() = default;
 
-	/**
-	 * Author of the episode
-	 */
-	QString author;
-	/**
-	 * Synopsis of this episode
-	 */
-	QString description;
+
+	bool operator ==(const PodcastEpisode& rhs){
+		return this->guid == rhs.guid;
+	}
+
 	/**
 	 * Global Unique ID of item
 	 */
@@ -126,6 +133,15 @@ public:
 	 * Release date of episode (item)
 	 */
 	QDateTime publication_date;
+	/**
+	 * Author of the episode
+	 */
+	QString author;
+	/**
+	 * Synopsis of this episode
+	 */
+	QString description;
+
 
 };
 };

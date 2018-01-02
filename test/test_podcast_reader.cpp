@@ -23,7 +23,7 @@ TEST(DownloadRSS,downloadOk) {
 
 TEST(PodcastSourceReader,parseInfo_good) {
 	PodcastSourceReader sr;
-	PodcastSourceConfiguration ps(
+	PodcastSource ps(
 			"https://alternativlos.org/alternativlos.rss");
 	ps.set_rss_file("./alternativlos.rss");
 	sr.update_podcast(ps);
@@ -37,7 +37,7 @@ TEST(PodcastSourceReader,parseInfo_good) {
 
 TEST(PodcastSourceReader,parseInfo_bad) {
 	PodcastSourceReader sr;
-	PodcastSourceConfiguration ps(
+	PodcastSource ps(
 			"https://alternativlos.org/alternativlos.rss");
 	ps.set_rss_file("./alternativlos_bad.rss");
 	/* all exceptions should be caught */
@@ -48,7 +48,7 @@ TEST(PodcastSourceReader,parseInfo_bad) {
 TEST(PodcastSourceReader,maxEpisodesReached) {
 	const  size_t maxepisodes = 2;
 	PodcastSourceReader sr;
-	PodcastSourceConfiguration ps(
+	PodcastSource ps(
 			"https://alternativlos.org/alternativlos.rss"); // has 3 episodes
 	ps.set_rss_file("./alternativlos.rss");
 	ps.set_max_episodes(maxepisodes);
@@ -62,7 +62,7 @@ TEST(PodcastSourceReader,maxEpisodesReached) {
 
 TEST(PodcastSourceReader,getEpisodeNames) {
 	PodcastSourceReader sr;
-	PodcastSourceConfiguration ps(
+	PodcastSource ps(
 			"https://alternativlos.org/alternativlos.rss");
 	ps.set_rss_file("./alternativlos.rss");
 	sr.update_podcast(ps);
@@ -74,7 +74,7 @@ TEST(PodcastSourceReader,getEpisodeNames) {
 
 TEST(PodcastSourceReader,getEpisodes) {
 	PodcastSourceReader sr;
-	PodcastSourceConfiguration ps(
+	PodcastSource ps(
 			"https://alternativlos.org/alternativlos.rss");
 	ps.set_rss_file("./alternativlos.rss");
 	sr.update_podcast(ps);

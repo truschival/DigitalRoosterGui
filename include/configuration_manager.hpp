@@ -17,13 +17,13 @@
 #include <string>
 #include <memory>
 
-#include "PlayableItem.hpp"
-#include "PodcastSourceConfiguration.hpp"
 #include "config.h"
+#include "PlayableItem.hpp"
+#include "PodcastSource.hpp"
 
 namespace DigitalRooster {
-class ConfigurationManager {
 
+class ConfigurationManager {
 public:
 	/**
 	 * Default constructor with path to ini file
@@ -44,7 +44,7 @@ public:
 	/**
 	 * get all radio stream sources
 	 */
-	const std::vector<std::shared_ptr<PodcastSourceConfiguration>>& get_podcast_sources() {
+	const std::vector<std::shared_ptr<PodcastSource>>& get_podcast_sources() {
 		return podcast_sources;
 	}
 	/**
@@ -69,7 +69,7 @@ private:
 	/**
 	 * Podcast sources (only pretty name and feed-url)
 	 */
-	std::vector<std::shared_ptr<PodcastSourceConfiguration>> podcast_sources;
+	std::vector<std::shared_ptr<PodcastSource>> podcast_sources;
 
 	/**
 	 * Fills the vector stream_sources with entries form settings file
