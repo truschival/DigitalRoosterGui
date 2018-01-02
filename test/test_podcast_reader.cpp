@@ -15,18 +15,10 @@
 
 using namespace DigitalRooster;
 
-TEST(DownloadRSS,downloadOk) {
-	PodcastSourceReader sr;
-	ASSERT_STREQ(sr.download_rss("").toStdString().c_str(),
-			"alternativlos.rss");
-}
-
 TEST(PodcastSourceReader,parseInfo_good) {
-	PodcastSourceReader sr;
-	PodcastSource ps(
-			"https://alternativlos.org/alternativlos.rss");
+	PodcastSource ps("https://alternativlos.org/alternativlos.rss");
 	ps.set_rss_file("./alternativlos.rss");
-	sr.update_podcast(ps);
+	update_podcast(&ps);
 
 	EXPECT_EQ(ps.get_title(), QString("Alternativlos"));
 	EXPECT_EQ(ps.get_link().toString(),
@@ -36,23 +28,20 @@ TEST(PodcastSourceReader,parseInfo_good) {
 }
 
 TEST(PodcastSourceReader,parseInfo_bad) {
-	PodcastSourceReader sr;
-	PodcastSource ps(
-			"https://alternativlos.org/alternativlos.rss");
+
+	PodcastSource ps("https://alternativlos.org/alternativlos.rss");
 	ps.set_rss_file("./alternativlos_bad.rss");
 	/* all exceptions should be caught */
-	EXPECT_NO_THROW(sr.update_podcast(ps));
+	EXPECT_NO_THROW(update_podcast(&ps));
 }
 
-
 TEST(PodcastSourceReader,maxEpisodesReached) {
-	const  size_t maxepisodes = 2;
-	PodcastSourceReader sr;
-	PodcastSource ps(
-			"https://alternativlos.org/alternativlos.rss"); // has 3 episodes
+	const size_t maxepisodes = 2;
+
+	PodcastSource ps("https://alternativlos.org/alternativlos.rss"); // has 3 episodes
 	ps.set_rss_file("./alternativlos.rss");
 	ps.set_max_episodes(maxepisodes);
-	sr.update_podcast(ps);
+	update_podcast(&ps);
 
 	const auto& episodes = ps.get_episodes();
 	ASSERT_GT(episodes.size(), 1);
@@ -61,11 +50,10 @@ TEST(PodcastSourceReader,maxEpisodesReached) {
 }
 
 TEST(PodcastSourceReader,getEpisodeNames) {
-	PodcastSourceReader sr;
-	PodcastSource ps(
-			"https://alternativlos.org/alternativlos.rss");
+
+	PodcastSource ps("https://alternativlos.org/alternativlos.rss");
 	ps.set_rss_file("./alternativlos.rss");
-	sr.update_podcast(ps);
+	update_podcast(&ps);
 
 	const auto& episodes = ps.get_episodes_names();
 	ASSERT_GT(episodes.size(), 1);
@@ -73,11 +61,10 @@ TEST(PodcastSourceReader,getEpisodeNames) {
 }
 
 TEST(PodcastSourceReader,getEpisodes) {
-	PodcastSourceReader sr;
-	PodcastSource ps(
-			"https://alternativlos.org/alternativlos.rss");
+
+	PodcastSource ps("https://alternativlos.org/alternativlos.rss");
 	ps.set_rss_file("./alternativlos.rss");
-	sr.update_podcast(ps);
+	update_podcast(&ps);
 
 	const auto& episodes = ps.get_episodes();
 	ASSERT_GT(episodes.size(), 1);

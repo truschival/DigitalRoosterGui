@@ -7,18 +7,27 @@
  * \author  ruschi 
  *************************************************************************************/
 
+#include <QString>
+#include <QDate>
+#include <QFile>
+#include <QXmlStreamReader>
+#include <QDebug>
+#include <memory>
+#include <cstddef> //size_t
+
 #include "config.h"
 #include "PodcastSourceReader.hpp"
 #include "PodcastSource.hpp"
 
-#include <QDebug>
-#include <QFile>
-#include <memory>
 
 using namespace DigitalRooster;
 
-/*************************************************************************************/
-void PodcastSourceReader::parse_episodes(PodcastSource& podcastsource,
+/**
+ * Take the RSS feed and extract information and update PodcastSourceConfig
+ * @param podcastsource
+ *  @param xml open xml stream reader set to channel element of rss-feed
+ */
+static void parse_episodes(DigitalRooster::PodcastSource* podcastsource,
 		QXmlStreamReader& xml) {
 	//qDebug() << __FUNCTION__;
 
@@ -73,7 +82,7 @@ void PodcastSourceReader::parse_episodes(PodcastSource& podcastsource,
 		if (dt.isValid())
 			ep->publication_date = dt;
 
-		podcastsource.add_episode(ep);
+		podcastsource->add_episode(ep);
 	} else {
 		qDebug() << "incomplete item! " << ressource << " : " << title;
 	}
@@ -81,7 +90,14 @@ void PodcastSourceReader::parse_episodes(PodcastSource& podcastsource,
 }
 
 /*************************************************************************************/
-void PodcastSourceReader::parse_channel(PodcastSource& podcastsource,
+;
+
+/**
+ * Take the RSS feed and extract information and update PodcastSourceConfig
+ * @param podcastsource
+ * @param xml open xml stream reader set to channel element of rss-feed
+ */
+static void parse_channel(PodcastSource* podcastsource,
 		QXmlStreamReader& xml) {
 	//qDebug() << __FUNCTION__;
 
@@ -102,20 +118,20 @@ void PodcastSourceReader::parse_channel(PodcastSource& podcastsource,
 			} else if (xml.name() == "title") {
 				xml.readNext();
 				//qDebug() << "title: "<< xml.name()<< " : " <<xml.text();
-				podcastsource.set_title(xml.text().toString());
+				podcastsource->set_title(xml.text().toString());
 			} else if (xml.name() == "description") {
 				xml.readNext();
 				//qDebug() << "description: "<< xml.name()<< " : " <<xml.text();
-				podcastsource.set_description(xml.text().toString());
+				podcastsource->set_description(xml.text().toString());
 			} else if (xml.name() == "link") {
 				xml.readNext();
-				podcastsource.set_link(xml.text().toString());
+				podcastsource->set_link(xml.text().toString());
 			} else if (xml.name() == "pubDate") {
 				xml.readNext();
 				qDebug() << "last updated:"
 						<< QDateTime::fromString(xml.text().toString(),
 								Qt::DateFormat::RFC2822Date);
-				podcastsource.set_last_updated(
+				podcastsource->set_last_updated(
 						QDateTime::fromString(xml.text().toString(),
 								Qt::DateFormat::RFC2822Date));
 			}
@@ -130,12 +146,11 @@ void PodcastSourceReader::parse_channel(PodcastSource& podcastsource,
 	}
 }
 
-
 /*************************************************************************************/
-void PodcastSourceReader::update_podcast(PodcastSource& podcastsource) {
+extern "C" void update_podcast(PodcastSource* podcastsource) {
 	//qDebug() << __FUNCTION__;
 
-	QFile file(podcastsource.get_rss_file());
+	QFile file(podcastsource->get_rss_file());
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		qDebug() << file.errorString();
 // maybe throw() ?
