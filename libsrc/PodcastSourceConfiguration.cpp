@@ -18,9 +18,6 @@ void PodcastSourceConfiguration::add_episode(std::shared_ptr<PodcastEpisode> epi
 	if(episodes.size() < max_episodes){
 		episodes[episode->get_display_name()] = episode;
 	}
-	else{
-		qDebug()<<"max_episodes reached! not adding " << episode->get_display_name();
-	}
 }
 
 

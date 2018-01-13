@@ -1,132 +1,203 @@
 /*************************************************************************************
- * \filename    
+ * \filename
  * \brief
  *
  * \details
- * 
+ *
  * \author ruschi
- * 
+ *
  *
  *************************************************************************************/
 
 #ifndef _PLAYABLEITEM_HPP_
-#define _PLAYABLEITEM_HPP_ 
+#define _PLAYABLEITEM_HPP_
 
-#include <QUrl>
-#include <QString>
 #include <QDateTime>
 #include <QDebug>
+#include <QString>
+#include <QUrl>
 
-namespace DigitalRooster{
+namespace DigitalRooster {
 /**
- * Self contained information to play
+ * Interface of Playable Item : self contained information to play
  */
 class PlayableItem {
 
 public:
-	/**
-	 * Convenience constructor for testing
-	 * @param name
-	 * @param url
-	 */
-	PlayableItem(const char* name, const char* url) :
-			display_name(name), uri(QString(url)) {
-	}
-	;
+    /**
+     * Default Constructor
+     */
+    PlayableItem() = default;
 
-	PlayableItem(const QString& name, const QUrl& url) :
-			display_name(name), uri(url) {
-	}
-	;
+    /**
+     * Convenience Constructor
+     * @param name display_name
+     * @param url media_url
+     */
+    PlayableItem(const QString& name, const QUrl& url)
+        : display_name(name)
+        , media_url(url){};
 
-	const QString& get_display_name() {
-		return display_name;
-	}
+    const QString& get_display_name() {
+        return display_name;
+    };
 
-	const QUrl& get_url() {
-		return uri;
-	}
+    const QUrl& get_url() {
+        return media_url;
+    };
 
-	/** default destructor */
-	virtual ~PlayableItem() = default;
+    void set_display_name(const QString& name) {
+        display_name = name;
+    };
+
+
+    void set_url(const QUrl& url) {
+        media_url = url;
+    };
 
 private:
-	/**
-	 * Name of Radio stream
-	 */
-	QString display_name;
+    /** human readable name*/
+    QString display_name;
 
-	/**
-	 * Location of stream
-	 */
-	QUrl uri;
-
+    /** Media URL */
+    QUrl media_url;
 };
 
 /**
  * Media source with random access in time, player can go back and forth
  */
-class SeekablePlayableItem: public PlayableItem {
+class SeekablePlayableItem : public PlayableItem {
 
 public:
-	SeekablePlayableItem(const QString& name, const QUrl& url) :
-			PlayableItem(name, url) {
-	}
-	;
+    SeekablePlayableItem() = default;
 
-	/** default Destructor */
-	virtual ~SeekablePlayableItem()=default;
+    /**
+     * Convienience Constructor
+     * @param name
+     * @param url
+     */
+    SeekablePlayableItem(const QString& name, const QUrl& url)
+        : PlayableItem(name, url){
 
-	/**
-	 * Has it been played completely?
-	 */
-	bool completed();
-	/**
-	 * Percentage of already listened content
-	 */
-	int get_position_percent();
-	/**
-	 * Percentage of already listened content
-	 */
-	void set_position_percent(int newVal);
+          };
+    /**
+     * Has it been played completely?
+     */
+    virtual bool completed() = 0;
+    /**
+     * Percentage of already listened content
+     */
+    int get_position_percent() {
+        return position;
+    };
+    /**
+     * update percentage of already listened content
+     * @param newVal current position in stream
+     */
+    void set_position_percent(int newVal) {
+        position = newVal;
+    };
+
+    virtual ~SeekablePlayableItem() = default;
 
 private:
-	/**
-	 * Percentage of already listened content
-	 */
-	int position_percent = 0;
-
+    /**
+     * Current Position in stream
+     */
+    int position = 0;
 };
+
+
+class RadioStream : public PlayableItem {
+public:
+    RadioStream(const QString& name, const QUrl& url)
+        : PlayableItem(name, url){
+
+          };
+    virtual ~RadioStream() = default;
+};
+
 
 /**
  * PodcastEpisode = item of RSS feed
  */
-struct PodcastEpisode: public SeekablePlayableItem {
+class PodcastEpisode : public SeekablePlayableItem {
 
 public:
-	PodcastEpisode(const QString& name, const QUrl& url) :
-			SeekablePlayableItem(name, url) {
-	}
-	;
-	virtual ~PodcastEpisode() = default;
+    PodcastEpisode() = default;
 
-	/**
-	 * Author of the episode
-	 */
-	QString author;
-	/**
-	 * Synopsis of this episode
-	 */
-	QString description;
-	/**
-	 * Global Unique ID of item
-	 */
-	QString guid;
-	/**
-	 * Release date of episode (item)
-	 */
-	QDateTime publication_date;
+    /**
+     * Convenience constructor
+     * @param name
+     * @param url
+     */
+    PodcastEpisode(const QString& name, const QUrl& url)
+        : SeekablePlayableItem(name, url){
 
+          };
+    virtual ~PodcastEpisode() = default;
+
+
+    /**
+     * Has it been played completely?
+     */
+    virtual bool completed() override {
+        return false; // TODO
+    };
+
+
+    void set_author(const QString& newAuthor) {
+        author = newAuthor;
+    };
+
+
+    const QString& get_author() {
+        return author;
+    }
+
+
+    const QString& get_description() {
+        return description;
+    }
+
+    void set_description(const QString& desc) {
+        description = desc;
+    };
+
+    const QString& get_guid() {
+        return guid;
+    }
+
+    void set_guid(const QString& uid) {
+        guid = uid;
+    };
+
+    const QDateTime& get_publication_date() {
+        return publication_date;
+    }
+
+    void set_publication_date(const QDateTime& date) {
+    	if(date.isValid())
+    		publication_date = date;
+    };
+
+private:
+    /**
+     * Author of the episode
+     */
+    QString author;
+    /**
+     * Synopsis of this episode
+     */
+    QString description;
+    /**
+     * Global Unique ID of item
+     */
+    QString guid;
+    /**
+     * Release date of episode (item)
+     */
+    QDateTime publication_date;
 };
 };
-#endif // _PLAYABLEITEM_HPP_ 
+#endif // _PLAYABLEITEM_HPP_

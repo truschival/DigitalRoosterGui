@@ -108,9 +108,9 @@ TEST_F(SettingsFixture,read_radio_streams_two_streams) {
 TEST_F(SettingsFixture,addRadioStation_no_write) {
 	ConfigurationManager cm(filename);
 	cm.add_radio_station(
-			std::make_unique<PlayableItem>("foo", "http://bar.baz"));
+			std::make_unique<RadioStream>("foo", QUrl("http://bar.baz")));
 	cm.add_radio_station(
-			std::make_unique<PlayableItem>("ref", "http://gmx.net"));
+			std::make_unique<RadioStream>("ref", QUrl("http://gmx.net")));
 	auto& v = cm.get_stream_sources();
 	ASSERT_EQ(2, v.size());
 }
@@ -119,9 +119,9 @@ TEST_F(SettingsFixture,addRadioStation_write) {
 	{
 		ConfigurationManager cm(filename);
 		cm.add_radio_station(
-				std::make_unique<PlayableItem>("foo", "http://bar.baz"));
+				std::make_unique<RadioStream>("foo", QUrl("http://bar.baz")));
 		cm.add_radio_station(
-				std::make_unique<PlayableItem>("ref", "http://gmx.net"));
+				std::make_unique<RadioStream>("ref", QUrl("http://gmx.net")));
 		auto& v = cm.get_stream_sources();
 		ASSERT_EQ(2, v.size());
 		/* should write file in destructor */

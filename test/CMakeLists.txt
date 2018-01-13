@@ -147,8 +147,10 @@ endif(NOT BUILD_GTEST_FROM_SRC)
 #------------------------------
 SET(RSS_FILE_GOOD "alternativlos.rss")
 SET(RSS_FILE_BAD "alternativlos_bad.rss")
+SET(RSS_FILE_MALFORMAT "alternativlos_malformatted.rss")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_GOOD}" "${CMAKE_BINARY_DIR}/${RSS_FILE_GOOD}" COPYONLY)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_BAD}" "${CMAKE_BINARY_DIR}/${RSS_FILE_BAD}" COPYONLY)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_MALFORMAT}" "${CMAKE_BINARY_DIR}/${RSS_FILE_MALFORMAT}" COPYONLY)
 
 # UnitTests Executable (for target)
 add_executable(${BINARY_NAME}

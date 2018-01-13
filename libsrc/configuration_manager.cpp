@@ -28,7 +28,7 @@ void ConfigurationManager::read_radio_streams_from_file() {
 		qs.setArrayIndex(i);
 
 		stream_sources.push_back(
-				std::make_shared<PlayableItem>(
+				std::make_shared<RadioStream>(
 						qs.value(KEY_NAME.c_str(), "UNKNOWN_NAME").toString(),
 						qs.value(KEY_URL.c_str(), "UNKNOWN_URL").toString()));
 	}
@@ -52,9 +52,9 @@ void ConfigurationManager::read_podcasts_from_file() {
 }
 /***********************************************************************************/
 void ConfigurationManager::add_radio_station(
-		std::unique_ptr<PlayableItem> src) {
+		std::unique_ptr<RadioStream> src) {
 	this->stream_sources.push_back(
-			std::shared_ptr<PlayableItem>(std::move(src)));
+			std::shared_ptr<RadioStream>(std::move(src)));
 }
 
 /***********************************************************************************/
