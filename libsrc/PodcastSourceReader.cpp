@@ -12,17 +12,13 @@
 #include <QDebug>
 #include <QFile>
 #include <memory>
+#include <QXmlStreamReader>
 
 using namespace DigitalRooster;
 
 /*************************************************************************************/
-QString PodcastSourceReader::download_rss(const QString& url) {
-    return QString("alternativlos.rss");
-}
-
-/*************************************************************************************/
-void PodcastSourceReader::parse_episodes(
-    PodcastSourceConfiguration& podcastsource, QXmlStreamReader& xml) {
+void parse_episodes(
+    PodcastSource& podcastsource, QXmlStreamReader& xml) {
     // qDebug() << __FUNCTION__;
 
     if (xml.tokenType() != QXmlStreamReader::StartElement || xml.name() != "item") {
@@ -70,8 +66,8 @@ void PodcastSourceReader::parse_episodes(
 }
 
 /*************************************************************************************/
-void PodcastSourceReader::parse_channel(
-    PodcastSourceConfiguration& podcastsource, QXmlStreamReader& xml) {
+void parse_channel(
+    PodcastSource& podcastsource, QXmlStreamReader& xml) {
     // qDebug() << __FUNCTION__;
 
     if (!xml.isStartElement() || xml.name() != "channel") {
@@ -118,11 +114,7 @@ void PodcastSourceReader::parse_channel(
 }
 
 /*************************************************************************************/
-void PodcastSourceReader::update_episodes(PodcastSourceConfiguration& config) {
-}
-
-/*************************************************************************************/
-void PodcastSourceReader::update_podcast(PodcastSourceConfiguration& podcastsource) {
+extern "C" void update_podcast(PodcastSource& podcastsource) {
     // qDebug() << __FUNCTION__;
 
     QFile file(podcastsource.get_rss_file());

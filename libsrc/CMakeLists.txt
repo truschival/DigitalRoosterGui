@@ -34,13 +34,16 @@ set(SRCS
    ${CMAKE_CURRENT_SOURCE_DIR}/confmon.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/configuration_manager.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/PodcastSourceReader.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/PodcastSourceConfiguration.cpp 
+   ${CMAKE_CURRENT_SOURCE_DIR}/PodcastSource.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/DownloadManager.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/UpdateTask.cpp
 )
 
 # Moc any classes derived from QObject
 qt5_wrap_cpp(MOC_SRC 
         ${PROJECT_INCLUDE_DIR}/confmon.hpp
+        ${PROJECT_INCLUDE_DIR}/DownloadManager.hpp
+        ${PROJECT_INCLUDE_DIR}/UpdateTask.hpp
         )
 
 #------------------------------

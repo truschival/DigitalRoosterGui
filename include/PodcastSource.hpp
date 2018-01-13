@@ -9,8 +9,8 @@
  *
  *************************************************************************************/
 
-#ifndef _PODCASTSOURCECONFIGURATION_HPP_
-#define _PODCASTSOURCECONFIGURATION_HPP_ 
+#ifndef _PODCASTSOURCE_HPP_
+#define _PODCASTSOURCE_HPP_
 
 #include <QString>
 #include <QDate>
@@ -19,20 +19,20 @@
 #include <cstddef> //size_t
 #include <limits>
 #include <memory>
+
 #include "PlayableItem.hpp"
 
 namespace DigitalRooster {
 /**
  * Class to represent a RSS channel with items as episodes
  */
-class PodcastSourceConfiguration {
-
+class PodcastSource {
 public:
 	/**
 	 * Preconfigured Podcast Source
 	 * @param url Feed URL
 	 */
-	explicit PodcastSourceConfiguration(QUrl url) :
+	explicit PodcastSource(QUrl url) :
 			rss_feed_uri(url) {
 	}
 	;
@@ -41,7 +41,7 @@ public:
 	 * Preconfigured Podcast Source
 	 * @param url Feed URL
 	 */
-	explicit PodcastSourceConfiguration(const char* url) :
+	explicit PodcastSource(const char* url) :
 			rss_feed_uri(url) {
 	}
 	;
@@ -186,6 +186,12 @@ public:
 	QList<QString> get_episodes_names() {
 		return episodes.keys();
 	}
+public slots:
+	/**
+	 * Updated Feed received
+	 * @param filename on disk
+	 */
+	void newFileAvailable(const QString& filename);
 
 private:
 	/**
@@ -206,10 +212,12 @@ private:
 	 * Map of episodes
 	 */
 	QMap<QString, std::shared_ptr<PodcastEpisode>> episodes;
+
 	/**
 	 * When was this podcast source last updated (by the publisher)
 	 */
 	QDateTime last_updated;
+
 	/**
 	 * Website of RSS feed channel (not the rss xml URI but additional information)
 	 */
@@ -231,5 +239,4 @@ private:
 
 };
 }
-;
-#endif // _PODCASTSOURCECONFIGURATION_HPP_ 
+#endif // _PODCASTSOURCE_HPP_

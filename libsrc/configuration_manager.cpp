@@ -45,7 +45,7 @@ void ConfigurationManager::read_podcasts_from_file() {
 		QUrl url(qs.value(KEY_URL.c_str(), "UNKNOWN_URL").toString());
 		if (QUrl(url).isValid()) {
 			podcast_sources.push_back(
-					std::make_shared<PodcastSourceConfiguration>(url));
+					std::make_shared<PodcastSource>(url));
 		}
 	}
 	qs.endArray();

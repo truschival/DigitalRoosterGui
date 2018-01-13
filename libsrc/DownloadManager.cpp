@@ -8,111 +8,97 @@
  *
  *************************************************************************************/
 #include <DownloadManager.hpp>
+#include <QDebug>
 
 namespace DigitalRooster {
 
-
-DownloadManager::DownloadManager()
-{
-    connect(&manager, SIGNAL(finished(QNetworkReply*)),
-            SLOT(downloadFinished(QNetworkReply*)));
+DownloadManager::DownloadManager() {
+	connect(&manager, SIGNAL(finished(QNetworkReply*)),
+			SLOT(downloadFinished(QNetworkReply*)));
 }
 
-void DownloadManager::doDownload(const QUrl &url)
-{
-    QNetworkRequest request(url);
-    QNetworkReply *reply = manager.get(request);
+void DownloadManager::doDownload(const QUrl &url) {
+	QNetworkRequest request(url);
+	QNetworkReply *reply = manager.get(request);
 
 #if QT_CONFIG(ssl)
-    connect(reply, SIGNAL(sslErrors(QList<QSslError>)),
-            SLOT(sslErrors(QList<QSslError>)));
+	connect(reply, SIGNAL(sslErrors(QList<QSslError>)),
+			SLOT(sslErrors(QList<QSslError>)));
 #endif
 
-    currentDownloads.append(reply);
+	currentDownloads.append(reply);
 }
 
-QString DownloadManager::saveFileName(const QUrl &url)
-{
-    QString path = url.path();
-    QString basename = QFileInfo(path).fileName();
+QString DownloadManager::saveFileName(const QUrl &url) {
+	QString path = url.path();
+	QString basename = QFileInfo(path).fileName();
 
-    if (basename.isEmpty())
-        basename = "download";
+	if (basename.isEmpty())
+		basename = "download";
 
-    if (QFile::exists(basename)) {
-        // already exists, don't overwrite
-        int i = 0;
-        basename += '.';
-        while (QFile::exists(basename + QString::number(i)))
-            ++i;
+	if (QFile::exists(basename)) {
+		// already exists, don't overwrite
+		int i = 0;
+		basename += '.';
+		while (QFile::exists(basename + QString::number(i)))
+			++i;
 
-        basename += QString::number(i);
-    }
+		basename += QString::number(i);
+	}
 
-    return basename;
+	return basename;
 }
 
-bool DownloadManager::saveToDisk(const QString &filename, QIODevice *data)
-{
-    QFile file(filename);
-    if (!file.open(QIODevice::WriteOnly)) {
-        fprintf(stderr, "Could not open %s for writing: %s\n",
-                qPrintable(filename),
-                qPrintable(file.errorString()));
-        return false;
-    }
+bool DownloadManager::saveToDisk(const QString &filename, QIODevice *data) {
+	QFile file(filename);
+	if (!file.open(QIODevice::WriteOnly)) {
+		fprintf(stderr, "Could not open %s for writing: %s\n",
+				qPrintable(filename), qPrintable(file.errorString()));
+		return false;
+	}
 
-    file.write(data->readAll());
-    file.close();
+	file.write(data->readAll());
+	file.close();
 
-    return true;
+	return true;
 }
 
-bool DownloadManager::isHttpRedirect(QNetworkReply *reply)
-{
-    int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-    return statusCode == 301 || statusCode == 302 || statusCode == 303
-           || statusCode == 305 || statusCode == 307 || statusCode == 308;
+bool DownloadManager::isHttpRedirect(QNetworkReply *reply) {
+	int statusCode =
+			reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+	return statusCode == 301 || statusCode == 302 || statusCode == 303
+			|| statusCode == 305 || statusCode == 307 || statusCode == 308;
 }
 
-
-void DownloadManager::sslErrors(const QList<QSslError> &sslErrors)
-{
+void DownloadManager::sslErrors(const QList<QSslError> &sslErrors) {
 #if QT_CONFIG(ssl)
-    for (const QSslError &error : sslErrors)
-        fprintf(stderr, "SSL error: %s\n", qPrintable(error.errorString()));
+	for (const QSslError &error : sslErrors)
+		fprintf(stderr, "SSL error: %s\n", qPrintable(error.errorString()));
 #else
-    Q_UNUSED(sslErrors);
+	Q_UNUSED(sslErrors);
 #endif
 }
 
-void DownloadManager::downloadFinished(QNetworkReply *reply)
-{
-    QUrl url = reply->url();
-    if (reply->error()) {
-        fprintf(stderr, "Download of %s failed: %s\n",
-                url.toEncoded().constData(),
-                qPrintable(reply->errorString()));
-    } else {
-        if (isHttpRedirect(reply)) {
-            fputs("Request was redirected.\n", stderr);
-        } else {
-            QString filename = saveFileName(url);
-            if (saveToDisk(filename, reply)) {
-                printf("Download of %s succeeded (saved to %s)\n",
-                       url.toEncoded().constData(), qPrintable(filename));
-            }
-        }
-    }
+void DownloadManager::downloadFinished(QNetworkReply *reply) {
+	QUrl url = reply->url();
+	if (reply->error()) {
+		fprintf(stderr, "Download of %s failed: %s\n",
+				url.toEncoded().constData(), qPrintable(reply->errorString()));
+	} else {
+		if (isHttpRedirect(reply)) {
+			fputs("Request was redirected.\n", stderr);
+		} else {
+			QString filename = saveFileName(url);
+			if (saveToDisk(filename, reply)) {
+				qDebug() << "Downloaded " << url.toEncoded().constData()
+						<< " to file " << qPrintable(filename);
+				emit newFileAvailable(filename);
+			}
+		}
+	}
 
-    currentDownloads.removeAll(reply);
-    reply->deleteLater();
-
-    if (currentDownloads.isEmpty()) {
-        // all downloads finished
-        QCoreApplication::instance()->quit();
-    }
+	currentDownloads.removeAll(reply);
+	reply->deleteLater();
 }
-
 
 } /* namespace DigitalRooster */
