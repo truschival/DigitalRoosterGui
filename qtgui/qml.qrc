@@ -1,0 +1,10 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>PodcastDelegate.qml</file>
+        <file>PodcastModel.qml</file>
+		<file>PodcastList.qml</file>
+		<file>qtquickcontrols2.conf</file>
+		</qresource>
+</RCC>
