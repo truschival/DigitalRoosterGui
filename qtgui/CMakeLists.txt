@@ -5,7 +5,7 @@ SET(BINARY_NAME "DigitalRoosterGui")
 # Use ${CMAKE_THREAD_LIBS_INIT} for the library
 find_package(Threads REQUIRED)
 
-find_package(Qt5 COMPONENTS Core Widgets Multimedia REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets Multimedia Qml Quick REQUIRED)
 
 #find_package(Qt5Widgets REQUIRED)
 MESSAGE(STATUS "Found Qt5 version: ${Qt5Widgets_VERSION_STRING}")
@@ -14,6 +14,8 @@ MESSAGE(STATUS "Found Qt5 version: ${Qt5Widgets_VERSION_STRING}")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Instruct CMake to run moc automatically when needed.
 set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
 # --------------------------------------------------------------------------------
 # C++ Srcs
@@ -43,11 +45,14 @@ LIST(APPEND CPP_DEFS "AWESOME=1" )
 #------------------------------
 # QT magic
 #------------------------------
-# qt5_wrap_ui(UI_HDRS
-#   ${PROJECT_UI_DIR}/mainwindow.ui
-#   )
+qt5_wrap_ui(UI_HDRS
+  )
 
 qt5_wrap_cpp(MOC_SRC
+  )
+
+SET(QRC_SRC
+  qml.qrc
   )
 
 #------------------------------
@@ -59,6 +64,7 @@ add_executable(${BINARY_NAME}
   ${SRCS}
   ${UI_HDRS}
   ${MOC_SRC}
+  ${QRC_SRC}
   )
 
 
@@ -75,7 +81,8 @@ SET_TARGET_PROPERTIES(
 TARGET_LINK_LIBRARIES(
   ${BINARY_NAME}
   ${PROJECT_CORE_LIB}
-  Qt5::Widgets 
+  Qt5::Quick
+  Qt5::Qml
   )
 
 if(TEST_COVERAGE)

@@ -1,31 +1,34 @@
-#include <config.h>
 
-#include <QLoggingCategory>
 #include <QDebug>
+#include <QLoggingCategory>
 
-#include <QApplication>
-#include <QTime>
-#include <QMainWindow>
 #include <QFileSystemWatcher>
 #include <QSettings>
-#include <QFileSystemWatcher>
+#include <QTime>
 
+#include <QGuiApplication>
+#include <QQmlApplicationEngine>
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 
-#include "confmon.hpp"
 
 using namespace std::chrono_literals;
 
 
-int main(int argc, char *argv[])
-{
-	QLoggingCategory::setFilterRules("*.debug=true");
-	qDebug() << __FUNCTION__;
-    QApplication app(argc, argv);
-    qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
+int main(int argc, char* argv[]) {
+    QLoggingCategory::setFilterRules("*.debug=true");
+    qDebug() << __FUNCTION__;
+
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QGuiApplication app(argc, argv);
+
+    QQmlApplicationEngine engine;
+    engine.load(QUrl(QLatin1String("qrc:/main.qml")));
+
+    if (engine.rootObjects().isEmpty())
+        return -1;
 
 
     return app.exec();
