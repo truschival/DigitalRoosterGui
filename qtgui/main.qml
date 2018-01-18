@@ -8,30 +8,21 @@ ApplicationWindow {
     height: 480
     title: qsTr("Hello World")
 
-    ListModel {
-        id: podcastmodel
-        ListElement {
-            Title: "Alternativlos"
-            URL: "www.alternativlos.de"
-        }
-        ListElement {
-            Title: "BBC World Service"
-            URL: "bbc.co.uk"
-        }
-        ListElement {
-            Title: "Arms Control Wonk"
-            URL: "acw.org"
-        }
-    }
+	PodcastList{
+		 id: podcastlist
+	}
 
     RoundButton {
+    	id: uselessbutton
         text: qsTr("+")
         highlighted: true
         anchors.margins: 10
         anchors.right: parent.right
         anchors.bottom: parent.bottom
+        
         onClicked: {
             podcastList.update()
+            uselessbutton.highlighted = false
         }
     }
 }
