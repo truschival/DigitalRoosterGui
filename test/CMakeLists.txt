@@ -22,9 +22,9 @@ SET(TEST_HARNESS_SRCS
   )
 
 # Moc any classes derived from QObject
-qt5_wrap_cpp(MOC_SRC 
-        ${CMAKE_CURRENT_SOURCE_DIR}/testplayer.hpp
-        )
+qt5_wrap_cpp(MOC_SRC
+  ${CMAKE_CURRENT_SOURCE_DIR}/testplayer.hpp
+)
 
 # --------------------------------------------------------------------------------
 # Add libraries to test here
@@ -170,8 +170,8 @@ SET_TARGET_PROPERTIES(
 TARGET_LINK_LIBRARIES(
   ${BINARY_NAME}
   ${DUT_LIBS}   # Units under test
-	GMock # main not required, implemented in test.cpp
-	Qt5::Test
+  GMock # main not required, implemented in test.cpp
+  Qt5::Test
   )
 
 if(TEST_COVERAGE)
