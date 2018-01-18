@@ -11,14 +11,13 @@
 #include "config.h"
 #include <QDebug>
 #include <QFile>
-#include <memory>
 #include <QXmlStreamReader>
-
+#include <memory>
+#include <stdexcept> // std::system_error
 using namespace DigitalRooster;
 
 /*************************************************************************************/
-void parse_episodes(
-    PodcastSource& podcastsource, QXmlStreamReader& xml) {
+void parse_episodes(PodcastSource& podcastsource, QXmlStreamReader& xml) {
     // qDebug() << __FUNCTION__;
 
     if (xml.tokenType() != QXmlStreamReader::StartElement || xml.name() != "item") {
@@ -42,6 +41,10 @@ void parse_episodes(
             } else if (xml.name() == "enclosure") {
                 // no readnext if we look at attributes
                 ep->set_url(QUrl(xml.attributes().value("url").toString()));
+                // length field
+                bool conversion_ok = false;
+                int length = xml.attributes().value("length").toInt(&conversion_ok, 10);
+                ep->set_length(length);
             } else if (xml.name() == "pubDate") {
                 xml.readNext();
                 ep->set_publication_date(QDateTime::fromString(
@@ -54,20 +57,19 @@ void parse_episodes(
         }
     }
     /* We want at least a display name and a media_url */
-    if (ep->get_display_name().isEmpty()){
-    	qWarning() << "Found channel with empty title: " << xml.lineNumber();
-    	return;
+    if (ep->get_display_name().isEmpty()) {
+        qWarning() << "Found channel with empty title: " << xml.lineNumber();
+        return;
     }
-    if(ep->get_url().isEmpty()){
-    	qWarning() << "Found channel without media URL :" << xml.lineNumber();
-    	return;
+    if (ep->get_url().isEmpty()) {
+        qWarning() << "Found channel without media URL :" << xml.lineNumber();
+        return;
     }
     podcastsource.add_episode(ep);
 }
 
 /*************************************************************************************/
-void parse_channel(
-    PodcastSource& podcastsource, QXmlStreamReader& xml) {
+void parse_channel(PodcastSource& podcastsource, QXmlStreamReader& xml) {
     // qDebug() << __FUNCTION__;
 
     if (!xml.isStartElement() || xml.name() != "channel") {
@@ -95,13 +97,6 @@ void parse_channel(
             } else if (xml.name() == "link") {
                 xml.readNext();
                 podcastsource.set_link(xml.text().toString());
-            } else if (xml.name() == "pubDate") {
-                xml.readNext();
-                qDebug() << "last updated:"
-                         << QDateTime::fromString(
-                                xml.text().toString(), Qt::DateFormat::RFC2822Date);
-                podcastsource.set_last_updated(QDateTime::fromString(
-                    xml.text().toString(), Qt::DateFormat::RFC2822Date));
             }
         }
 
@@ -120,8 +115,8 @@ extern "C" void update_podcast(PodcastSource& podcastsource) {
     QFile file(podcastsource.get_rss_file());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug() << file.errorString();
-        // maybe throw() ?
-        return;
+        throw std::system_error(
+            make_error_code(std::errc::no_such_file_or_directory), "Cannot read file");
     }
 
     QXmlStreamReader xml(&file);

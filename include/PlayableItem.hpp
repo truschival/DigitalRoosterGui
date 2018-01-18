@@ -98,6 +98,24 @@ public:
         position = newVal;
     };
 
+
+    /**
+     * Total length of media in ms
+     * @return
+     */
+    int get_length() {
+        return length;
+    }
+
+    /**
+     * Update length in ms
+     * @param len >= 0
+     */
+    void set_length(int len) {
+        if (len >= 0)
+            length = len;
+    }
+
     virtual ~SeekablePlayableItem() = default;
 
 private:
@@ -105,6 +123,11 @@ private:
      * Current Position in stream
      */
     int position = 0;
+
+    /**
+     * Total length in ms
+     */
+    int length = 0;
 };
 
 
@@ -177,8 +200,8 @@ public:
     }
 
     void set_publication_date(const QDateTime& date) {
-    	if(date.isValid())
-    		publication_date = date;
+        if (date.isValid())
+            publication_date = date;
     };
 
 private:

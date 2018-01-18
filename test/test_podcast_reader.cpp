@@ -8,23 +8,23 @@
  *
  *************************************************************************************/
 
+#include "PodcastSourceReader.hpp"
+#include <QMap>
 #include <config.h>
 #include <gtest/gtest.h>
-#include <QMap>
-#include "PodcastSourceReader.hpp"
+#include <stdexcept> // std::system_error
 
 using namespace DigitalRooster;
 
-TEST(PodcastSourceReader,parseInfo_good) {
-	PodcastSource ps("https://alternativlos.org/alternativlos.rss");
-	ps.set_rss_file("./alternativlos.rss");
-	update_podcast(ps);
+TEST(PodcastSourceReader, parseInfo_good) {
+    PodcastSource ps("https://alternativlos.org/alternativlos.rss");
+    ps.set_rss_file("./alternativlos.rss");
+    update_podcast(ps);
 
-	EXPECT_EQ(ps.get_title(), QString("Alternativlos"));
-	EXPECT_EQ(ps.get_link().toString(),
-			QString("http://www.alternativlos.org/"));
-	EXPECT_STREQ(ps.get_description().toStdString().substr(0, 58).c_str(),
-			"Alternativlos ist der Boulevard-Podcast von Frank und Fefe");
+    EXPECT_EQ(ps.get_title(), QString("Alternativlos"));
+    EXPECT_EQ(ps.get_link().toString(), QString("http://www.alternativlos.org/"));
+    EXPECT_STREQ(ps.get_description().toStdString().substr(0, 58).c_str(),
+        "Alternativlos ist der Boulevard-Podcast von Frank und Fefe");
 }
 
 TEST(PodcastSourceReader, parseInfo_good_element_count) {
@@ -33,6 +33,52 @@ TEST(PodcastSourceReader, parseInfo_good_element_count) {
     update_podcast(ps);
     const auto& episodes = ps.get_episodes();
     EXPECT_EQ(episodes.size(), 27);
+}
+
+TEST(PodcastSourceReader, parseInfo_episode_length) {
+    PodcastSource ps("https://alternativlos.org/alternativlos.rss");
+    ps.set_rss_file("./alternativlos.rss");
+    update_podcast(ps);
+    const auto episodes = ps.get_episodes();
+    auto title = episodes[20];
+    EXPECT_EQ(title->get_length(), 105581745);
+}
+
+TEST(PodcastSourceReader, parseInfo_episode_display_name) {
+    PodcastSource ps("https://alternativlos.org/alternativlos.rss");
+    ps.set_rss_file("./alternativlos.rss");
+    update_podcast(ps);
+    const auto episodes = ps.get_episodes();
+    auto title = episodes[19];
+    EXPECT_EQ(title->get_display_name(),
+        QString("ALT034: mit Rop Gonggrijp über die Gesamtsituation"));
+}
+
+TEST(PodcastSourceReader, parseInfo_episode_pubdate) {
+    PodcastSource ps("https://alternativlos.org/alternativlos.rss");
+    ps.set_rss_file("./alternativlos.rss");
+    update_podcast(ps);
+    const auto episodes = ps.get_episodes();
+    auto title = episodes[18];
+    auto testtime = QDateTime::fromString(
+        "Mon, 10 Nov 2014 08:00:00 GMT", Qt::DateFormat::RFC2822Date);
+    EXPECT_EQ(title->get_publication_date().toTime_t(), testtime.toTime_t());
+}
+
+TEST(PodcastSourceReader, parseInfo_episode_url) {
+    PodcastSource ps("https://alternativlos.org/alternativlos.rss");
+    ps.set_rss_file("./alternativlos.rss");
+    update_podcast(ps);
+
+    const auto episodes = ps.get_episodes();
+    EXPECT_STREQ(episodes[1]->get_url().toString().toStdString().c_str(),
+        "http://alternativlos.cdn.as250.net/alternativlos-16.mp3");
+}
+
+TEST(PodcastSourceReader, parseInfo_bad_nonexistent) {
+    PodcastSource ps("https://alternativlos.org/alternativlos.rss");
+    ps.set_rss_file("./doesnotexist.rss");
+    EXPECT_THROW(update_podcast(ps), std::system_error);
 }
 
 TEST(PodcastSourceReader, parseInfo_bad_malformatted) {
@@ -71,25 +117,5 @@ TEST(PodcastSourceReader, maxEpisodesReached) {
     ASSERT_LE(episodes.size(), maxepisodes);
 }
 
-TEST(PodcastSourceReader, getEpisodeNames) {
-	PodcastSource ps("https://alternativlos.org/alternativlos.rss");
-    ps.set_rss_file("./alternativlos.rss");
-	update_podcast(ps);
 
-    const auto& episodes = ps.get_episodes_names();
-    ASSERT_GT(episodes.size(), 1);
-    EXPECT_STREQ(episodes[1].toStdString().substr(0, 6).c_str(), "ALT016");
-}
 
-TEST(PodcastSourceReader, getEpisodes) {
-	PodcastSource ps("https://alternativlos.org/alternativlos.rss");
-    ps.set_rss_file("./alternativlos.rss");
-	update_podcast(ps);
-
-    const auto& episodes = ps.get_episodes();
-    ASSERT_GT(episodes.size(), 1);
-    EXPECT_STREQ(
-        episodes[1]->get_display_name().toStdString().substr(0, 6).c_str(), "ALT016");
-    EXPECT_STREQ(episodes[1]->get_url().toString().toStdString().c_str(),
-        "http://alternativlos.cdn.as250.net/alternativlos-16.mp3");
-}
