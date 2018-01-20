@@ -1,20 +1,7 @@
-
 #include <QDebug>
 #include <QLoggingCategory>
-
-#include <QFileSystemWatcher>
-#include <QSettings>
-#include <QTime>
-
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-
-#include <chrono>
-#include <thread>
-
-
-
-using namespace std::chrono_literals;
 
 
 int main(int argc, char* argv[]) {
@@ -29,7 +16,6 @@ int main(int argc, char* argv[]) {
 
     if (engine.rootObjects().isEmpty())
         return -1;
-
 
     return app.exec();
 }
