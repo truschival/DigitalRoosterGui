@@ -12,7 +12,5 @@ ListView {
     	id: podcastdelegate
     }
 
-    model: PodcastModel{
-    	 id: podcastmodel
-    }        
+    model: podcastmodel       
 }

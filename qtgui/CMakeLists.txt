@@ -22,6 +22,7 @@ set(CMAKE_AUTORCC ON)
 # --------------------------------------------------------------------------------
 SET(SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/podcastsourcemodel.cpp
   )
 
 # --------------------------------------------------------------------------------
@@ -46,9 +47,6 @@ LIST(APPEND CPP_DEFS "AWESOME=1" )
 # QT magic
 #------------------------------
 qt5_wrap_ui(UI_HDRS
-  )
-
-qt5_wrap_cpp(MOC_SRC
   )
 
 SET(QRC_SRC

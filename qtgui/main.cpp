@@ -1,21 +1,36 @@
+#include <qqmlengine.h>
+#include <qqmlcontext.h>
+#include <qqml.h>
+#include <QtQuick/qquickitem.h>
+#include <QtQuick/qquickview.h>
+
+#include <QGuiApplication>
 #include <QDebug>
 #include <QLoggingCategory>
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
 
+#include "config.h"
+#include "configuration_manager.hpp"
+#include "podcastsourcemodel.hpp"
+
+using namespace DigitalRooster;
 
 int main(int argc, char* argv[]) {
-    QLoggingCategory::setFilterRules("*.debug=true");
-    qDebug() << __FUNCTION__;
-
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    QLoggingCategory::setFilterRules("*.debug=true");
     QGuiApplication app(argc, argv);
 
-    QQmlApplicationEngine engine;
-    engine.load(QUrl(QLatin1String("qrc:/main.qml")));
+    /*Get avaibable Podcasts */
+    ConfigurationManager cm(DigitalRooster::SYSTEM_CONFIG_PATH);
+    /* and let the model access the config */
+    PodcastSourceModel psmodel(&cm);
 
-    if (engine.rootObjects().isEmpty())
-        return -1;
+    QQuickView view;
+    view.setResizeMode(QQuickView::SizeRootObjectToView);
+    QQmlContext* ctxt = view.rootContext();
+    ctxt->setContextProperty("podcastmodel", &psmodel);
+
+    view.setSource(QUrl("qrc:/main.qml"));
+    view.show();
 
     return app.exec();
 }

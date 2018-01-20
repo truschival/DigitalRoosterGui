@@ -23,7 +23,7 @@ namespace DigitalRooster{
 	/**
 	 * Name of configuration file
 	 */
-	const std::string SYSTEM_CONFIG_PATH("/tmp/dr.ini");
+	const std::string SYSTEM_CONFIG_PATH("config/digitalrooster.ini");
 
 	/**
 	 * INI configuration Key for Sources

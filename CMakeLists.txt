@@ -166,6 +166,13 @@ if(BUILD_EXE)
   add_subdirectory(${PROJECT_SOURCE_DIR}/qtgui/)
 endif(BUILD_EXE)
 
+#-------------------------------------------------------------------------------
+# configuration install
+#-------------------------------------------------------------------------------
+
+
+# config/
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config/digitalrooster.ini" "${CMAKE_BINARY_DIR}/config/digitalrooster.ini" COPYONLY)
 
 # Tests
 if(BUILD_TEST)
