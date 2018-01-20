@@ -41,7 +41,7 @@ QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
     if (role == DisplayNameRole) {
         return QVariant(ps->get_title());
     } else if (role == DisplayUrlRole) {
-        return ps->get_link();
+        return ps->get_url();
     }
     return QVariant();
 }

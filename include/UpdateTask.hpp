@@ -13,10 +13,11 @@
 #include <QString>
 #include <memory>
 
-#include "PodcastSource.hpp"
-#include "DownloadManager.hpp"
 
 namespace DigitalRooster {
+
+class PodcastSource;
+class DownloadManager;
 
 class UpdateTask: public QObject {
 Q_OBJECT
@@ -51,7 +52,7 @@ private:
 	/**
 	 * handles downloads
 	 */
-	DownloadManager dlm;
+	std::unique_ptr<DownloadManager> dlm;
 };
 
 } /* namespace DigitalRooster */
