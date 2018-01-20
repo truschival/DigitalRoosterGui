@@ -44,6 +44,8 @@ qt5_wrap_cpp(MOC_SRC
         ${PROJECT_INCLUDE_DIR}/confmon.hpp
         ${PROJECT_INCLUDE_DIR}/DownloadManager.hpp
         ${PROJECT_INCLUDE_DIR}/UpdateTask.hpp
+        ${PROJECT_INCLUDE_DIR}/PlayableItem.hpp
+        ${PROJECT_INCLUDE_DIR}/PodcastSource.hpp
         )
 
 #------------------------------

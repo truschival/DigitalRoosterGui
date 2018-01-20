@@ -26,3 +26,7 @@ void PodcastSource::remove_episode(const QString& name){
 	episodes.remove(name);
 }
 
+/*************************************************************************************/
+void PodcastSource::newFileAvailable(const QString& filename){
+
+}

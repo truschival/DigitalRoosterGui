@@ -12,6 +12,7 @@
 #ifndef _PLAYABLEITEM_HPP_
 #define _PLAYABLEITEM_HPP_
 
+#include <QObject>
 #include <QDateTime>
 #include <QDebug>
 #include <QString>
@@ -21,8 +22,10 @@ namespace DigitalRooster {
 /**
  * Interface of Playable Item : self contained information to play
  */
-class PlayableItem {
-
+class PlayableItem : public QObject{
+	Q_OBJECT
+	Q_PROPERTY(QString display_name READ get_display_name WRITE set_display_name)
+	Q_PROPERTY(QUrl url READ get_url WRITE set_url)
 public:
     /**
      * Default Constructor

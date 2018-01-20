@@ -12,6 +12,7 @@
 #ifndef _PODCASTSOURCE_HPP_
 #define _PODCASTSOURCE_HPP_
 
+#include <QObject>
 #include <QString>
 #include <QDate>
 #include <QFile>
@@ -26,7 +27,10 @@ namespace DigitalRooster {
 /**
  * Class to represent a RSS channel with items as episodes
  */
-class PodcastSource {
+class PodcastSource : public QObject{
+	Q_OBJECT
+	Q_PROPERTY(QString display_name READ get_title)
+	Q_PROPERTY(QUrl url READ get_link)
 public:
 	/**
 	 * Preconfigured Podcast Source
