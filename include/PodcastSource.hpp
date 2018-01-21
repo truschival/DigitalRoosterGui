@@ -14,7 +14,7 @@
 
 #include <QDate>
 #include <QFile>
-#include <QMap>
+#include <QVector>
 #include <QObject>
 #include <QString>
 #include <cstddef> //size_t
@@ -31,8 +31,18 @@ class PodcastSource : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString display_name READ get_title)
     Q_PROPERTY(QUrl url READ get_url)
+
+public slots:
+	void updatedEpisodesAvailable(QVector<std::shared_ptr<PodcastEpisode>> newEpisodes);
+
+signals:
+	/**
+	 * The episodes list has been updated
+	 */
+	void dataChanged();
+
 public:
-    /**
+	/**
      * Preconfigured Podcast Source
      * @param url Feed URL
      */
@@ -113,12 +123,6 @@ public:
     }
 
     /**
-     * Remove an episode from the list of episodes
-     * @param name episode to remove
-     */
-    void remove_episode(const QString& name);
-
-    /**
      * Description of the Channel (mandatory by RSS2.0 spec)
      */
     void set_description(QString newVal) {
@@ -173,16 +177,15 @@ public:
     /**
      * Access to episodes as QList (the Playable items)
      */
-    QList<std::shared_ptr<PodcastEpisode>> get_episodes() {
-        return episodes.values();
+    const QVector<std::shared_ptr<PodcastEpisode>>& get_episodes() {
+        return episodes;
     }
 
     /**
      * Access to episode names  as QList (the titles for display in a list)
      */
-    QList<QString> get_episodes_names() {
-        return episodes.keys();
-    }
+    QVector<QString> get_episodes_names();
+
 public slots:
     /**
      * Updated Feed received
@@ -205,10 +208,11 @@ private:
      * Description of the Channel (mandatory by RSS2.0 spec)
      */
     QString description;
+
     /**
      * Map of episodes
      */
-    QMap<QString, std::shared_ptr<PodcastEpisode>> episodes;
+    QVector<std::shared_ptr<PodcastEpisode>> episodes;
 
     /**
      * When was this podcast source last updated (by the publisher)

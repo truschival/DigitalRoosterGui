@@ -28,7 +28,7 @@ public:
 	DownloadManager();
 	void doDownload(const QUrl &url);
 	static QString saveFileName(const QUrl &url);
-	bool saveToDisk(const QString &filename, QIODevice *data);
+	bool saveToDisk(const QString &targetpath, QIODevice *data);
 	static bool isHttpRedirect(QNetworkReply *reply);
 
 public slots:

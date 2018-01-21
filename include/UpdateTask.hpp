@@ -41,7 +41,7 @@ signals:
 	/**
 	 * Download and parsing has completed
 	 */
-	void completed();
+	void newDataAvailable();
 
 private:
 	/**
@@ -53,6 +53,10 @@ private:
 	 * handles downloads
 	 */
 	std::unique_ptr<DownloadManager> dlm;
+	/**
+	 * Filehash of last download
+	 */
+	QByteArray lasthash;
 };
 
 } /* namespace DigitalRooster */

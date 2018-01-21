@@ -7,6 +7,7 @@
  * \author ruschi
  *
  *************************************************************************************/
+#include "config.h"
 #include <DownloadManager.hpp>
 #include <QDebug>
 
@@ -36,24 +37,26 @@ QString DownloadManager::saveFileName(const QUrl &url) {
 	if (basename.isEmpty())
 		basename = "download";
 
-	if (QFile::exists(basename)) {
+	QString targetname = DigitalRooster::RSS_FILE_DIR + basename;
+
+	if (QFile::exists(targetname)) {
 		// already exists, don't overwrite
 		int i = 0;
-		basename += '.';
-		while (QFile::exists(basename + QString::number(i)))
+		targetname += '.';
+		while (QFile::exists(targetname + QString::number(i)))
 			++i;
 
-		basename += QString::number(i);
+		targetname += QString::number(i);
 	}
 
-	return basename;
+	return targetname;
 }
 
-bool DownloadManager::saveToDisk(const QString &filename, QIODevice *data) {
-	QFile file(filename);
+bool DownloadManager::saveToDisk(const QString &targetpath, QIODevice *data) {
+	QFile file(targetpath);
 	if (!file.open(QIODevice::WriteOnly)) {
 		fprintf(stderr, "Could not open %s for writing: %s\n",
-				qPrintable(filename), qPrintable(file.errorString()));
+				qPrintable(targetpath), qPrintable(file.errorString()));
 		return false;
 	}
 

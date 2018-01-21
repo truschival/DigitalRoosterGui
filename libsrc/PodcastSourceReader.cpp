@@ -110,7 +110,7 @@ void parse_channel(PodcastSource& podcastsource, QXmlStreamReader& xml) {
 
 /*************************************************************************************/
 extern "C" void update_podcast(PodcastSource& podcastsource) {
-    // qDebug() << __FUNCTION__;
+//	qDebug() << __FUNCTION__ << "("<< podcastsource.get_rss_file() << ")";
 
     QFile file(podcastsource.get_rss_file());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -140,5 +140,7 @@ extern "C" void update_podcast(PodcastSource& podcastsource) {
         }
     } catch (std::invalid_argument& exc) {
         qWarning() << " XML error in line:" << xml.lineNumber() << exc.what();
+        return;
     }
+//    qDebug() <<"parsing o.k.";
 }
