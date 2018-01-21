@@ -30,6 +30,9 @@ public:
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
+public slots:
+    void newDataAvailable();
+
 protected:
     QHash<int, QByteArray> roleNames() const;
 

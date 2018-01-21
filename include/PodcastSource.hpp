@@ -13,7 +13,6 @@
 #define _PODCASTSOURCE_HPP_
 
 #include <QDate>
-#include <QFile>
 #include <QObject>
 #include <QString>
 #include <QVector>
@@ -22,8 +21,10 @@
 #include <memory>
 
 #include "PlayableItem.hpp"
+#include "UpdateTask.hpp"
 
 namespace DigitalRooster {
+
 /**
  * Class to represent a RSS channel with items as episodes
  */
@@ -132,6 +133,7 @@ public:
      */
     void set_link(QUrl newVal) {
         link = newVal;
+        emit newDataAvailable();
     }
 
     /**
@@ -154,6 +156,7 @@ public:
      */
     void set_title(QString newTitle) {
         title = newTitle;
+        emit newDataAvailable();
     }
 
     /**
@@ -177,19 +180,20 @@ public:
      */
     QVector<QString> get_episodes_names();
 
-public slots:
     /**
-     * Updated Feed received
-     * @param filename on disk
+     * Set the PodcastSourceAutoupdating
+     * @param interval update interval
      */
-    void newFileAvailable(const QString& filename);
+    void set_updateInterval(int interval=10);
+
+public slots:
+	void updateFinished();
 
 signals:
-    /**
+	/**
      * The episodes list has been updated
      */
-    void dataChanged();
-
+    void newDataAvailable();
 
 private:
     /**
@@ -235,6 +239,11 @@ private:
      * and skip_hours
      */
     int update_period = 0;
+
+    /**
+     * Optional UpdateTask
+     */
+    std::unique_ptr<UpdateTask> updater = nullptr;
 };
 }
 #endif // _PODCASTSOURCE_HPP_

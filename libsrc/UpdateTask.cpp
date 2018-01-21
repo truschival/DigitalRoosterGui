@@ -20,10 +20,9 @@
 
 namespace DigitalRooster {
 
-UpdateTask::UpdateTask(std::shared_ptr<PodcastSource> source)
-    : ps(source)
-    , dlm(std::make_unique<DownloadManager>()) {
-    connect(dlm.get(), SIGNAL(newFileAvailable(const QString&)), this,
+UpdateTask::UpdateTask(PodcastSource& source)
+    : ps(source) {
+    connect(&dlm, SIGNAL(newFileAvailable(const QString&)), this,
         SLOT(newFileAvailable(const QString&)));
 }
 
@@ -39,8 +38,8 @@ void UpdateTask::newFileAvailable(const QString& filepath) {
         if (lasthash != sha256.result()) {
             lasthash = sha256.result();
             //qDebug() << "SHA256 :" << sha256.result().toHex();
-            ps->set_rss_file(filepath);
-            update_podcast(*ps);
+            ps.set_rss_file(filepath);
+            update_podcast(ps);
             emit newDataAvailable();
         }
         //else nothing new to do
@@ -52,7 +51,7 @@ void UpdateTask::newFileAvailable(const QString& filepath) {
 }
 
 void UpdateTask::start() {
-    dlm->doDownload(ps->get_url());
+    dlm.doDownload(ps.get_url());
 }
 
 } /* namespace DigitalRooster */

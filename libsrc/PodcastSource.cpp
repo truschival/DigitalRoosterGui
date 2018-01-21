@@ -26,14 +26,20 @@ void PodcastSource::add_episode(std::shared_ptr<PodcastEpisode> newep) {
 
         if (ep == episodes.end()) {
             episodes.push_back(newep);
+            emit newDataAvailable();
         }
     }
 }
-
+/*************************************************************************************/
+void PodcastSource::set_updateInterval(int interval){
+	updater = std::make_unique<UpdateTask>(*this);
+	connect(updater.get(),SIGNAL(newDataAvailable()), this, SLOT(updateFinished()));
+	updater->start();
+}
 
 /*************************************************************************************/
-void PodcastSource::newFileAvailable(const QString& filename) {
-    emit dataChanged();
+void PodcastSource::updateFinished(){
+	emit newDataAvailable();
 }
 
 /*************************************************************************************/

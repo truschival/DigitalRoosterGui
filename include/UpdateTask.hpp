@@ -12,17 +12,16 @@
 #include <QObject>
 #include <QString>
 #include <memory>
-
+#include "DownloadManager.hpp"
 
 namespace DigitalRooster {
 
 class PodcastSource;
-class DownloadManager;
 
 class UpdateTask: public QObject {
 Q_OBJECT
 public:
-	explicit UpdateTask(std::shared_ptr<PodcastSource> source);
+	explicit UpdateTask(PodcastSource& source);
 	virtual ~UpdateTask();
 
 public slots:
@@ -47,12 +46,12 @@ private:
 	/**
 	 * local copy of podcast source to update
 	 */
-	std::shared_ptr<PodcastSource> ps;
+	PodcastSource& ps;
 
 	/**
 	 * handles downloads
 	 */
-	std::unique_ptr<DownloadManager> dlm;
+	DownloadManager dlm;
 	/**
 	 * Filehash of last download
 	 */
