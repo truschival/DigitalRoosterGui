@@ -190,7 +190,10 @@ public:
         description = desc;
     };
 
-    const QString& get_guid() {
+    QString get_guid() {
+    	if(guid.isEmpty()){
+    		return get_url().toString();
+    	}
         return guid;
     }
 
