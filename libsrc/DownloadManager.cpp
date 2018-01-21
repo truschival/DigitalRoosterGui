@@ -93,8 +93,6 @@ void DownloadManager::downloadFinished(QNetworkReply *reply) {
 		} else {
 			QString filename = saveFileName(url);
 			if (saveToDisk(filename, reply)) {
-				qDebug() << "Downloaded " << url.toEncoded().constData()
-						<< " to file " << qPrintable(filename);
 				emit newFileAvailable(filename);
 			}
 		}

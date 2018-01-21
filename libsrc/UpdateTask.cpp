@@ -38,7 +38,7 @@ void UpdateTask::newFileAvailable(const QString& filepath) {
         sha256.addData(file.readAll());
         if (lasthash != sha256.result()) {
             lasthash = sha256.result();
-            qDebug() << "SHA256 :" << sha256.result().toHex();
+            //qDebug() << "SHA256 :" << sha256.result().toHex();
             ps->set_rss_file(filepath);
             update_podcast(*ps);
             emit newDataAvailable();
