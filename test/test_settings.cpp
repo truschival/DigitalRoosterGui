@@ -22,7 +22,7 @@ using namespace DigitalRooster;
 class SettingsFixture: public virtual ::testing::Test {
 public:
 	SettingsFixture() :
-			filename("testsettings.ini"), qs(filename.c_str(),
+			filename("testsettings.ini"), qs(filename,
 					QSettings::IniFormat) {
 
 	}
@@ -32,14 +32,14 @@ public:
 	}
 
 	void SetUp() {
-		qs.beginGroup(DigitalRooster::KEY_GROUP_SOURCES.c_str());
-		qs.beginWriteArray(DigitalRooster::KEY_GROUP_PODCAST_SOURCES.c_str(),
+		qs.beginGroup(DigitalRooster::KEY_GROUP_SOURCES);
+		qs.beginWriteArray(DigitalRooster::KEY_GROUP_PODCAST_SOURCES,
 				2);
 		qs.setArrayIndex(0);
-		qs.setValue(DigitalRooster::KEY_URL.c_str(),
+		qs.setValue(DigitalRooster::KEY_URL,
 				"https://alternativlos.org/alternativlos.rss");
 		qs.setArrayIndex(1);
-		qs.setValue(DigitalRooster::KEY_URL.c_str(),
+		qs.setValue(DigitalRooster::KEY_URL,
 				"http://www.deutschlandfunk.de/podcast-essay-und-diskurs.1185.de.podcast.xml");
 
 		qs.endArray(); // Internet radio sources
@@ -48,11 +48,12 @@ public:
 	}
 
 	void TearDown() {
-		std::remove(filename.c_str());
+		QFile file(filename);
+		file.remove();
 	}
 
 protected:
-	std::string filename;
+	QString filename;
 	QSettings qs;
 
 };
@@ -64,13 +65,13 @@ TEST_F(SettingsFixture,read_radio_streams_file_empty) {
 }
 
 TEST_F(SettingsFixture,read_radio_streams_one_stream) {
-	QSettings control(filename.c_str(), QSettings::NativeFormat);
-	control.beginGroup(DigitalRooster::KEY_GROUP_SOURCES.c_str());
-	control.beginWriteArray(DigitalRooster::KEY_GROUP_IRADIO_SOURCES.c_str(),
+	QSettings control(filename, QSettings::NativeFormat);
+	control.beginGroup(DigitalRooster::KEY_GROUP_SOURCES);
+	control.beginWriteArray(DigitalRooster::KEY_GROUP_IRADIO_SOURCES,
 			1);
 	control.beginGroup("SWR2");
-	control.setValue(DigitalRooster::KEY_NAME.c_str(), "SWR-2");
-	control.setValue(DigitalRooster::KEY_URL.c_str(), "http://swr2.de");
+	control.setValue(DigitalRooster::KEY_NAME, "SWR-2");
+	control.setValue(DigitalRooster::KEY_URL, "http://swr2.de");
 	control.endGroup();
 	control.endArray(); // Internet radio sources
 	control.endGroup();
@@ -82,18 +83,18 @@ TEST_F(SettingsFixture,read_radio_streams_one_stream) {
 }
 
 TEST_F(SettingsFixture,read_radio_streams_two_streams) {
-	QSettings control(filename.c_str(), QSettings::NativeFormat);
-	control.beginGroup(DigitalRooster::KEY_GROUP_SOURCES.c_str());
-	control.beginWriteArray(DigitalRooster::KEY_GROUP_IRADIO_SOURCES.c_str(),
+	QSettings control(filename, QSettings::NativeFormat);
+	control.beginGroup(DigitalRooster::KEY_GROUP_SOURCES);
+	control.beginWriteArray(DigitalRooster::KEY_GROUP_IRADIO_SOURCES,
 			2);
 	control.beginGroup("SWR2");
-	control.setValue(DigitalRooster::KEY_NAME.c_str(), "SWR-2");
-	control.setValue(DigitalRooster::KEY_URL.c_str(), "http://swr2.de");
+	control.setValue(DigitalRooster::KEY_NAME, "SWR-2");
+	control.setValue(DigitalRooster::KEY_URL, "http://swr2.de");
 	control.endGroup();
 
 	control.beginGroup("DRADIO");
-	control.setValue(DigitalRooster::KEY_NAME.c_str(), "dradio1");
-	control.setValue(DigitalRooster::KEY_URL.c_str(), "http://dradio.de");
+	control.setValue(DigitalRooster::KEY_NAME, "dradio1");
+	control.setValue(DigitalRooster::KEY_URL, "http://dradio.de");
 	control.endGroup();
 
 	control.endArray(); // Internet radio sources

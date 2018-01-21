@@ -1,246 +1,249 @@
 /*************************************************************************************
- * \filename    
+ * \filename
  * \brief
  *
  * \details
- * 
+ *
  * \author ruschi
- * 
+ *
  *
  *************************************************************************************/
 
 #ifndef _PODCASTSOURCE_HPP_
 #define _PODCASTSOURCE_HPP_
 
+#include <QDate>
 #include <QObject>
 #include <QString>
-#include <QDate>
-#include <QFile>
-#include <QMap>
+#include <QVector>
 #include <cstddef> //size_t
 #include <limits>
 #include <memory>
 
 #include "PlayableItem.hpp"
+#include "UpdateTask.hpp"
 
 namespace DigitalRooster {
+
 /**
  * Class to represent a RSS channel with items as episodes
  */
-class PodcastSource : public QObject{
-	Q_OBJECT
-	Q_PROPERTY(QString display_name READ get_title)
-	Q_PROPERTY(QUrl url READ get_link)
+class PodcastSource : public QObject {
+    Q_OBJECT
+    Q_PROPERTY(QString display_name READ get_title)
+    Q_PROPERTY(QUrl url READ get_url)
+
 public:
-	/**
-	 * Preconfigured Podcast Source
-	 * @param url Feed URL
-	 */
-	explicit PodcastSource(QUrl url) :
-			rss_feed_uri(url) {
-	}
-	;
+    /**
+     * Preconfigured Podcast Source
+     * @param url Feed URL
+     */
+    explicit PodcastSource(QUrl url)
+        : rss_feed_uri(url){};
 
-	/**
-	 * Preconfigured Podcast Source
-	 * @param url Feed URL
-	 */
-	explicit PodcastSource(const char* url) :
-			rss_feed_uri(url) {
-	}
-	;
+    /**
+     * Preconfigured Podcast Source
+     * @param url Feed URL
+     */
+    explicit PodcastSource(const char* url)
+        : rss_feed_uri(url){};
 
-	/**
-	 * Add an episode to episodes
-	 */
-	void add_episode(std::shared_ptr<PodcastEpisode> episode);
+    /**
+     * Add an episode to episodes
+     */
+    void add_episode(std::shared_ptr<PodcastEpisode> episode);
 
-	/**
-	 * Deletes all episodes from list
-	 */
-	void flush_episodes();
+    /**
+     * Deletes all episodes from list
+     */
+    void flush_episodes();
 
-	/**
-	 * Description of the Channel (mandatory by RSS2.0 spec)
-	 */
-	const QString& get_description() {
-		return description;
-	}
+    /**
+     * Description of the Channel (mandatory by RSS2.0 spec)
+     */
+    const QString& get_description() {
+        return description;
+    }
 
-	/**
-	 * When was this podcast source last scanned for new items
-	 */
-	const QDateTime& get_last_updated() {
-		return last_updated;
-	}
-	;
+    /**
+     * When was this podcast source last scanned for new items
+     */
+    const QDateTime& get_last_updated() {
+        return last_updated;
+    };
 
-	/**
-	 * Website of RSS feed channel (not the rss xml URI but additional information)
-	 */
-	const QUrl& get_link() {
-		return link;
-	}
+    /**
+     * Website of RSS feed channel (not the rss xml URI but additional information)
+     */
+    const QUrl& get_link() {
+        return link;
+    }
 
-	/**
-	 * show max_episodes in the list
-	 */
-	size_t get_max_episodes() {
-		return max_episodes;
-	}
-	;
+    /**
+     * show max_episodes in the list
+     */
+    size_t get_max_episodes() {
+        return max_episodes;
+    };
 
-	/**
-	 * path local XML file for RSS feed
-	 */
-	const QString& get_rss_file() {
-		return rss_file;
-	}
+    /**
+     * path local XML file for RSS feed
+     */
+    const QString& get_rss_file() {
+        return rss_file;
+    }
 
-	/**
-	 * title element of RSS channel
-	 */
-	const QString& get_title() {
-		return title;
-	}
+    /**
+     * title element of RSS channel
+     */
+    const QString& get_title() {
+        return title;
+    }
 
-	/**
-	 * seconds until update is meaningful. Calculated from optional items skip_days
-	 * and skip_hours
-	 */
-	int get_update_period() {
-		return update_period;
-	}
-	;
-	/**
-	 * URL for rss feed of this podcast
-	 */
-	const QUrl& get_url() {
-		return rss_feed_uri;
-	}
+    /**
+     * seconds until update is meaningful. Calculated from optional items skip_days
+     * and skip_hours
+     */
+    int get_update_period() {
+        return update_period;
+    };
+    /**
+     * URL for rss feed of this podcast
+     */
+    const QUrl& get_url() {
+        return rss_feed_uri;
+    }
 
-	/**
-	 * Remove an episode from the list of episodes
-	 * @param name episode to remove
-	 */
-	void remove_episode(const QString& name);
+    /**
+     * Description of the Channel (mandatory by RSS2.0 spec)
+     */
+    void set_description(QString newVal) {
+        description = newVal;
+    }
 
-	/**
-	 * Description of the Channel (mandatory by RSS2.0 spec)
-	 */
-	void set_description(QString newVal) {
-		description = newVal;
-	}
+    /**
+     * When was this podcast source last scanned for new items
+     */
+    void set_last_updated(QDateTime newVal) {
+        last_updated = newVal;
+    }
 
-	/**
-	 * When was this podcast source last scanned for new items
-	 */
-	void set_last_updated(QDateTime newVal) {
-		last_updated = newVal;
-	}
+    /**
+     * Website of RSS feed channel (not the rss xml URI but additional information)
+     */
+    void set_link(QUrl newVal) {
+        link = newVal;
+        emit newDataAvailable();
+    }
 
-	/**
-	 * Website of RSS feed channel (not the rss xml URI but additional information)
-	 */
-	void set_link(QUrl newVal) {
-		link = newVal;
-	}
+    /**
+     * set number of displayed/downloaded episodes
+     */
+    void set_max_episodes(size_t max) {
+        max_episodes = max;
+    }
 
-	/**
-	 * set number of displayed/downloaded episodes
-	 */
-	void set_max_episodes(size_t max) {
-		max_episodes = max;
-	}
+    /**
+     * local XML file last read from internet
+     */
+    void set_rss_file(QString filepath) {
+        rss_file = filepath;
+    }
 
-	/**
-	 * local XML file last read from internet
-	 */
-	void set_rss_file(QString filepath) {
-		rss_file = filepath;
-	}
+    /**
+     * title element of RSS channel
+     * \param newTitle
+     */
+    void set_title(QString newTitle) {
+        title = newTitle;
+        emit newDataAvailable();
+    }
 
-	/**
-	 * title element of RSS channel
-	 * \param newTitle
-	 */
-	void set_title(QString newTitle) {
-		title = newTitle;
-	}
+    /**
+     * seconds until update is meaningful. Calculated from optional items skip_days
+     * and skip_hours
+     * \param period new period
+     */
+    void set_update_period(int period) {
+        update_period = period;
+    }
 
-	/**
-	 * seconds until update is meaningful. Calculated from optional items skip_days
-	 * and skip_hours
-	 * \param period new period
-	 */
-	void set_update_period(int period) {
-		update_period = period;
-	}
+    /**
+     * Access to episodes as QList (the Playable items)
+     */
+    const QVector<std::shared_ptr<PodcastEpisode>>& get_episodes() {
+        return episodes;
+    }
 
-	/**
-	 * Access to episodes as QList (the Playable items)
-	 */
-	QList<std::shared_ptr<PodcastEpisode>> get_episodes() {
-		return episodes.values();
-	}
+    /**
+     * Access to episode names  as QList (the titles for display in a list)
+     */
+    QVector<QString> get_episodes_names();
 
-	/**
-	 * Access to episode names  as QList (the titles for display in a list)
-	 */
-	QList<QString> get_episodes_names() {
-		return episodes.keys();
-	}
+    /**
+     * Set the PodcastSourceAutoupdating
+     * @param interval update interval
+     */
+    void set_updateInterval(int interval=10);
+
 public slots:
+	void updateFinished();
+
+signals:
 	/**
-	 * Updated Feed received
-	 * @param filename on disk
-	 */
-	void newFileAvailable(const QString& filename);
+     * The episodes list has been updated
+     */
+    void newDataAvailable();
 
 private:
-	/**
-	 * URL for rss feed of this podcast channel
-	 */
-	QUrl rss_feed_uri;
+    /**
+     * URL for rss feed of this podcast channel
+     */
+    QUrl rss_feed_uri;
 
-	/**
-	 * title element of RSS channel
-	 */
-	QString title;
+    /**
+     * title element of RSS channel
+     */
+    QString title;
 
-	/**
-	 * Description of the Channel (mandatory by RSS2.0 spec)
-	 */
-	QString description;
-	/**
-	 * Map of episodes
-	 */
-	QMap<QString, std::shared_ptr<PodcastEpisode>> episodes;
+    /**
+     * Description of the Channel (mandatory by RSS2.0 spec)
+     */
+    QString description;
 
-	/**
-	 * When was this podcast source last updated (by the publisher)
-	 */
-	QDateTime last_updated;
+    /**
+     * Map of episodes
+     */
+    QVector<std::shared_ptr<PodcastEpisode>> episodes;
 
-	/**
-	 * Website of RSS feed channel (not the rss xml URI but additional information)
-	 */
-	QUrl link;
-	/**
-	 * show max_episodes in the list
-	 */
-	size_t max_episodes = std::numeric_limits<size_t>::max();
-	/**
-	 * path local XML file for RSS feed
-	 */
-	QString rss_file;
+    /**
+     * When was this podcast source last updated (by the publisher)
+     */
+    QDateTime last_updated;
 
-	/**
-	 * seconds until update is meaningful. Calculated from optional items skip_days
-	 * and skip_hours
-	 */
-	int update_period = 0;
+    /**
+     * Website of RSS feed channel (not the rss xml URI but additional information)
+     */
+    QUrl link;
+    /**
+     * show max_episodes in the list
+     */
+    size_t max_episodes = std::numeric_limits<size_t>::max();
+    /**
+     * path local XML file for RSS feed
+     */
+    QString rss_file;
 
+    /**
+     * seconds until update is meaningful. Calculated from optional items skip_days
+     * and skip_hours
+     */
+    int update_period = 0;
+
+    /**
+     * Optional UpdateTask
+     */
+    std::unique_ptr<UpdateTask> updater = nullptr;
 };
 }
 #endif // _PODCASTSOURCE_HPP_

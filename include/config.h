@@ -23,37 +23,37 @@ namespace DigitalRooster{
 	/**
 	 * Name of configuration file
 	 */
-	const std::string SYSTEM_CONFIG_PATH("config/digitalrooster.ini");
+	const QString SYSTEM_CONFIG_PATH("config/digitalrooster.ini");
 
 	/**
 	 * INI configuration Key for Sources
 	 */
-	const std::string KEY_GROUP_SOURCES("Sources");
+	const QString KEY_GROUP_SOURCES("Sources");
 
 	/**
 	 * Internet Radio entries are found here
 	 */
-	const std::string KEY_GROUP_IRADIO_SOURCES("InternetRadio");
+	const QString KEY_GROUP_IRADIO_SOURCES("InternetRadio");
 
 	/**
 	 * Podcast feeds
 	 */
-	const std::string KEY_GROUP_PODCAST_SOURCES("Podcasts");
+	const QString KEY_GROUP_PODCAST_SOURCES("Podcasts");
 
 	/**
 	 * Key for all URLs
 	 */
-	const std::string KEY_URL("url");
+	const QString KEY_URL("url");
 
 	/**
 	 * Key for all nice names
 	 */
-	const std::string KEY_NAME("name");
+	const QString KEY_NAME("name");
 
 	/**
 	 * Directory for all downloaded RSS Files
 	 */
-	const QDir RSS_FILE_DIR("/tmp/rss/");
+	const QString RSS_FILE_DIR("/tmp/");
 
 	/**
 	 * Runtime configuration object

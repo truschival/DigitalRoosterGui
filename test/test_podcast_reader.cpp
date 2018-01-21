@@ -41,7 +41,7 @@ TEST(PodcastSourceReader, parseInfo_episode_length) {
     update_podcast(ps);
     const auto episodes = ps.get_episodes();
     auto title = episodes[20];
-    EXPECT_EQ(title->get_length(), 105581745);
+    EXPECT_EQ(title->get_length(), 82174997);
 }
 
 TEST(PodcastSourceReader, parseInfo_episode_display_name) {
@@ -51,7 +51,7 @@ TEST(PodcastSourceReader, parseInfo_episode_display_name) {
     const auto episodes = ps.get_episodes();
     auto title = episodes[19];
     EXPECT_EQ(title->get_display_name(),
-        QString("ALT034: mit Rop Gonggrijp über die Gesamtsituation"));
+        QString("ALT022: Korruption"));
 }
 
 TEST(PodcastSourceReader, parseInfo_episode_pubdate) {
@@ -59,9 +59,9 @@ TEST(PodcastSourceReader, parseInfo_episode_pubdate) {
     ps.set_rss_file("./alternativlos.rss");
     update_podcast(ps);
     const auto episodes = ps.get_episodes();
-    auto title = episodes[18];
+    auto title = episodes[19]; // ALT22
     auto testtime = QDateTime::fromString(
-        "Mon, 10 Nov 2014 08:00:00 GMT", Qt::DateFormat::RFC2822Date);
+        "Mon, 05 Mar 2012 22:00:00 GMT", Qt::DateFormat::RFC2822Date);
     EXPECT_EQ(title->get_publication_date().toTime_t(), testtime.toTime_t());
 }
 
@@ -72,7 +72,7 @@ TEST(PodcastSourceReader, parseInfo_episode_url) {
 
     const auto episodes = ps.get_episodes();
     EXPECT_STREQ(episodes[1]->get_url().toString().toStdString().c_str(),
-        "http://alternativlos.cdn.as250.net/alternativlos-16.mp3");
+        "http://alternativlos.cdn.as250.net/alternativlos-40.mp3");
 }
 
 TEST(PodcastSourceReader, parseInfo_bad_nonexistent) {
