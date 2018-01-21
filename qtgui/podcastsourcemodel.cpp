@@ -32,6 +32,7 @@ QHash<int, QByteArray> PodcastSourceModel::roleNames() const {
     QHash<int, QByteArray> roles;
     roles[DisplayNameRole] = "display_name";
     roles[DisplayUrlRole] = "link";
+    roles[DisplayCountRole] = "episode_count";
     return roles;
 }
 /*************************************************************************************/
@@ -54,10 +55,13 @@ QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
 
     auto ps = v[index.row()];
 
-    if (role == DisplayNameRole) {
+    switch(role){
+    case DisplayNameRole:
         return QVariant(ps->get_title());
-    } else if (role == DisplayUrlRole) {
+    case DisplayUrlRole:
         return ps->get_url();
+    case DisplayCountRole:
+    	return ps->get_episodes().size();
     }
     return QVariant();
 }

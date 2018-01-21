@@ -24,7 +24,11 @@ class PodcastSourceModel : public QAbstractListModel {
 public:
     PodcastSourceModel(ConfigurationManager* confman, QObject* parent = nullptr);
 
-    enum PodcastSourceRoles { DisplayNameRole = Qt::UserRole + 1, DisplayUrlRole };
+    enum PodcastSourceRoles {
+        DisplayNameRole = Qt::UserRole + 1,
+        DisplayUrlRole,
+        DisplayCountRole
+    };
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
 
