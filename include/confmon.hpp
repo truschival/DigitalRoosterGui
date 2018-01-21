@@ -23,7 +23,7 @@ class ConfMon : public QSettings {
 	Q_OBJECT
 public:
 
-	ConfMon() : cfgPath(SYSTEM_CONFIG_PATH.c_str()){};
+	ConfMon() : cfgPath(SYSTEM_CONFIG_PATH){};
 
 	const QString& getCfgPath();
 

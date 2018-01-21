@@ -30,7 +30,7 @@ public:
      * @param filepath
      */
     ConfigurationManager(
-        const std::string& filepath = DigitalRooster::SYSTEM_CONFIG_PATH);
+        const QString& filepath = DigitalRooster::SYSTEM_CONFIG_PATH);
 
     virtual ~ConfigurationManager() = default;
 
