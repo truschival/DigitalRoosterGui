@@ -14,9 +14,9 @@
 
 #include <QDate>
 #include <QFile>
-#include <QVector>
 #include <QObject>
 #include <QString>
+#include <QVector>
 #include <cstddef> //size_t
 #include <limits>
 #include <memory>
@@ -32,17 +32,8 @@ class PodcastSource : public QObject {
     Q_PROPERTY(QString display_name READ get_title)
     Q_PROPERTY(QUrl url READ get_url)
 
-public slots:
-	void updatedEpisodesAvailable(QVector<std::shared_ptr<PodcastEpisode>> newEpisodes);
-
-signals:
-	/**
-	 * The episodes list has been updated
-	 */
-	void dataChanged();
-
 public:
-	/**
+    /**
      * Preconfigured Podcast Source
      * @param url Feed URL
      */
@@ -192,6 +183,13 @@ public slots:
      * @param filename on disk
      */
     void newFileAvailable(const QString& filename);
+
+signals:
+    /**
+     * The episodes list has been updated
+     */
+    void dataChanged();
+
 
 private:
     /**

@@ -19,6 +19,7 @@ SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test_settings.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_reader.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_update_task.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcastsource.cpp
   )
 
 # Moc any classes derived from QObject
