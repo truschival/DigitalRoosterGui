@@ -33,6 +33,8 @@ QHash<int, QByteArray> PodcastSourceModel::roleNames() const {
     roles[DisplayNameRole] = "display_name";
     roles[DisplayUrlRole] = "link";
     roles[DisplayCountRole] = "episode_count";
+    roles[DescriptionRole] = "description";
+    roles[ImageRole] = "logo_image";
     return roles;
 }
 /*************************************************************************************/
@@ -62,6 +64,10 @@ QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
         return ps->get_url();
     case DisplayCountRole:
     	return ps->get_episodes().size();
+    case DescriptionRole:
+        return ps->get_description();
+    case ImageRole:
+           return ps->get_image_uri();
     }
     return QVariant();
 }

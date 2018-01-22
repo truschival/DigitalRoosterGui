@@ -27,7 +27,9 @@ public:
     enum PodcastSourceRoles {
         DisplayNameRole = Qt::UserRole + 1,
         DisplayUrlRole,
-        DisplayCountRole
+        DisplayCountRole,
+		DescriptionRole,
+		ImageRole
     };
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const;

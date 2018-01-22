@@ -80,6 +80,16 @@ public:
     }
 
     /**
+     * Logo Image of podcast
+     */
+    const QUrl& get_image_uri() {
+        return image_uri;
+    }
+    void set_image_uri(const QUrl& uri) {
+        image_uri = uri;
+    }
+
+    /**
      * show max_episodes in the list
      */
     size_t get_max_episodes() {
@@ -184,13 +194,13 @@ public:
      * Set the PodcastSourceAutoupdating
      * @param interval update interval
      */
-    void set_updateInterval(int interval=10);
+    void set_updateInterval(int interval = 10);
 
 public slots:
-	void updateFinished();
+    void updateFinished();
 
 signals:
-	/**
+    /**
      * The episodes list has been updated
      */
     void newDataAvailable();
@@ -225,6 +235,12 @@ private:
      * Website of RSS feed channel (not the rss xml URI but additional information)
      */
     QUrl link;
+
+    /**
+     * Logo Image of podcast
+     */
+    QUrl image_uri;
+
     /**
      * show max_episodes in the list
      */

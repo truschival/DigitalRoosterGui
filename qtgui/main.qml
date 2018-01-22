@@ -1,5 +1,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.1
+import QtQuick.Controls.Styles 1.4
 
 ApplicationWindow {
     id: applicationWindow
@@ -9,20 +10,6 @@ ApplicationWindow {
     title: qsTr("DigitalRooster")
 
 	PodcastList{
-		 id: podcastlist
+		id: podcastlist
 	}
-
-    RoundButton {
-    	id: uselessbutton
-        text: qsTr("+")
-        highlighted: true
-        anchors.margins: 10
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        
-        onClicked: {
-            podcastList.update()
-            uselessbutton.highlighted = false
-        }
-    }
 }

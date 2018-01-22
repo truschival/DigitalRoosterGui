@@ -1,20 +1,41 @@
 import QtQuick 2.0
 
-Component {
-	Rectangle{
-	    width: podcastlist.width; 
-	    height: podcastlist.height/3;
-	    color: ListView.isCurrentItem ? "lightblue" : "white"
-	    border.color: "black"
-		Image {
-			 width:64
-			 height: 64
-   			 source: "http://alternativlos.org/squarelogo.png"
-		}
-		
-	    Text { x: 5; y: 4; text:  'Title: ' + display_name }
-	    Text { x: 5; y: 15; text: 'Url:' + link }
-	    Text { x: 100; y: 35; text: 'Count:' + episode_count }
-	}
+Rectangle{
+    id: podcastdelegate
+    width:  podcastlist.width;
+    height: 100;
+    color: podcastlist.currentItem ==this ? "lightblue" : "white"
+    Image {
+        width:96
+        height: 96
+        anchors.left: parent.left
+        anchors.leftMargin: 2
+        anchors.top: parent.top
+        anchors.topMargin: 2
+        fillMode: Image.PreserveAspectFit
+        source: logo_image
+    }
+
+    Text { x: 104; width: 464; height: 28; text: display_name ;
+        anchors.top: parent.top; anchors.topMargin: 2;
+        font.pointSize: 15; font.bold: true;elide: Text.ElideRight }
+    Text { x: 104; y: 34; width: 464; height: 58; text: description ;
+        elide: Text.ElideRight; wrapMode:
+            Text.WordWrap;font.pointSize: 10 }
+    Text { width: 64; height: 64; text: episode_count ;
+        wrapMode: Text.WordWrap; font.pointSize: 11;
+        anchors.top:       parent.top; anchors.topMargin: 2;
+        anchors.right:      parent.right; anchors.rightMargin: 2}
+
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        onClicked:  {
+                console.log(podcastlist.currentIndex + ' -> ' +  index)
+                podcastlist.currentIndex =index
+                                }
+    }
+
 }
+
 
