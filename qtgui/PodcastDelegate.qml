@@ -4,7 +4,7 @@ Rectangle{
     id: podcastdelegate
     width:  podcastlist.width;
     height: 100;
-    color: podcastlist.isCurrentItem ? "lightblue" : "white"
+    color: podcastlist.currentItem ==this ? "lightblue" : "white"
     Image {
         width:96
         height: 96
@@ -13,7 +13,7 @@ Rectangle{
         anchors.top: parent.top
         anchors.topMargin: 2
         fillMode: Image.PreserveAspectFit
-        source: "http://alternativlos.org/squarelogo.png"
+        source: logo_image
     }
 
     Text { x: 104; width: 464; height: 28; text: display_name ;

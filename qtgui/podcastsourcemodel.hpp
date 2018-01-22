@@ -28,7 +28,8 @@ public:
         DisplayNameRole = Qt::UserRole + 1,
         DisplayUrlRole,
         DisplayCountRole,
-		DescriptionRole
+		DescriptionRole,
+		ImageRole
     };
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const;

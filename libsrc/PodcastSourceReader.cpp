@@ -81,36 +81,41 @@ void parse_channel(PodcastSource& podcastsource, QXmlStreamReader& xml) {
         !(xml.readNext() == QXmlStreamReader::EndElement && xml.name() == "channel")) {
 
         /* only interpret standard RSS elements, not from itunes or atom namespace */
-        if (xml.tokenType() == QXmlStreamReader::StartElement &&
-            xml.namespaceUri() == "") {
-            // qDebug() << "StartElement ("<<xml.tokenType()<<")" << xml.name();
-            if (xml.name() == "item") {
-                parse_episodes(podcastsource, xml);
-            } else if (xml.name() == "title") {
-                xml.readNext();
-                // qDebug() << "title: "<< xml.name()<< " : " <<xml.text();
-                podcastsource.set_title(xml.text().toString());
-            } else if (xml.name() == "description") {
-                xml.readNext();
-                // qDebug() << "description: "<< xml.name()<< " : " <<xml.text();
-                podcastsource.set_description(xml.text().toString());
-            } else if (xml.name() == "link") {
-                xml.readNext();
-                podcastsource.set_link(xml.text().toString());
+        if (xml.tokenType() == QXmlStreamReader::StartElement) {
+            if (xml.namespaceUri() == "") {
+                // qDebug() << "StartElement ("<<xml.tokenType()<<")" << xml.name();
+                if (xml.name() == "item") {
+                    parse_episodes(podcastsource, xml);
+                } else if (xml.name() == "title") {
+                    xml.readNext();
+                    // qDebug() << "title: "<< xml.name()<< " : " <<xml.text();
+                    podcastsource.set_title(xml.text().toString());
+                } else if (xml.name() == "description") {
+                    xml.readNext();
+                    // qDebug() << "description: "<< xml.name()<< " : " <<xml.text();
+                    podcastsource.set_description(xml.text().toString());
+                } else if (xml.name() == "link") {
+                    xml.readNext();
+                    podcastsource.set_link(xml.text().toString());
+                }
+            } else if (xml.namespaceUri() == "http://www.itunes.com/dtds/podcast-1.0.dtd") {
+                if (xml.name() == "image") {
+                    podcastsource.set_image_uri(QUrl(xml.attributes().value("href").toString()));
+                }
             }
         }
-
         if (xml.hasError()) {
             throw std::invalid_argument(xml.errorString().toStdString());
         }
 
-        // qDebug() << __FUNCTION__ <<  xml.name() << " TokenType: " << xml.tokenType();
+        // qDebug() << __FUNCTION__ <<  xml.name() << " TokenType: " <<
+        // xml.tokenType();
     }
 }
 
 /*************************************************************************************/
 extern "C" void update_podcast(PodcastSource& podcastsource) {
-//	qDebug() << __FUNCTION__ << "("<< podcastsource.get_rss_file() << ")";
+    //	qDebug() << __FUNCTION__ << "("<< podcastsource.get_rss_file() << ")";
 
     QFile file(podcastsource.get_rss_file());
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -142,5 +147,5 @@ extern "C" void update_podcast(PodcastSource& podcastsource) {
         qWarning() << " XML error in line:" << xml.lineNumber() << exc.what();
         return;
     }
-//    qDebug() <<"parsing o.k.";
+    //    qDebug() <<"parsing o.k.";
 }
