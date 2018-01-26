@@ -4,6 +4,7 @@
 #include <QtQuick/qquickitem.h>
 #include <QtQuick/qquickview.h>
 
+#include <QQmlApplicationEngine>
 #include <QGuiApplication>
 #include <QDebug>
 #include <QLoggingCategory>
@@ -15,22 +16,18 @@
 using namespace DigitalRooster;
 
 int main(int argc, char* argv[]) {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-    QLoggingCategory::setFilterRules("*.debug=true");
+	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+  //  QLoggingCategory::setFilterRules("*.debug=true");
     QGuiApplication app(argc, argv);
 
     /*Get avaibable Podcasts */
     ConfigurationManager cm(DigitalRooster::SYSTEM_CONFIG_PATH);
     /* and let the model access the config */
-    PodcastSourceModel psmodel(&cm);
+   //PodcastSourceModel psmodel(&cm);
 
-    QQuickView view;
-    view.setResizeMode(QQuickView::SizeRootObjectToView);
+    QQmlApplicationEngine  view(QUrl("qrc:/main.qml"));
     QQmlContext* ctxt = view.rootContext();
-    ctxt->setContextProperty("podcastmodel", &psmodel);
-
-    view.setSource(QUrl("qrc:/main.qml"));
-    view.show();
+    //ctxt->setContextProperty("podcastmodel", &psmodel);
 
     return app.exec();
 }

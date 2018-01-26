@@ -10,8 +10,7 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include <QString>
 #include <QDir>
 
 namespace DigitalRooster{
@@ -53,7 +52,7 @@ namespace DigitalRooster{
 	/**
 	 * Directory for all downloaded RSS Files
 	 */
-	const QString RSS_FILE_DIR("/tmp/");
+	const QString RSS_FILE_DIR(QDir::tempPath());
 
 	/**
 	 * Runtime configuration object
