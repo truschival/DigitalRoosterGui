@@ -6,5 +6,9 @@
 		<file>PodcastList.qml</file>
 		<file>ClockPage.qml</file>
 		<file>qtquickcontrols2.conf</file>
-		</qresource>
+		<!-- 3rd party Resources -->
+		<file>IconLabel.qml</file>
+		<file>IconButton.qml</file>
+		<file alias="Icon.js" >../QmlBridgeForMaterialDesignIcons/Icon.js</file>
+	</qresource>
 </RCC>
