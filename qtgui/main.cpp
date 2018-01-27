@@ -23,11 +23,11 @@ int main(int argc, char* argv[]) {
     /*Get avaibable Podcasts */
     ConfigurationManager cm(DigitalRooster::SYSTEM_CONFIG_PATH);
     /* and let the model access the config */
-   //PodcastSourceModel psmodel(&cm);
+    PodcastSourceModel psmodel(&cm);
 
     QQmlApplicationEngine  view(QUrl("qrc:/main.qml"));
     QQmlContext* ctxt = view.rootContext();
-    //ctxt->setContextProperty("podcastmodel", &psmodel);
+    ctxt->setContextProperty("podcastmodel", &psmodel);
 
     return app.exec();
 }

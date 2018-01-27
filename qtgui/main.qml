@@ -1,7 +1,7 @@
 
 import QtQuick 2.9
 import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.3
+import QtQuick.Controls 2.1
 import QtQuick.Controls.Material 2.1
 import QtQuick.Controls.Universal 2.1
 import Qt.labs.settings 1.0
@@ -9,8 +9,8 @@ import Qt.labs.settings 1.0
 ApplicationWindow {
     id: applicationWindow
     visible: true
-    width: 640
-    height: 480
+    width: 480
+    height: 320
     title: qsTr("DigitalRooster")
 
 
@@ -24,12 +24,7 @@ ApplicationWindow {
             ToolButton {
                 text: qsTr("select")
                 onClicked: {
-                    if (stackView.depth > 1) {
-                        stackView.pop()
-                        listView.currentIndex = -1
-                    } else {
-                        drawer.open()
-                    }
+                	drawer.open()
                 }
             }
 
@@ -63,8 +58,11 @@ ApplicationWindow {
                 text: model.title
                 highlighted: ListView.isCurrentItem
                 onClicked: {
-                    listView.currentIndex = index
-                    stackView.push(model.source)
+                	if(listView.currentIndex != index){
+                    	listView.currentIndex = index
+                    	stackView.pop(null)
+                    	stackView.push(model.source)
+                    }
                     drawer.close()
                 }
             }
@@ -80,21 +78,6 @@ ApplicationWindow {
     StackView {
         id: stackView
         anchors.fill: parent
-
         initialItem: ClockPage{}
-
-//            Pane {
-//            id: pane
-
-//            Label {
-//                text: qsTr("DigitalRooster")
-//                anchors.margins: 20
-//                anchors.left: parent.left
-//                anchors.right: parent.right
-//                horizontalAlignment: Label.AlignHCenter
-//                verticalAlignment: Label.AlignVCenter
-//                wrapMode: Label.Wrap
-//            }
-//        }
     }
 }
