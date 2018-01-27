@@ -37,7 +37,7 @@ QString DownloadManager::saveFileName(const QUrl &url) {
 	if (basename.isEmpty())
 		basename = "download";
 
-	QString targetname = DigitalRooster::RSS_FILE_DIR + basename;
+	QString targetname = DigitalRooster::RSS_FILE_DIR +QDir::separator()+ basename;
 
 	if (QFile::exists(targetname)) {
 		// already exists, don't overwrite
