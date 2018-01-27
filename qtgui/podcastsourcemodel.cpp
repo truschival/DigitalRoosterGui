@@ -25,8 +25,7 @@ PodcastSourceModel::PodcastSourceModel(ConfigurationManager* confman, QObject* p
     , cm(confman) {
     auto v = cm->get_podcast_sources();
     for (auto ps : v) {
-        ps->set_updateInterval(100);
-        connect(ps.get(), SIGNAL(newDataAvailable()), this, SLOT(newDataAvailable()));
+		connect(ps.get(), SIGNAL(newDataAvailable()), this, SLOT(newDataAvailable()));
     }
 }
 /*************************************************************************************/

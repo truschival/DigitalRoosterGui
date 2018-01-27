@@ -22,7 +22,7 @@ class UpdateTask: public QObject {
 Q_OBJECT
 public:
 	explicit UpdateTask(PodcastSource& source);
-	virtual ~UpdateTask();
+	virtual ~UpdateTask() = default;
 
 public slots:
 	/**

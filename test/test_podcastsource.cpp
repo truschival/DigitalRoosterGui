@@ -51,7 +51,7 @@ TEST(PodcastSource, get_episode_names) {
 
 TEST(PodcastSource, set_updater) {
     PodcastSource ps("https://alternativlos.org/alternativlos.rss");
-    ps.set_updateInterval(10);
+    ps.set_update_interval(10);
     QSignalSpy spy(&ps, SIGNAL(newDataAvailable()));
     spy.wait(700);
     ASSERT_GT(spy.count(),1);

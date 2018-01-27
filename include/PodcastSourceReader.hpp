@@ -22,7 +22,7 @@ namespace DigitalRooster {
  * in the PodcastSource configuration
  * @param podcastsource podcast source
  */
-extern "C" void update_podcast(PodcastSource& podcastsource);
+void update_podcast(PodcastSource& podcastsource);
 
 }
 ;
