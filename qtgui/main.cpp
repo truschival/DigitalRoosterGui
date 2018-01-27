@@ -8,6 +8,7 @@
 #include <QGuiApplication>
 #include <QDebug>
 #include <QLoggingCategory>
+#include <QFontDatabase>
 
 #include "config.h"
 #include "configuration_manager.hpp"
@@ -18,6 +19,8 @@ using namespace DigitalRooster;
 int main(int argc, char* argv[]) {
 	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
   //  QLoggingCategory::setFilterRules("*.debug=true");
+	QFontDatabase::addApplicationFont(":/materialdesignicons-webfont.ttf");
+
     QGuiApplication app(argc, argv);
 
     /*Get avaibable Podcasts */

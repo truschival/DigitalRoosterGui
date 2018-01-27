@@ -4,6 +4,7 @@
         <file>main.qml</file>
         <file>PodcastDelegate.qml</file>
 		<file>PodcastList.qml</file>
+		<file>Clock.qml</file>
 		<file>ClockPage.qml</file>
 		<file>qtquickcontrols2.conf</file>
 		<!-- 3rd party Resources -->
