@@ -179,6 +179,8 @@ endif(DOXYGEN_FOUND)
 
 # Library source
 add_subdirectory(${PROJECT_SOURCE_DIR}/libsrc/)
+# external resources
+add_subdirectory(${PROJECT_SOURCE_DIR}/externalRes/)
 
 if(BUILD_EXE)
   add_subdirectory(${PROJECT_SOURCE_DIR}/qtgui/)

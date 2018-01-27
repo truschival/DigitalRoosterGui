@@ -15,3 +15,9 @@ SET(QRC_EXTERNAL_RES
   "${CMAKE_CURRENT_SOURCE_DIR}/qml_external.qrc"
   PARENT_SCOPE
   )
+
+INSTALL(
+  FILES "${CMAKE_CURRENT_SOURCE_DIR}/materialdesignicons-webfont.ttf"
+  COMPONENT DEVELOP
+  DESTINATION "${INSTALL_CMAKE_DIR}/fonts/"
+  )

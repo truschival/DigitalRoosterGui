@@ -1,8 +1,25 @@
 DigitalRooster
 ===================
 
-Internet radio and podcast player
+Internet radio and podcast player and alarmclock.
 
+----
+#License
+
+Copyright 2018 by Thomas Ruschival <thomas@ruschival.de>
+
+DigitalRooster uses Qmlbridgeformaterialfonts software by Kevin Carlso
+(https://github.com/kevincarlson/QmlBridgeForMaterialDesignIcons)
+licenced under the SIL Open Font License, Version 1.1.
+
+The font materialdesignicons-webfont.ttf is licensed under SIL Open
+Font License, Version 1.1. (http://scripts.sil.org/OFL) and copyright
+belongs to: Copyright (c) 2014, Austin Andrews (http://materialdesignicons.com/),
+with Reserved Font Name Material Design Icons.  Copyright (c) 2014,
+Google (http://www.google.com/design/) uses the license at
+(https://github.com/google/material-design-icons/blob/master/LICENSE)
+
+The respective license details can be found in the file LICENSE	
 
 -----
 # Build configuration
