@@ -13,9 +13,9 @@
 #define _CONFIGURATION_MANAGER_H_
 
 #include <QSettings>
+#include <QString>
+#include <QVector>
 #include <memory>
-#include <string>
-#include <vector>
 
 #include "PlayableItem.hpp"
 #include "PodcastSource.hpp"
@@ -37,14 +37,14 @@ public:
     /**
      * get all radio stream sources
      */
-    const std::vector<std::shared_ptr<RadioStream>>& get_stream_sources() {
+    const QVector<std::shared_ptr<RadioStream>>& get_stream_sources() {
         return stream_sources;
     }
 
     /**
      * get all radio stream sources
      */
-    const std::vector<std::shared_ptr<PodcastSource>>& get_podcast_sources() {
+    const QVector<std::shared_ptr<PodcastSource>>& get_podcast_sources() {
         return podcast_sources;
     }
     /**
@@ -64,12 +64,12 @@ private:
     /**
      * Internet radio stream souces are directly read form INI file
      */
-    std::vector<std::shared_ptr<RadioStream>> stream_sources;
+    QVector<std::shared_ptr<RadioStream>> stream_sources;
 
     /**
      * Podcast sources (only pretty name and feed-url)
      */
-    std::vector<std::shared_ptr<PodcastSource>> podcast_sources;
+    QVector<std::shared_ptr<PodcastSource>> podcast_sources;
 
     /**
      * Fills the vector stream_sources with entries form settings file
