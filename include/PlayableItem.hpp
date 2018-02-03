@@ -88,17 +88,18 @@ public:
      */
     virtual bool completed() = 0;
     /**
-     * Percentage of already listened content
+     * last stored position
      */
-    int get_position_percent() {
+    int get_position() {
         return position;
     };
     /**
-     * update percentage of already listened content
+     * update position of already listened content
      * @param newVal current position in stream
      */
-    void set_position_percent(int newVal) {
-        position = newVal;
+    void set_position(int newVal) {
+    	if(newVal <= length && newVal >=0)
+    		position = newVal;
     };
 
 
