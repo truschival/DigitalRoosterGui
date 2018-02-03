@@ -2,11 +2,10 @@ import QtQuick 2.9
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.1
 import QtQuick.Controls.Material 2.1
-import QtQuick.Controls.Universal 2.1
+/* import QtQuick.Controls.Universal 2.1 */
 import Qt.labs.settings 1.0
 
 import "Icon.js" as MdiFont
-
 
 ApplicationWindow {
 	id: applicationWindow
@@ -22,7 +21,7 @@ ApplicationWindow {
 	header: ToolBar {
 		Material.foreground: "white"
 		RowLayout {
-			spacing: 20
+			spacing: 10
 			anchors.fill: parent
 
 			IconButton {
@@ -31,7 +30,6 @@ ApplicationWindow {
 					drawer.open()
 				}
 			}
-
 			Label {
 				id: titleLabel
 				text: currentTime.timestring_lz
@@ -44,7 +42,7 @@ ApplicationWindow {
 
 	Drawer {
 		id: drawer
-		width: Math.min(applicationWindow.width, applicationWindow.height) / 3
+		width: Math.min(applicationWindow.width, applicationWindow.height) * 0.4
 		height: applicationWindow.height
 		interactive: stackView.depth == 1
 
@@ -64,6 +62,8 @@ ApplicationWindow {
 					if(listView.currentIndex != index){
 						listView.currentIndex = index
 						stackView.pop(null)
+						stackView.clear()
+						gc();
 						stackView.push(model.source)
 					}
 					drawer.close()
