@@ -23,7 +23,8 @@ set(CMAKE_AUTORCC ON)
 SET(SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/podcastsourcemodel.cpp
-  )
+  ${CMAKE_CURRENT_SOURCE_DIR}/podcastepisodemodel.cpp
+)
 
 # --------------------------------------------------------------------------------
 # App Depends on library

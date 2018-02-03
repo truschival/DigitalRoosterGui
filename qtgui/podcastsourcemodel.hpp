@@ -10,31 +10,35 @@
 #ifndef QTGUI_PODCASTSOURCEMODEL_HPP_
 #define QTGUI_PODCASTSOURCEMODEL_HPP_
 
-#include "PodcastSource.hpp"
+
 #include <QAbstractListModel>
 #include <QObject>
 #include <QStringList>
 
 namespace DigitalRooster {
+	class ConfigurationManager;
+}
 
-class ConfigurationManager;
+class PodcastEpisodeModel;
 
 class PodcastSourceModel : public QAbstractListModel {
     Q_OBJECT
-public:
-    PodcastSourceModel(ConfigurationManager* confman, QObject* parent = nullptr);
+ public:
+    PodcastSourceModel(DigitalRooster::ConfigurationManager* confman, QObject* parent = nullptr);
 
     enum PodcastSourceRoles {
         DisplayNameRole = Qt::UserRole + 1,
         DisplayUrlRole,
         DisplayCountRole,
-		DescriptionRole,
-		ImageRole
+        DescriptionRole,
+        ImageRole
     };
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
+
+    Q_INVOKABLE PodcastEpisodeModel* get_episodes(int index);
 
 public slots:
     void newDataAvailable();
@@ -43,7 +47,7 @@ protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
-    ConfigurationManager* cm;
+    DigitalRooster::ConfigurationManager* cm;
 };
-}
+
 #endif /* QTGUI_PODCASTSOURCEMODEL_HPP_ */
