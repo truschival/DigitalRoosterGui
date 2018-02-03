@@ -36,15 +36,34 @@ ApplicationWindow {
 				font.pixelSize: 20
 				elide: Label.ElideRight
 				Layout.fillWidth: true
+
+			}
+
+			IconButton {
+				id : backButton
+				text: MdiFont.Icon.keyboardBackspace
+				visible: (stackView.depth > 1)
+
+				onClicked:{
+					if (stackView.depth > 1){
+						stackView.pop()
+						console.log("BackButton")
+					}
+				}
+
+				Shortcut {
+					sequence: StandardKey.Back
+					onActivated: backButton.onClicked();
+				}
 			}
 		}
 	}
 
 	Drawer {
 		id: drawer
-		width: Math.min(applicationWindow.width, applicationWindow.height) * 0.4
+		width: applicationWindow.width * 0.2
 		height: applicationWindow.height
-		interactive: stackView.depth == 1
+		interactive: true
 
 		ListView {
 			id: listView
@@ -56,14 +75,11 @@ ApplicationWindow {
 			delegate: IconButton {
 				width: parent.width
 				text: model.title
-				highlighted: ListView.isCurrentItem
 
 				onClicked: {
 					if(listView.currentIndex != index){
 						listView.currentIndex = index
 						stackView.pop(null)
-						stackView.clear()
-						gc();
 						stackView.push(model.source)
 					}
 					drawer.close()
@@ -81,6 +97,6 @@ ApplicationWindow {
 	StackView {
 		id: stackView
 		anchors.fill: parent
-		initialItem: ClockPage{}
+		initialItem: ClockPage{id:initalClockPage}
 	}
 }

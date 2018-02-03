@@ -51,7 +51,6 @@ Rectangle{
 										{"model":
 										 podcastlist.model.get_episodes(index)});
 			stackView.push(pel);
-           	console.log("-- pushed");	
 		}
 	}
 

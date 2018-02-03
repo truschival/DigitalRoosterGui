@@ -16,7 +16,6 @@
 
 #include "PlayableItem.hpp"
 #include "podcastepisodemodel.hpp"
-
 using namespace DigitalRooster;
 
 /*************************************************************************************/
@@ -52,7 +51,7 @@ void PodcastEpisodeModel::set_episodes(
 /*************************************************************************************/
 
 int PodcastEpisodeModel::rowCount(const QModelIndex& /*parent */) const {
-	qWarning() << __FUNCTION__;
+	qDebug() << __FUNCTION__;
     if (!episodes){
     	qWarning() << " no episodes ";
         return 0;
@@ -63,7 +62,7 @@ int PodcastEpisodeModel::rowCount(const QModelIndex& /*parent */) const {
 
 /*************************************************************************************/
 QVariant PodcastEpisodeModel::data(const QModelIndex& index, int role) const {
-	qWarning() << __FUNCTION__ << "(" << index.row() << ")";
+	qDebug() << __FUNCTION__ << "(" << index.row() << ")";
 	if (!episodes)
 	        return QVariant();
 

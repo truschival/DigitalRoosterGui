@@ -52,9 +52,9 @@ void PodcastSourceModel::newDataAvailable() {
     emit dataChanged(createIndex(0, 0), createIndex(rowCount() - 1, 0));
 }
 
-/*************************************************************************************/
+/*******************************************************************************/
 PodcastEpisodeModel* PodcastSourceModel::get_episodes(int index) {
-    qWarning() << __FUNCTION__ << " ROW: " << index;
+    qDebug() << __FUNCTION__ << " index: " << index;
 
     auto v = cm->get_podcast_sources();
     if (index < 0 || index >= v.size())
