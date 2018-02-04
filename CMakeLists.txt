@@ -105,11 +105,16 @@ export(PACKAGE ${PROJECT_NAME})
 #-------------------------------------------------------------------------------
 # Compiler & Linker Flags
 # #-------------------------------------------------------------------------------
-SET(GCC_WARNING_FLAGS   " -Wall -Wextra -fmessage-length=0 -Wno-unused-parameter " )
 
+if(MSVC)
+  # Force to always compile with W4
+  SET(WARNING_FLAGS   " /W4 " )
+elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+	SET(WARNING_FLAGS   " -Wall -Wextra -fmessage-length=0 -Wno-unused-parameter " )
+endif()
 
-SET(CMAKE_C_FLAGS       " ${CMAKE_C_FLAGS} ${GCC_WARNING_FLAGS} ")
-SET(CMAKE_CXX_FLAGS     " ${CMAKE_CXX_FLAGS} ${GCC_WARNING_FLAGS} ")
+SET(CMAKE_C_FLAGS       " ${CMAKE_C_FLAGS} ${WARNING_FLAGS} ")
+SET(CMAKE_CXX_FLAGS     " ${CMAKE_CXX_FLAGS} ${WARNING_FLAGS} ")
 
 SET(CMAKE_CXX_FLAGS_RELEASE  " ${CMAKE_CXX_FLAGS_RELEASE} -ffunction-sections -fdata-sections ")
 SET(CMAKE_C_FLAGS_RELEASE  " ${CMAKE_C_FLAGS_RELEASE} -ffunction-sections -fdata-sections ")
