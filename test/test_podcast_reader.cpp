@@ -41,7 +41,38 @@ TEST(PodcastSourceReader, parseInfo_episode_length) {
     update_podcast(ps);
     const auto episodes = ps.get_episodes();
     auto title = episodes[20];
-    EXPECT_EQ(title->get_length(), 82174997);
+    // ALT21 duration: 1:35:39 =(1*60*60+35*60+39)*1000 =5739000
+    EXPECT_EQ(title->get_duration(), 5739000);
+}
+
+TEST(PodcastSourceReader, parseInfo_episode_length_mm_ss) {
+    PodcastSource ps("https://alternativlos.org/alternativlos.rss");
+    ps.set_rss_file("./alternativlos.rss");
+    update_podcast(ps);
+    const auto episodes = ps.get_episodes();
+    auto title = episodes[21];
+    // ALT20 duration: 12:02 = 12*60+02)*1000 =722000
+    EXPECT_EQ(title->get_duration(), 722000);
+}
+
+TEST(PodcastSourceReader, parseInfo_episode_length_m_ss) {
+    PodcastSource ps("https://alternativlos.org/alternativlos.rss");
+    ps.set_rss_file("./alternativlos.rss");
+    update_podcast(ps);
+    const auto episodes = ps.get_episodes();
+    auto title = episodes[22];
+    // ALT019 duration: 9:57 = (9*60+57)*1000 =597000
+    EXPECT_EQ(title->get_duration(), 597000);
+}
+
+TEST(PodcastSourceReader, parseInfo_episode_length_ss) {
+    PodcastSource ps("https://alternativlos.org/alternativlos.rss");
+    ps.set_rss_file("./alternativlos.rss");
+    update_podcast(ps);
+    const auto episodes = ps.get_episodes();
+    auto title = episodes[23];
+    // ALT018 duration: 57 = (57)*1000 =57
+    EXPECT_EQ(title->get_duration(), 57000);
 }
 
 TEST(PodcastSourceReader, parseInfo_episode_display_name) {
@@ -50,8 +81,7 @@ TEST(PodcastSourceReader, parseInfo_episode_display_name) {
     update_podcast(ps);
     const auto episodes = ps.get_episodes();
     auto title = episodes[19];
-    EXPECT_EQ(title->get_display_name(),
-        QString("ALT022: Korruption"));
+    EXPECT_EQ(title->get_display_name(), QString("ALT022: Korruption"));
 }
 
 TEST(PodcastSourceReader, parseInfo_episode_pubdate) {
@@ -116,6 +146,3 @@ TEST(PodcastSourceReader, maxEpisodesReached) {
     ASSERT_GT(episodes.size(), 1);
     ASSERT_LE(episodes.size(), maxepisodes);
 }
-
-
-

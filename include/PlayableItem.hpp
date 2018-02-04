@@ -12,9 +12,9 @@
 #ifndef _PLAYABLEITEM_HPP_
 #define _PLAYABLEITEM_HPP_
 
-#include <QObject>
 #include <QDateTime>
 #include <QDebug>
+#include <QObject>
 #include <QString>
 #include <QUrl>
 
@@ -22,10 +22,10 @@ namespace DigitalRooster {
 /**
  * Interface of Playable Item : self contained information to play
  */
-class PlayableItem : public QObject{
-	Q_OBJECT
-	Q_PROPERTY(QString display_name READ get_display_name WRITE set_display_name)
-	Q_PROPERTY(QUrl url READ get_url WRITE set_url)
+class PlayableItem : public QObject {
+    Q_OBJECT
+    Q_PROPERTY(QString display_name READ get_display_name WRITE set_display_name)
+    Q_PROPERTY(QUrl url READ get_url WRITE set_url)
 public:
     /**
      * Default Constructor
@@ -83,10 +83,7 @@ public:
         : PlayableItem(name, url){
 
           };
-    /**
-     * Has it been played completely?
-     */
-    virtual bool completed() = 0;
+
     /**
      * last stored position
      */
@@ -98,8 +95,8 @@ public:
      * @param newVal current position in stream
      */
     void set_position(int newVal) {
-    	if(newVal <= length && newVal >=0)
-    		position = newVal;
+        if (newVal <= duration && newVal >= 0)
+            position = newVal;
     };
 
 
@@ -107,17 +104,17 @@ public:
      * Total length of media in ms
      * @return
      */
-    int get_length() {
-        return length;
+    int get_duration() {
+        return duration;
     }
 
     /**
      * Update length in ms
      * @param len >= 0
      */
-    void set_length(int len) {
+    void set_duration(int len) {
         if (len >= 0)
-            length = len;
+            duration = len;
     }
 
     virtual ~SeekablePlayableItem() = default;
@@ -131,7 +128,7 @@ private:
     /**
      * Total length in ms
      */
-    int length = 0;
+    int duration = 0;
 };
 
 
@@ -164,24 +161,13 @@ public:
           };
     virtual ~PodcastEpisode() = default;
 
-
-    /**
-     * Has it been played completely?
-     */
-    virtual bool completed() override {
-        return false; // TODO
-    };
-
-
     void set_author(const QString& newAuthor) {
         author = newAuthor;
     };
 
-
     const QString& get_author() {
         return author;
     }
-
 
     const QString& get_description() {
         return description;
@@ -192,9 +178,9 @@ public:
     };
 
     QString get_guid() {
-    	if(guid.isEmpty()){
-    		return get_url().toString();
-    	}
+        if (guid.isEmpty()) {
+            return get_url().toString();
+        }
         return guid;
     }
 

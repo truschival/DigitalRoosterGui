@@ -70,12 +70,13 @@ QVariant PodcastEpisodeModel::data(const QModelIndex& index, int role) const {
 	        return QVariant();
 
 	    auto ep = episodes->at(index.row());
+     	auto duration = QTime::fromMSecsSinceStartOfDay(ep->get_duration());
 
 	    switch (role) {
 	    case DisplayNameRole:
 	        return QVariant(ep->get_display_name());
         case DurationRole:
-	        return QVariant(ep->get_length());
+           return QVariant(duration.toString("hh:mm:ss"));
 	    case CurrentPositionRole:
 	        return QVariant(ep->get_position());
 	    case DescriptionRole:

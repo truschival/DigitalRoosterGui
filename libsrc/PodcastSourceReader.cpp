@@ -11,10 +11,32 @@
 #include "config.h"
 #include <QDebug>
 #include <QFile>
+#include <QTime>
+#include <QVector>
+#include <QString>
 #include <QXmlStreamReader>
 #include <memory>
 #include <stdexcept> // std::system_error
 using namespace DigitalRooster;
+
+/*************************************************************************************/
+static QTime tryParse(const QString& timestring){
+	QVector<QString> formats{"hh:mm:ss","h:mm:ss","mm:ss","m:ss"};
+	for(const auto &f : formats){
+		auto time = QTime::fromString(timestring, f);
+		if(time.isValid()){
+			return time;
+		}
+	}
+	// Last resort - we only have non compliant seconds... BBC does that..
+	bool checkConversion = false;
+	int secs = timestring.toInt(&checkConversion,10);
+
+	if(checkConversion){
+		return QTime(0,0).addSecs(secs);
+	}
+	return QTime(0,0);
+}
 
 /*************************************************************************************/
 void parse_episodes(PodcastSource& podcastsource, QXmlStreamReader& xml) {
@@ -30,25 +52,29 @@ void parse_episodes(PodcastSource& podcastsource, QXmlStreamReader& xml) {
 
     while (!(xml.readNext() == QXmlStreamReader::EndElement && xml.name() == "item")) {
 
-        if (xml.tokenType() == QXmlStreamReader::StartElement &&
-            xml.namespaceUri() == "") {
-            if (xml.name() == "title") {
-                xml.readNext();
-                ep->set_display_name(xml.text().toString());
-            } else if (xml.name() == "description") {
-                xml.readNext();
-                ep->set_description(xml.text().toString());
-            } else if (xml.name() == "enclosure") {
-                // no readnext if we look at attributes
-                ep->set_url(QUrl(xml.attributes().value("url").toString()));
-                // length field
-                bool conversion_ok = false;
-                int length = xml.attributes().value("length").toInt(&conversion_ok, 10);
-                ep->set_length(length);
-            } else if (xml.name() == "pubDate") {
-                xml.readNext();
-                ep->set_publication_date(QDateTime::fromString(
-                    xml.text().toString(), Qt::DateFormat::RFC2822Date));
+        if (xml.tokenType() == QXmlStreamReader::StartElement) {
+            if (xml.namespaceUri() == "") {
+                if (xml.name() == "title") {
+                    xml.readNext();
+                    ep->set_display_name(xml.text().toString());
+                } else if (xml.name() == "description") {
+                    xml.readNext();
+                    ep->set_description(xml.text().toString());
+                } else if (xml.name() == "enclosure") {
+                    // no readnext if we look at attributes
+                    ep->set_url(QUrl(xml.attributes().value("url").toString()));
+                } else if (xml.name() == "pubDate") {
+                    xml.readNext();
+                    ep->set_publication_date(QDateTime::fromString(
+                        xml.text().toString(), Qt::DateFormat::RFC2822Date));
+                }
+            } else if (xml.namespaceUri() ==
+                "http://www.itunes.com/dtds/podcast-1.0.dtd") {
+                if (xml.name() == "duration") {
+                    xml.readNext();
+                    auto time = tryParse(xml.text().toString());
+                    ep->set_duration(QTime(0,0).secsTo(time)*1000);
+                }
             }
         }
 
@@ -98,9 +124,11 @@ void parse_channel(PodcastSource& podcastsource, QXmlStreamReader& xml) {
                     xml.readNext();
                     podcastsource.set_link(xml.text().toString());
                 }
-            } else if (xml.namespaceUri() == "http://www.itunes.com/dtds/podcast-1.0.dtd") {
+            } else if (xml.namespaceUri() ==
+                "http://www.itunes.com/dtds/podcast-1.0.dtd") {
                 if (xml.name() == "image") {
-                    podcastsource.set_image_uri(QUrl(xml.attributes().value("href").toString()));
+                    podcastsource.set_image_uri(
+                        QUrl(xml.attributes().value("href").toString()));
                 }
             }
         }
