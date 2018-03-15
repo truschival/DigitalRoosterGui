@@ -14,18 +14,20 @@ list(APPEND CMAKE_MODULE_PATH  ${CMAKE_SOURCE_DIR}/CMakeModules/)
 
 #-------------------------------------------------------------------------------
 # Project Name
-project (DigitalRooster CXX C)
-# Some arbitrary hand-maintained version
-set(PROJECT_MAJOR_VERSION 0)
-set(PROJECT_MINOR_VERSION 0)
-set(PROJECT_PATCH_VERSION 1)
-set(PROJECT_VERSION  ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION})
-# Some arbitrary project description - only used in doxygen and cpack
-set(PROJECT_DESCRIPTION "A Digital Alarm Clock")
+project (DigitalRooster
+	VERSION 0.1.0 
+	DESCRIPTION  "A digital alarm clock and podcast player"
+	LANGUAGES CXX C)
+
 message(STATUS "Running ${CMAKE_COMMAND} ${CMAKE_VERSION} on ${CMAKE_PROJECT_NAME} v${PROJECT_VERSION}" )
 
 # Package-Config for components that CMake does not support directly
 # include(FindPkgConfig)
+
+if(POLICY CMP0071)
+	# POLICY since CMake 3.10 (https://cmake.org/cmake/help/git-stage/policy/CMP0071.html)
+  cmake_policy(SET CMP0071 NEW)
+endif()
 
 #-------------------------------------------------------------------------------
 # user Configuration + Defaults
@@ -34,7 +36,7 @@ option(BUILD_EXE "Build QT Gui" On)
 option(BUILD_TEST "Build Tests" On)
 option(PROFILE "Build with Profiling" Off)
 option(TEST_COVERAGE "Test Coverage" Off)
-option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" Off)
+option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" On)
 option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." Off)
 
 #-------------------------------------------------------------------------------
@@ -59,7 +61,8 @@ endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 message(STATUS "------------- Config --------- " )
 message(STATUS "Build-type:\t\t ${CMAKE_BUILD_TYPE} " )
 message(STATUS "Build UnitTests:\t ${BUILD_TEST} ")
-message(STATUS "Install UnitTests:\t ${INSTALL_UNIT_TEST_ON_TARGET} ")
+message(STATUS "Build GoogleTest:\t ${BUILD_GTEST_FROM_SRC} ")
+message(STATUS "GCOV Coverage:\t ${TEST_COVERAGE} ")
 message(STATUS "------------------------------ " )
 
 #-------------------------------------------------------------------------------
