@@ -181,6 +181,8 @@ endif(BUILD_EXE)
 
 # config/
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config/digitalrooster.ini" "${CMAKE_BINARY_DIR}/config/digitalrooster.ini" COPYONLY)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config/digitalrooster.json" "${CMAKE_BINARY_DIR}/config/digitalrooster.json" COPYONLY)
+
 
 # Tests
 if(BUILD_TEST)

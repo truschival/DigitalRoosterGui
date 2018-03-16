@@ -14,8 +14,43 @@
 
 using namespace DigitalRooster;
 
+
+void ConfigurationManager::readJson(const QString& filepath)
+{
+	QString val;
+	QFile file(filepath);
+	
+	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		qWarning() << file.errorString();
+		return;
+	}
+	
+	val = file.readAll();
+	file.close();
+	
+	QJsonDocument d = QJsonDocument::fromJson(val.toUtf8());
+	QJsonObject sett2 = d.object();
+	
+	QJsonValue value = sett2.value(QString("Podcasts"));
+	qWarning() << value;
+	QJsonObject item = value.toObject();
+	qWarning() << "QJsonObject of description: " << item;
+
+	/* in case of string value get value and convert into string*/
+	qWarning() <<"QJsonObject[appName] of description: " << item["description"];
+	QJsonValue subobj = item["description"];
+	qWarning() << subobj.toString();
+
+	/* in case of array get array and convert into string*/
+	qWarning() << "QJsonObject[appName] of value: " << item["imp"];
+	QJsonArray test = item["imp"].toArray();
+	qWarning() << test[1].toString();
+}
+
+
 ConfigurationManager::ConfigurationManager(const QString& filepath)
     : qs(filepath, QSettings::IniFormat) {
+	readJson(filepath);
     read_radio_streams_from_file();
     read_podcasts_from_file();
 };

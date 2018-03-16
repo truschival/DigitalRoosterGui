@@ -71,6 +71,10 @@ private:
      */
     QVector<std::shared_ptr<PodcastSource>> podcast_sources;
 
+	/**
+	 * read Json file and fill sources
+	 */
+	void readJson(const QString& filepath);
     /**
      * Fills the vector stream_sources with entries form settings file
      */
