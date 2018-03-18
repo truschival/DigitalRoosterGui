@@ -1,5 +1,7 @@
 import QtQuick 2.0
 
+import ruschi.PodcastEpisode 1.0
+
 Rectangle{
     id: rectangle
 	width:  parent.width;
@@ -65,7 +67,9 @@ Rectangle{
 
 	MouseArea {
 		anchors.fill: parent
-		onClicked:  {
+		onPressAndHold:  {
+			//applicationWindow.currentEpisode = PodcastEpisode{author: "thomas"}
+			episodeInfoDialog.open()
 			console.log("PodcastEpisodeDelegate.onClicked()" + display_name + ' -> ' +  index)
 		}
 	}

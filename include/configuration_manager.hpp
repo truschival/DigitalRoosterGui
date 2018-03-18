@@ -59,7 +59,15 @@ public:
     void write_config_file();
 
 private:
-    QSettings qs;
+	/**
+	 * Path for configuration file
+	 */
+	QString filepath;
+	/** 
+	 * JSon Object containing the configuration including podcasts, Internet radio etc
+	 * read form digitalrooster.json
+	 */
+	QJsonObject appconfig;
 
     /**
      * Internet radio stream souces are directly read form INI file

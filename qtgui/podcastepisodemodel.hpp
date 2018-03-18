@@ -55,6 +55,8 @@ public:
         name = n;
     }
 
+	Q_INVOKABLE DigitalRooster::PodcastEpisode* get_episode(int index);
+
 protected:
     QHash<int, QByteArray> roleNames() const;
 

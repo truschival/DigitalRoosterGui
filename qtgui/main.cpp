@@ -26,6 +26,7 @@ int main(int argc, char* argv[]) {
     QGuiApplication app(argc, argv);
     qmlRegisterType<PodcastEpisodeModel>(
         "ruschi.PodcastEpisodeModel", 1, 0, "PodcastEpisodeModel");
+	qmlRegisterType<PodcastEpisode>("ruschi.PodcastEpisode", 1, 0, "PodcastEpisode");
 
     /*Get avaibable Podcasts */
 	QFile file(DigitalRooster::SYSTEM_CONFIG_PATH);

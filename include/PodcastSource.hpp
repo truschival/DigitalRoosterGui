@@ -61,14 +61,14 @@ public:
     /**
      * Description of the Channel (mandatory by RSS2.0 spec)
      */
-    const QString& get_description() {
+    const QString& get_description() const {
         return description;
     }
 
     /**
      * When was this podcast source last scanned for new items
      */
-    const QDateTime& get_last_updated() {
+    const QDateTime& get_last_updated()  const {
         return last_updated;
     };
 
@@ -82,7 +82,7 @@ public:
     /**
      * Logo Image of podcast
      */
-    const QUrl& get_image_uri() {
+    const QUrl& get_image_uri() const {
         return image_uri;
     }
     void set_image_uri(const QUrl& uri) {
@@ -99,14 +99,14 @@ public:
     /**
      * path local XML file for RSS feed
      */
-    const QString& get_rss_file() {
+    const QString& get_rss_file()  const {
         return rss_file;
     }
 
     /**
      * title element of RSS channel
      */
-    const QString& get_title() {
+    const QString& get_title() const {
         return title;
     }
 
@@ -114,13 +114,13 @@ public:
      * seconds until update is meaningful. Calculated from optional items skip_days
      * and skip_hours
      */
-    int get_update_period() {
+    int get_update_period()  const {
         return update_period;
     };
     /**
      * URL for rss feed of this podcast
      */
-    const QUrl& get_url() {
+    const QUrl& get_url() const {
         return rss_feed_uri;
     }
 

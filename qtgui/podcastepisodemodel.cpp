@@ -59,6 +59,12 @@ int PodcastEpisodeModel::rowCount(const QModelIndex& /*parent */) const {
     return episodes->size();
 }
 
+/*******************************************************************************/
+PodcastEpisode* PodcastEpisodeModel::get_episode(int index) {
+	qDebug() << __FUNCTION__ << " index: " << index;
+
+	return episodes->at(index).get();
+}
 
 /*************************************************************************************/
 QVariant PodcastEpisodeModel::data(const QModelIndex& index, int role) const {

@@ -22,7 +22,7 @@ namespace DigitalRooster{
 	/**
 	 * Name of configuration file
 	 */
-	const QString SYSTEM_CONFIG_PATH("config/digitalrooster.ini");
+	const QString SYSTEM_CONFIG_PATH("config/digitalrooster.json");
 
 	/**
 	 * INI configuration Key for Sources
@@ -40,9 +40,9 @@ namespace DigitalRooster{
 	const QString KEY_GROUP_PODCAST_SOURCES("Podcasts");
 
 	/**
-	 * Key for all URLs
+	 * Key for all URIs
 	 */
-	const QString KEY_URL("url");
+	const QString KEY_URI("uri");
 
 	/**
 	 * Key for all nice names
