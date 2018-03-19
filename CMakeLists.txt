@@ -41,7 +41,7 @@ option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" On)
 option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." Off)
 
 SET(SETTINGS_FILE_NAME "digitalrooster.json" CACHE STRING "application configuration file name")
-SET(SETTINGS_PATH  "settings" CACHE PATH "application configuration path")
+SET(SETTINGS_PATH  "${CMAKE_CURRENT_BINARY_DIR}/settings" CACHE PATH "application configuration path")
 set(GENERATED_DIR  "${CMAKE_BINARY_DIR}/generated" CACHE INTERNAL "" )
 
 
@@ -190,7 +190,7 @@ endif(BUILD_EXE)
 
 #default configuration installation
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config/digitalrooster.json" 
-           "${CMAKE_BINARY_DIR}/${SETTINGS_PATH}/${SETTINGS_FILE_NAME}" COPYONLY)
+           "${SETTINGS_PATH}/${SETTINGS_FILE_NAME}" COPYONLY)
 
 # Tests
 if(BUILD_TEST)

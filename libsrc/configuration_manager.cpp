@@ -20,13 +20,6 @@ using namespace DigitalRooster;
 
 ConfigurationManager::ConfigurationManager(const QString& filepath)
     : filepath(filepath) {
-    QFile file(filepath);
-    if (!file.isReadable()) {
-        qDebug() << file.errorString();
-        throw std::system_error(
-            make_error_code(std::errc::no_such_file_or_directory),
-            "Cannot read file");
-    }
     readJson();
     read_radio_streams_from_file();
     read_podcasts_from_file();
