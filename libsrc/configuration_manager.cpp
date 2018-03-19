@@ -7,42 +7,48 @@
  * \author ruschi
  *
  *************************************************************************************/
+#include <appconstants.hpp>
 #include <QString>
 #include <iostream>
 
 #include "UpdateTask.hpp"
 #include "configuration_manager.hpp"
-#include "config.h"
 
 using namespace DigitalRooster;
 
-
-
 /***********************************************************************************/
 
-ConfigurationManager::ConfigurationManager(const QString& filepath):filepath(filepath) {
-	readJson(filepath);
+ConfigurationManager::ConfigurationManager(const QString& filepath)
+    : filepath(filepath) {
+    QFile file(filepath);
+    if (!file.isReadable()) {
+        qDebug() << file.errorString();
+        throw std::system_error(
+            make_error_code(std::errc::no_such_file_or_directory),
+            "Cannot read file");
+    }
+    readJson();
     read_radio_streams_from_file();
     read_podcasts_from_file();
 };
 
 /***********************************************************************************/
-void ConfigurationManager::readJson(const QString& filepath)
-{
-	QString val;
-	QFile file(filepath);
+void ConfigurationManager::readJson() {
+    QString val;
+    QFile file(filepath);
 
-	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		qDebug() << file.errorString();
-		throw std::system_error(
-			make_error_code(std::errc::no_such_file_or_directory), file.errorString().toStdString());
-	}
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << file.errorString();
+        throw std::system_error(
+            make_error_code(std::errc::no_such_file_or_directory),
+            file.errorString().toStdString());
+    }
 
-	val = file.readAll();
-	file.close();
+    val = file.readAll();
+    file.close();
 
-	QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-	appconfig = doc.object();
+    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+    appconfig = doc.object();
 }
 
 /***********************************************************************************/

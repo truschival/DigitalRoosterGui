@@ -129,6 +129,9 @@ docs/_build/
 # PyBuilder
 target/
 
+# ---> Visual Studion
+.vs/
+
 # ---> Qt
 # C++ objects and libs
 

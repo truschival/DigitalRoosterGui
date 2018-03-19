@@ -10,19 +10,15 @@
 
 #pragma once
 
+#include "config.h"
 #include <QString>
 #include <QDir>
 
 namespace DigitalRooster{
-
-	/**
-	 * Application CompileTime Configurations
-	 */
-
 	/**
 	 * Name of configuration file
 	 */
-	const QString SYSTEM_CONFIG_PATH("config/digitalrooster.json");
+	const QString SYSTEM_CONFIG_PATH(QString(SETTINGS_PATH) + "/" + QString(SETTINGS_FILE_NAME));
 
 	/**
 	 * INI configuration Key for Sources

@@ -10,9 +10,12 @@ Internet radio and podcast player
 ## Options & Defaults (compilation flags & targets):
 - -DBUILD_TEST=OFF      (build google test)
                         requires GTest installed as library or `-DBUILD_GTEST_FROM_SRC=On`
-- -DBUILD_GTEST_FROM_SRC=Off (recompile gtest as external project)
-- -DTEST_COVERAGE=Off   (code coverage)
+- `-DBUILD_GTEST_FROM_SRC=Off` (recompile gtest as external project)
+- `-DTEST_COVERAGE=Off`   (code coverage)
 
+Slightly useless configurations
+- `-DSETTINGS_FILE_NAME=...` Filename for settings default to digitalrooster.json
+- `-DSETTINGS_FILE_PATH=...` Where to find configuration file
 
 ## Build Setup
 	

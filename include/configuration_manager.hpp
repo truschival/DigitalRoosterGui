@@ -17,9 +17,9 @@
 #include <QVector>
 #include <memory>
 
+#include "appconstants.hpp"
 #include "PlayableItem.hpp"
 #include "PodcastSource.hpp"
-#include "config.h"
 
 namespace DigitalRooster {
 
@@ -29,8 +29,7 @@ public:
      * Default constructor with path to ini file
      * @param filepath
      */
-    ConfigurationManager(
-        const QString& filepath = DigitalRooster::SYSTEM_CONFIG_PATH);
+    ConfigurationManager(const QString& filepath = DigitalRooster::SYSTEM_CONFIG_PATH);
 
     virtual ~ConfigurationManager() = default;
 
@@ -82,7 +81,7 @@ private:
 	/**
 	 * read Json file and fill sources
 	 */
-	void readJson(const QString& filepath);
+	void readJson();
     /**
      * Fills the vector stream_sources with entries form settings file
      */

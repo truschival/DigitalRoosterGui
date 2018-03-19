@@ -1,3 +1,4 @@
+
 #define QT_QML_DEBUG
 #include <QtQuick>
 
@@ -11,7 +12,6 @@
 #include <QLoggingCategory>
 #include <QQmlApplicationEngine>
 
-#include "config.h"
 #include "configuration_manager.hpp"
 #include "podcastepisodemodel.hpp"
 #include "podcastsourcemodel.hpp"
@@ -29,14 +29,7 @@ int main(int argc, char* argv[]) {
 	qmlRegisterType<PodcastEpisode>("ruschi.PodcastEpisode", 1, 0, "PodcastEpisode");
 
     /*Get avaibable Podcasts */
-	QFile file(DigitalRooster::SYSTEM_CONFIG_PATH);
-	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		qDebug() << file.errorString();
-		throw std::system_error(
-			make_error_code(std::errc::no_such_file_or_directory), "Cannot read file");
-	}
-
-	 ConfigurationManager cm(DigitalRooster::SYSTEM_CONFIG_PATH);
+	ConfigurationManager cm(DigitalRooster::SYSTEM_CONFIG_PATH);
     /* and let the model access the config */
     PodcastSourceModel psmodel(&cm);
 

@@ -14,7 +14,7 @@
 #include <cstdio>
 #include <fstream>
 #include <string>
-
+#include "appconstants.hpp"
 #include "configuration_manager.hpp"
 
 using namespace DigitalRooster;

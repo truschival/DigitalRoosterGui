@@ -8,6 +8,7 @@
  *
  *************************************************************************************/
 
+#include <appconstants.hpp>
 #include <gtest/gtest.h>
 #include <stdexcept> // std::system_error
 #include <memory>
@@ -18,7 +19,6 @@
 
 #include "PodcastSource.hpp"
 #include "PlayableItem.hpp"
-#include "config.h"
 
 using namespace DigitalRooster;
 

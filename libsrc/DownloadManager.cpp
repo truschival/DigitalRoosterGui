@@ -7,7 +7,7 @@
  * \author ruschi
  *
  *************************************************************************************/
-#include "config.h"
+#include <appconstants.hpp>
 #include <DownloadManager.hpp>
 #include <QDebug>
 

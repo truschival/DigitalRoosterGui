@@ -8,11 +8,11 @@
  *
  *************************************************************************************/
 
-#include "confmon.hpp"
-#include <config.h>
 #include <gtest/gtest.h>
-
 #include <QSignalSpy>
+
+#include "confmon.hpp"
+#include "appconstants.hpp"
 
 using namespace DigitalRooster;
 

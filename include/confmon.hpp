@@ -13,34 +13,29 @@
 #ifndef _CONFMON_H_
 #define _CONFMON_H_
 
-#include <config.h>
 #include <QString>
 #include <QSettings>
 
 namespace DigitalRooster {
 
-class ConfMon : public QSettings {
-	Q_OBJECT
-public:
+	class ConfMon : public QSettings {
+		Q_OBJECT
+	public:
 
-	ConfMon() : cfgPath(SYSTEM_CONFIG_PATH){};
+		ConfMon();
 
-	const QString& getCfgPath();
+		const QString& getCfgPath();
 
-	void sendSignal();
+		void sendSignal();
 
-public slots:
+		public slots:
 
-signals:
-	void config_changed(const AppConfig&);
+	signals:
+//		void config_changed(const AppConfig&);
 
-private:
-	QString cfgPath;
-
-	AppConfig appCfg;
-
-};
-
+	private:
+		QString cfgPath;
+	};
 }
 #endif /* _CONFMON_H_ */
 

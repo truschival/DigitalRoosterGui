@@ -7,8 +7,8 @@
  * \author  ruschi
  *************************************************************************************/
 
+#include <appconstants.hpp>
 #include "PodcastSourceReader.hpp"
-#include "config.h"
 #include <QDebug>
 #include <QFile>
 #include <QTime>
