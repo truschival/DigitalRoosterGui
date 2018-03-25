@@ -2,6 +2,7 @@ import QtQuick 2.9
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.1
 import QtQuick.Controls.Material 2.1
+import QtMultimedia 5.8
 /* import QtQuick.Controls.Universal 2.1 */
 import Qt.labs.settings 1.0
 
@@ -16,8 +17,6 @@ ApplicationWindow {
     height: 320
     property alias playerControlWidget: playerControlWidget
     property string functionMode: "Clock"
-
-	property PodcastEpisode currentEpisode
 
     title: qsTr("DigitalRooster")
 
@@ -128,6 +127,27 @@ ApplicationWindow {
         anchors.bottom: parent.bottom
 
         property bool playing: false
+		property PodcastEpisode currentEpisode;
+
+		MediaPlayer {
+			id: player
+		}
+
+		function updateEpisode(newEpisode){
+			if(newEpisode == null){
+				console.log("newEpisode is null")
+			}
+			if( currentEpisode != null){
+				console.log("updating previous episode "+ currentEpisode.display_name)
+			}
+			currentEpisode = newEpisode
+			player.source = newEpisode.url
+			player.play()
+			playing = true
+			durationTotal.text = player.duration
+			setVisible(true)
+			console.log("currentEpisode is set to "+ currentEpisode.display_name)
+		}
 
         function setVisible(visible){
             console.log("setVisible"+visible)
@@ -143,6 +163,21 @@ ApplicationWindow {
             onTriggered: parent.setVisible(false)
          }
 
+
+		 function updateSlider(){
+			console.log("updating slider position "+player.position )
+			slider.value = player.position/player.duration
+			timeElapsed.text = player.position
+		 }
+
+		 Timer {
+            id: sliderUpdateTimer
+            interval: 500;
+            running: true;
+            repeat: true;
+            onTriggered: parent.updateSlider()
+         }
+
         IconButton {
             id: playBtn
             anchors.horizontalCenter: parent.horizontalCenter
@@ -151,9 +186,16 @@ ApplicationWindow {
 
             text: parent.playing? MdiFont.Icon.play: MdiFont.Icon.pause
             onClicked: {
-                playerControlWidget.playing = !playerControlWidget.playing
-                interactiontimer.restart()
                 console.log("playBtn")
+				playerControlWidget.playing = !playerControlWidget.playing
+                interactiontimer.restart()
+				if(playerControlWidget.playing){
+					player.pause()
+				}
+				else{
+					player.play()
+					console.log("current pos: "+player.position)
+				}
             }
         }
 
@@ -188,12 +230,12 @@ ApplicationWindow {
             width: parent.width*0.85
             anchors.top: playBtn.bottom
             anchors.topMargin: -15
-            value: 0.6
+            value: player.position/player.duration
             onValueChanged: interactiontimer.restart()
         }
         Text{
             id: timeElapsed
-            text: "1:13:00"
+            text: player.position
             anchors.horizontalCenter: slider.left
             anchors.top: slider.bottom
             anchors.margins: 2

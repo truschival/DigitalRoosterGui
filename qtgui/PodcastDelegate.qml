@@ -49,7 +49,8 @@ Rectangle{
 			
 			var pel = comp.createObject(stackView,
 										{"model":
-										 podcastlist.model.get_episodes(index)});
+										 podcastlist.model.get_episodes(index),
+										 "foo" : podcastlist.model.get_episodes(index)});
 			stackView.push(pel);
 		}
 	}

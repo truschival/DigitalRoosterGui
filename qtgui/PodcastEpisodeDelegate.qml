@@ -67,9 +67,11 @@ Rectangle{
 
 	MouseArea {
 		anchors.fill: parent
+		onClicked:{
+			playerControlWidget.setVisible(true)
+		}
 		onPressAndHold:  {
-			//applicationWindow.currentEpisode = PodcastEpisode{author: "thomas"}
-			episodeInfoDialog.open()
+			playerControlWidget.updateEpisode(foo.get_episode(index))
 			console.log("PodcastEpisodeDelegate.onClicked()" + display_name + ' -> ' +  index)
 		}
 	}
