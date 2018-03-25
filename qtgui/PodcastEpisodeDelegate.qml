@@ -71,8 +71,7 @@ Rectangle{
 			playerControlWidget.setVisible(true)
 		}
 		onPressAndHold:  {
-			playerControlWidget.updateEpisode(foo.get_episode(index))
-			console.log("PodcastEpisodeDelegate.onClicked()" + display_name + ' -> ' +  index)
+			playerControlWidget.playEpisode(episodemodel.get_episode(index))
 		}
 	}
 

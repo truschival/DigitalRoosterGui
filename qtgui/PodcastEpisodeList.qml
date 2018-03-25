@@ -7,7 +7,7 @@ ListView {
 	width: parent.width
 	height: parent.height
 
-	property PodcastEpisodeModel foo;
+	property PodcastEpisodeModel episodemodel;
 
 	delegate:PodcastEpisodeDelegate{
 		id: ped

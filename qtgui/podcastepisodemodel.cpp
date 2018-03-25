@@ -13,7 +13,7 @@
 #include <QByteArray>
 #include <QHash>
 #include <QDebug>
-#include <QQmlengine>
+#include <QQmlEngine>
 
 #include "PlayableItem.hpp"
 #include "podcastepisodemodel.hpp"
