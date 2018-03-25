@@ -22,10 +22,10 @@ void DownloadManager::doDownload(const QUrl &url) {
 	QNetworkRequest request(url);
 	QNetworkReply *reply = manager.get(request);
 
-#if QT_CONFIG(ssl)
+//#if QT_CONFIG(ssl)
 	connect(reply, SIGNAL(sslErrors(QList<QSslError>)),
 			SLOT(sslErrors(QList<QSslError>)));
-#endif
+//#endif
 
 	currentDownloads.append(reply);
 }
@@ -74,12 +74,12 @@ bool DownloadManager::isHttpRedirect(QNetworkReply *reply) {
 }
 
 void DownloadManager::sslErrors(const QList<QSslError> &sslErrors) {
-#if QT_CONFIG(ssl)
+//#if QT_CONFIG(ssl)
 	for (const QSslError &error : sslErrors)
 		fprintf(stderr, "SSL error: %s\n", qPrintable(error.errorString()));
-#else
+// #else
 	Q_UNUSED(sslErrors);
-#endif
+// #endif
 }
 
 void DownloadManager::downloadFinished(QNetworkReply *reply) {
