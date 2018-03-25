@@ -7,54 +7,101 @@
  * \author ruschi
  *
  *************************************************************************************/
+#include <appconstants.hpp>
+#include <QString>
+#include <iostream>
 
-#include <configuration_manager.hpp>
+#include "UpdateTask.hpp"
+#include "configuration_manager.hpp"
 
 using namespace DigitalRooster;
 
+/***********************************************************************************/
 
-ConfigurationManager::ConfigurationManager(const std::string& filepath) :
-		qs(filepath.c_str(), QSettings::IniFormat) {
-	read_radio_streams_from_file();
+ConfigurationManager::ConfigurationManager(const QString& filepath)
+    : filepath(filepath) {
+    readJson();
+    read_radio_streams_from_file();
+    read_podcasts_from_file();
+};
+
+/***********************************************************************************/
+void ConfigurationManager::readJson() {
+    QString val;
+    QFile file(filepath);
+
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        qDebug() << file.errorString();
+        throw std::system_error(
+            make_error_code(std::errc::no_such_file_or_directory),
+            file.errorString().toStdString());
+    }
+
+    val = file.readAll();
+    file.close();
+
+    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
+    appconfig = doc.object();
 }
-;
 
+/***********************************************************************************/
 void ConfigurationManager::read_radio_streams_from_file() {
-	QString key(KEY_GROUP_SOURCES.c_str());
-	key.append("/").append(KEY_GROUP_IRADIO_SOURCES.c_str());
-	int size = qs.beginReadArray(key);
-	for (int i = 0; i < size; i++) {
-		qs.setArrayIndex(i);
-
-		stream_sources.emplace_back(
-				qs.value(KEY_NAME.c_str(), "UNKNOWN_NAME").toString(),
-				qs.value(KEY_URL.c_str(), "UNKNOWN_URL").toString());
+	QJsonArray irconfig = appconfig[DigitalRooster::KEY_GROUP_IRADIO_SOURCES].toArray();
+	for (const auto ir : irconfig) {
+		std::cout << ir.toString().toStdString() << std::endl;
+		QString name(ir.toObject()[KEY_NAME].toString());
+		QUrl url(ir.toObject()[KEY_URI].toString());
+		if (url.isValid()) {
+			stream_sources.push_back(std::make_shared<RadioStream>(
+				name, url));
+		}
 	}
-	qs.endArray();
 }
 
 /***********************************************************************************/
-void ConfigurationManager::add_radio_station(PlayableItem&& src) {
-	this->stream_sources.emplace_back(std::forward<PlayableItem>(src));
+void ConfigurationManager::read_podcasts_from_file() {
+	QJsonArray podcasts = appconfig[DigitalRooster::KEY_GROUP_PODCAST_SOURCES].toArray();
+	for (const auto pc : podcasts) {
+		std::cout << pc.toString().toStdString() << std::endl;
+		QUrl url(pc.toObject()[KEY_URI].toString());
+		if (url.isValid()) {
+			auto ps = std::make_shared<PodcastSource>(url);
+			podcast_sources.push_back(ps);
+		}
+	}
 }
-
 /***********************************************************************************/
-void ConfigurationManager::add_radio_station(const PlayableItem& src) {
-	this->stream_sources.push_back(src);
+void ConfigurationManager::add_radio_station(std::unique_ptr<RadioStream> src) {
+    this->stream_sources.push_back(std::shared_ptr<RadioStream>(std::move(src)));
 }
 
 /***********************************************************************************/
 void ConfigurationManager::write_config_file() {
-	qs.beginGroup(KEY_GROUP_SOURCES.c_str());
-	qs.beginWriteArray(KEY_GROUP_IRADIO_SOURCES.c_str(),stream_sources.size());
-	int i =0;
-	for(auto& e : stream_sources){
-		qs.setArrayIndex(i++);
-		qs.setValue(KEY_NAME.c_str(),e.get_display_name());
-		qs.setValue(KEY_URL.c_str(),e.get_url());
+	/*clear previous doc */
+	QJsonArray podcasts;
+	for (const auto& ps : get_podcast_sources()) {
+		QJsonObject psconfig;
+		psconfig[KEY_NAME] = ps->get_title();
+		psconfig[KEY_URI] = ps->get_url().toString();
+		podcasts.append(psconfig);
 	}
-	qs.endArray();
-	qs.endGroup();
 
-	qs.sync();
+	appconfig[KEY_GROUP_PODCAST_SOURCES] = podcasts;
+
+	QJsonArray iradios;
+	for (const auto& iradiostream : get_stream_sources()) {
+		QJsonObject irconfig;
+		irconfig[KEY_NAME] = iradiostream->get_display_name();
+		irconfig[KEY_URI] = iradiostream->get_url().toString();
+		iradios.append(irconfig);
+	}
+	appconfig[KEY_GROUP_IRADIO_SOURCES] = iradios;
+
+	QFile tf(filepath);
+	tf.open(QIODevice::ReadWrite | QIODevice::Text);
+	QJsonDocument doc(appconfig);
+	tf.write(doc.toJson());
+	tf.close();
+
+
 }

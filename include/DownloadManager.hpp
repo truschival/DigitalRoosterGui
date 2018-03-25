@@ -15,27 +15,29 @@
 #include <QtNetwork>
 #include <cstdio>
 
-
 class QSslError;
 
 namespace DigitalRooster {
 
-class DownloadManager: public QObject
-{
-    Q_OBJECT
-    QNetworkAccessManager manager;
-    QVector<QNetworkReply *> currentDownloads;
+class DownloadManager: public QObject {
+Q_OBJECT
+	QNetworkAccessManager manager;
+	QVector<QNetworkReply *> currentDownloads;
 
 public:
-    DownloadManager();
-    void doDownload(const QUrl &url);
-    static QString saveFileName(const QUrl &url);
-    bool saveToDisk(const QString &filename, QIODevice *data);
-    static bool isHttpRedirect(QNetworkReply *reply);
+	DownloadManager();
+	void doDownload(const QUrl &url);
+	static QString saveFileName(const QUrl &url);
+	bool saveToDisk(const QString &targetpath, QIODevice *data);
+	static bool isHttpRedirect(QNetworkReply *reply);
 
 public slots:
-    void downloadFinished(QNetworkReply *reply);
-    void sslErrors(const QList<QSslError> &errors);
+	void downloadFinished(QNetworkReply *reply);
+	void sslErrors(const QList<QSslError> &errors);
+
+signals:
+	void newFileAvailable(const QString &filename);
+
 };
 
 } /* namespace DigitalRooster */

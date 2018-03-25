@@ -1,0 +1,10 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="/ext">
+		<!-- 3rd party Resources -->
+		<file>IconLabel.qml</file>
+		<file alias="IconButton" >IconButton.qml</file>
+		<file alias="Icon.js">Icon.js</file>
+		<file>materialdesignicons-webfont.ttf</file>
+	</qresource>
+</RCC>

@@ -8,26 +8,25 @@
  *
  *************************************************************************************/
 
-#include <config.h>
 #include <gtest/gtest.h>
-#include "confmon.hpp"
-
 #include <QSignalSpy>
+
+#include "confmon.hpp"
+#include "appconstants.hpp"
 
 using namespace DigitalRooster;
 
-TEST(ConfMon,config_file_path) {
-	DigitalRooster::ConfMon cm;
-	ASSERT_STREQ(cm.getCfgPath().toStdString().c_str(),
-			DigitalRooster::SYSTEM_CONFIG_PATH.c_str());
+TEST(ConfMon, config_file_path) {
+    DigitalRooster::ConfMon cm;
+    ASSERT_EQ(cm.getCfgPath(), DigitalRooster::SYSTEM_CONFIG_PATH);
 }
 
-TEST(ConfMon,sig_conf_changed_emitted) {
-	DigitalRooster::ConfMon cm;
+TEST(ConfMon, sig_conf_changed_emitted) {
+    DigitalRooster::ConfMon cm;
 
-	QSignalSpy spy(&cm, SIGNAL(config_changed(const AppConfig& )));
+    QSignalSpy spy(&cm, SIGNAL(config_changed(const AppConfig&)));
 
-	cm.sendSignal();
+    cm.sendSignal();
 
-	ASSERT_EQ(spy.count(), 1);
+    ASSERT_EQ(spy.count(), 1);
 }

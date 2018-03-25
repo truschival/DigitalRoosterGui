@@ -11,8 +11,12 @@
  *************************************************************************************/
 
 #include "confmon.hpp"
+#include "appconstants.hpp"
 
 using ConfMon = DigitalRooster::ConfMon;
+
+ConfMon::ConfMon() : cfgPath(SYSTEM_CONFIG_PATH) {};
+
 
 const QString& ConfMon::getCfgPath() {
 	return this->cfgPath;
@@ -20,5 +24,5 @@ const QString& ConfMon::getCfgPath() {
 
 
 void ConfMon::sendSignal(){
-	emit config_changed(this->appCfg);
+//	emit config_changed(this->appCfg);
 }

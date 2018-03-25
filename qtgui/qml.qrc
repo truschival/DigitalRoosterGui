@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>PodcastDelegate.qml</file>
+        <file>PodcastList.qml</file>
+        <file>Clock.qml</file>
+        <file>ClockPage.qml</file>
+        <file>PodcastEpisodeDelegate.qml</file>
+        <file>PodcastEpisodeList.qml</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>IconLabel.qml</file>
+        <file>IconButton.qml</file>
+        <file alias="Icon.js">Icon.js</file>
+        <file>Jsutil.js</file>
+    </qresource>
+</RCC>

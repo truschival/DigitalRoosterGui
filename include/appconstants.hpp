@@ -10,45 +10,45 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
+#include "config.h"
+#include <QString>
 #include <QDir>
 
 namespace DigitalRooster{
-
-	/**
-	 * Application CompileTime Configurations
-	 */
-
 	/**
 	 * Name of configuration file
 	 */
-	const std::string SYSTEM_CONFIG_PATH("./dr.ini");
+	const QString SYSTEM_CONFIG_PATH(QString(SETTINGS_PATH) + "/" + QString(SETTINGS_FILE_NAME));
 
 	/**
 	 * INI configuration Key for Sources
 	 */
-	const std::string KEY_GROUP_SOURCES("Sources");
+	const QString KEY_GROUP_SOURCES("Sources");
 
 	/**
 	 * Internet Radio entries are found here
 	 */
-	const std::string KEY_GROUP_IRADIO_SOURCES("InternetRadio");
+	const QString KEY_GROUP_IRADIO_SOURCES("InternetRadio");
 
 	/**
-	 * Key for all URLs
+	 * Podcast feeds
 	 */
-	const std::string KEY_URL("url");
+	const QString KEY_GROUP_PODCAST_SOURCES("Podcasts");
+
+	/**
+	 * Key for all URIs
+	 */
+	const QString KEY_URI("uri");
 
 	/**
 	 * Key for all nice names
 	 */
-	const std::string KEY_NAME("name");
+	const QString KEY_NAME("name");
 
 	/**
 	 * Directory for all downloaded RSS Files
 	 */
-	const QDir RSS_FILE_DIR("/tmp/rss/");
+	const QString RSS_FILE_DIR(QDir::tempPath());
 
 	/**
 	 * Runtime configuration object

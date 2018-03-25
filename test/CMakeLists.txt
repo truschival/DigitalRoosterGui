@@ -18,13 +18,14 @@ SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test_player.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_settings.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_reader.cpp
-  
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_update_task.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcastsource.cpp
   )
 
 # Moc any classes derived from QObject
-qt5_wrap_cpp(MOC_SRC 
-        ${CMAKE_CURRENT_SOURCE_DIR}/testplayer.hpp
-        )
+qt5_wrap_cpp(MOC_SRC
+  ${CMAKE_CURRENT_SOURCE_DIR}/testplayer.hpp
+)
 
 # --------------------------------------------------------------------------------
 # Add libraries to test here
@@ -147,8 +148,10 @@ endif(NOT BUILD_GTEST_FROM_SRC)
 #------------------------------
 SET(RSS_FILE_GOOD "alternativlos.rss")
 SET(RSS_FILE_BAD "alternativlos_bad.rss")
+SET(RSS_FILE_MALFORMAT "alternativlos_malformatted.rss")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_GOOD}" "${CMAKE_BINARY_DIR}/${RSS_FILE_GOOD}" COPYONLY)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_BAD}" "${CMAKE_BINARY_DIR}/${RSS_FILE_BAD}" COPYONLY)
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_MALFORMAT}" "${CMAKE_BINARY_DIR}/${RSS_FILE_MALFORMAT}" COPYONLY)
 
 # UnitTests Executable (for target)
 add_executable(${BINARY_NAME}
@@ -162,14 +165,15 @@ SET_TARGET_PROPERTIES(
   PROPERTIES
   COMPILE_DEFINITIONS "${CPP_DEFS}"
   VERSION ${PROJECT_VERSION}
+  VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
   )
 
 # Linkage with gtest_main coverage etc.
 TARGET_LINK_LIBRARIES(
   ${BINARY_NAME}
   ${DUT_LIBS}   # Units under test
-	GMock # main not required, implemented in test.cpp
-	Qt5::Test
+  GMock # main not required, implemented in test.cpp
+  Qt5::Test
   )
 
 if(TEST_COVERAGE)
