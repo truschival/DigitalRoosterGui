@@ -5,6 +5,7 @@ import QtQuick.Controls 2.1
 
 ListView {
     id:podcastlist
+	property string objectName : "PodcastList"
     width: parent.width
     height: parent.height
     antialiasing: true

@@ -41,11 +41,11 @@ public:
         : display_name(name)
         , media_url(url){};
 
-    const QString& get_display_name() {
+    const QString& get_display_name() const{
         return display_name;
     };
 
-    const QUrl& get_url() {
+    const QUrl& get_url() const {
         return media_url;
     };
 
@@ -70,7 +70,7 @@ private:
  * Media source with random access in time, player can go back and forth
  */
 class SeekablePlayableItem : public PlayableItem {
-
+	Q_OBJECT
 public:
     SeekablePlayableItem() = default;
 
@@ -87,7 +87,7 @@ public:
     /**
      * last stored position
      */
-    int get_position() {
+    int get_position() const {
         return position;
     };
     /**
@@ -146,7 +146,9 @@ public:
  * PodcastEpisode = item of RSS feed
  */
 class PodcastEpisode : public SeekablePlayableItem {
-
+	Q_OBJECT
+	Q_PROPERTY(QString author READ get_author)
+	Q_PROPERTY(QString description READ get_description)
 public:
     PodcastEpisode() = default;
 
@@ -165,11 +167,11 @@ public:
         author = newAuthor;
     };
 
-    const QString& get_author() {
+    const QString& get_author() const{
         return author;
     }
 
-    const QString& get_description() {
+    const QString& get_description() const{
         return description;
     }
 
@@ -177,7 +179,7 @@ public:
         description = desc;
     };
 
-    QString get_guid() {
+    QString get_guid() const{
         if (guid.isEmpty()) {
             return get_url().toString();
         }
@@ -188,7 +190,7 @@ public:
         guid = uid;
     };
 
-    const QDateTime& get_publication_date() {
+    const QDateTime& get_publication_date() const {
         return publication_date;
     }
 

@@ -8,8 +8,6 @@
  *
  *************************************************************************************/
 
-
-#include <config.h>
 #include <gtest/gtest.h>
 
 #include <QMediaPlayer>
@@ -17,7 +15,6 @@
 #include <QtDebug>
 
 using namespace std;
-using namespace DigitalRooster;
 
 TEST(TestPlayer, no_media){
 //	QMediaPlayer mp;

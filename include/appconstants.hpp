@@ -10,19 +10,15 @@
 
 #pragma once
 
+#include "config.h"
 #include <QString>
 #include <QDir>
 
 namespace DigitalRooster{
-
-	/**
-	 * Application CompileTime Configurations
-	 */
-
 	/**
 	 * Name of configuration file
 	 */
-	const QString SYSTEM_CONFIG_PATH("config/digitalrooster.ini");
+	const QString SYSTEM_CONFIG_PATH(QString(SETTINGS_PATH) + "/" + QString(SETTINGS_FILE_NAME));
 
 	/**
 	 * INI configuration Key for Sources
@@ -40,9 +36,9 @@ namespace DigitalRooster{
 	const QString KEY_GROUP_PODCAST_SOURCES("Podcasts");
 
 	/**
-	 * Key for all URLs
+	 * Key for all URIs
 	 */
-	const QString KEY_URL("url");
+	const QString KEY_URI("uri");
 
 	/**
 	 * Key for all nice names

@@ -13,6 +13,7 @@
 #include <QByteArray>
 #include <QHash>
 #include <QDebug>
+#include <QQmlengine>
 
 #include "PlayableItem.hpp"
 #include "podcastepisodemodel.hpp"
@@ -59,6 +60,13 @@ int PodcastEpisodeModel::rowCount(const QModelIndex& /*parent */) const {
     return episodes->size();
 }
 
+/*******************************************************************************/
+PodcastEpisode* PodcastEpisodeModel::get_episode(int index) {
+	qDebug() << __FUNCTION__ << " index: " << index;
+	auto ep = episodes->at(index).get();
+	QQmlEngine::setObjectOwnership(ep, QQmlEngine::CppOwnership);
+	return ep;
+}
 
 /*************************************************************************************/
 QVariant PodcastEpisodeModel::data(const QModelIndex& index, int role) const {

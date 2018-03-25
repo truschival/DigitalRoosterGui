@@ -1,0 +1,19 @@
+{
+  "version": "0.2.1",
+  "InternetRadio": [
+    {
+      "name": "SWR2",
+      "uri": "http://swr2.de"
+    }
+  ],
+  "Podcasts": [
+    {
+      "name": "DRadio Essay&Diskurs",
+      "uri": "http://www.deutschlandfunk.de/podcast-essay-und-diskurs.1185.de.podcast.xml"
+    },
+    {
+      "name": "BBC Everyday Ethics",
+      "uri": "http://podcasts.files.bbci.co.uk/p02nrsmh.rss"
+    }
+  ]
+}

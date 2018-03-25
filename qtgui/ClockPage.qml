@@ -3,6 +3,8 @@ import QtQuick.Layouts 1.0
 import QtQuick.Controls 2.1
 
 Page {
+	id: clockPage
+	property string objectName : "ClockPage"
     Label{
         x: 307
         y: 0

@@ -8,9 +8,9 @@
  *
  *************************************************************************************/
 
+
 #include "PodcastSourceReader.hpp"
 #include <QMap>
-#include <config.h>
 #include <gtest/gtest.h>
 #include <stdexcept> // std::system_error
 

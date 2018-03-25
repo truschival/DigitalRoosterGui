@@ -30,6 +30,7 @@ LIST(APPEND CPP_DEFS "FOO_BAR=1")
 #------------------------------
 # normal sources
 #------------------------------
+
 set(SRCS
    ${CMAKE_CURRENT_SOURCE_DIR}/confmon.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/configuration_manager.cpp

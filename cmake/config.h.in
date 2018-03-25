@@ -1,0 +1,39 @@
+/*************************************************************************************
+ * \filename
+ * \brief Template for CMake to create configuration time constants in config.h
+ *
+ *************************************************************************************/
+ #ifndef _CONFIG_H_
+ #define  _CONFIG_H_
+ 
+ /**
+  * Date Time string when CMake was run
+  */
+ #ifndef BUILD_TIME_STAMP
+ #define BUILD_TIME_STAMP  "@CMAKE_CONFIGURATION_TIME@"
+ #endif
+
+ /**
+  * Project version string Major.Minor.Patch
+  */
+ #ifndef PROJECT_VERSION_STRING
+ #define PROJECT_VERSION_STRING  "@PROJECT_VERSION@"
+ #endif
+ 
+ 
+ /**
+  * Application configuration file 
+  */
+ #ifndef SETTINGS_FILE_NAME
+ #define SETTINGS_FILE_NAME  "@SETTINGS_FILE_NAME@"
+ #endif
+
+ /**
+  * Directory where to find SETTINGS_FILE_NAME
+  */
+ #ifndef SETTINGS_PATH
+ #define SETTINGS_PATH  "@SETTINGS_PATH@"
+ #endif
+
+
+ #endif /* _CONFIG_H_ */
