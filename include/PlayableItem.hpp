@@ -71,6 +71,8 @@ private:
  */
 class SeekablePlayableItem : public PlayableItem {
 	Q_OBJECT
+	Q_PROPERTY(int position READ get_position WRITE set_position)
+	Q_PROPERTY(int duration READ get_duration WRITE set_duration)
 public:
     SeekablePlayableItem() = default;
 
