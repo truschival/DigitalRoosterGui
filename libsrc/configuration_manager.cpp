@@ -62,10 +62,14 @@ void ConfigurationManager::read_radio_streams_from_file() {
 void ConfigurationManager::read_podcasts_from_file() {
 	QJsonArray podcasts = appconfig[DigitalRooster::KEY_GROUP_PODCAST_SOURCES].toArray();
 	for (const auto pc : podcasts) {
-		std::cout << pc.toString().toStdString() << std::endl;
-		QUrl url(pc.toObject()[KEY_URI].toString());
+		auto jo = pc.toObject();
+	
+		QUrl url(jo[KEY_URI].toString());
 		if (url.isValid()) {
 			auto ps = std::make_shared<PodcastSource>(url);
+			if (jo.contains(KEY_UPDATE_INTERVAL)) {
+				ps->set_update_interval(jo[KEY_UPDATE_INTERVAL].toInt(3600)*1000);
+			}
 			podcast_sources.push_back(ps);
 		}
 	}

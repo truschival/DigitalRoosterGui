@@ -9,11 +9,18 @@
   "Podcasts": [
     {
       "name": "DRadio Essay&Diskurs",
-      "uri": "http://www.deutschlandfunk.de/podcast-essay-und-diskurs.1185.de.podcast.xml"
+      "uri": "http://www.deutschlandfunk.de/podcast-essay-und-diskurs.1185.de.podcast.xml",
+      "UpdateInterval": 7200
     },
     {
       "name": "BBC Everyday Ethics",
-      "uri": "http://podcasts.files.bbci.co.uk/p02nrsmh.rss"
+      "uri": "http://podcasts.files.bbci.co.uk/p02nrsmh.rss",
+      "UpdateInterval": 60
+    },
+    {
+      "name": "Alternativlos",
+      "uri": "https://www.ruschival.de/wp-content/uploads/2018/03/alternativlos.rss",
+      "UpdateInterval": 60
     }
   ]
 }
