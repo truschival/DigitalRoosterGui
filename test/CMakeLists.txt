@@ -15,7 +15,6 @@ find_package(Threads REQUIRED)
 SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_confmon.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_player.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_settings.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_reader.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_update_task.cpp
@@ -24,7 +23,7 @@ SET(TEST_HARNESS_SRCS
 
 # Moc any classes derived from QObject
 qt5_wrap_cpp(MOC_SRC
-  ${CMAKE_CURRENT_SOURCE_DIR}/testplayer.hpp
+
 )
 
 # --------------------------------------------------------------------------------
