@@ -46,6 +46,11 @@ namespace DigitalRooster{
 	const QString KEY_NAME("name");
 
 	/**
+	* Keyword for perdiodic refresh 
+	*/
+	const QString KEY_UPDATE_INTERVAL("UpdateInterval");
+
+	/**
 	 * Directory for all downloaded RSS Files
 	 */
 	const QString RSS_FILE_DIR(QDir::tempPath());

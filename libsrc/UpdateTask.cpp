@@ -26,8 +26,6 @@ UpdateTask::UpdateTask(PodcastSource& source)
         SLOT(newFileAvailable(const QString&)));
 }
 
-UpdateTask::~UpdateTask() {
-}
 
 void UpdateTask::newFileAvailable(const QString& filepath) {
     QFile file(filepath);

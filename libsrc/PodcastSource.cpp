@@ -15,6 +15,17 @@ using namespace DigitalRooster;
 
 
 /*************************************************************************************/
+
+PodcastSource::PodcastSource(QUrl url)
+	: rss_feed_uri(url),updater(std::make_unique<UpdateTask>(*this)) {
+	connect(updater.get(), SIGNAL(newDataAvailable()), this, SLOT(updateFinished()));
+	connect(&timer, SIGNAL(timeout()), updater.get(), SLOT(start()));
+	timer.start(update_interval);
+	// initial download immediately
+	updater->start();
+};
+
+/*************************************************************************************/
 void PodcastSource::add_episode(std::shared_ptr<PodcastEpisode> newep) {
     if (episodes.size() < max_episodes) {
         auto ep = std::find_if(episodes.begin(), episodes.end(),
@@ -31,15 +42,16 @@ void PodcastSource::add_episode(std::shared_ptr<PodcastEpisode> newep) {
     }
 }
 /*************************************************************************************/
-void PodcastSource::set_updateInterval(int interval){
-	updater = std::make_unique<UpdateTask>(*this);
-	connect(updater.get(),SIGNAL(newDataAvailable()), this, SLOT(updateFinished()));
-	updater->start();
+void PodcastSource::set_update_interval(int interval){
+	update_interval = interval;
+	if(interval< timer.remainingTime())
+		timer.start(update_interval);
 }
 
 /*************************************************************************************/
 void PodcastSource::updateFinished(){
 	emit newDataAvailable();
+	timer.start(update_interval);
 }
 
 /*************************************************************************************/

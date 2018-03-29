@@ -19,6 +19,7 @@ DownloadManager::DownloadManager() {
 }
 
 void DownloadManager::doDownload(const QUrl &url) {
+	qDebug() << __FUNCTION__ << "(" << url.toString() <<")";
 	QNetworkRequest request(url);
 	QNetworkReply *reply = manager.get(request);
 
