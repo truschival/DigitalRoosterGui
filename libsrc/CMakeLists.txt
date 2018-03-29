@@ -38,6 +38,7 @@ set(SRCS
    ${CMAKE_CURRENT_SOURCE_DIR}/PodcastSource.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/DownloadManager.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/UpdateTask.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/alarm.cpp
 )
 
 # Moc any classes derived from QObject
@@ -47,6 +48,7 @@ qt5_wrap_cpp(MOC_SRC
         ${PROJECT_INCLUDE_DIR}/UpdateTask.hpp
         ${PROJECT_INCLUDE_DIR}/PlayableItem.hpp
         ${PROJECT_INCLUDE_DIR}/PodcastSource.hpp
+        ${PROJECT_INCLUDE_DIR}/alarm.hpp
         )
 
 #------------------------------

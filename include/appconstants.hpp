@@ -37,6 +37,11 @@ namespace DigitalRooster{
 	const QString KEY_GROUP_PODCAST_SOURCES("Podcasts");
 
 	/**
+	 * Alarm Array in JSON file
+	 */
+	const QString KEY_GROUP_ALARMS("Alarms");
+
+	/**
 	 * Key for all URIs
 	 */
 	const QString KEY_URI("uri");
@@ -45,6 +50,40 @@ namespace DigitalRooster{
 	 * Key for all nice names
 	 */
 	const QString KEY_NAME("name");
+
+	/**
+	 * Key boolean enabled true/false
+	 */
+	const QString KEY_ENABLED("enabled");
+
+	/**
+	 * Keyword for alarms on weekends
+	 */
+	const QString KEY_TIME("time");
+	/**
+	 * Keyword for alarms on weekends
+	 */
+	const QString KEY_ALARM_PERIOD("period");
+
+	/**
+	 * Keyword for alarms on weekends
+	 */
+	const QString KEY_ALARM_WEEKEND("weekend");
+
+	/**
+	 * Keyword for alarms once
+	 */
+	const QString KEY_ALARM_ONCE("once");
+
+	/**
+	 * Keyword for alarms workdays
+	 */
+	const QString KEY_ALARM_WORKDAYS("workdays");
+
+	/**
+	 * Keyword for alarms daily
+	 */
+	const QString KEY_ALARM_DAILY("daily");
 
 	/**
 	* Keyword for perdiodic refresh 

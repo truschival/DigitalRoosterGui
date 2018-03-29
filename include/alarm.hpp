@@ -14,7 +14,7 @@
 #define _ALARM_HPP_
 
 #include <QObject>
-#include <QTime>
+#include <QDateTime>
 #include <memory>
 
 namespace DigitalRooster {
@@ -28,7 +28,7 @@ class Alarm: public QObject {
 Q_OBJECT
 public:
 	/**
-	 * Alarm settings periodicity
+	 * Alarm periodicity
 	 */
 	enum Period {
 		Once = 1, //!< next time the time of day occurs (within 24 hrs)
@@ -46,18 +46,18 @@ public:
 	 * @param the obligatory QObject parent
 	 */
 	Alarm(Alarm::Period period, const QTime& timepoint, bool enabled,
-			std::shared_ptr<PlayableItem> media, QObject* parent = nullptr);
+			const QUrl& media, QObject* parent = nullptr);
 
 	/**
-	 * No special destructor needed
+	 * Has to delete media
 	 */
-	~Alarm() = default;
+	virtual ~Alarm();
 
 	/**
 	 * Query time when the alarm is to be triggered
 	 * @return
 	 */
-	const QTime& get_next_trigger();
+	const QDateTime& get_next_trigger();
 
 	/**
 	 * set time of day when the alarm should occur
@@ -93,12 +93,12 @@ private:
 	/**
 	 * What to play when alarm triggers
 	 */
-	std::shared_ptr<PlayableItem> media;
+	PlayableItem* media;
 
 	/**
 	 * when alarm is repeated
 	 */
-	Period period;
+	Alarm::Period period;
 
 	/**
 	 * Time point when this alarm will trigger
@@ -113,7 +113,7 @@ private:
 	/**
 	 * Next activation of this alarm
 	 */
-	QTime next_trigger;
+	QDateTime next_trigger;
 
 };
 
