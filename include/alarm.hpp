@@ -1,20 +1,22 @@
-/*************************************************************************************
- * \filename    
+/******************************************************************************
+ * \filename
  * \brief
  *
  * \details
- * 
- * \author ruschi
- * 
  *
- *************************************************************************************/
+ * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
+ * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
+ * 			 SPDX-License-Identifier: GPL-2.0-or-later}
+ *
+ *****************************************************************************/
 
-#ifndef _ALARMS_HPP_
-#define _ALARMS_HPP_ 
+#ifndef _ALARM_HPP_
+#define _ALARM_HPP_
 
 #include <QObject>
 #include <QTime>
 #include <memory>
+
 namespace DigitalRooster {
 
 class PlayableItem;
@@ -62,7 +64,7 @@ public:
 	 * @param timeofday 00:00 to 23:59
 	 */
 	void set_time(const QTime & timeofday);
-	const QTime & get_time() const{
+	const QTime & get_time() const {
 		return time_of_day;
 	}
 
@@ -72,7 +74,7 @@ public:
 	 */
 	void set_period(Alarm::Period period);
 
-	Alarm::Period get_period() const{
+	Alarm::Period get_period() const {
 		return period;
 	}
 
@@ -80,11 +82,11 @@ public:
 	 * enable alarm to play next time
 	 * @param state
 	 */
-	void enable(bool state){
+	void enable(bool state) {
 		enabled = state;
 	}
 
-	bool is_enabled()const{
+	bool is_enabled() const {
 		return enabled;
 	}
 private:
@@ -117,4 +119,4 @@ private:
 
 }
 ;
-#endif // _ALARMS_HPP_ 
+#endif // _ALARM_HPP_
