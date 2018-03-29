@@ -24,5 +24,5 @@ const QString& ConfMon::getCfgPath() {
 
 
 void ConfMon::sendSignal(){
-//	emit config_changed(this->appCfg);
+	emit config_changed();
 }

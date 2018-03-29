@@ -24,7 +24,7 @@ TEST(ConfMon, config_file_path) {
 TEST(ConfMon, sig_conf_changed_emitted) {
     DigitalRooster::ConfMon cm;
 
-    QSignalSpy spy(&cm, SIGNAL(config_changed(const AppConfig&)));
+    QSignalSpy spy(&cm, SIGNAL(config_changed()));
 
     cm.sendSignal();
 

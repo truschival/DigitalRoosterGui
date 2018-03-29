@@ -30,7 +30,7 @@ namespace DigitalRooster {
 		public slots:
 
 	signals:
-//		void config_changed(const AppConfig&);
+		void config_changed();
 
 	private:
 		QString cfgPath;

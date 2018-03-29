@@ -40,14 +40,7 @@ public:
      * Preconfigured Podcast Source
      * @param url Feed URL
      */
-	explicit PodcastSource(QUrl url);
-
-    /**
-     * Preconfigured Podcast Source
-     * @param url Feed URL
-     */
-    explicit PodcastSource(const char* url)
-        : rss_feed_uri(url){};
+	explicit PodcastSource(const QUrl& url);
 
     /**
      * Add an episode to episodes
