@@ -25,6 +25,11 @@ ApplicationWindow {
         id: currentTime
     }
 
+	FontLoader { 
+		id: materialdesignIconsFont;
+		source: "materialdesignicons-webfont.ttf" 
+	}
+
     header: ToolBar {
         Material.foreground: "white"
         RowLayout {

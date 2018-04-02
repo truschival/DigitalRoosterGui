@@ -1,11 +1,7 @@
 
 #define QT_QML_DEBUG
+
 #include <QtQuick>
-
-#include <qqml.h>
-#include <qqmlcontext.h>
-#include <qqmlengine.h>
-
 #include <QDebug>
 #include <QFontDatabase>
 #include <QGuiApplication>
@@ -21,7 +17,6 @@ using namespace DigitalRooster;
 int main(int argc, char* argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     // QLoggingCategory::setFilterRules("*.debug=true");
-    QFontDatabase::addApplicationFont(":/materialdesignicons-webfont.ttf");
 
     QGuiApplication app(argc, argv);
     qmlRegisterType<PodcastEpisodeModel>(

@@ -12,5 +12,6 @@
         <file>IconButton.qml</file>
         <file alias="Icon.js">Icon.js</file>
         <file>Jsutil.js</file>
+        <file>materialdesignicons-webfont.ttf</file>
     </qresource>
 </RCC>
