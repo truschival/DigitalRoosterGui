@@ -215,7 +215,6 @@ ApplicationWindow {
                 console.log("forwardBtn")
                 interactiontimer.restart()
                 player.seek(player.position+5000)
-                parent.updateSlider()
             }
         }
 
@@ -229,7 +228,6 @@ ApplicationWindow {
                 console.log("backwardBtn")
                 interactiontimer.restart()
                 player.seek(player.position-5000)
-                parent.updateSlider()
             }
         }
 
