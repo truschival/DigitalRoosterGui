@@ -101,7 +101,7 @@ void ConfigurationManager::read_alarms_from_file() {
 
 		auto timepoint = QTime::fromString(json_alarm[KEY_TIME].toString(),
 				"hh:mm");
-		auto alarm = std::make_shared<Alarm>(period, timepoint, enabled, media);
+		auto alarm = std::make_shared<Alarm>(media, timepoint, period, enabled);
 		alarms.push_back(alarm);
 	}
 }

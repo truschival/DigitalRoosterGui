@@ -27,6 +27,7 @@ class PlayableItem;
 class Alarm: public QObject {
 Q_OBJECT
 public:
+
 	/**
 	 * Alarm periodicity
 	 */
@@ -37,24 +38,36 @@ public:
 		Workdays = 4 //!< Monday through Friday
 	};
 
-	/**
-	 * Default construct an Alarm
-	 * @param period periodicity
-	 * @param timepoint time of day
-	 * @param enabled activated/deactivated
-	 * @param media what to play
-	 * @param the obligatory QObject parent
-	 */
-	Alarm(Alarm::Period period, const QTime& timepoint, bool enabled,
-			const QUrl& media, QObject* parent = nullptr);
+    /**
+     * One-shot alarm for a exact DateTime to trigger
+     * @param media what to play
+     * @param exact time instance
+     * @param enabled activated/deactivated
+     * @param the obligatory QObject parent
+     */
+    Alarm(const QUrl& media, const QDateTime& timepoint,
+        bool enabled = true,
+        QObject* parent = nullptr);
 
-	/**
+    /**
+     * Construct an alarm for given time
+     * @param media what to play
+     * @param timepoint time of day - any time of day
+     * @param period periodicity
+     * @param enabled activated/deactivated
+     * @param the obligatory QObject parent
+     */
+    Alarm(const QUrl& media, const QTime& timepoint,
+        Alarm::Period period = Alarm::Daily, bool enabled = true,
+        QObject* parent = nullptr);
+
+    /**
 	 * Has to delete media
 	 */
 	virtual ~Alarm();
 
 	/**
-	 * Query time when the alarm is to be triggered
+	 * next trigger instant when the alarm is to be triggered
 	 * @return
 	 */
 	const QDateTime& get_next_trigger();
@@ -62,20 +75,43 @@ public:
 	/**
 	 * set time of day when the alarm should occur
 	 * @param timeofday 00:00 to 23:59
+	 * @param period periodicity
 	 */
-	void set_time(const QTime & timeofday);
-	const QTime & get_time() const {
-		return time_of_day;
-	}
+	void set_trigger(const QTime & timeofday, Alarm::Period period);
+	
+	/**
+	 * Set the alarm to trigger once at given timeinsance
+	 * @param timeinstance when to trigger alarm
+	 */
+	void set_trigger(const QDateTime & timeinstance);
 
+	/**
+	 * @return time of day when alarm is due
+	 */
+	const QTime get_time() const {
+		return trigger_instant.time();
+	}
 	/**
 	 * Set repeating behavior of alarm
 	 * @param period
 	 */
-	void set_period(Alarm::Period period);
-
 	Alarm::Period get_period() const {
 		return period;
+	}
+
+	/**
+	 * Change periodicity
+	 */
+	void set_period(Alarm::Period period) {
+		this->period = period;
+		update_trigger();
+	};
+
+	/**
+	 * Alarm media
+	 */
+	const PlayableItem* get_media() const {
+		return media;
 	}
 
 	/**
@@ -102,8 +138,9 @@ private:
 
 	/**
 	 * Time point when this alarm will trigger
+	 * The date part of is ignored except for period "Once"
 	 */
-	QTime time_of_day;
+	QDateTime trigger_instant;
 
 	/**
 	 * Will it trigger?
@@ -111,10 +148,9 @@ private:
 	bool enabled;
 
 	/**
-	 * Next activation of this alarm
+	 * Calculate the upcoming timepoint when the alarm should trigger
 	 */
-	QDateTime next_trigger;
-
+	void update_trigger();
 };
 
 }
