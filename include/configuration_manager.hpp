@@ -1,28 +1,33 @@
-/*************************************************************************************
+/******************************************************************************
  * \filename
  * \brief
  *
  * \details
  *
- * \author ruschi
+ * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
+ * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
+ * 			 SPDX-License-Identifier: GPL-2.0-or-later}
  *
- *
- *************************************************************************************/
-
+ *****************************************************************************/
 #ifndef _CONFIGURATION_MANAGER_H_
 #define _CONFIGURATION_MANAGER_H_
 
 #include <QSettings>
 #include <QString>
 #include <QVector>
+#include <QMap>
 #include <memory>
 
 #include "appconstants.hpp"
 #include "PlayableItem.hpp"
 #include "PodcastSource.hpp"
+#include "alarm.hpp"
 
 namespace DigitalRooster {
 
+/**
+ * Read JSON configuration
+ */
 class ConfigurationManager {
 public:
     /**
@@ -41,10 +46,17 @@ public:
     }
 
     /**
-     * get all radio stream sources
+     * get all podcast sources
      */
     const QVector<std::shared_ptr<PodcastSource>>& get_podcast_sources() {
         return podcast_sources;
+    }
+
+    /**
+     * get all radio stream sources
+     */
+    const QVector<std::shared_ptr<Alarm>>& get_alarms() {
+        return alarms;
     }
     /**
      * Append the radio stream to list - duplicates will not be checked
@@ -78,6 +90,11 @@ private:
      */
     QVector<std::shared_ptr<PodcastSource>> podcast_sources;
 
+    /**
+     * All Alarm objects
+     */
+    QVector<std::shared_ptr<Alarm>> alarms;
+
 	/**
 	 * read Json file and fill sources
 	 */
@@ -91,7 +108,20 @@ private:
      * Read all podcast sources form configuration file
      */
     void read_podcasts_from_file();
+
+    /**
+     * Read Alarm objects
+     */
+    void read_alarms_from_file();
+
 };
+
+/**
+ * Map a Alarm period literal to enum value
+ * @param literal "daily", "once", "weekend" or "workdays"
+ * @return enum value
+ */
+Alarm::Period json_string_to_alarm_period(const QString& literal);
 
 } // namespace
 #endif // _SETTINGS_READER_HPP_

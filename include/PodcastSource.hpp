@@ -1,13 +1,14 @@
-/*************************************************************************************
+/******************************************************************************
  * \filename
  * \brief
  *
  * \details
  *
- * \author ruschi
+ * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
+ * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
+ * 			 SPDX-License-Identifier: GPL-2.0-or-later}
  *
- *
- *************************************************************************************/
+ *****************************************************************************/
 
 #ifndef _PODCASTSOURCE_HPP_
 #define _PODCASTSOURCE_HPP_
@@ -39,14 +40,7 @@ public:
      * Preconfigured Podcast Source
      * @param url Feed URL
      */
-	explicit PodcastSource(QUrl url);
-
-    /**
-     * Preconfigured Podcast Source
-     * @param url Feed URL
-     */
-    explicit PodcastSource(const char* url)
-        : rss_feed_uri(url){};
+	explicit PodcastSource(const QUrl& url);
 
     /**
      * Add an episode to episodes

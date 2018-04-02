@@ -1,14 +1,14 @@
-/*************************************************************************************
+/******************************************************************************
  * \filename
  * \brief
  *
  * \details
  *
- * \author ruschi
+ * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
+ * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
+ * 			 SPDX-License-Identifier: GPL-2.0-or-later}
  *
- * \since  2017-11-26
- *
- *************************************************************************************/
+ *****************************************************************************/
 
 #include "confmon.hpp"
 #include "appconstants.hpp"
@@ -24,5 +24,5 @@ const QString& ConfMon::getCfgPath() {
 
 
 void ConfMon::sendSignal(){
-//	emit config_changed(this->appCfg);
+	emit config_changed();
 }

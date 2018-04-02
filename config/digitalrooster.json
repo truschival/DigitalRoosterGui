@@ -22,5 +22,32 @@
       "uri": "https://www.ruschival.de/wp-content/uploads/2018/03/alternativlos.rss",
       "UpdateInterval": 60
     }
+  ],
+  "Alarms":[
+  	{
+  		"time" : "7:00",
+  		"enabled" : true,
+  		"period" : "workdays",
+  		"uri" : "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"
+  	},
+  	{
+  		"time" : "9:00",
+  		"enabled" : true,
+  		"period" : "weekend",
+  		"uri" : "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"
+  	},
+  	{
+  		"time" : "10:00",
+  		"enabled" : true,
+  		"period" : "daily",
+  		"uri" : "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"
+  	},
+  	{
+  		"time" : "6:00",
+  		"enabled" : false,
+  		"period" : "once",
+  		"uri" : "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"
+  	}
   ]
 }
+

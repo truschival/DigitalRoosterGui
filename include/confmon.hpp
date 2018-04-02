@@ -1,15 +1,14 @@
-/*************************************************************************************
+/******************************************************************************
  * \filename
  * \brief
  *
  * \details
  *
- * \author ruschi
+ * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
+ * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
+ * 			 SPDX-License-Identifier: GPL-2.0-or-later}
  *
- * \since  20-MAr-2016 16:46:01 AM
- *
- *************************************************************************************/
-
+ *****************************************************************************/
 #ifndef _CONFMON_H_
 #define _CONFMON_H_
 
@@ -31,7 +30,7 @@ namespace DigitalRooster {
 		public slots:
 
 	signals:
-//		void config_changed(const AppConfig&);
+		void config_changed();
 
 	private:
 		QString cfgPath;
