@@ -30,6 +30,7 @@ ApplicationWindow {
 		source: "materialdesignicons-webfont.ttf" 
 	}
 
+
     header: ToolBar {
         Material.foreground: "white"
         RowLayout {

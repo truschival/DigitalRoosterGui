@@ -52,12 +52,12 @@ qt5_wrap_ui(UI_HDRS
 
 SET(QRC_SRC
   qml.qrc
+  externalRes/external.qrc
   )
 
 #------------------------------
 # Binary
 #------------------------------
-
 # Executable (for target)
 add_executable(${BINARY_NAME}
   ${SRCS}
