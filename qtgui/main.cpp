@@ -18,7 +18,8 @@ using namespace DigitalRooster;
 int main(int argc, char* argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     // QLoggingCategory::setFilterRules("*.debug=true");
-	qDebug() << "SSL Support: " << QSslSocket::supportsSsl();
+	qDebug() << "SSL Support: " << QSslSocket::supportsSsl() << QSslSocket::sslLibraryVersionString();
+	qDebug() << "Tempdir:" << RSS_FILE_DIR;
 
     QGuiApplication app(argc, argv);
     qmlRegisterType<PodcastEpisodeModel>(

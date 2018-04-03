@@ -33,8 +33,6 @@ void PodcastSource::add_episode(std::shared_ptr<PodcastEpisode> newep) {
 	if (episodes.size() < max_episodes) {
 		auto ep = std::find_if(episodes.begin(), episodes.end(),
 				[newep](std::shared_ptr<PodcastEpisode> episode) {
-					// qDebug() << "Episode guid " << episode->get_guid() << "newep : "
-					// <<newep->get_guid();
 					return episode->get_guid() == newep->get_guid();
 				});
 

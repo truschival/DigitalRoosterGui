@@ -61,6 +61,11 @@ public:
         Alarm::Period period = Alarm::Daily, bool enabled = true,
         QObject* parent = nullptr);
 
+	/**
+	 * Need Default constructor to register with QML
+	 */
+	Alarm():media(nullptr){};
+		
     /**
 	 * Has to delete media
 	 */
