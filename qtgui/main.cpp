@@ -11,17 +11,20 @@
 #include "configuration_manager.hpp"
 #include "podcastepisodemodel.hpp"
 #include "podcastsourcemodel.hpp"
+#include "alarm.hpp"
 
 using namespace DigitalRooster;
 
 int main(int argc, char* argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     // QLoggingCategory::setFilterRules("*.debug=true");
+	qDebug() << "SSL Support: " << QSslSocket::supportsSsl();
 
     QGuiApplication app(argc, argv);
     qmlRegisterType<PodcastEpisodeModel>(
         "ruschi.PodcastEpisodeModel", 1, 0, "PodcastEpisodeModel");
 	qmlRegisterType<PodcastEpisode>("ruschi.PodcastEpisode", 1, 0, "PodcastEpisode");
+	qmlRegisterType<Alarm>("ruschi.Alarm", 1, 0, "Alarm");
 
     /*Get avaibable Podcasts */
 	ConfigurationManager cm(DigitalRooster::SYSTEM_CONFIG_PATH);
