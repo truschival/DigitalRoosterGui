@@ -49,6 +49,7 @@ qt5_wrap_cpp(MOC_SRC
         ${PROJECT_INCLUDE_DIR}/PlayableItem.hpp
         ${PROJECT_INCLUDE_DIR}/PodcastSource.hpp
         ${PROJECT_INCLUDE_DIR}/alarm.hpp
+		${PROJECT_INCLUDE_DIR}/player.hpp
         )
 
 #------------------------------
