@@ -1,3 +1,4 @@
+
 pipeline {
   
   environment { 
@@ -12,7 +13,8 @@ pipeline {
             image 'ruschi/devlinuxqtquick2:latest'
 //            args  "--env HTTP_PROXY=${HTTP_PROXY} --env HTTPS_PROXY=${HTTPS_PROXY}"
         }
-    }
+    } //agent
+	
   stages {
     stage('Prepare') {
       steps {
@@ -29,6 +31,7 @@ pipeline {
     }
     stage('Configure'){
         steps{
+            sh "echo U: $USER H: $HOME "
             sh "cmake -B${BUILD_DIR} -H${SOURCE_DIR} -DBUILD_TEST=On -DBUILD_GTEST_FROM_SRC=On"
         }
     }
@@ -46,5 +49,19 @@ pipeline {
         }
       }
     }
-  }
-}
+    stage('Package') {
+      steps {
+        sh "cmake --build ${BUILD_DIR} --target DOC"
+        dir("${BUILD_DIR}"){ 
+            sh "cpack -G TBZ2"
+        }
+        archiveArtifacts artifacts: "${BUILD_DIR}/*.tar.bz2", fingerprint: true
+      }
+    }
+    stage('Cleanup') {
+      steps {
+        echo "Cleanup"
+      }
+    }
+  } // stages
+}// pipeline
