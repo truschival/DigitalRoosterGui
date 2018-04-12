@@ -4,8 +4,8 @@ pipeline {
   environment { 
         BUILD_DIR = 'build'
         SOURCE_DIR = 'checkout'
-        HTTP_PROXY= 'http://10.0.2.2:3128'
-        HTTPS_PROXY= 'http://10.0.2.2:3128'
+    //    HTTP_PROXY= 'http://10.0.2.2:3128'
+    //    HTTPS_PROXY= 'http://10.0.2.2:3128'
     }    
   
   agent {
