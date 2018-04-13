@@ -35,7 +35,7 @@ pipeline {
 		stage('Configure'){
 			steps{
 				sh "echo U: $USER H: $HOME "
-				sh "cmake -B${BUILD_DIR} -H${SOURCE_DIR} -DBUILD_TEST=On -DBUILD_GTEST_FROM_SRC=On"
+				sh "cmake -B${BUILD_DIR} -H${SOURCE_DIR} -DBUILD_TEST=On -DBUILD_GTEST_FROM_SRC=On -DTEST_COVERAGE=On "
 			}
 		}
 		stage('Build') {
