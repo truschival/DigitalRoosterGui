@@ -51,7 +51,16 @@ pipeline {
 					sh "gcovr --xml -r . > coverage.xml"
 					junit "test/gtestresults.xml"
 				}
-				step([$class: 'CoberturaPublisher', coberturaReportFile: "$BUILD_DIR}/coverage.xml"])
+				step([$class: 'CoberturaPublisher',
+					  autoUpdateHealth: false,
+					  autoUpdateStability: false,
+					  failUnhealthy: false,
+					  failUnstable: false,
+					  maxNumberOfBuilds: 0,
+					  onlyStable: false,
+					  sourceEncoding: 'ASCII',
+					  zoomCoverageChart: false
+					  coberturaReportFile: "$BUILD_DIR}/coverage.xml"])
 			}
 		}
 		stage('Package') {
@@ -69,4 +78,4 @@ pipeline {
 			}
 		}
 	} // stages
-}
+}//Jenkinsfile
