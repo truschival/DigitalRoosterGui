@@ -60,7 +60,7 @@ pipeline {
 					  onlyStable: false,
 					  sourceEncoding: 'ASCII',
 					  zoomCoverageChart: false,
-					  coberturaReportFile: "$BUILD_DIR}/coverage.xml"])
+					  coberturaReportFile: "${BUILD_DIR}/coverage.xml"])
 			}
 		}
 		stage('Package') {
