@@ -59,7 +59,7 @@ pipeline {
 					  maxNumberOfBuilds: 0,
 					  onlyStable: false,
 					  sourceEncoding: 'ASCII',
-					  zoomCoverageChart: false
+					  zoomCoverageChart: false,
 					  coberturaReportFile: "$BUILD_DIR}/coverage.xml"])
 			}
 		}
