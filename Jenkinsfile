@@ -9,6 +9,7 @@ pipeline {
     options {
         timeout(time: 10, unit: 'MINUTES')
         checkoutToSubdirectory('checkout')
+		buildDiscarder(logRotator(numToKeepStr: '10', artifactNumToKeepStr: '10'))
     }
 	
 	agent {
@@ -47,8 +48,10 @@ pipeline {
 				// Testfiles are located in the build dir and referenced relative in source
 				dir("${BUILD_DIR}"){  
 					sh "cmake --build . --target test || true"
+					sh "gcovr --xml -r . > coverage.xml"
 					junit "test/gtestresults.xml"
 				}
+				step([$class: 'CoberturaPublisher', coberturaReportFile: "$BUILD_DIR}/coverage.xml"])
 			}
 		}
 		stage('Package') {
