@@ -10,16 +10,18 @@
  *
  *****************************************************************************/
 
-#include "PodcastSourceReader.hpp"
 #include <QMap>
 #include <gtest/gtest.h>
 #include <stdexcept> // std::system_error
+
+#include "appconstants.hpp"
+#include "PodcastSourceReader.hpp"
 
 using namespace DigitalRooster;
 
 TEST(PodcastSourceReader, parseInfo_good) {
 	PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-	ps.set_rss_file("./alternativlos.rss");
+	ps.set_rss_file(TEST_FILE_PATH + "/alternativlos.rss");
 	update_podcast(ps);
 
 	EXPECT_EQ(ps.get_title(), QString("Alternativlos"));
@@ -31,7 +33,7 @@ TEST(PodcastSourceReader, parseInfo_good) {
 
 TEST(PodcastSourceReader, parseInfo_good_element_count) {
 	PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-	ps.set_rss_file("./alternativlos.rss");
+	ps.set_rss_file(TEST_FILE_PATH + "/alternativlos.rss");
 	update_podcast(ps);
 	const auto& episodes = ps.get_episodes();
 	EXPECT_EQ(episodes.size(), 27);
@@ -39,7 +41,7 @@ TEST(PodcastSourceReader, parseInfo_good_element_count) {
 
 TEST(PodcastSourceReader, parseInfo_episode_length) {
 	PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-	ps.set_rss_file("./alternativlos.rss");
+	ps.set_rss_file(TEST_FILE_PATH + "/alternativlos.rss");
 	update_podcast(ps);
 	const auto episodes = ps.get_episodes();
 	auto title = episodes[20];
@@ -49,7 +51,7 @@ TEST(PodcastSourceReader, parseInfo_episode_length) {
 
 TEST(PodcastSourceReader, parseInfo_episode_length_mm_ss) {
 	PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-	ps.set_rss_file("./alternativlos.rss");
+	ps.set_rss_file(TEST_FILE_PATH + "/alternativlos.rss");
 	update_podcast(ps);
 	const auto episodes = ps.get_episodes();
 	auto title = episodes[21];
@@ -59,7 +61,7 @@ TEST(PodcastSourceReader, parseInfo_episode_length_mm_ss) {
 
 TEST(PodcastSourceReader, parseInfo_episode_length_m_ss) {
 	PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-	ps.set_rss_file("./alternativlos.rss");
+	ps.set_rss_file(TEST_FILE_PATH + "/alternativlos.rss");
 	update_podcast(ps);
 	const auto episodes = ps.get_episodes();
 	auto title = episodes[22];
@@ -69,7 +71,7 @@ TEST(PodcastSourceReader, parseInfo_episode_length_m_ss) {
 
 TEST(PodcastSourceReader, parseInfo_episode_length_ss) {
 	PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-	ps.set_rss_file("./alternativlos.rss");
+	ps.set_rss_file(TEST_FILE_PATH + "/alternativlos.rss");
 	update_podcast(ps);
 	const auto episodes = ps.get_episodes();
 	auto title = episodes[23];
@@ -79,7 +81,7 @@ TEST(PodcastSourceReader, parseInfo_episode_length_ss) {
 
 TEST(PodcastSourceReader, parseInfo_episode_display_name) {
 	PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-	ps.set_rss_file("./alternativlos.rss");
+	ps.set_rss_file(TEST_FILE_PATH + "/alternativlos.rss");
 	update_podcast(ps);
 	const auto episodes = ps.get_episodes();
 	auto title = episodes[19];
@@ -88,7 +90,7 @@ TEST(PodcastSourceReader, parseInfo_episode_display_name) {
 
 TEST(PodcastSourceReader, parseInfo_episode_pubdate) {
 	PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-	ps.set_rss_file("./alternativlos.rss");
+	ps.set_rss_file(TEST_FILE_PATH + "/alternativlos.rss");
 	update_podcast(ps);
 	const auto episodes = ps.get_episodes();
 	auto title = episodes[19]; // ALT22
@@ -99,7 +101,7 @@ TEST(PodcastSourceReader, parseInfo_episode_pubdate) {
 
 TEST(PodcastSourceReader, parseInfo_episode_url) {
 	PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-	ps.set_rss_file("./alternativlos.rss");
+	ps.set_rss_file(TEST_FILE_PATH + "/alternativlos.rss");
 	update_podcast(ps);
 
 	const auto episodes = ps.get_episodes();
@@ -109,20 +111,20 @@ TEST(PodcastSourceReader, parseInfo_episode_url) {
 
 TEST(PodcastSourceReader, parseInfo_bad_nonexistent) {
 	PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-	ps.set_rss_file("./doesnotexist.rss");
+	ps.set_rss_file(TEST_FILE_PATH + "/doesnotexist.rss");
 	EXPECT_THROW(update_podcast(ps), std::system_error);
 }
 
 TEST(PodcastSourceReader, parseInfo_bad_malformatted) {
 	PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-	ps.set_rss_file("./alternativlos_malformatted.rss");
+	ps.set_rss_file(TEST_FILE_PATH + "/alternativlos_malformatted.rss");
 	/* all exceptions should be caught */
 	EXPECT_NO_THROW(update_podcast(ps));
 }
 
 TEST(PodcastSourceReader, parseInfo_bad_missing_title) {
 	PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-	ps.set_rss_file("./alternativlos_bad.rss");
+	ps.set_rss_file(TEST_FILE_PATH + "/alternativlos_bad.rss");
 	update_podcast(ps);
 	const auto& episodes = ps.get_episodes();
 	EXPECT_EQ(episodes.size(), 25);
@@ -130,16 +132,16 @@ TEST(PodcastSourceReader, parseInfo_bad_missing_title) {
 
 TEST(PodcastSourceReader, parseInfo_bad_missing_url) {
 	PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-	ps.set_rss_file("./alternativlos_bad.rss");
+	ps.set_rss_file(TEST_FILE_PATH + "/alternativlos_bad.rss");
 	update_podcast(ps);
 	const auto& episodes = ps.get_episodes();
 	EXPECT_EQ(episodes.size(), 25);
 }
 
 TEST(PodcastSourceReader, maxEpisodesReached) {
-	const size_t maxepisodes = 14;
+	const int maxepisodes = 14;
 	PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss")); // has many episodes
-	ps.set_rss_file("./alternativlos.rss");
+	ps.set_rss_file(TEST_FILE_PATH+"/alternativlos.rss");
 	ps.set_max_episodes(maxepisodes);
 	update_podcast(ps);
 

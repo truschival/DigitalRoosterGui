@@ -15,6 +15,8 @@
 #include <cstdio>
 #include <fstream>
 #include <string>
+
+#include "config.h"
 #include "appconstants.hpp"
 #include "configuration_manager.hpp"
 
@@ -23,7 +25,7 @@ using namespace DigitalRooster;
 class SettingsFixture: public virtual ::testing::Test {
 public:
 	SettingsFixture() :
-			filename("testsettings.json") {
+			filename(TEST_FILE_PATH+"testsettings.json") {
 	}
 
 	~SettingsFixture() {
