@@ -78,7 +78,16 @@ TEST(Alarm, WorkdaysFuture) {
 TEST(Alarm, WorkdaysPast) {
     auto timepoint = QTime::currentTime().addSecs(-3600); 
 	// Tomorrow 1 hr ago
-    auto expected_trigger = QDateTime::currentDateTime().addDays(1).addSecs(-3600);
+
+    auto expected_trigger = QDateTime::currentDateTime().addSecs(-3600);
+	auto dow_today = QDateTime::currentDateTime().date().dayOfWeek();
+
+	if (dow_today != Qt::Friday && dow_today != Qt::Saturday)
+		expected_trigger = expected_trigger.addDays(1);
+	if (dow_today == Qt::Friday)
+		expected_trigger = expected_trigger.addDays(2);
+	if (dow_today == Qt::Saturday)
+		expected_trigger = expected_trigger.addDays(1);
 
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
         Alarm::Workdays);
@@ -110,6 +119,10 @@ TEST(Alarm, WeekendsPast) {
     auto dow_today = expected_trigger.date().dayOfWeek();
     if (dow_today != Qt::Saturday && dow_today != Qt::Sunday)
         expected_trigger = expected_trigger.addDays(Qt::Sunday - dow_today);
+	if (dow_today == Qt::Saturday)
+		expected_trigger = expected_trigger.addDays(1);
+	if (dow_today == Qt::Sunday)
+		expected_trigger = expected_trigger.addDays(6);
 
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
         Alarm::Weekend);
@@ -137,8 +150,13 @@ TEST(Alarm, updateTiggerSetsPeriodtoOnce) {
 TEST(Alarm, updatePeriodSetsNextTrigger) {
 	auto expected_trigger = QDateTime::currentDateTime().addSecs(-3600);
 	auto dow_today = expected_trigger.date().dayOfWeek();
+
 	if (dow_today != Qt::Saturday && dow_today != Qt::Sunday)
 		expected_trigger = expected_trigger.addDays(Qt::Sunday - dow_today);
+	if (dow_today == Qt::Saturday)
+		expected_trigger = expected_trigger.addDays(1);
+	if (dow_today == Qt::Sunday)
+		expected_trigger = expected_trigger.addDays(6);
 
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
         QTime::currentTime().addSecs(-3600));
