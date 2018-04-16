@@ -1,0 +1,36 @@
+#cloud-config
+package_upgrade: true
+packages:
+  - git
+  - curl
+  - wget
+  
+write_files:
+  - path: /etc/systemd/system/docker.service.d/docker.conf
+    content: |
+      [Service]
+        ExecStart=
+        ExecStart=/usr/bin/dockerd
+
+  - path: /etc/docker/daemon.json
+    content: |
+      {
+        "hosts": ["fd://","tcp://127.0.0.1:2375"]
+      }
+
+runcmd:
+  - wget -q -O - https://jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -
+  - sh -c 'echo deb http://pkg.jenkins-ci.org/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+  - apt-get update && apt-get install jenkins -y
+  - curl -sSL https://get.docker.com/ | sh
+  - usermod -aG docker thomas
+  - usermod -aG docker jenkins
+  - service jenkins restart
+  - sleep 150
+  - curl -o   /var/lib/jenkins/jenkins-cli.jar http://127.0.0.1:8080/jnlpJars/jenkins-cli.jar
+  - java -jar /var/lib/jenkins/jenkins-cli.jar -auth admin:$(sudo cat /var/lib/jenkins/secrets/initialAdminPassword) -s http://localhost:8080 install-plugin blueocean
+  - java -jar /var/lib/jenkins/jenkins-cli.jar -auth admin:$(sudo cat /var/lib/jenkins/secrets/initialAdminPassword) -s http://localhost:8080 install-plugin workflow-aggregator
+  - java -jar /var/lib/jenkins/jenkins-cli.jar -auth admin:$(sudo cat /var/lib/jenkins/secrets/initialAdminPassword) -s http://localhost:8080 install-plugin gitea
+  - java -jar /var/lib/jenkins/jenkins-cli.jar -auth admin:$(sudo cat /var/lib/jenkins/secrets/initialAdminPassword) -s http://localhost:8080 install-plugin cobertura
+  - java -jar /var/lib/jenkins/jenkins-cli.jar -auth admin:$(sudo cat /var/lib/jenkins/secrets/initialAdminPassword) -s http://localhost:8080 safe-restart
+
