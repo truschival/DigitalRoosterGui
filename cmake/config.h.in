@@ -35,5 +35,11 @@
  #define SETTINGS_PATH  "@SETTINGS_PATH@"
  #endif
 
+ /**
+  * Build directory to find and generate files during tests 
+  */
+ #ifndef BUILD_DIR
+ #define BUILD_DIR  "@CMAKE_BINARY_DIR@"
+ #endif
 
  #endif /* _CONFIG_H_ */

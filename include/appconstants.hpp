@@ -95,6 +95,12 @@ namespace DigitalRooster{
 	 */
 	const QString RSS_FILE_DIR(QDir::tempPath());
 
+
+	/**
+	* Build directory (where testfiles are generated)
+	*/
+	const QString TEST_FILE_PATH(BUILD_DIR);
+
 	/**
 	 * Runtime configuration object
 	 */

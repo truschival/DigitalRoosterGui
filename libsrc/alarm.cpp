@@ -26,7 +26,7 @@ Alarm::Alarm(const QUrl& media, const QTime& timepoint, Alarm::Period period,
     , enabled(enabled) {
 
     trigger_instant.setTime(timepoint);
-    qDebug() << __FUNCTION__ << "timepoint" << trigger_instant;
+    //qDebug() << __FUNCTION__ << "timepoint" << trigger_instant;
 }
 /*****************************************************************************/
 
@@ -36,7 +36,7 @@ Alarm::Alarm(const QUrl& media, const QDateTime& timepoint, bool enabled, QObjec
     , period(Alarm::Once)
     , trigger_instant(timepoint)
     , enabled(enabled) {
-    qDebug() << __FUNCTION__ << "timepoint" << trigger_instant;
+    //qDebug() << __FUNCTION__ << "timepoint" << trigger_instant;
 }
 
 
@@ -64,7 +64,7 @@ void Alarm::update_trigger() {
 	auto now = QDateTime::currentDateTime();
 	auto day_of_week_today = now.date().dayOfWeek();
 
-	qDebug() << "Old trigger_instant " << trigger_instant;
+	//qDebug() << "Old trigger_instant " << trigger_instant;
 
 	// trigger instant is in the future - nothing to adjust for
 	if (now < trigger_instant) {
@@ -101,7 +101,7 @@ void Alarm::update_trigger() {
 		trigger_instant = trigger_instant.addDays(1);
 		break;
 	}
-	qDebug() << "Next trigger_instant " << trigger_instant;
+	//qDebug() << "Next trigger_instant " << trigger_instant;
 }
 
 
