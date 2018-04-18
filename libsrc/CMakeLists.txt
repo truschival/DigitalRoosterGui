@@ -39,6 +39,7 @@ set(SRCS
    ${CMAKE_CURRENT_SOURCE_DIR}/DownloadManager.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/UpdateTask.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/alarm.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/player.cpp
 )
 
 # Moc any classes derived from QObject

@@ -20,6 +20,7 @@ SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test_update_task.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_podcastsource.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_alarm.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_player.cpp
   )
 
 # Moc any classes derived from QObject
