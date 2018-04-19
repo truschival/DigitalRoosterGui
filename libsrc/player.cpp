@@ -85,6 +85,7 @@ void  Player::set_media(RadioStream* media) {
 /*****************************************************************************/
 void Player::set_media(PodcastEpisode* media) {
 	qDebug() << __FUNCTION__;
+	backend->setMedia(QMediaContent(media->get_url()));
 }
 
 /*****************************************************************************/
