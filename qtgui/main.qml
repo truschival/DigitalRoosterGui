@@ -150,7 +150,7 @@ ApplicationWindow {
                 if (currentEpisode != null){
                     currentEpisode.position = position
                     slider.value = position/currentEpisode.duration
-                    timeElapsed.text = Util.msToTime(position)
+                    timeElapsed.text = Util.display_time_ms(position)
                 }
             }
         }
@@ -165,7 +165,7 @@ ApplicationWindow {
                 player.currentEpisode.position = player.position
             }
             player.stop()
-            durationTotal.text = Util.msToTime(newEpisode.duration)
+            durationTotal.text = Util.display_time_ms(newEpisode.duration)
 
             var oldpos = newEpisode.position
             console.log("new episodes has positions set to "+ oldpos)

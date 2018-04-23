@@ -1,9 +1,18 @@
-function msToTime(s) {
-    var ms = s % 1000;
-    s = (s - ms) / 1000;
-    var secs = s % 60;
-    s = (s - secs) / 60;
-    var mins = s % 60;
-    var hrs = (s - mins) / 60;
-    return hrs + ':' + mins + ':' + secs;
+function add_leading_zero(var_in){
+    if (var_in < 10)
+        return "0"+var_in
+    return ""+var_in
+}
+
+function display_time_ms(ms) {
+    // make it full integer seconds
+    var time_s = Math.floor(ms/1000)
+    var ss = time_s%60
+    // time in minutes
+    var time_min = (time_s-ss)/60
+    var mm = time_min%60
+    // time in hours
+    var time_h = (time_min-mm)/60
+
+    return add_leading_zero(time_h) + ":" + add_leading_zero(mm) +":" + add_leading_zero(ss)
 }
