@@ -28,18 +28,19 @@ class RadioStream;
  * Wrapper around QMediaPlayer to allow access to the same player instance from
  * QML and C++
  */
-class Player : public QObject {
+class MediaPlayerProxy : public QObject {
     Q_OBJECT
-    Q_PROPERTY(qint64 position READ get_position)
-    Q_PROPERTY(qint64 duration READ get_duration)
+    Q_PROPERTY(qint64 position READ get_position NOTIFY position_changed)
+    Q_PROPERTY(qint64 duration READ get_duration NOTIFY duration_changed)
     Q_PROPERTY(int volume READ get_volume WRITE set_volume NOTIFY volume_changed)
     Q_PROPERTY(bool muted READ muted WRITE set_muted NOTIFY muted_changed)
-    Q_PROPERTY(bool seekable READ seekable)
+    Q_PROPERTY(bool seekable READ seekable NOTIFY seekable_changed)
+	Q_PROPERTY(QMediaPlayer::MediaStatus mediaStatus READ media_status NOTIFY media_status_changed)
 public:
-	Player();
-    ~Player() = default;
-    Player(const Player& rhs) = delete;
-    Player operator=(const Player& rhs) = delete;
+	MediaPlayerProxy();
+    ~MediaPlayerProxy() = default;
+    MediaPlayerProxy(const MediaPlayerProxy& rhs) = delete;
+    MediaPlayerProxy operator=(const MediaPlayerProxy& rhs) = delete;
 
     /**
      * Seek to position. Wrapper to set_position to implement same interface
@@ -59,7 +60,7 @@ public:
 	int get_volume() const;
 	qint64 get_duration() const;
 	qint64 get_position() const;
-
+	QMediaPlayer::MediaStatus media_status()const;
 	/**
 	 * Initial player volume
 	 */
@@ -76,9 +77,12 @@ public slots:
     void stop();
 signals:
     void position_changed(qint64 position);
+    void duration_changed(qint64 duration);
     void media_changed(const QMediaContent& media);
     void volume_changed(int volume);
     void muted_changed(bool muted);
+    void seekable_changed(bool seekable);
+    void media_status_changed(QMediaPlayer::MediaStatus);
     void playback_state_changed(QMediaPlayer::State state);
 	void error(QMediaPlayer::Error error);
 

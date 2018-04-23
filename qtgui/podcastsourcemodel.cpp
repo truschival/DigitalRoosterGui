@@ -53,7 +53,7 @@ void PodcastSourceModel::newDataAvailable() {
 
 /*******************************************************************************/
 PodcastEpisodeModel* PodcastSourceModel::get_episodes(int index) {
-    qDebug() << __FUNCTION__ << " index: " << index;
+    //qDebug() << __FUNCTION__ << " index: " << index;
 
     auto v = cm->get_podcast_sources();
     if (index < 0 || index >= v.size())

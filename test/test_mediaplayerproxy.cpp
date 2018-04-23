@@ -18,10 +18,10 @@
 #include <memory>
 
 #include <gtest/gtest.h>
+#include <mediaplayerproxy.hpp>
 
 #include "PlayableItem.hpp"
 #include "appconstants.hpp"
-#include "player.hpp"
 
 using namespace DigitalRooster;
 
@@ -35,7 +35,7 @@ public:
 protected:
     std::unique_ptr<PodcastEpisode> podcast;
     const qint64 desired_pos = 10000; //10 seconds
-    Player dut;
+    MediaPlayerProxy dut;
 };
 /*****************************************************************************/
 TEST_F(PlayerFixture, emitMediaChanged) {

@@ -52,7 +52,7 @@ void PodcastEpisodeModel::set_episodes(
 /*************************************************************************************/
 
 int PodcastEpisodeModel::rowCount(const QModelIndex& /*parent */) const {
-	qDebug() << __FUNCTION__;
+	//qDebug() << __FUNCTION__;
     if (!episodes){
     	qWarning() << " no episodes ";
         return 0;
@@ -62,7 +62,7 @@ int PodcastEpisodeModel::rowCount(const QModelIndex& /*parent */) const {
 
 /*******************************************************************************/
 PodcastEpisode* PodcastEpisodeModel::get_episode(int index) {
-	qDebug() << __FUNCTION__ << " index: " << index;
+	//qDebug() << __FUNCTION__ << " index: " << index;
 	auto ep = episodes->at(index).get();
 	QQmlEngine::setObjectOwnership(ep, QQmlEngine::CppOwnership);
 	return ep;
@@ -70,7 +70,7 @@ PodcastEpisode* PodcastEpisodeModel::get_episode(int index) {
 
 /*************************************************************************************/
 QVariant PodcastEpisodeModel::data(const QModelIndex& index, int role) const {
-	qDebug() << __FUNCTION__ << "(" << index.row() << ")";
+	//qDebug() << __FUNCTION__ << "(" << index.row() << ")";
 	if (!episodes)
 	        return QVariant();
 

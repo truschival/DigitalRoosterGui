@@ -39,7 +39,7 @@ set(SRCS
    ${CMAKE_CURRENT_SOURCE_DIR}/DownloadManager.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/UpdateTask.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/alarm.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/player.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/mediaplayerproxy.cpp
 )
 
 # Moc any classes derived from QObject
@@ -50,7 +50,7 @@ qt5_wrap_cpp(MOC_SRC
         ${PROJECT_INCLUDE_DIR}/PlayableItem.hpp
         ${PROJECT_INCLUDE_DIR}/PodcastSource.hpp
         ${PROJECT_INCLUDE_DIR}/alarm.hpp
-		${PROJECT_INCLUDE_DIR}/player.hpp
+		${PROJECT_INCLUDE_DIR}/mediaplayerproxy.hpp
         )
 
 #------------------------------

@@ -117,13 +117,16 @@ TEST(Alarm, WeekendsPast) {
 
     auto expected_trigger = QDateTime::currentDateTime().addSecs(-3600);
     auto dow_today = expected_trigger.date().dayOfWeek();
-    if (dow_today != Qt::Saturday && dow_today != Qt::Sunday)
-        expected_trigger = expected_trigger.addDays(Qt::Sunday - dow_today);
-	if (dow_today == Qt::Saturday)
-		expected_trigger = expected_trigger.addDays(1);
-	if (dow_today == Qt::Sunday)
-		expected_trigger = expected_trigger.addDays(6);
 
+	if (dow_today != Qt::Saturday && dow_today != Qt::Sunday) {
+		expected_trigger = expected_trigger.addDays(Qt::Sunday - dow_today);
+	}
+	if (dow_today == Qt::Saturday) {
+		expected_trigger = expected_trigger.addDays(1);
+	}
+	if (dow_today == Qt::Sunday) {
+		expected_trigger = expected_trigger.addDays(6);
+	}
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
         Alarm::Weekend);
 
