@@ -22,7 +22,7 @@ using namespace DigitalRooster;
 
 MediaPlayerProxy::MediaPlayerProxy()
     : backend(std::make_unique<QMediaPlayer>()) {
-    //qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
 	backend->setVolume(initial_volume);
     QObject::connect(backend.get(), &QMediaPlayer::mediaChanged,
         [=](const QMediaContent& media) { emit media_changed(media); });
@@ -52,81 +52,81 @@ MediaPlayerProxy::MediaPlayerProxy()
 
 /*****************************************************************************/
 bool MediaPlayerProxy::seekable() const {
-	//qDebug() << __FUNCTION__;
+	qDebug() << Q_FUNC_INFO;
 	return backend->isSeekable();
 }
 
 /*****************************************************************************/
 qint64 MediaPlayerProxy::get_position() const {
-	//qDebug() << __FUNCTION__;
+	qDebug() << Q_FUNC_INFO;
 	return backend->position();
 }
 
 /*****************************************************************************/
 
 QMediaPlayer::MediaStatus MediaPlayerProxy::media_status() const {
-	//qDebug() << __FUNCTION__;
+	qDebug() << Q_FUNC_INFO;
 	return backend->mediaStatus();
 }
 
 /*****************************************************************************/
 qint64 MediaPlayerProxy::get_duration() const {
-    //qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
     return backend->duration();
 }
 
 /*****************************************************************************/
 void MediaPlayerProxy::set_position(qint64 position) {
-    qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
     backend->setPosition(position);
 }
 /*****************************************************************************/
 bool MediaPlayerProxy::muted() const {
-	//qDebug() << __FUNCTION__;
+	qDebug() << Q_FUNC_INFO;
 	return backend->isMuted();
 }
 
 /*****************************************************************************/
 int MediaPlayerProxy::get_volume() const {
-	//qDebug() << __FUNCTION__;
+	qDebug() << Q_FUNC_INFO;
 	return backend->volume();
 }
 /*****************************************************************************/
 void MediaPlayerProxy::set_media(RadioStream* media) {
-	qDebug() << __FUNCTION__;
+	qDebug() << Q_FUNC_INFO;
 	backend->setMedia(QMediaContent(media->get_url()));
 }
 
 /*****************************************************************************/
 void MediaPlayerProxy::set_media(PodcastEpisode* media) {
-	qDebug() << __FUNCTION__;
+	qDebug() << Q_FUNC_INFO;
 	backend->setMedia(QMediaContent(media->get_url()));
 }
 
 /*****************************************************************************/
 void MediaPlayerProxy::set_muted(bool muted){
-    qDebug() << __FUNCTION__;
+    qDebug() << Q_FUNC_INFO;
 	backend->setMuted(muted);
 }
 
 /*****************************************************************************/
 void MediaPlayerProxy::set_volume(int volume) {
-	qDebug() << __FUNCTION__;
+	qDebug() << Q_FUNC_INFO;
 	backend->setVolume(volume);
 }
 /*****************************************************************************/
 void MediaPlayerProxy::pause() {
-	//qDebug() << __FUNCTION__;
+	qDebug() << Q_FUNC_INFO;
 	backend->pause();
 }
 /*****************************************************************************/
 void MediaPlayerProxy::play() {
-	qDebug() << __FUNCTION__;
+	qDebug() << Q_FUNC_INFO;
 	backend->play();
 }
 /*****************************************************************************/
 void MediaPlayerProxy::stop() {
-	//qDebug() << __FUNCTION__;
+	qDebug() << Q_FUNC_INFO;
 	backend->stop();
 }
 /*****************************************************************************/
