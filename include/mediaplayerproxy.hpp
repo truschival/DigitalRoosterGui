@@ -66,8 +66,8 @@ public:
 	 */
 	const int initial_volume=5;
 public slots:
-    void set_media(RadioStream* media);
-    void set_media(PodcastEpisode* media);
+    void set_media(DigitalRooster::RadioStream* media);
+    void set_media(DigitalRooster::PodcastEpisode* media);
 
     void set_position(qint64 position);
     void set_muted(bool muted);

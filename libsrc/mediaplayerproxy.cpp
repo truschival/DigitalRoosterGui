@@ -92,13 +92,13 @@ int MediaPlayerProxy::get_volume() const {
 	return backend->volume();
 }
 /*****************************************************************************/
-void MediaPlayerProxy::set_media(RadioStream* media) {
+void MediaPlayerProxy::set_media(DigitalRooster::RadioStream* media) {
 	qDebug() << Q_FUNC_INFO;
 	backend->setMedia(QMediaContent(media->get_url()));
 }
 
 /*****************************************************************************/
-void MediaPlayerProxy::set_media(PodcastEpisode* media) {
+void MediaPlayerProxy::set_media(DigitalRooster::PodcastEpisode* media) {
 	qDebug() << Q_FUNC_INFO;
 	backend->setMedia(QMediaContent(media->get_url()));
 }

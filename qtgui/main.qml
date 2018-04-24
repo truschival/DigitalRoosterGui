@@ -130,19 +130,16 @@ ApplicationWindow {
             if(newEpisode == null){
                 console.log("newEpisode is null")
             }
-            if( player.currentEpisode != null){
-                // remeber last position
-                player.currentEpisode.position = player.position
-            }
-            player.stop()
+            playerProxy.stop()
             durationTotal.text = Util.display_time_ms(newEpisode.duration)
 
             var oldpos = newEpisode.position
             console.log("new episodes has positions set to "+ oldpos)
-            player.currentEpisode = newEpisode
-            player.source = newEpisode.url
-            player.play()
-            player.seek(oldpos) // restore previous position
+            //player.currentEpisode = newEpisode
+            
+            playerProxy.set_media(newEpisode)
+            playerProxy.play()
+            playerProxy.seek(oldpos) // restore previous position
             setVisible(true)
         }
 
@@ -190,7 +187,7 @@ ApplicationWindow {
             onClicked: {
                 console.log("forwardBtn")
                 interactiontimer.restart()
-                playerProxy.seek(player.position+5000)
+                playerProxy.seek(playerProxy.position+5000)
             }
         }
 
@@ -203,7 +200,7 @@ ApplicationWindow {
             onClicked: {
                 console.log("backwardBtn")
                 interactiontimer.restart()
-                playerProxy.seek(player.position-5000)
+                playerProxy.seek(playerProxy.position-5000)
             }
         }
 
