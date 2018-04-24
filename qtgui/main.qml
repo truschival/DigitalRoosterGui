@@ -7,6 +7,7 @@ import QtMultimedia 5.8
 import Qt.labs.settings 1.0
 
 import ruschi.PodcastEpisode 1.0
+import ruschi.MediaPlayerProxy 1.0
 
 import "Icon.js" as MdiFont
 import "Jsutil.js" as Util
@@ -122,41 +123,10 @@ ApplicationWindow {
         z: 1
         anchors.bottom: parent.bottom
 
-        MediaPlayer {
-            id: player
-
-            property PodcastEpisode currentEpisode;
-
-            onPlaybackStateChanged: {
-                switch (playbackState){
-                case MediaPlayer.PlayingState:
-                    console.log("player.playing")
-                    playBtn.text =  MdiFont.Icon.pause
-                    break
-                case MediaPlayer.PausedState:
-                    console.log("player.paused")
-                    playBtn.text = MdiFont.Icon.play
-                    break
-                case MediaPlayer.StoppedState:
-                    console.log("player.stopped")
-                    playBtn.text = MdiFont.Icon.play
-                    break
-                default:
-                    console.log("player???")
-                }
-            }
-
-            onPositionChanged: {
-                if (currentEpisode != null){
-                    currentEpisode.position = position
-                    slider.value = position/currentEpisode.duration
-                    timeElapsed.text = Util.display_time_ms(position)
-                }
-            }
-        }
-
+        property MediaPlayerProxy player: playerProxy
 
         function playEpisode(newEpisode){
+            console.log("play_episode")
             if(newEpisode == null){
                 console.log("newEpisode is null")
             }
@@ -202,11 +172,11 @@ ApplicationWindow {
                 console.log("playBtn")
                 interactiontimer.restart()
 
-                if(player.playbackState == MediaPlayer.PlayingState){
-                    player.pause()
+                if(playerProxy.playbackState == MediaPlayer.PlayingState){
+                    playerProxy.pause()
                 }
                 else{
-                    player.play()
+                    playerProxy.play()
                 }
             }
         }
@@ -220,7 +190,7 @@ ApplicationWindow {
             onClicked: {
                 console.log("forwardBtn")
                 interactiontimer.restart()
-                player.seek(player.position+5000)
+                playerProxy.seek(player.position+5000)
             }
         }
 
@@ -233,7 +203,7 @@ ApplicationWindow {
             onClicked: {
                 console.log("backwardBtn")
                 interactiontimer.restart()
-                player.seek(player.position-5000)
+                playerProxy.seek(player.position-5000)
             }
         }
 
@@ -243,14 +213,14 @@ ApplicationWindow {
             width: parent.width*0.85
             anchors.top: playBtn.bottom
             anchors.topMargin: -15
-            value: player.position/player.duration
-            enabled: (player.currentEpisode != null)
+            value: playerProxy.position/playerProxy.duration
+            enabled: (playerProxy.currentEpisode != null)
 
             onValueChanged: {
                 interactiontimer.restart()
             }
             onMoved:{
-                player.seek(value* player.currentEpisode.duration)
+                playerProxy.seek(value* playerProxy.duration)
             }
         }
         Text{
