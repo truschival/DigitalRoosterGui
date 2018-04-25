@@ -128,16 +128,9 @@ ApplicationWindow {
             if(newEpisode == null){
                 console.log("newEpisode is null")
             }
-            playerProxy.stop()
-            durationTotal.text = Util.display_time_ms(newEpisode.duration)
-
-            var oldpos = newEpisode.position
-            console.log("new episodes has positions set to "+ oldpos)
-            //player.currentEpisode = newEpisode
             
             playerProxy.set_media(newEpisode)
             playerProxy.play()
-            playerProxy.seek(oldpos) // restore previous position
             setVisible(true)
         }
 
@@ -154,13 +147,11 @@ ApplicationWindow {
             onTriggered: parent.setVisible(false)
         }
 
-
         IconButton {
             id: playBtn
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top : parent.top
             anchors.topMargin: 2
-            enabled: (playerProxy.currentEpisode != null)
             text: MdiFont.Icon.play // default to play icon
 
             onClicked: {
@@ -174,6 +165,22 @@ ApplicationWindow {
                     playerProxy.play()
                 }
             }
+
+			function switchPlayButtonIcon(playbackState){
+                switch (playbackState){
+                case MediaPlayer.PlayingState:
+                    playBtn.text =  MdiFont.Icon.pause
+                    break
+                case MediaPlayer.PausedState:
+                    playBtn.text = MdiFont.Icon.play
+                    break
+                case MediaPlayer.StoppedState:
+                    playBtn.text = MdiFont.Icon.play
+                    break
+                default:
+                    console.log("player???")
+                }
+            }
         }
 
         IconButton {
@@ -183,9 +190,8 @@ ApplicationWindow {
             anchors.top: playBtn.top
             text: MdiFont.Icon.fastForward
             onClicked: {
-                console.log("forwardBtn")
                 interactiontimer.restart()
-                playerProxy.seek(playerProxy.position+5000)
+                playerProxy.seek(5000)
             }
         }
 
@@ -196,9 +202,8 @@ ApplicationWindow {
 
             text: MdiFont.Icon.rewind
             onClicked: {
-                console.log("backwardBtn")
                 interactiontimer.restart()
-                playerProxy.seek(playerProxy.position-5000)
+                playerProxy.seek(-5000)
             }
         }
 
@@ -208,29 +213,41 @@ ApplicationWindow {
             width: parent.width*0.85
             anchors.top: playBtn.bottom
             anchors.topMargin: -15
-            value: playerProxy.position/playerProxy.duration
-            enabled: (playerProxy.currentEpisode != null)
-
+            enabled: playerProxy.seekable
+			
             onValueChanged: {
                 interactiontimer.restart()
             }
             onMoved:{
-                playerProxy.seek(value* playerProxy.duration)
+                playerProxy.set_position(value* playerProxy.duration)
             }
         }
+
         Text{
             id: timeElapsed
-            text: playerProxy.position
+            text: Util.display_time_ms(playerProxy.position)
             anchors.horizontalCenter: slider.left
             anchors.top: slider.bottom
             anchors.margins: 2
         }
         Text{
             id: durationTotal
+			text: Util.display_time_ms(playerProxy.duration)
             anchors.horizontalCenter: slider.right
             anchors.top: slider.bottom
             anchors.margins: 2
         }
+
+		function updatePosition(pos){
+			slider.value = pos/playerProxy.duration
+			timeElapsed.text=Util.display_time_ms(pos)
+		}
+
+		/***********************************************************************/
+		Component.onCompleted : {
+			playerProxy.playback_state_changed.connect(playBtn.switchPlayButtonIcon)
+			playerProxy.position_changed.connect(updatePosition)
+		}
     }
 
 

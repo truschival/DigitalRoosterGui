@@ -36,6 +36,8 @@ class MediaPlayerProxy : public QObject {
     Q_PROPERTY(bool muted READ muted WRITE set_muted NOTIFY muted_changed)
     Q_PROPERTY(bool seekable READ seekable NOTIFY seekable_changed)
 	Q_PROPERTY(QMediaPlayer::MediaStatus mediaStatus READ media_status NOTIFY media_status_changed)
+	Q_PROPERTY(QMediaPlayer::State playbackState READ playback_state NOTIFY playback_state_changed)
+
 public:
 	MediaPlayerProxy();
     ~MediaPlayerProxy() = default;
@@ -43,14 +45,14 @@ public:
     MediaPlayerProxy operator=(const MediaPlayerProxy& rhs) = delete;
 
     /**
-     * Seek to position. Wrapper to set_position to implement same interface
-	 * as QMLMediaPlayer. Has no effect if media is not seekable
-	 * @param pos new postion
+     * Incremental seek add increment to current position
+	 * will do nothing if not seekable
+	 * @param incr increment to add
 	 */
 	Q_INVOKABLE
-	void seek(qint64 pos) {
+	void seek(qint64 incr) {
 		if (this->seekable())
-			this->set_position(pos);
+			set_position(get_position()+incr);
 	}
 	;
 
@@ -61,6 +63,7 @@ public:
 	qint64 get_duration() const;
 	qint64 get_position() const;
 	QMediaPlayer::MediaStatus media_status()const;
+	QMediaPlayer::State playback_state()const;
 	/**
 	 * Initial player volume
 	 */
@@ -73,7 +76,7 @@ public slots:
     void set_muted(bool muted);
     void set_volume(int volume);
     void pause();
-    void play();
+	void play();
     void stop();
 signals:
     void position_changed(qint64 position);

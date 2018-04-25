@@ -74,17 +74,17 @@ TEST_F(PlayerFixture, seekEmitsPositionChangedToNewPosition) {
 
     dut.set_media(podcast.get());
     dut.play();
-    spy.wait();
-    dut.pause();
-    dut.set_position(desired_pos);
-    spy.wait();
+	spy.wait();
+	auto pos = dut.get_position();
+    dut.seek(5000); // forward 5s
+
     ASSERT_GT(spy.count(), 1);
 
-    QList<QVariant> arguments = spy.takeFirst();
+    QList<QVariant> arguments = spy.takeLast();
     bool ok;
     auto read_pos = arguments.at(0).toLongLong(&ok);
     ASSERT_TRUE(ok);
-    ASSERT_GT(read_pos,desired_pos);
+    ASSERT_GT(read_pos,pos+5000);
 }
 
 
