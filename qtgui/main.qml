@@ -123,8 +123,6 @@ ApplicationWindow {
         z: 1
         anchors.bottom: parent.bottom
 
-        property MediaPlayerProxy player: playerProxy
-
         function playEpisode(newEpisode){
             console.log("play_episode")
             if(newEpisode == null){
@@ -162,7 +160,7 @@ ApplicationWindow {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top : parent.top
             anchors.topMargin: 2
-            enabled: (player.currentEpisode != null)
+            enabled: (playerProxy.currentEpisode != null)
             text: MdiFont.Icon.play // default to play icon
 
             onClicked: {
@@ -222,7 +220,7 @@ ApplicationWindow {
         }
         Text{
             id: timeElapsed
-            text: player.position
+            text: playerProxy.position
             anchors.horizontalCenter: slider.left
             anchors.top: slider.bottom
             anchors.margins: 2

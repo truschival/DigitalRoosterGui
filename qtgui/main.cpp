@@ -34,11 +34,11 @@ int main(int argc, char* argv[]) {
     PodcastSourceModel psmodel(&cm);
     MediaPlayerProxy playerproxy;
 
-    QQmlApplicationEngine view(QUrl("qrc:/main.qml"));
+    QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
     ctxt->setContextProperty("podcastmodel", &psmodel);
     ctxt->setContextProperty("playerProxy", &playerproxy);
-
+	view.load(QUrl("qrc:/main.qml"));
 
     return app.exec();
 }
