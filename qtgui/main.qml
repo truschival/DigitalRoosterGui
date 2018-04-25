@@ -7,6 +7,7 @@ import QtMultimedia 5.8
 import Qt.labs.settings 1.0
 
 import ruschi.PodcastEpisode 1.0
+import ruschi.MediaPlayerProxy 1.0
 
 import "Icon.js" as MdiFont
 import "Jsutil.js" as Util
@@ -61,7 +62,6 @@ ApplicationWindow {
                         stackView.pop()
                         console.log("BackButton")
                     }
-                    console.log("CurrentItem :" + stackView.currentItem.objectName)
                 }
 
                 Shortcut {
@@ -96,7 +96,6 @@ ApplicationWindow {
 
                         stackView.pop(null)
                         stackView.push(model.source)
-                        console.log("CurrentItem :" + stackView.currentItem.objectName)
                     }
                     drawer.close()
                 }
@@ -122,60 +121,6 @@ ApplicationWindow {
         z: 1
         anchors.bottom: parent.bottom
 
-        MediaPlayer {
-            id: player
-
-            property PodcastEpisode currentEpisode;
-
-            onPlaybackStateChanged: {
-                switch (playbackState){
-                case MediaPlayer.PlayingState:
-                    console.log("player.playing")
-                    playBtn.text =  MdiFont.Icon.pause
-                    break
-                case MediaPlayer.PausedState:
-                    console.log("player.paused")
-                    playBtn.text = MdiFont.Icon.play
-                    break
-                case MediaPlayer.StoppedState:
-                    console.log("player.stopped")
-                    playBtn.text = MdiFont.Icon.play
-                    break
-                default:
-                    console.log("player???")
-                }
-            }
-
-            onPositionChanged: {
-                if (currentEpisode != null){
-                    currentEpisode.position = position
-                    slider.value = position/currentEpisode.duration
-                    timeElapsed.text = Util.msToTime(position)
-                }
-            }
-        }
-
-
-        function playEpisode(newEpisode){
-            if(newEpisode == null){
-                console.log("newEpisode is null")
-            }
-            if( player.currentEpisode != null){
-                // remeber last position
-                player.currentEpisode.position = player.position
-            }
-            player.stop()
-            durationTotal.text = Util.msToTime(newEpisode.duration)
-
-            var oldpos = newEpisode.position
-            console.log("new episodes has positions set to "+ oldpos)
-            player.currentEpisode = newEpisode
-            player.source = newEpisode.url
-            player.play()
-            player.seek(oldpos) // restore previous position
-            setVisible(true)
-        }
-
         function setVisible(visible){
             interactiontimer.restart()
             playerControlWidget.visible=visible
@@ -189,24 +134,38 @@ ApplicationWindow {
             onTriggered: parent.setVisible(false)
         }
 
-
         IconButton {
             id: playBtn
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top : parent.top
             anchors.topMargin: 2
-            enabled: (player.currentEpisode != null)
             text: MdiFont.Icon.play // default to play icon
 
             onClicked: {
                 console.log("playBtn")
                 interactiontimer.restart()
 
-                if(player.playbackState == MediaPlayer.PlayingState){
-                    player.pause()
+                if(playerProxy.playbackState == MediaPlayer.PlayingState){
+                    playerProxy.pause()
                 }
                 else{
-                    player.play()
+                    playerProxy.play()
+                }
+            }
+
+			function switchPlayButtonIcon(playbackState){
+                switch (playbackState){
+                case MediaPlayer.PlayingState:
+                    playBtn.text =  MdiFont.Icon.pause
+                    break
+                case MediaPlayer.PausedState:
+                    playBtn.text = MdiFont.Icon.play
+                    break
+                case MediaPlayer.StoppedState:
+                    playBtn.text = MdiFont.Icon.play
+                    break
+                default:
+                    console.log("player???")
                 }
             }
         }
@@ -218,9 +177,8 @@ ApplicationWindow {
             anchors.top: playBtn.top
             text: MdiFont.Icon.fastForward
             onClicked: {
-                console.log("forwardBtn")
                 interactiontimer.restart()
-                player.seek(player.position+5000)
+                playerProxy.seek(5000)
             }
         }
 
@@ -231,9 +189,8 @@ ApplicationWindow {
 
             text: MdiFont.Icon.rewind
             onClicked: {
-                console.log("backwardBtn")
                 interactiontimer.restart()
-                player.seek(player.position-5000)
+                playerProxy.seek(-5000)
             }
         }
 
@@ -243,29 +200,41 @@ ApplicationWindow {
             width: parent.width*0.85
             anchors.top: playBtn.bottom
             anchors.topMargin: -15
-            value: player.position/player.duration
-            enabled: (player.currentEpisode != null)
-
+            enabled: playerProxy.seekable
+			
             onValueChanged: {
                 interactiontimer.restart()
             }
             onMoved:{
-                player.seek(value* player.currentEpisode.duration)
+                playerProxy.set_position(value* playerProxy.duration)
             }
         }
+
         Text{
             id: timeElapsed
-            text: player.position
+            text: Util.display_time_ms(playerProxy.position)
             anchors.horizontalCenter: slider.left
             anchors.top: slider.bottom
             anchors.margins: 2
         }
         Text{
             id: durationTotal
+			text: Util.display_time_ms(playerProxy.duration)
             anchors.horizontalCenter: slider.right
             anchors.top: slider.bottom
             anchors.margins: 2
         }
+
+		function updatePosition(pos){
+			slider.value = pos/playerProxy.duration
+			timeElapsed.text=Util.display_time_ms(pos)
+		}
+
+		/***********************************************************************/
+		Component.onCompleted : {
+			playerProxy.playback_state_changed.connect(playBtn.switchPlayButtonIcon)
+			playerProxy.position_changed.connect(updatePosition)
+		}
     }
 
 

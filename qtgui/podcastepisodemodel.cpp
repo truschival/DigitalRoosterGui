@@ -17,13 +17,15 @@
 
 #include "PlayableItem.hpp"
 #include "podcastepisodemodel.hpp"
+#include "mediaplayerproxy.hpp"
+
 using namespace DigitalRooster;
 
 /*************************************************************************************/
 PodcastEpisodeModel::PodcastEpisodeModel(
-    const QVector<std::shared_ptr<PodcastEpisode>>* ep, QObject* parent)
+    const QVector<std::shared_ptr<PodcastEpisode>>* ep, MediaPlayerProxy* pp, QObject* parent)
     : QAbstractListModel(parent)
-    , episodes(ep) {
+    , episodes(ep), mpp(pp) {
 }
 
 /*************************************************************************************/
@@ -52,7 +54,7 @@ void PodcastEpisodeModel::set_episodes(
 /*************************************************************************************/
 
 int PodcastEpisodeModel::rowCount(const QModelIndex& /*parent */) const {
-	qDebug() << __FUNCTION__;
+	//qDebug() << __FUNCTION__;
     if (!episodes){
     	qWarning() << " no episodes ";
         return 0;
@@ -62,15 +64,21 @@ int PodcastEpisodeModel::rowCount(const QModelIndex& /*parent */) const {
 
 /*******************************************************************************/
 PodcastEpisode* PodcastEpisodeModel::get_episode(int index) {
-	qDebug() << __FUNCTION__ << " index: " << index;
+	//qDebug() << __FUNCTION__ << " index: " << index;
 	auto ep = episodes->at(index).get();
 	QQmlEngine::setObjectOwnership(ep, QQmlEngine::CppOwnership);
 	return ep;
 }
 
 /*************************************************************************************/
+void PodcastEpisodeModel::send_episode_to_player(int index) {
+	auto ep = episodes->at(index);
+	mpp->set_media(ep);
+}
+
+/*************************************************************************************/
 QVariant PodcastEpisodeModel::data(const QModelIndex& index, int role) const {
-	qDebug() << __FUNCTION__ << "(" << index.row() << ")";
+	//qDebug() << __FUNCTION__ << "(" << index.row() << ")";
 	if (!episodes)
 	        return QVariant();
 

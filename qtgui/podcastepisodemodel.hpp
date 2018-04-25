@@ -22,16 +22,18 @@ namespace DigitalRooster {
 
 class ConfigurationManager;
 class PodcastEpisode;
+class MediaPlayerProxy;
 
 }
 class PodcastEpisodeModel : public QAbstractListModel {
     Q_OBJECT
 public:
-
     PodcastEpisodeModel(QObject* parent = nullptr);
 
-    PodcastEpisodeModel(const QVector<std::shared_ptr<DigitalRooster::PodcastEpisode>>* episodes,
-        QObject* parent = nullptr);
+    PodcastEpisodeModel(
+        const QVector<std::shared_ptr<DigitalRooster::PodcastEpisode>>*
+            episodes,
+		DigitalRooster::MediaPlayerProxy* pp, QObject* parent = nullptr);
 
     enum PodcastEpisodeRoles {
         DisplayNameRole = Qt::UserRole + 1,
@@ -56,12 +58,14 @@ public:
     }
 
 	Q_INVOKABLE DigitalRooster::PodcastEpisode* get_episode(int index);
+	Q_INVOKABLE void send_episode_to_player(int index);
 
 protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
     const QVector<std::shared_ptr<DigitalRooster::PodcastEpisode>>* episodes;
+	DigitalRooster::MediaPlayerProxy* mpp;
 
     QString name;
 };

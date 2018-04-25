@@ -20,6 +20,7 @@ SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test_update_task.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_podcastsource.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_alarm.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_mediaplayerproxy.cpp
   )
 
 # Moc any classes derived from QObject
@@ -154,8 +155,12 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_GOOD}"
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_BAD}"		
 		"${CMAKE_BINARY_DIR}/${RSS_FILE_BAD}" COPYONLY)
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_MALFORMAT}"	
-		"${CMAKE_BINARY_DIR}/${RSS_FILE_MALFORMAT}" COPYONLY)
+  "${CMAKE_BINARY_DIR}/${RSS_FILE_MALFORMAT}" COPYONLY)
 
+SET(AUDIO_TEST_FILE "testaudio.mp3")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${AUDIO_TEST_FILE}"	
+  "${CMAKE_BINARY_DIR}/${AUDIO_TEST_FILE}" COPYONLY)
+  
 #------------------------------
 # Binary
 #------------------------------

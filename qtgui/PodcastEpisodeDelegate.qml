@@ -71,7 +71,9 @@ Rectangle{
 			playerControlWidget.setVisible(true)
 		}
 		onPressAndHold:  {
-			playerControlWidget.playEpisode(episodemodel.get_episode(index))
+			episodemodel.send_episode_to_player(index)
+			playerProxy.play()
+			playerControlWidget.setVisible(true)
 		}
 	}
 

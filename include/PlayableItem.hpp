@@ -27,6 +27,8 @@ class PlayableItem : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString display_name READ get_display_name WRITE set_display_name)
     Q_PROPERTY(QUrl url READ get_url WRITE set_url)
+	Q_PROPERTY(int position READ get_position WRITE set_position)
+	Q_PROPERTY(int duration READ get_duration WRITE set_duration)
 public:
     /**
      * Default Constructor
@@ -59,79 +61,56 @@ public:
         media_url = url;
     };
 
+	/**
+	* last stored position
+	*/
+	qint64 get_position() const {
+		return position;
+	};
+	/**
+	* update position of already listened content
+	* @param newVal current position in stream
+	*/
+	void set_position(qint64 newVal) {
+		if (newVal <= duration && newVal >= 0) {
+			position = newVal;
+		}
+	};
+
+
+	/**
+	* Total length of media in ms
+	* @return
+	*/
+	qint64 get_duration() {
+		return duration;
+	}
+
+	/**
+	* Update length in ms only used for display purpose
+	* @param len >= 0
+	*/
+	void set_duration(qint64 len) {
+		if (len >= 0)
+			duration = len;
+	}
+
 private:
     /** human readable name*/
     QString display_name;
 
     /** Media URL */
     QUrl media_url;
-};
 
-/**
- * Media source with random access in time, player can go back and forth
- */
-class SeekablePlayableItem : public PlayableItem {
-	Q_OBJECT
-	Q_PROPERTY(int position READ get_position WRITE set_position)
-	Q_PROPERTY(int duration READ get_duration WRITE set_duration)
-public:
-    SeekablePlayableItem() = default;
+	/**
+	* Current Position in stream
+	*/
+	qint64 position = 0;
 
-    /**
-     * Convienience Constructor
-     * @param name
-     * @param url
-     */
-    SeekablePlayableItem(const QString& name, const QUrl& url)
-        : PlayableItem(name, url){
-
-          };
-
-    /**
-     * last stored position
-     */
-    int get_position() const {
-        return position;
-    };
-    /**
-     * update position of already listened content
-     * @param newVal current position in stream
-     */
-    void set_position(int newVal) {
-        if (newVal <= duration && newVal >= 0)
-            position = newVal;
-    };
-
-
-    /**
-     * Total length of media in ms
-     * @return
-     */
-    int get_duration() {
-        return duration;
-    }
-
-    /**
-     * Update length in ms
-     * @param len >= 0
-     */
-    void set_duration(int len) {
-        if (len >= 0)
-            duration = len;
-    }
-
-    virtual ~SeekablePlayableItem() = default;
-
-private:
-    /**
-     * Current Position in stream
-     */
-    int position = 0;
-
-    /**
-     * Total length in ms
-     */
-    int duration = 0;
+	/**
+	* Total length in ms
+	*/
+	qint64 duration = 0;
 };
 
 
@@ -148,7 +127,7 @@ public:
 /**
  * PodcastEpisode = item of RSS feed
  */
-class PodcastEpisode : public SeekablePlayableItem {
+class PodcastEpisode : public PlayableItem {
 	Q_OBJECT
 	Q_PROPERTY(QString author READ get_author)
 	Q_PROPERTY(QString description READ get_description)
@@ -161,7 +140,7 @@ public:
      * @param url
      */
     PodcastEpisode(const QString& name, const QUrl& url)
-        : SeekablePlayableItem(name, url){
+        : PlayableItem(name, url){
 
           };
     virtual ~PodcastEpisode() = default;
