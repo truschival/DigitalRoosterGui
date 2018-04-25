@@ -17,13 +17,15 @@
 
 #include "PlayableItem.hpp"
 #include "podcastepisodemodel.hpp"
+#include "mediaplayerproxy.hpp"
+
 using namespace DigitalRooster;
 
 /*************************************************************************************/
 PodcastEpisodeModel::PodcastEpisodeModel(
-    const QVector<std::shared_ptr<PodcastEpisode>>* ep, QObject* parent)
+    const QVector<std::shared_ptr<PodcastEpisode>>* ep, MediaPlayerProxy* pp, QObject* parent)
     : QAbstractListModel(parent)
-    , episodes(ep) {
+    , episodes(ep), mpp(pp) {
 }
 
 /*************************************************************************************/
@@ -66,6 +68,12 @@ PodcastEpisode* PodcastEpisodeModel::get_episode(int index) {
 	auto ep = episodes->at(index).get();
 	QQmlEngine::setObjectOwnership(ep, QQmlEngine::CppOwnership);
 	return ep;
+}
+
+/*************************************************************************************/
+void PodcastEpisodeModel::send_episode_to_player(int index) {
+	auto ep = episodes->at(index);
+	mpp->set_media(ep);
 }
 
 /*************************************************************************************/

@@ -62,7 +62,6 @@ ApplicationWindow {
                         stackView.pop()
                         console.log("BackButton")
                     }
-                    console.log("CurrentItem :" + stackView.currentItem.objectName)
                 }
 
                 Shortcut {
@@ -97,7 +96,6 @@ ApplicationWindow {
 
                         stackView.pop(null)
                         stackView.push(model.source)
-                        console.log("CurrentItem :" + stackView.currentItem.objectName)
                     }
                     drawer.close()
                 }
@@ -122,17 +120,6 @@ ApplicationWindow {
         visible: false
         z: 1
         anchors.bottom: parent.bottom
-
-        function playEpisode(newEpisode){
-            console.log("play_episode")
-            if(newEpisode == null){
-                console.log("newEpisode is null")
-            }
-            
-            playerProxy.set_media(newEpisode)
-            playerProxy.play()
-            setVisible(true)
-        }
 
         function setVisible(visible){
             interactiontimer.restart()

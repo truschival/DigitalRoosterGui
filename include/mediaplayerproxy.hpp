@@ -69,9 +69,7 @@ public:
 	 */
 	const int initial_volume=5;
 public slots:
-    void set_media(DigitalRooster::RadioStream* media);
-    void set_media(DigitalRooster::PodcastEpisode* media);
-
+    void set_media(std::shared_ptr<DigitalRooster::PlayableItem> media);
     void set_position(qint64 position);
     void set_muted(bool muted);
     void set_volume(int volume);
@@ -94,7 +92,10 @@ private:
      * The actual player implementation
      */
     std::unique_ptr<QMediaPlayer> backend;
-
+	/**
+	 * currently selected media (Podcastepisode, RadioStream...)
+  	 */
+	std::shared_ptr<PlayableItem> current_item;
 }; // Player
 } // namespace DigitalRooster
 #endif // _PLAYER_HPP_

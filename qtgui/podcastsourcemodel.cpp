@@ -16,16 +16,20 @@
 #include "configuration_manager.hpp"
 #include "podcastepisodemodel.hpp"
 #include "podcastsourcemodel.hpp"
+#include "mediaplayerproxy.hpp"
 
 using namespace DigitalRooster;
 /*************************************************************************************/
 
-PodcastSourceModel::PodcastSourceModel(ConfigurationManager* confman, QObject* parent)
+PodcastSourceModel::PodcastSourceModel(
+    ConfigurationManager* confman, MediaPlayerProxy* pp, QObject* parent)
     : QAbstractListModel(parent)
-    , cm(confman) {
+    , cm(confman)
+    , mpp(pp) {
     auto v = cm->get_podcast_sources();
     for (auto ps : v) {
-		connect(ps.get(), SIGNAL(newDataAvailable()), this, SLOT(newDataAvailable()));
+        connect(ps.get(), SIGNAL(newDataAvailable()), this,
+            SLOT(newDataAvailable()));
     }
 }
 /*************************************************************************************/
@@ -59,7 +63,7 @@ PodcastEpisodeModel* PodcastSourceModel::get_episodes(int index) {
     if (index < 0 || index >= v.size())
         return nullptr;
 
-    return new PodcastEpisodeModel(&(v[index]->get_episodes()));
+    return new PodcastEpisodeModel(&(v[index]->get_episodes()), mpp);
 }
 /*************************************************************************************/
 

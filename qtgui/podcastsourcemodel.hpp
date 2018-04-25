@@ -17,6 +17,7 @@
 
 namespace DigitalRooster {
 	class ConfigurationManager;
+	class MediaPlayerProxy;
 }
 
 class PodcastEpisodeModel;
@@ -24,7 +25,9 @@ class PodcastEpisodeModel;
 class PodcastSourceModel : public QAbstractListModel {
     Q_OBJECT
  public:
-    PodcastSourceModel(DigitalRooster::ConfigurationManager* confman, QObject* parent = nullptr);
+    PodcastSourceModel(DigitalRooster::ConfigurationManager* confman,
+		DigitalRooster::MediaPlayerProxy* pp,
+		QObject* parent = nullptr);
 
     enum PodcastSourceRoles {
         DisplayNameRole = Qt::UserRole + 1,
@@ -48,6 +51,7 @@ protected:
 
 private:
     DigitalRooster::ConfigurationManager* cm;
+	DigitalRooster::MediaPlayerProxy* mpp;
 };
 
 #endif /* QTGUI_PODCASTSOURCEMODEL_HPP_ */

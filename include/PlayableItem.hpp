@@ -64,16 +64,17 @@ public:
 	/**
 	* last stored position
 	*/
-	int get_position() const {
+	qint64 get_position() const {
 		return position;
 	};
 	/**
 	* update position of already listened content
 	* @param newVal current position in stream
 	*/
-	void set_position(int newVal) {
-		if (newVal <= duration && newVal >= 0)
+	void set_position(qint64 newVal) {
+		if (newVal <= duration && newVal >= 0) {
 			position = newVal;
+		}
 	};
 
 
@@ -81,7 +82,7 @@ public:
 	* Total length of media in ms
 	* @return
 	*/
-	int get_duration() {
+	qint64 get_duration() {
 		return duration;
 	}
 
@@ -89,7 +90,7 @@ public:
 	* Update length in ms only used for display purpose
 	* @param len >= 0
 	*/
-	void set_duration(int len) {
+	void set_duration(qint64 len) {
 		if (len >= 0)
 			duration = len;
 	}
@@ -104,12 +105,12 @@ private:
 	/**
 	* Current Position in stream
 	*/
-	int position = 0;
+	qint64 position = 0;
 
 	/**
 	* Total length in ms
 	*/
-	int duration = 0;
+	qint64 duration = 0;
 };
 
 

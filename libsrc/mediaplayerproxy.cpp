@@ -28,7 +28,11 @@ MediaPlayerProxy::MediaPlayerProxy()
         [=](const QMediaContent& media) { emit media_changed(media); });
 
     QObject::connect(backend.get(), &QMediaPlayer::positionChanged,
-        [=](qint64 position) { emit position_changed(position); });
+        [=](qint64 position) { emit position_changed(position); 
+		if (current_item.get() != nullptr) {
+			current_item->set_position(position);
+		}	
+	});
 
     QObject::connect(backend.get(), &QMediaPlayer::volumeChanged,
         [=](int volume) { emit volume_changed(volume); });
@@ -78,7 +82,7 @@ qint64 MediaPlayerProxy::get_duration() const {
 
 /*****************************************************************************/
 void MediaPlayerProxy::set_position(qint64 position) {
-    qDebug() << Q_FUNC_INFO << position;
+    // qDebug() << Q_FUNC_INFO << position;
     backend->setPosition(position);
 }
 /*****************************************************************************/
@@ -92,16 +96,16 @@ int MediaPlayerProxy::get_volume() const {
     // qDebug() << Q_FUNC_INFO;
     return backend->volume();
 }
-/*****************************************************************************/
-void MediaPlayerProxy::set_media(DigitalRooster::RadioStream* media) {
-    qDebug() << Q_FUNC_INFO;
-    backend->setMedia(QMediaContent(media->get_url()));
-}
 
 /*****************************************************************************/
-void MediaPlayerProxy::set_media(DigitalRooster::PodcastEpisode* media) {
+void MediaPlayerProxy::set_media(std::shared_ptr<DigitalRooster::PlayableItem> media) {
     qDebug() << Q_FUNC_INFO;
-    backend->setMedia(QMediaContent(media->get_url()));
+	current_item = media;
+	auto previous_position = media->get_position();
+	backend->setMedia(QMediaContent(media->get_url()));
+	if (previous_position < media->get_duration()) {
+		set_position(previous_position);
+	}
 }
 
 /*****************************************************************************/

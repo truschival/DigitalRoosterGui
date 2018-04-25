@@ -33,7 +33,7 @@ public:
     }
 
 protected:
-    std::unique_ptr<PodcastEpisode> podcast;
+    std::shared_ptr<PodcastEpisode> podcast;
     const qint64 desired_pos = 10000; //10 seconds
     MediaPlayerProxy dut;
 };
@@ -41,7 +41,7 @@ protected:
 TEST_F(PlayerFixture, emitMediaChanged) {
     QSignalSpy spy(&dut, SIGNAL(media_changed(const QMediaContent&)));
     ASSERT_TRUE(spy.isValid());
-    dut.set_media(podcast.get());
+    dut.set_media(podcast);
     ASSERT_EQ(spy.count(), 1);
 }
 
@@ -50,7 +50,7 @@ TEST_F(PlayerFixture, emitMediaChanged) {
 TEST_F(PlayerFixture, emitStateChanged) {
     QSignalSpy spy(&dut, SIGNAL(playback_state_changed(QMediaPlayer::State)));
     ASSERT_TRUE(spy.isValid());
-    dut.set_media(podcast.get());
+    dut.set_media(podcast);
     dut.play();
     spy.wait();
     dut.pause();
@@ -61,7 +61,7 @@ TEST_F(PlayerFixture, emitStateChanged) {
 TEST_F(PlayerFixture, setPositionEmitsPositionChanged) {
     QSignalSpy spy(&dut, SIGNAL(position_changed(qint64)));
     ASSERT_TRUE(spy.isValid());
-    dut.set_media(podcast.get());
+    dut.set_media(podcast);
     ASSERT_TRUE(dut.seekable());
     dut.set_position(desired_pos);
     ASSERT_GT(spy.count(), 1);
@@ -72,7 +72,7 @@ TEST_F(PlayerFixture, seekEmitsPositionChangedToNewPosition) {
     QSignalSpy spy(&dut, SIGNAL(position_changed(qint64)));
     ASSERT_TRUE(spy.isValid());
 
-    dut.set_media(podcast.get());
+    dut.set_media(podcast);
     dut.play();
 	spy.wait();
 	auto pos = dut.get_position();
@@ -93,7 +93,7 @@ TEST_F(PlayerFixture, setMuted) {
 	QSignalSpy spy(&dut, SIGNAL(muted_changed(bool)));
 	ASSERT_TRUE(spy.isValid());
 
-	dut.set_media(podcast.get());
+	dut.set_media(podcast);
 	dut.play();
 	dut.set_muted(true);
 	dut.pause();
@@ -110,7 +110,7 @@ TEST_F(PlayerFixture, setVolume) {
 	QSignalSpy spy(&dut, SIGNAL(volume_changed(int)));
 	ASSERT_TRUE(spy.isValid());
 
-	dut.set_media(podcast.get());
+	dut.set_media(podcast);
 	dut.play();
 	dut.set_volume(50);
 	ASSERT_EQ(spy.count(), 1);

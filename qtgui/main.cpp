@@ -31,9 +31,9 @@ int main(int argc, char* argv[]) {
     /*Get avaibable Podcasts */
 	ConfigurationManager cm(DigitalRooster::SYSTEM_CONFIG_PATH);
     /* and let the model access the config */
-    PodcastSourceModel psmodel(&cm);
-    MediaPlayerProxy playerproxy;
-
+	MediaPlayerProxy playerproxy;
+	PodcastSourceModel psmodel(&cm,&playerproxy);
+   
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
     ctxt->setContextProperty("podcastmodel", &psmodel);
