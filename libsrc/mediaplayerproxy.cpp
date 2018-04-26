@@ -10,11 +10,10 @@
 *
 *****************************************************************************/
 
-#include <mediaplayerproxy.hpp>
-#include <mediaplayerproxy.hpp>
 #include <QDebug>
 #include <QMediaPlayer>
 #include "PlayableItem.hpp"
+#include "mediaplayerproxy.hpp"
 
 using namespace DigitalRooster;
 
@@ -34,6 +33,12 @@ MediaPlayerProxy::MediaPlayerProxy()
 		}	
 	});
 
+	QObject::connect(backend.get(), static_cast<void (QMediaPlayer::*)(QMediaPlayer::Error)>(&QMediaPlayer::error),
+		[=](QMediaPlayer::Error  err) { 
+		qDebug() << "Player Error" << err;
+		emit error(err); 
+	});
+	
     QObject::connect(backend.get(), &QMediaPlayer::volumeChanged,
         [=](int volume) { emit volume_changed(volume); });
 
@@ -102,8 +107,10 @@ void MediaPlayerProxy::set_media(std::shared_ptr<DigitalRooster::PlayableItem> m
     qDebug() << Q_FUNC_INFO;
 	current_item = media;
 	auto previous_position = media->get_position();
+	qDebug() << media->get_url();
 	backend->setMedia(QMediaContent(media->get_url()));
-	if (previous_position < media->get_duration()) {
+	if (previous_position != 0 && previous_position < media->get_duration()) {
+		qDebug() << "restarting from position" << previous_position;
 		set_position(previous_position);
 	}
 }

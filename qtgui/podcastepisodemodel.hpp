@@ -1,4 +1,4 @@
-/*************************************************************************************
+/*****************************************************************************
  * \filename
  * \brief	QML abstract model
  *
@@ -8,7 +8,7 @@
  * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
  *
  * 			 SPDX-License-Identifier: GPL-2.0-or-later}
- *************************************************************************************/
+ ******************************************************************************/
 #ifndef QTGUI_PODCASTEPISODEMODEL_HPP_
 #define QTGUI_PODCASTEPISODEMODEL_HPP_
 
@@ -24,7 +24,7 @@ class ConfigurationManager;
 class PodcastEpisode;
 class MediaPlayerProxy;
 
-}
+} // namespace DigitalRooster
 class PodcastEpisodeModel : public QAbstractListModel {
     Q_OBJECT
 public:
@@ -33,7 +33,7 @@ public:
     PodcastEpisodeModel(
         const QVector<std::shared_ptr<DigitalRooster::PodcastEpisode>>*
             episodes,
-		DigitalRooster::MediaPlayerProxy* pp, QObject* parent = nullptr);
+        DigitalRooster::MediaPlayerProxy* pp, QObject* parent = nullptr);
 
     enum PodcastEpisodeRoles {
         DisplayNameRole = Qt::UserRole + 1,
@@ -47,7 +47,9 @@ public:
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
-    void set_episodes(const QVector<std::shared_ptr<DigitalRooster::PodcastEpisode>>* episodes);
+    void set_episodes(
+        const QVector<std::shared_ptr<DigitalRooster::PodcastEpisode>>*
+            episodes);
 
     const QString& getName() {
         return name;
@@ -57,15 +59,15 @@ public:
         name = n;
     }
 
-	Q_INVOKABLE DigitalRooster::PodcastEpisode* get_episode(int index);
-	Q_INVOKABLE void send_episode_to_player(int index);
+    Q_INVOKABLE DigitalRooster::PodcastEpisode* get_episode(int index);
+    Q_INVOKABLE void send_to_player(int index);
 
 protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
     const QVector<std::shared_ptr<DigitalRooster::PodcastEpisode>>* episodes;
-	DigitalRooster::MediaPlayerProxy* mpp;
+    DigitalRooster::MediaPlayerProxy* mpp;
 
     QString name;
 };

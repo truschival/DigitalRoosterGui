@@ -1,4 +1,6 @@
-import QtQuick 2.0
+import QtQuick 2.9
+import QtQuick.Layouts 1.3
+import QtQuick.Controls 2.1
 
 import ruschi.PodcastEpisode 1.0
 
@@ -71,7 +73,7 @@ Rectangle{
 			playerControlWidget.setVisible(true)
 		}
 		onPressAndHold:  {
-			episodemodel.send_episode_to_player(index)
+			episodemodel.send_to_player(index)
 			playerProxy.play()
 			playerControlWidget.setVisible(true)
 		}

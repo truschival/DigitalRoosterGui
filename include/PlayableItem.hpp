@@ -113,17 +113,6 @@ private:
 	qint64 duration = 0;
 };
 
-
-class RadioStream : public PlayableItem {
-public:
-    RadioStream(const QString& name, const QUrl& url)
-        : PlayableItem(name, url){
-
-          };
-    virtual ~RadioStream() = default;
-};
-
-
 /**
  * PodcastEpisode = item of RSS feed
  */

@@ -168,3 +168,4 @@ Makefile*
 *.qmlproject.user
 *.qmlproject.user.*
 
+CMakeSettings.json

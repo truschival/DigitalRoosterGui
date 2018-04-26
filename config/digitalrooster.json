@@ -3,7 +3,15 @@
   "InternetRadio": [
     {
       "name": "SWR2",
-      "uri": "http://swr2.de"
+      "uri": "http://swr-swr2-live.cast.addradio.de/swr/swr2/live/mp3/256/stream.mp3"
+    },
+    {
+      "name": "Deutschlandfunk Nova",
+      "uri": "http://st03.dlf.de/dlf/03/104/ogg/stream.ogg"
+    },
+    {
+      "name": "Deutschlandfunk",
+      "uri": "http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"
     }
   ],
   "Podcasts": [

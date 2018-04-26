@@ -59,7 +59,7 @@ void ConfigurationManager::read_radio_streams_from_file() {
 		QString name(ir.toObject()[KEY_NAME].toString());
 		QUrl url(ir.toObject()[KEY_URI].toString());
 		if (url.isValid()) {
-			stream_sources.push_back(std::make_shared<RadioStream>(name, url));
+			stream_sources.push_back(std::make_shared<PlayableItem>(name, url));
 		}
 	}
 }
@@ -107,9 +107,9 @@ void ConfigurationManager::read_alarms_from_file() {
 }
 
 /*****************************************************************************/
-void ConfigurationManager::add_radio_station(std::unique_ptr<RadioStream> src) {
+void ConfigurationManager::add_radio_station(std::unique_ptr<PlayableItem> src) {
 	this->stream_sources.push_back(
-			std::shared_ptr<RadioStream>(std::move(src)));
+			std::shared_ptr<PlayableItem>(std::move(src)));
 }
 
 /*****************************************************************************/
