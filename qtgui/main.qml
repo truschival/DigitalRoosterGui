@@ -1,11 +1,6 @@
 import QtQuick 2.9
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.1
-import QtQuick.Controls.Material 2.1
-import QtMultimedia 5.8
-/* import QtQuick.Controls.Universal 2.1 */
-import Qt.labs.settings 1.0
-
 import ruschi.PodcastEpisode 1.0
 import ruschi.MediaPlayerProxy 1.0
 
@@ -33,7 +28,6 @@ ApplicationWindow {
 
 
     header: ToolBar {
-        Material.foreground: "white"
         RowLayout {
             spacing: 10
             anchors.fill: parent
@@ -104,6 +98,7 @@ ApplicationWindow {
             model: ListModel {
                 ListElement { title: "\uf150"; source: "qrc:/ClockPage.qml";   objectName:"ClockPage"; }
                 ListElement { title: "\uf223"; source: "qrc:/PodcastList.qml"; objectName:"PodcastList"; }
+				ListElement { title: "\uf43B"; source: "qrc:/IRadioList.qml"; objectName:"InternetRadio"; }
             }
         }
 
@@ -201,7 +196,8 @@ ApplicationWindow {
             anchors.top: playBtn.bottom
             anchors.topMargin: -15
             enabled: playerProxy.seekable
-			
+			visible: playerProxy.seekable
+
             onValueChanged: {
                 interactiontimer.restart()
             }

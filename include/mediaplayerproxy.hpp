@@ -22,7 +22,6 @@
 namespace DigitalRooster {
 class PlayableItem;
 class PodcastEpisode;
-class RadioStream;
 
 /**
  * Wrapper around QMediaPlayer to allow access to the same player instance from
@@ -67,7 +66,7 @@ public:
 	/**
 	 * Initial player volume
 	 */
-	const int initial_volume=5;
+	const int initial_volume=30;
 public slots:
     void set_media(std::shared_ptr<DigitalRooster::PlayableItem> media);
     void set_position(qint64 position);

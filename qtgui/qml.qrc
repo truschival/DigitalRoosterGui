@@ -9,5 +9,7 @@
         <file>PodcastEpisodeList.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>Jsutil.js</file>
+        <file>IRadioDelegate.qml</file>
+        <file>IRadioList.qml</file>
     </qresource>
 </RCC>

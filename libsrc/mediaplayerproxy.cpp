@@ -10,11 +10,11 @@
 *
 *****************************************************************************/
 
-#include <mediaplayerproxy.hpp>
-#include <mediaplayerproxy.hpp>
 #include <QDebug>
+#include <QAudio>	
 #include <QMediaPlayer>
 #include "PlayableItem.hpp"
+#include "mediaplayerproxy.hpp"
 
 using namespace DigitalRooster;
 
@@ -34,6 +34,12 @@ MediaPlayerProxy::MediaPlayerProxy()
 		}	
 	});
 
+	QObject::connect(backend.get(), static_cast<void (QMediaPlayer::*)(QMediaPlayer::Error)>(&QMediaPlayer::error),
+		[=](QMediaPlayer::Error  err) { 
+		qDebug() << "Player Error" << err;
+		emit error(err); 
+	});
+	
     QObject::connect(backend.get(), &QMediaPlayer::volumeChanged,
         [=](int volume) { emit volume_changed(volume); });
 
@@ -102,8 +108,10 @@ void MediaPlayerProxy::set_media(std::shared_ptr<DigitalRooster::PlayableItem> m
     qDebug() << Q_FUNC_INFO;
 	current_item = media;
 	auto previous_position = media->get_position();
+	qDebug() << media->get_url();
 	backend->setMedia(QMediaContent(media->get_url()));
-	if (previous_position < media->get_duration()) {
+	if (previous_position != 0 && previous_position < media->get_duration()) {
+		qDebug() << "restarting from position" << previous_position;
 		set_position(previous_position);
 	}
 }
@@ -121,22 +129,27 @@ QMediaPlayer::State MediaPlayerProxy::playback_state() const {
 
 /*****************************************************************************/
 void MediaPlayerProxy::set_volume(int volume) {
-	//qDebug() << Q_FUNC_INFO;
-	backend->setVolume(volume);
+	// volumeSliderValue is in the range [0..100]
+
+	auto linearVolume = QAudio::convertVolume(volume / qreal(100.0),
+		QAudio::LogarithmicVolumeScale,
+		QAudio::LinearVolumeScale);
+	qDebug() << "Updating volume to " << qRound(linearVolume * 100);
+	backend->setVolume(qRound(linearVolume * 100));
 }
 /*****************************************************************************/
 void MediaPlayerProxy::pause() {
-	qDebug() << Q_FUNC_INFO;
+	//qDebug() << Q_FUNC_INFO;
 	backend->pause();
 }
 /*****************************************************************************/
 void MediaPlayerProxy::play() {
-	qDebug() << Q_FUNC_INFO;
+	//qDebug() << Q_FUNC_INFO;
 	backend->play();
 }
 /*****************************************************************************/
 void MediaPlayerProxy::stop() {
-	qDebug() << Q_FUNC_INFO;
+	//qDebug() << Q_FUNC_INFO;
 	backend->stop();
 }
 /*****************************************************************************/

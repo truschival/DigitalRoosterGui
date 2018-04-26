@@ -149,7 +149,7 @@ void parse_channel(PodcastSource& podcastsource, QXmlStreamReader& xml) {
 
 /*****************************************************************************/
 void DigitalRooster::update_podcast(PodcastSource& podcastsource) {
-	qDebug() << __FUNCTION__ << "("<< podcastsource.get_rss_file() << ")";
+	//qDebug() << __FUNCTION__ << "("<< podcastsource.get_rss_file() << ")";
 
 	QFile file(podcastsource.get_rss_file());
 	if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {

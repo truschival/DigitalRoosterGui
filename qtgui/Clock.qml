@@ -1,7 +1,6 @@
-import QtQuick 2.6
-import QtQuick.Layouts 1.0
+import QtQuick 2.9
+import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.1
-import QtQml 2.2
 
 Item{
 	id: currentTime

@@ -34,7 +34,6 @@ Rectangle{
 		id: mouseArea
 		anchors.fill: parent
 		onClicked:  {
-			console.log("PodcastDelegate.onClicked()" + podcastlist.currentIndex + ' -> ' +  index);
 			podcastlist.currentIndex =index;
 			
 			var comp = Qt.createComponent("qrc:/PodcastEpisodeList.qml")

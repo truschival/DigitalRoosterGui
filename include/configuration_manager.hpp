@@ -41,7 +41,7 @@ public:
     /**
      * get all radio stream sources
      */
-    const QVector<std::shared_ptr<RadioStream>>& get_stream_sources() {
+    const QVector<std::shared_ptr<PlayableItem>>& get_stream_sources() {
         return stream_sources;
     }
 
@@ -62,7 +62,7 @@ public:
      * Append the radio stream to list - duplicates will not be checked
      * @param src the new stream source - we take ownership
      */
-    void add_radio_station(std::unique_ptr<RadioStream> src);
+    void add_radio_station(std::unique_ptr<PlayableItem> src);
 
     /**
      * Write memory config to file - will overwrite changes in file
@@ -83,7 +83,7 @@ private:
     /**
      * Internet radio stream souces are directly read form INI file
      */
-    QVector<std::shared_ptr<RadioStream>> stream_sources;
+    QVector<std::shared_ptr<PlayableItem>> stream_sources;
 
     /**
      * Podcast sources (only pretty name and feed-url)

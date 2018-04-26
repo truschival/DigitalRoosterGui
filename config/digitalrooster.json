@@ -3,7 +3,15 @@
   "InternetRadio": [
     {
       "name": "SWR2",
-      "uri": "http://swr2.de"
+      "uri": "http://swr-swr2-live.cast.addradio.de/swr/swr2/live/mp3/256/stream.mp3"
+    },
+    {
+      "name": "Deutschlandfunk Nova",
+      "uri": "http://st03.dlf.de/dlf/03/104/ogg/stream.ogg"
+    },
+    {
+      "name": "Deutschlandfunk",
+      "uri": "http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"
     }
   ],
   "Podcasts": [
@@ -15,12 +23,17 @@
     {
       "name": "BBC Everyday Ethics",
       "uri": "http://podcasts.files.bbci.co.uk/p02nrsmh.rss",
-      "UpdateInterval": 60
+      "UpdateInterval": 7200
     },
     {
       "name": "Alternativlos",
-      "uri": "https://www.ruschival.de/wp-content/uploads/2018/03/alternativlos.rss",
-      "UpdateInterval": 60
+      "uri": "https://alternativlos.org/alternativlos.rss",
+      "UpdateInterval": 7200
+    },
+    {
+      "name": "Arms Control Wonk",
+      "uri": "http://armscontrolwonk.libsyn.com/rss",
+      "UpdateInterval": 7200
     }
   ],
   "Alarms":[
