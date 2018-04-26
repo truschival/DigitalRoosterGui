@@ -1,9 +1,9 @@
 import QtQuick 2.9
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.1
+import QtMultimedia 5.9
 import ruschi.PodcastEpisode 1.0
 import ruschi.MediaPlayerProxy 1.0
-
 import "Icon.js" as MdiFont
 import "Jsutil.js" as Util
 
