@@ -134,22 +134,22 @@ void MediaPlayerProxy::set_volume(int volume) {
 	auto linearVolume = QAudio::convertVolume(volume / qreal(100.0),
 		QAudio::LogarithmicVolumeScale,
 		QAudio::LinearVolumeScale);
-
+	qDebug() << "Updating volume to " << qRound(linearVolume * 100);
 	backend->setVolume(qRound(linearVolume * 100));
 }
 /*****************************************************************************/
 void MediaPlayerProxy::pause() {
-	qDebug() << Q_FUNC_INFO;
+	//qDebug() << Q_FUNC_INFO;
 	backend->pause();
 }
 /*****************************************************************************/
 void MediaPlayerProxy::play() {
-	qDebug() << Q_FUNC_INFO;
+	//qDebug() << Q_FUNC_INFO;
 	backend->play();
 }
 /*****************************************************************************/
 void MediaPlayerProxy::stop() {
-	qDebug() << Q_FUNC_INFO;
+	//qDebug() << Q_FUNC_INFO;
 	backend->stop();
 }
 /*****************************************************************************/

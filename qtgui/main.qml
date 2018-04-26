@@ -1,11 +1,6 @@
 import QtQuick 2.9
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.1
-import QtQuick.Controls.Material 2.1
-import QtMultimedia 5.8
-/* import QtQuick.Controls.Universal 2.1 */
-import Qt.labs.settings 1.0
-
 import ruschi.PodcastEpisode 1.0
 import ruschi.MediaPlayerProxy 1.0
 
@@ -33,7 +28,6 @@ ApplicationWindow {
 
 
     header: ToolBar {
-        Material.foreground: "white"
         RowLayout {
             spacing: 10
             anchors.fill: parent

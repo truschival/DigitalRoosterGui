@@ -74,7 +74,6 @@ Rectangle{
 		}
 		onPressAndHold:  {
 			episodemodel.send_to_player(index)
-			playerProxy.play()
 			playerControlWidget.setVisible(true)
 		}
 	}
