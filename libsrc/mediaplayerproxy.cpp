@@ -11,6 +11,7 @@
 *****************************************************************************/
 
 #include <QDebug>
+#include <QAudio>	
 #include <QMediaPlayer>
 #include "PlayableItem.hpp"
 #include "mediaplayerproxy.hpp"
@@ -128,8 +129,13 @@ QMediaPlayer::State MediaPlayerProxy::playback_state() const {
 
 /*****************************************************************************/
 void MediaPlayerProxy::set_volume(int volume) {
-	//qDebug() << Q_FUNC_INFO;
-	backend->setVolume(volume);
+	// volumeSliderValue is in the range [0..100]
+
+	auto linearVolume = QAudio::convertVolume(volume / qreal(100.0),
+		QAudio::LogarithmicVolumeScale,
+		QAudio::LinearVolumeScale);
+
+	backend->setVolume(qRound(linearVolume * 100));
 }
 /*****************************************************************************/
 void MediaPlayerProxy::pause() {

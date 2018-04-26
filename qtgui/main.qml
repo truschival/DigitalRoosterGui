@@ -202,7 +202,8 @@ ApplicationWindow {
             anchors.top: playBtn.bottom
             anchors.topMargin: -15
             enabled: playerProxy.seekable
-			
+			visible: playerProxy.seekable
+
             onValueChanged: {
                 interactiontimer.restart()
             }
