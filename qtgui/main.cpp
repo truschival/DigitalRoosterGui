@@ -13,6 +13,7 @@
 #include "podcastsourcemodel.hpp"
 #include "iradiolistmodel.hpp"
 #include "mediaplayerproxy.hpp"
+#include "alarmdispatcher.hpp"
 #include "alarm.hpp"
 
 using namespace DigitalRooster;
@@ -34,8 +35,8 @@ int main(int argc, char* argv[]) {
 
     /*Get avaibable Podcasts */
 	ConfigurationManager cm(DigitalRooster::SYSTEM_CONFIG_PATH);
-    /* and let the model access the config */
-	MediaPlayerProxy playerproxy;
+    MediaPlayerProxy playerproxy;
+	AlarmDispatcher(&playerproxy, &cm);
 	PodcastSourceModel psmodel(&cm,&playerproxy);
 	IRadioListModel iradiolistmodel(&cm, &playerproxy);
 

@@ -20,7 +20,7 @@ using namespace DigitalRooster;
 Alarm::Alarm(const QUrl& media, const QTime& timepoint, Alarm::Period period,
     bool enabled, QObject* parent)
     : QObject(parent)
-    , media(new PlayableItem("Alarm", media))
+    , media(std::make_shared<PlayableItem>("Alarm", media))
     , period(period)
     , trigger_instant(QDateTime::currentDateTime()) // today, set time later
     , enabled(enabled) {
@@ -32,17 +32,11 @@ Alarm::Alarm(const QUrl& media, const QTime& timepoint, Alarm::Period period,
 
 Alarm::Alarm(const QUrl& media, const QDateTime& timepoint, bool enabled, QObject* parent)
     : QObject(parent)
-    , media(new PlayableItem("Alarm", media))
+    , media(std::make_shared<PlayableItem>("Alarm", media))
     , period(Alarm::Once)
     , trigger_instant(timepoint)
     , enabled(enabled) {
     //qDebug() << __FUNCTION__ << "timepoint" << trigger_instant;
-}
-
-
-/*****************************************************************************/
-Alarm::~Alarm(){
-	delete media;
 }
 
 /*****************************************************************************/

@@ -25,7 +25,8 @@ class PlayableItem;
  * A single alarm
  */
 class Alarm: public QObject {
-Q_OBJECT
+	Q_OBJECT
+	Q_PROPERTY(bool enabled READ is_enabled WRITE enable NOTIFY enabled_changed)
 public:
 
 	/**
@@ -40,12 +41,12 @@ public:
 
     /**
      * One-shot alarm for a exact DateTime to trigger
-     * @param media what to play
+     * @param media_url what to play
      * @param exact time instance
      * @param enabled activated/deactivated
      * @param the obligatory QObject parent
      */
-    Alarm(const QUrl& media, const QDateTime& timepoint,
+    Alarm(const QUrl& media_url, const QDateTime& timepoint,
         bool enabled = true,
         QObject* parent = nullptr);
 
@@ -66,11 +67,6 @@ public:
 	 */
 	Alarm():media(nullptr){};
 		
-    /**
-	 * Has to delete media
-	 */
-	virtual ~Alarm();
-
 	/**
 	 * next trigger instant when the alarm is to be triggered
 	 * @return
@@ -115,26 +111,35 @@ public:
 	/**
 	 * Alarm media
 	 */
-	const PlayableItem* get_media() const {
+	std::shared_ptr<PlayableItem> get_media() const {
 		return media;
+	}
+
+	/**
+	* is this alarm set
+	* @return state
+	*/
+	bool is_enabled() const {
+		return enabled;
 	}
 
 	/**
 	 * enable alarm to play next time
 	 * @param state
 	 */
-	void enable(bool state) {
-		enabled = state;
-	}
+	public slots:	  
+		void enable(bool state) {
+			enabled = state;
+		}
 
-	bool is_enabled() const {
-		return enabled;
-	}
+	signals:
+		void enabled_changed(bool state);
+
 private:
 	/**
 	 * What to play when alarm triggers
 	 */
-	PlayableItem* media;
+	std::shared_ptr<PlayableItem> media;
 
 	/**
 	 * when alarm is repeated
