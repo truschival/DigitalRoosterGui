@@ -5,7 +5,7 @@ Rectangle{
 	id: podcastdelegate
 	width:  podcastlist.width;
 	height: 100;
-	color: podcastlist.currentItem ==this ? "lightblue" : "white"
+    color: podcastlist.currentItem ===this ? "lightblue" : "white"
 	Image {
 		width:96
 		height: 96
@@ -37,12 +37,12 @@ Rectangle{
 			podcastlist.currentIndex =index;
 			
 			var comp = Qt.createComponent("qrc:/PodcastEpisodeList.qml")
-			if(comp == null){
+            if(comp === null){
 				console.log("cannot create new PodcastEpisodeList");
 				return;
 			}
-			if( comp.status != Component.Ready ){
-    			if( comp.status == Component.Error )
+            if( comp.status !== Component.Ready ){
+                if( comp.status === Component.Error )
         			console.log("Error:"+ comp.errorString() );
 			}
 			

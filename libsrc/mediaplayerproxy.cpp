@@ -105,10 +105,10 @@ int MediaPlayerProxy::get_volume() const {
 
 /*****************************************************************************/
 void MediaPlayerProxy::set_media(std::shared_ptr<DigitalRooster::PlayableItem> media) {
-    qDebug() << Q_FUNC_INFO;
+    //qDebug() << Q_FUNC_INFO;
 	current_item = media;
 	auto previous_position = media->get_position();
-	qDebug() << media->get_url();
+
 	backend->setMedia(QMediaContent(media->get_url()));
 	if (previous_position != 0 && previous_position < media->get_duration()) {
 		qDebug() << "restarting from position" << previous_position;
