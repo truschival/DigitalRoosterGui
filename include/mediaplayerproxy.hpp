@@ -31,49 +31,59 @@ class MediaPlayerProxy : public QObject {
     Q_OBJECT
     Q_PROPERTY(qint64 position READ get_position NOTIFY position_changed)
     Q_PROPERTY(qint64 duration READ get_duration NOTIFY duration_changed)
-    Q_PROPERTY(int volume READ get_volume WRITE set_volume NOTIFY volume_changed)
+    Q_PROPERTY(
+        int volume READ get_volume WRITE set_volume NOTIFY volume_changed)
     Q_PROPERTY(bool muted READ muted WRITE set_muted NOTIFY muted_changed)
     Q_PROPERTY(bool seekable READ seekable NOTIFY seekable_changed)
-	Q_PROPERTY(QMediaPlayer::MediaStatus mediaStatus READ media_status NOTIFY media_status_changed)
-	Q_PROPERTY(QMediaPlayer::State playbackState READ playback_state NOTIFY playback_state_changed)
+    Q_PROPERTY(QMediaPlayer::MediaStatus mediaStatus READ media_status NOTIFY
+            media_status_changed)
+    Q_PROPERTY(QMediaPlayer::State playbackState READ playback_state NOTIFY
+            playback_state_changed)
+
 
 public:
-	MediaPlayerProxy();
+    MediaPlayerProxy();
     ~MediaPlayerProxy() = default;
     MediaPlayerProxy(const MediaPlayerProxy& rhs) = delete;
     MediaPlayerProxy operator=(const MediaPlayerProxy& rhs) = delete;
 
     /**
      * Incremental seek add increment to current position
-	 * will do nothing if not seekable
-	 * @param incr increment to add
-	 */
-	Q_INVOKABLE
-	void seek(qint64 incr) {
-		if (this->seekable())
-			set_position(get_position()+incr);
-	}
-	;
+     * will do nothing if not seekable
+     * @param incr increment to add
+     */
+    Q_INVOKABLE
+    void seek(qint64 incr) {
+        if (this->seekable())
+            set_position(get_position() + incr);
+    };
 
-	/** property access methods */
-	bool seekable() const;
-	bool muted() const;
-	int get_volume() const;
-	qint64 get_duration() const;
-	qint64 get_position() const;
-	QMediaPlayer::MediaStatus media_status()const;
-	QMediaPlayer::State playback_state()const;
-	/**
-	 * Initial player volume
-	 */
-	const int initial_volume=30;
+    /**
+     * Backend errors
+     * @return
+     */
+    QMediaPlayer::Error error() const;
+    /** property access methods */
+    bool seekable() const;
+    bool muted() const;
+    int get_volume() const;
+    qint64 get_duration() const;
+    qint64 get_position() const;
+    QMediaPlayer::MediaStatus media_status() const;
+    QMediaPlayer::State playback_state() const;
+    /**
+     * Initial player volume
+     */
+    const int initial_volume = 30;
 public slots:
     void set_media(std::shared_ptr<DigitalRooster::PlayableItem> media);
+    void set_playlist(QMediaPlaylist* playlist);
+
     void set_position(qint64 position);
     void set_muted(bool muted);
     void set_volume(int volume);
     void pause();
-	void play();
+    void play();
     void stop();
 signals:
     void position_changed(qint64 position);
@@ -84,17 +94,17 @@ signals:
     void seekable_changed(bool seekable);
     void media_status_changed(QMediaPlayer::MediaStatus);
     void playback_state_changed(QMediaPlayer::State state);
-	void error(QMediaPlayer::Error error);
+    void error(QMediaPlayer::Error error);
 
 private:
     /**
      * The actual player implementation
      */
     std::unique_ptr<QMediaPlayer> backend;
-	/**
-	 * currently selected media (Podcastepisode, RadioStream...)
-  	 */
-	std::shared_ptr<PlayableItem> current_item;
+    /**
+     * currently selected media (Podcastepisode, RadioStream...)
+     */
+    std::shared_ptr<PlayableItem> current_item;
 }; // Player
 } // namespace DigitalRooster
 #endif // _PLAYER_HPP_
