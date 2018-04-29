@@ -56,6 +56,7 @@ AlarmMonitor::AlarmMonitor(MediaPlayerProxy* player, QObject* parent)
 void AlarmMonitor::alarm_triggered(
     std::shared_ptr<DigitalRooster::Alarm> alarm) {
     mpp->set_media(alarm->get_media());
+    mpp->set_volume(alarm->get_volume());
     mpp->play();
     expecting_alarm_playing = true;
     fallback_alarm_timer.start(fallback_timeout);

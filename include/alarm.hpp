@@ -64,7 +64,9 @@ public:
      * Need Default constructor to register with QML
      */
     Alarm()
-        : media(nullptr), period(Alarm::Daily), enabled(true){};
+        : media(nullptr)
+        , period(Alarm::Daily)
+        , enabled(true){};
 
     /**
      * next trigger instant when the alarm is to be triggered
@@ -108,6 +110,21 @@ public:
     };
 
     /**
+     * Volume for this Alarm
+     * @return
+     */
+    int get_volume() {
+        return volume;
+    }
+    /**
+     * Update Volume for this Alarm
+     * @param volume
+     */
+    void set_volume(int volume) {
+        this->volume = volume;
+    }
+
+    /**
      * Alarm media
      */
     std::shared_ptr<PlayableItem> get_media() const {
@@ -122,11 +139,12 @@ public:
         return enabled;
     }
 
+public slots:
     /**
      * enable alarm to play next time
      * @param state
      */
-public slots:
+
     void enable(bool state) {
         enabled = state;
     }
@@ -155,6 +173,11 @@ private:
      * Will it trigger?
      */
     bool enabled;
+
+    /**
+     * Default volume for alarm
+     */
+    int volume = 60;
 
     /**
      * Calculate the upcoming timepoint when the alarm should trigger
