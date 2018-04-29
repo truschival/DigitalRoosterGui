@@ -1,6 +1,6 @@
 /******************************************************************************
  * \filename
- * \brief  Monitors alarm list and dispatches Alarm to player when due
+ * \brief  Dispatches Alarm to player when due
  *
  * \details
  *
@@ -15,7 +15,6 @@
 
 #include <QObject>
 #include <QTimer>
-#include <chrono>
 #include <memory>
 
 #include "alarm.hpp"
@@ -27,21 +26,15 @@ class ConfigurationManager;
 /**
  * Monitors changes in alarm configuration and dispatches alarms when due
  */
-class AlarmDispatcher : QObject {
+class AlarmDispatcher : public QObject {
     Q_OBJECT
 public:
-    AlarmDispatcher(MediaPlayerProxy* playerproxy,
-        ConfigurationManager* confman, QObject* parent = nullptr);
+    AlarmDispatcher(ConfigurationManager* confman, QObject* parent = nullptr);
 
 signals:
-    void alarm_triggered();
+    void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>);
 
 private:
-    /**
-     * PlayerBackend that receives the Alarms
-     */
-    MediaPlayerProxy* mpp;
-
     /**
      * Central configuration and data handler
      */
@@ -55,32 +48,12 @@ private:
      * available in configuration
      */
     int interval = 30000;
-    /**
-     * Timer to trigger fallback behavior if player did not start to play
-     * resource from alarm
-     */
-    QTimer fallback_alarm_timer;
 
-    /**
-     * Time to wait until fallback behavior is invoked
-     */
-    int fallback_timeout = 20000;
-
-    /**
-     * Internal state to check if alarm has been dispatched
-     * but player has not yet started playing
-     */
-    bool player_not_started = false;
 public slots:
     /**
      * Will walk alarms and check if ready for dispatch
      * */
     void check_alarms();
-
-    /**
-     * will trigger if player has not started playing in due time
-     */
-    void fallback_triggered();
 };
 } // namespace DigitalRooster
 

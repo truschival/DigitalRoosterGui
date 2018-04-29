@@ -7,9 +7,11 @@
 #include <QLoggingCategory>
 #include <QQmlApplicationEngine>
 #include <QtQuick>
+#include <memory>
 
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
+#include "alarmmonitor.hpp"
 #include "configuration_manager.hpp"
 #include "iradiolistmodel.hpp"
 #include "mediaplayerproxy.hpp"
@@ -41,7 +43,13 @@ int main(int argc, char* argv[]) {
     /*Get available Podcasts */
     ConfigurationManager cm(DigitalRooster::SYSTEM_CONFIG_PATH);
     MediaPlayerProxy playerproxy;
-    AlarmDispatcher alarmdispatcher(&playerproxy, &cm);
+
+    AlarmDispatcher alarmdispatcher(&cm);
+    AlarmMonitor wd(&playerproxy);
+    QObject::connect(&alarmdispatcher,
+        SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)), &wd,
+        SLOT(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+
     PodcastSourceModel psmodel(&cm, &playerproxy);
     IRadioListModel iradiolistmodel(&cm, &playerproxy);
 
