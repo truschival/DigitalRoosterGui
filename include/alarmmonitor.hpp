@@ -53,16 +53,32 @@ private:
      * and we are expecting player to get active
      */
     bool expecting_alarm_playing = false;
+    /**
+     * Fallback Alarm
+     */
+    QMediaPlaylist fallback_alarm;
+
+    /**
+     * Timer to stop alarm automatically if user has not stopped
+     */
+    QTimer alarm_auto_stop_timer;
+
+    /**
+     * Helper method to start player and alarm_auto_stop_timer
+     */
+    void start_playing();
+
+    /**
+     * Slot/Callback to stop running alarm after alarm_auto_stop_timer
+     * has expired
+     */
+private slots:
+    void stop_running_alarm();
 
     /**
      * will trigger if player has not started playing in due time
      */
     void trigger_fallback_behavior();
-
-    /**
-     * Fallback Alarm
-     */
-    QMediaPlaylist fallback_alarm;
 };
 } // namespace DigitalRooster
 

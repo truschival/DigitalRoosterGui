@@ -15,6 +15,7 @@
 
 #include <QDateTime>
 #include <QObject>
+#include <chrono>
 #include <memory>
 
 namespace DigitalRooster {
@@ -125,6 +126,21 @@ public:
     }
 
     /**
+     * Duration for alarm to stop automatically
+     * @return time in minutes
+     */
+    std::chrono::minutes get_timeout() {
+        return alarmtimeout;
+    }
+    /**
+     * Duration for alarm to stop automatically
+     * @param  timeout in minutes
+     */
+    void set_timeout(std::chrono::minutes timeout) {
+        alarmtimeout = timeout;
+    }
+
+    /**
      * Alarm media
      */
     std::shared_ptr<PlayableItem> get_media() const {
@@ -173,12 +189,15 @@ private:
      * Will it trigger?
      */
     bool enabled;
+    /**
+     * Duration for alarm to stop automatically
+     */
+    std::chrono::minutes alarmtimeout;
 
     /**
      * Default volume for alarm
      */
     int volume = 60;
-
     /**
      * Calculate the upcoming timepoint when the alarm should trigger
      */

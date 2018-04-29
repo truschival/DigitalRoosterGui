@@ -14,6 +14,7 @@
 #include "config.h"
 #include <QDir>
 #include <QString>
+#include <chrono>
 
 namespace DigitalRooster {
 /**
@@ -43,9 +44,14 @@ const QString KEY_GROUP_PODCAST_SOURCES("Podcasts");
 const QString KEY_GROUP_ALARMS("Alarms");
 
 /**
- * Optional keyword for Alarm default volume
+ * Optional keyword for Alarm volume
  */
 const QString KEY_VOLUME("volume");
+/**
+ * Default alarm volume
+ */
+const int default_alarm_volume = 30;
+
 /**
  * Key for all URIs
  */
@@ -96,6 +102,20 @@ const QString KEY_ALARM_DAILY("daily");
 const QString KEY_UPDATE_INTERVAL("UpdateInterval");
 
 /**
+ * Keyword for alarms timeout
+ */
+const QString KEY_ALARM_TIMEOUT("AlarmTimeout");
+/**
+ * Default Alarm timeout
+ */
+const std::chrono::minutes default_alarm_timeout(30);
+
+/**
+ * Keyword configuration Sleep timer duration
+ */
+const QString KEY_SLEEP_TIMEOUT("SleepTimeout");
+
+/**
  * Directory for all downloaded RSS Files
  */
 const QString RSS_FILE_DIR(QDir::tempPath());
@@ -105,6 +125,10 @@ const QString RSS_FILE_DIR(QDir::tempPath());
  * Build directory (where testfiles are generated)
  */
 const QString TEST_FILE_PATH(BUILD_DIR);
+
+
+/*****************************************************************************/
+
 
 /**
  * Runtime configuration object

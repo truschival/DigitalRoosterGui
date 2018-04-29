@@ -12,16 +12,17 @@
 #ifndef _CONFIGURATION_MANAGER_H_
 #define _CONFIGURATION_MANAGER_H_
 
+#include <QMap>
 #include <QSettings>
 #include <QString>
 #include <QVector>
-#include <QMap>
+#include <chrono>
 #include <memory>
 
-#include "appconstants.hpp"
 #include "PlayableItem.hpp"
 #include "PodcastSource.hpp"
 #include "alarm.hpp"
+#include "appconstants.hpp"
 
 namespace DigitalRooster {
 
@@ -34,7 +35,8 @@ public:
      * Default constructor with path to ini file
      * @param filepath
      */
-    ConfigurationManager(const QString& filepath = DigitalRooster::SYSTEM_CONFIG_PATH);
+    ConfigurationManager(
+        const QString& filepath = DigitalRooster::SYSTEM_CONFIG_PATH);
 
     virtual ~ConfigurationManager() = default;
 
@@ -58,6 +60,15 @@ public:
     const QVector<std::shared_ptr<Alarm>>& get_alarms() {
         return alarms;
     }
+
+    /**
+     * Access configuration when Alarm should stop automatically
+     * @return minutes
+     */
+    std::chrono::minutes get_alarm_timeout() const {
+        return alarmtimeout;
+    }
+
     /**
      * Append the radio stream to list - duplicates will not be checked
      * @param src the new stream source - we take ownership
@@ -70,15 +81,15 @@ public:
     void write_config_file();
 
 private:
-	/**
-	 * Path for configuration file
-	 */
-	QString filepath;
-	/** 
-	 * JSon Object containing the configuration including podcasts, Internet radio etc
-	 * read form digitalrooster.json
-	 */
-	QJsonObject appconfig;
+    /**
+     * Path for configuration file
+     */
+    QString filepath;
+    /**
+     * JSon Object containing the configuration including podcasts, Internet
+     * radio etc read form digitalrooster.json
+     */
+    QJsonObject appconfig;
 
     /**
      * Internet radio stream souces are directly read form INI file
@@ -95,10 +106,15 @@ private:
      */
     QVector<std::shared_ptr<Alarm>> alarms;
 
-	/**
-	 * read Json file and fill sources
-	 */
-	void readJson();
+    /**
+     * Duration for alarm to stop automatically
+     */
+    std::chrono::minutes alarmtimeout;
+
+    /**
+     * read Json file and fill sources
+     */
+    void readJson();
     /**
      * Fills the vector stream_sources with entries form settings file
      */
@@ -113,7 +129,6 @@ private:
      * Read Alarm objects
      */
     void read_alarms_from_file();
-
 };
 
 /**
@@ -123,5 +138,5 @@ private:
  */
 Alarm::Period json_string_to_alarm_period(const QString& literal);
 
-} // namespace
+} // namespace DigitalRooster
 #endif // _SETTINGS_READER_HPP_

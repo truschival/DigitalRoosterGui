@@ -1,66 +1,70 @@
 {
-  "version": "0.2.1",
-  "InternetRadio": [
-    {
-      "name": "SWR2",
-      "uri": "http://swr-swr2-live.cast.addradio.de/swr/swr2/live/mp3/256/stream.mp3"
-    },
-    {
-      "name": "Deutschlandfunk Nova",
-      "uri": "http://st03.dlf.de/dlf/03/104/ogg/stream.ogg"
-    },
-    {
-      "name": "Deutschlandfunk",
-      "uri": "http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"
-    }
-  ],
-  "Podcasts": [
-    {
-      "name": "DRadio Essay&Diskurs",
-      "uri": "http://www.deutschlandfunk.de/podcast-essay-und-diskurs.1185.de.podcast.xml",
-      "UpdateInterval": 7200
-    },
-    {
-      "name": "BBC Everyday Ethics",
-      "uri": "http://podcasts.files.bbci.co.uk/p02nrsmh.rss",
-      "UpdateInterval": 7200
-    },
-    {
-      "name": "Alternativlos",
-      "uri": "https://alternativlos.org/alternativlos.rss",
-      "UpdateInterval": 7200
-    },
-    {
-      "name": "Arms Control Wonk",
-      "uri": "http://armscontrolwonk.libsyn.com/rss",
-      "UpdateInterval": 7200
-    }
-  ],
-  "Alarms":[
-  	{
-  		"time" : "7:00",
-  		"enabled" : true,
-  		"period" : "workdays",
-  		"uri" : "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"
-  	},
-  	{
-  		"time" : "9:00",
-  		"enabled" : true,
-  		"period" : "weekend",
-  		"uri" : "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"
-  	},
-  	{
-  		"time" : "10:00",
-  		"enabled" : true,
-  		"period" : "daily",
-  		"uri" : "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"
-  	},
-  	{
-  		"time" : "6:00",
-  		"enabled" : false,
-  		"period" : "once",
-  		"uri" : "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"
-  	}
-  ]
+	"version": "0.2.1",
+	"AlarmTimeout": 15,
+	"SleepTimeout": 45,
+	
+	"InternetRadio": [
+		{
+			"name": "SWR2",
+			"uri": "http://swr-swr2-live.cast.addradio.de/swr/swr2/live/mp3/256/stream.mp3"
+		},
+		{
+			"name": "Deutschlandfunk Nova",
+			"uri": "http://st03.dlf.de/dlf/03/104/ogg/stream.ogg"
+		},
+		{
+			"name": "Deutschlandfunk",
+			"uri": "http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"
+		}
+	],
+	"Podcasts": [
+		{
+			"name": "DRadio Essay&Diskurs",
+			"uri": "http://www.deutschlandfunk.de/podcast-essay-und-diskurs.1185.de.podcast.xml",
+			"UpdateInterval": 7200
+		},
+		{
+			"name": "BBC Everyday Ethics",
+			"uri": "http://podcasts.files.bbci.co.uk/p02nrsmh.rss",
+			"UpdateInterval": 7200
+		},
+		{
+			"name": "Alternativlos",
+			"uri": "https://alternativlos.org/alternativlos.rss",
+			"UpdateInterval": 7200
+		},
+		{
+			"name": "Arms Control Wonk",
+			"uri": "http://armscontrolwonk.libsyn.com/rss",
+			"UpdateInterval": 7200
+		}
+	],
+	"Alarms":[
+  		{
+  			"time" : "7:00",
+  			"enabled" : true,
+  			"period" : "workdays",
+			"AlarmTimeout": 10,
+  			"uri" : "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"
+  		},
+  		{
+  			"time" : "9:00",
+  			"enabled" : true,
+  			"period" : "weekend",
+  			"uri" : "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"
+  		},
+  		{
+  			"time" : "10:00",
+  			"enabled" : true,
+  			"period" : "daily",
+  			"uri" : "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"
+  		},
+  		{
+  			"time" : "6:00",
+  			"enabled" : false,
+  			"period" : "once",
+  			"uri" : "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"
+  		}
+	]
 }
 

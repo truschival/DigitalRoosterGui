@@ -10,21 +10,22 @@
  *
  *****************************************************************************/
 #include <QDateTime>
+#include <QDebug>
 #include <QTime>
 #include <QUrl>
-#include <QDebug>
 
 #include <gtest/gtest.h>
 
 #include "alarm.hpp"
+#include "appconstants.hpp"
+
 using namespace DigitalRooster;
 
 
 TEST(Alarm, OnceTodayFuture) {
     auto timepoint = QDateTime::currentDateTime().addSecs(3600);
 
-    Alarm al(
-        QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint);
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint);
 
     ASSERT_EQ(al.get_period(), Alarm::Once);
     ASSERT_EQ(al.get_next_trigger(), timepoint);
@@ -72,28 +73,28 @@ TEST(Alarm, WorkdaysFuture) {
         Alarm::Workdays);
 
     ASSERT_EQ(al.get_period(), Alarm::Workdays);
-    ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()),1);
+    ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
 }
 /*****************************************************************************/
 TEST(Alarm, WorkdaysPast) {
-    auto timepoint = QTime::currentTime().addSecs(-3600); 
-	// Tomorrow 1 hr ago
+    auto timepoint = QTime::currentTime().addSecs(-3600);
+    // Tomorrow 1 hr ago
 
     auto expected_trigger = QDateTime::currentDateTime().addSecs(-3600);
-	auto dow_today = QDateTime::currentDateTime().date().dayOfWeek();
+    auto dow_today = QDateTime::currentDateTime().date().dayOfWeek();
 
-	if (dow_today != Qt::Friday && dow_today != Qt::Saturday)
-		expected_trigger = expected_trigger.addDays(1);
-	if (dow_today == Qt::Friday)
-		expected_trigger = expected_trigger.addDays(2);
-	if (dow_today == Qt::Saturday)
-		expected_trigger = expected_trigger.addDays(1);
+    if (dow_today != Qt::Friday && dow_today != Qt::Saturday)
+        expected_trigger = expected_trigger.addDays(1);
+    if (dow_today == Qt::Friday)
+        expected_trigger = expected_trigger.addDays(2);
+    if (dow_today == Qt::Saturday)
+        expected_trigger = expected_trigger.addDays(1);
 
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
         Alarm::Workdays);
 
     ASSERT_EQ(al.get_period(), Alarm::Workdays);
-	ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
+    ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
 }
 /*****************************************************************************/
 TEST(Alarm, WeekendsDateTimeFuture) {
@@ -118,15 +119,15 @@ TEST(Alarm, WeekendsPast) {
     auto expected_trigger = QDateTime::currentDateTime().addSecs(-3600);
     auto dow_today = expected_trigger.date().dayOfWeek();
 
-	if (dow_today != Qt::Saturday && dow_today != Qt::Sunday) {
-		expected_trigger = expected_trigger.addDays(Qt::Sunday - dow_today);
-	}
-	if (dow_today == Qt::Saturday) {
-		expected_trigger = expected_trigger.addDays(1);
-	}
-	if (dow_today == Qt::Sunday) {
-		expected_trigger = expected_trigger.addDays(6);
-	}
+    if (dow_today != Qt::Saturday && dow_today != Qt::Sunday) {
+        expected_trigger = expected_trigger.addDays(Qt::Sunday - dow_today);
+    }
+    if (dow_today == Qt::Saturday) {
+        expected_trigger = expected_trigger.addDays(1);
+    }
+    if (dow_today == Qt::Sunday) {
+        expected_trigger = expected_trigger.addDays(6);
+    }
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
         Alarm::Weekend);
 
@@ -134,32 +135,30 @@ TEST(Alarm, WeekendsPast) {
     ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
 }
 
-
-
 /*****************************************************************************/
 TEST(Alarm, updateTiggerSetsPeriodtoOnce) {
-	auto expected_trigger = QDateTime::currentDateTime().addSecs(3600);
+    auto expected_trigger = QDateTime::currentDateTime().addSecs(3600);
 
-	Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), QTime::currentTime(),
-		Alarm::Daily);
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
+        QTime::currentTime(), Alarm::Daily);
 
-	al.set_trigger(expected_trigger);
+    al.set_trigger(expected_trigger);
 
-	ASSERT_EQ(al.get_period(), Alarm::Once);
-	ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
+    ASSERT_EQ(al.get_period(), Alarm::Once);
+    ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
 }
 
 /*****************************************************************************/
 TEST(Alarm, updatePeriodSetsNextTrigger) {
-	auto expected_trigger = QDateTime::currentDateTime().addSecs(-3600);
-	auto dow_today = expected_trigger.date().dayOfWeek();
+    auto expected_trigger = QDateTime::currentDateTime().addSecs(-3600);
+    auto dow_today = expected_trigger.date().dayOfWeek();
 
-	if (dow_today != Qt::Saturday && dow_today != Qt::Sunday)
-		expected_trigger = expected_trigger.addDays(Qt::Sunday - dow_today);
-	if (dow_today == Qt::Saturday)
-		expected_trigger = expected_trigger.addDays(1);
-	if (dow_today == Qt::Sunday)
-		expected_trigger = expected_trigger.addDays(6);
+    if (dow_today != Qt::Saturday && dow_today != Qt::Sunday)
+        expected_trigger = expected_trigger.addDays(Qt::Sunday - dow_today);
+    if (dow_today == Qt::Saturday)
+        expected_trigger = expected_trigger.addDays(1);
+    if (dow_today == Qt::Sunday)
+        expected_trigger = expected_trigger.addDays(6);
 
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
         QTime::currentTime().addSecs(-3600));
@@ -168,4 +167,18 @@ TEST(Alarm, updatePeriodSetsNextTrigger) {
 
     ASSERT_EQ(al.get_period(), Alarm::Weekend);
     ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
+}
+
+/*****************************************************************************/
+TEST(Alarm, defaultTimeout) {
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
+        QTime::currentTime().addSecs(-3600));
+    ASSERT_EQ(al.get_timeout().count(), default_alarm_timeout.count());
+}
+/*****************************************************************************/
+TEST(Alarm, updatedTimeout) {
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
+        QTime::currentTime().addSecs(-3600));
+    al.set_timeout(std::chrono::minutes(5));
+    ASSERT_EQ(al.get_timeout().count(), 5);
 }

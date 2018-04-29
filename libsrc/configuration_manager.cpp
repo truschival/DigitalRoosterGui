@@ -13,6 +13,7 @@
 #include <QString>
 #include <QTime>
 #include <appconstants.hpp>
+#include <chrono>
 #include <iostream>
 #include <stdexcept>
 
@@ -23,7 +24,8 @@ using namespace DigitalRooster;
 
 /*****************************************************************************/
 ConfigurationManager::ConfigurationManager(const QString& filepath)
-    : filepath(filepath) {
+    : filepath(filepath)
+    , alarmtimeout(default_alarm_timeout) {
     readJson();
     read_radio_streams_from_file();
     read_podcasts_from_file();
@@ -47,6 +49,10 @@ void ConfigurationManager::readJson() {
 
     QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
     appconfig = doc.object();
+    /* get application config */
+    auto at = appconfig[DigitalRooster::KEY_ALARM_TIMEOUT];
+    alarmtimeout =
+        std::chrono::minutes(at.toInt(default_alarm_timeout.count()));
 }
 
 /*****************************************************************************/
@@ -101,8 +107,12 @@ void ConfigurationManager::read_alarms_from_file() {
         auto timepoint =
             QTime::fromString(json_alarm[KEY_TIME].toString(), "hh:mm");
         auto alarm = std::make_shared<Alarm>(media, timepoint, period, enabled);
-        auto volume = json_alarm.value(KEY_VOLUME).toDouble(50);
+        auto volume = json_alarm[KEY_VOLUME].toInt(default_alarm_volume);
         alarm->set_volume(volume);
+        /* if no specific alarm timeout is given take application default */
+        auto timeout =
+            json_alarm[KEY_ALARM_TIMEOUT].toInt(alarmtimeout.count());
+        alarm->set_timeout(std::chrono::minutes(timeout));
 
         alarms.push_back(alarm);
     }

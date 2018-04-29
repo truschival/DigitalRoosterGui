@@ -12,6 +12,7 @@
 
 #include "alarm.hpp"
 #include "PlayableItem.hpp"
+#include "appconstants.hpp"
 using namespace DigitalRooster;
 
 /*****************************************************************************/
@@ -23,7 +24,8 @@ Alarm::Alarm(const QUrl& media, const QTime& timepoint, Alarm::Period period,
     , media(std::make_shared<PlayableItem>("Alarm", media))
     , period(period)
     , trigger_instant(QDateTime::currentDateTime()) // today, set time later
-    , enabled(enabled) {
+    , enabled(enabled)
+    , alarmtimeout(default_alarm_timeout) {
 
     trigger_instant.setTime(timepoint);
     // qDebug() << __FUNCTION__ << "timepoint" << trigger_instant;
@@ -36,7 +38,8 @@ Alarm::Alarm(const QUrl& media, const QDateTime& timepoint, bool enabled,
     , media(std::make_shared<PlayableItem>("Alarm", media))
     , period(Alarm::Once)
     , trigger_instant(timepoint)
-    , enabled(enabled) {
+    , enabled(enabled)
+    , alarmtimeout(default_alarm_timeout) {
     // qDebug() << __FUNCTION__ << "timepoint" << trigger_instant;
 }
 

@@ -126,12 +126,12 @@ void MediaPlayerProxy::set_media(
 }
 /*****************************************************************************/
 void MediaPlayerProxy::set_playlist(QMediaPlaylist* playlist) {
-    qDebug() << Q_FUNC_INFO;
+    // qDebug() << Q_FUNC_INFO;
     backend->setPlaylist(playlist);
 }
 /*****************************************************************************/
 void MediaPlayerProxy::set_muted(bool muted) {
-    qDebug() << Q_FUNC_INFO;
+    // qDebug() << Q_FUNC_INFO;
     backend->setMuted(muted);
 }
 
@@ -143,11 +143,11 @@ QMediaPlayer::State MediaPlayerProxy::playback_state() const {
 /*****************************************************************************/
 void MediaPlayerProxy::set_volume(int volume) {
     // volumeSliderValue is in the range [0..100]
-    qDebug() << Q_FUNC_INFO << volume;
+    // qDebug() << Q_FUNC_INFO << volume;
 
     auto linearVolume = QAudio::convertVolume(volume / qreal(100.0),
         QAudio::LogarithmicVolumeScale, QAudio::LinearVolumeScale);
-    qDebug() << "Updating volume to " << qRound(linearVolume * 100);
+
     backend->setVolume(qRound(linearVolume * 100));
 }
 /*****************************************************************************/
@@ -157,7 +157,7 @@ void MediaPlayerProxy::pause() {
 }
 /*****************************************************************************/
 void MediaPlayerProxy::play() {
-    qDebug() << Q_FUNC_INFO << backend->media().isNull();
+    // qDebug() << Q_FUNC_INFO << backend->media().isNull();
     backend->play();
 }
 /*****************************************************************************/
