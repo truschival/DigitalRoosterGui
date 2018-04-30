@@ -22,11 +22,14 @@ using namespace DigitalRooster;
 
 int main(int argc, char* argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+	QCoreApplication::setApplicationName(APPLICATION_NAME);
+	QCoreApplication::setApplicationVersion(PROJECT_VERSION);
     // QLoggingCategory::setFilterRules("*.debug=true");
     qDebug() << "SSL Support: " << QSslSocket::supportsSsl()
              << QSslSocket::sslLibraryVersionString();
 
     QGuiApplication app(argc, argv);
+	app.setWindowIcon(QIcon("qrc:/ClockIcon48x48.png"));
 
     qmlRegisterType<PodcastEpisodeModel>(
         "ruschi.PodcastEpisodeModel", 1, 0, "PodcastEpisodeModel");

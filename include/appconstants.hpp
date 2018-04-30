@@ -11,17 +11,13 @@
  *****************************************************************************/
 #pragma once
 
-#include "config.h"
 #include <QDir>
 #include <QString>
 #include <chrono>
 
+#include "config.h"
+
 namespace DigitalRooster {
-/**
- * Name of configuration file
- */
-const QString SYSTEM_CONFIG_PATH(
-    QString(SETTINGS_PATH) + "/" + QString(SETTINGS_FILE_NAME));
 
 /**
  * INI configuration Key for Sources
@@ -120,22 +116,28 @@ const QString KEY_SLEEP_TIMEOUT("SleepTimeout");
  */
 const QString RSS_FILE_DIR(QDir::tempPath());
 
-
+/*****************************************************************************
+ CMake build configurations from config.h
+ *****************************************************************************/
 /**
  * Build directory (where testfiles are generated)
  */
-const QString TEST_FILE_PATH(BUILD_DIR);
-
-
-/*****************************************************************************/
-
+const QString TEST_FILE_PATH(CMAKE_BUILD_DIR);
+/**
+ * Application Name
+ */
+const QString APPLICATION_NAME(CMAKE_PROJECT_NAME);
 
 /**
- * Runtime configuration object
+ * Project Version 
  */
-class AppConfig {
-public:
-    std::string mediaFile;
-};
+const QString PROJECT_VERSION(CMAKE_PROJECT_VERSION);
+
+/**
+* Name + Path of configuration file
+*/
+const QString SYSTEM_CONFIG_PATH(
+	QString(CMAKE_SETTINGS_PATH) + "/" + QString(CMAKE_SETTINGS_FILE_NAME));
+
 
 } // namespace DigitalRooster
