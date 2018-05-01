@@ -12,6 +12,8 @@
 
 #include <QDebug>
 #include <QMediaPlayer>
+#include <chrono>
+#include <memory>
 
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
@@ -19,13 +21,16 @@
 #include "mediaplayerproxy.hpp"
 
 using namespace DigitalRooster;
+using namespace std::chrono;
 
-/***********************************************************************/
+/*****************************************************************************/
 
-AlarmDispatcher::AlarmDispatcher(ConfigurationManager* confman, QObject* parent)
+AlarmDispatcher::AlarmDispatcher(
+    std::shared_ptr<ConfigurationManager> confman, QObject* parent)
     : QObject(parent)
-    , cm(confman) {
-    interval_timer.setInterval(interval);
+    , cm(confman)
+    , interval(std::chrono::seconds(30)) {
+    interval_timer.setInterval(duration_cast<milliseconds>(interval));
     interval_timer.setSingleShot(false);
     connect(&interval_timer, SIGNAL(timeout()), this, SLOT(check_alarms()));
     interval_timer.start();
@@ -33,13 +38,25 @@ AlarmDispatcher::AlarmDispatcher(ConfigurationManager* confman, QObject* parent)
 
 /*****************************************************************************/
 void AlarmDispatcher::check_alarms() {
-    qDebug() << Q_FUNC_INFO << QDateTime::currentDateTime();
+    // qDebug() << Q_FUNC_INFO << QDateTime::currentDateTime();
     auto now = QDateTime::currentDateTime();
     for (const auto& alarm : cm->get_alarms()) {
-        auto delta = now.secsTo(alarm->get_next_trigger());
-        if (alarm->is_enabled() && (delta * 1000) < interval + 1) {
-            qDebug() << "Dispatching Alarm";
+        auto delta = seconds(now.secsTo(alarm->get_next_trigger()));
+        if (alarm->is_enabled() && delta <= interval) {
+            // qDebug() << "Dispatching Alarm";
             emit alarm_triggered(alarm);
         }
     }
+}
+
+/*****************************************************************************/
+void AlarmDispatcher::set_interval(std::chrono::seconds iv) {
+    interval = iv;
+    interval_timer.setInterval(
+        std::chrono::duration_cast<std::chrono::milliseconds>(iv));
+}
+
+/*****************************************************************************/
+std::chrono::seconds AlarmDispatcher::get_interval() {
+    return interval;
 }

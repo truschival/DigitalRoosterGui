@@ -26,11 +26,22 @@ using namespace DigitalRooster;
 ConfigurationManager::ConfigurationManager(const QString& filepath)
     : filepath(filepath)
     , alarmtimeout(default_alarm_timeout) {
+    refresh_configuration();
+};
+/*****************************************************************************/
+void ConfigurationManager::refresh_configuration() {
+    alarms.clear();
+    podcast_sources.clear();
+    stream_sources.clear();
+
     readJson();
     read_radio_streams_from_file();
     read_podcasts_from_file();
     read_alarms_from_file();
-};
+
+    emit configuration_changed();
+}
+
 
 /*****************************************************************************/
 void ConfigurationManager::readJson() {
@@ -60,7 +71,6 @@ void ConfigurationManager::read_radio_streams_from_file() {
     QJsonArray irconfig =
         appconfig[DigitalRooster::KEY_GROUP_IRADIO_SOURCES].toArray();
     for (const auto ir : irconfig) {
-        std::cout << ir.toString().toStdString() << std::endl;
         QString name(ir.toObject()[KEY_NAME].toString());
         QUrl url(ir.toObject()[KEY_URI].toString());
         if (url.isValid()) {
@@ -79,10 +89,7 @@ void ConfigurationManager::read_podcasts_from_file() {
         QUrl url(jo[KEY_URI].toString());
         if (url.isValid()) {
             auto ps = std::make_shared<PodcastSource>(url);
-            if (jo.contains(KEY_UPDATE_INTERVAL)) {
-                ps->set_update_interval(
-                    jo[KEY_UPDATE_INTERVAL].toInt(3600) * 1000);
-            }
+            ps->set_update_interval(jo[KEY_UPDATE_INTERVAL].toInt(3600) * 1000);
             podcast_sources.push_back(ps);
         }
     }
@@ -120,11 +127,13 @@ void ConfigurationManager::read_alarms_from_file() {
 
 /*****************************************************************************/
 void ConfigurationManager::add_radio_station(
-    std::unique_ptr<PlayableItem> src) {
-    this->stream_sources.push_back(
-        std::shared_ptr<PlayableItem>(std::move(src)));
+    std::shared_ptr<PlayableItem> src) {
+    this->stream_sources.push_back(src);
 }
-
+/*****************************************************************************/
+void ConfigurationManager::add_alarm(std::shared_ptr<Alarm> alm) {
+    this->alarms.push_back(alm);
+}
 /*****************************************************************************/
 void ConfigurationManager::write_config_file() {
     /*clear previous doc */
