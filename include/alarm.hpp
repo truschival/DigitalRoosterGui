@@ -197,7 +197,7 @@ private:
     /**
      * Default volume for alarm
      */
-    int volume = 60;
+    int volume = 40;
     /**
      * Calculate the upcoming timepoint when the alarm should trigger
      */

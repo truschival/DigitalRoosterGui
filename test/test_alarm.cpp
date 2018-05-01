@@ -21,6 +21,20 @@
 
 using namespace DigitalRooster;
 
+/*****************************************************************************/
+TEST(Alarm, defaultVolume) {
+    Alarm al;
+    ASSERT_EQ(al.get_volume(), 40);
+}
+/*****************************************************************************/
+TEST(Alarm, fullConstructorEnabled) {
+    Alarm al;
+    Alarm al2(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
+        QDateTime::currentDateTime().addSecs(3600));
+    ASSERT_TRUE(al.is_enabled());
+    ASSERT_TRUE(al2.is_enabled());
+}
+/*****************************************************************************/
 
 TEST(Alarm, OnceTodayFuture) {
     auto timepoint = QDateTime::currentDateTime().addSecs(3600);

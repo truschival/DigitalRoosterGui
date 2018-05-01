@@ -51,9 +51,9 @@ void AlarmDispatcher::check_alarms() {
 
 /*****************************************************************************/
 void AlarmDispatcher::set_interval(std::chrono::seconds iv) {
+    interval = iv;
     interval_timer.setInterval(
         std::chrono::duration_cast<std::chrono::milliseconds>(iv));
-    interval = iv;
 }
 
 /*****************************************************************************/
