@@ -48,7 +48,8 @@ int main(int argc, char* argv[]) {
     ConfigurationManager cm(DigitalRooster::SYSTEM_CONFIG_PATH);
     MediaPlayerProxy playerproxy;
 
-    AlarmDispatcher alarmdispatcher(&cm);
+    AlarmDispatcher alarmdispatcher(std::make_shared<ConfigurationManager>(
+        DigitalRooster::SYSTEM_CONFIG_PATH));
     AlarmMonitor wd(&playerproxy);
     QObject::connect(&alarmdispatcher,
         SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)), &wd,

@@ -130,7 +130,10 @@ void ConfigurationManager::add_radio_station(
     std::shared_ptr<PlayableItem> src) {
     this->stream_sources.push_back(src);
 }
-
+/*****************************************************************************/
+void ConfigurationManager::add_alarm(std::shared_ptr<Alarm> alm) {
+    this->alarms.push_back(alm);
+}
 /*****************************************************************************/
 void ConfigurationManager::write_config_file() {
     /*clear previous doc */

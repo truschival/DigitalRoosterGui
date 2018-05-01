@@ -35,7 +35,8 @@ public:
      * @param confman
      * @param parent
      */
-    AlarmDispatcher(ConfigurationManager* confman, QObject* parent = nullptr);
+    AlarmDispatcher(std::shared_ptr<ConfigurationManager> confman,
+        QObject* parent = nullptr);
 
     /**
      * Update alarm check interval
@@ -66,7 +67,7 @@ private:
     /**
      * Central configuration and data handler
      */
-    ConfigurationManager* cm;
+    std::shared_ptr<ConfigurationManager> cm;
     /**
      * Timer for periodic polling
      */

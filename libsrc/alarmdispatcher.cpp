@@ -13,6 +13,7 @@
 #include <QDebug>
 #include <QMediaPlayer>
 #include <chrono>
+#include <memory>
 
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
@@ -24,7 +25,8 @@ using namespace std::chrono;
 
 /***********************************************************************/
 
-AlarmDispatcher::AlarmDispatcher(ConfigurationManager* confman, QObject* parent)
+AlarmDispatcher::AlarmDispatcher(
+    std::shared_ptr<ConfigurationManager> confman, QObject* parent)
     : QObject(parent)
     , cm(confman)
     , interval(std::chrono::seconds(30)) {
@@ -36,12 +38,12 @@ AlarmDispatcher::AlarmDispatcher(ConfigurationManager* confman, QObject* parent)
 
 /*****************************************************************************/
 void AlarmDispatcher::check_alarms() {
-    qDebug() << Q_FUNC_INFO << QDateTime::currentDateTime();
+    // qDebug() << Q_FUNC_INFO << QDateTime::currentDateTime();
     auto now = QDateTime::currentDateTime();
     for (const auto& alarm : cm->get_alarms()) {
         auto delta = seconds(now.secsTo(alarm->get_next_trigger()));
         if (alarm->is_enabled() && delta <= interval) {
-            qDebug() << "Dispatching Alarm";
+            // qDebug() << "Dispatching Alarm";
             emit alarm_triggered(alarm);
         }
     }
