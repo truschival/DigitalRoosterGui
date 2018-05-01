@@ -105,3 +105,21 @@ TEST(AlarmDispatcher, dispatch1DueOf2Alarms) {
     a.check_alarms();
     ASSERT_EQ(spy.count(), 1);
 }
+
+TEST(AlarmDispatcher, willTriggerItself) {
+    auto cm = std::make_shared<CmMock>();
+    AlarmDispatcher a(cm);
+    a.set_interval(std::chrono::seconds(1));
+    ASSERT_EQ(a.get_interval(), std::chrono::seconds(1));
+
+    EXPECT_CALL(*(cm.get()), get_alarm_list())
+        .Times(AtLeast(1))
+        .WillRepeatedly(ReturnRef(cm->alarms));
+
+    QSignalSpy spy(
+        &a, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+    ASSERT_TRUE(spy.isValid());
+    spy.wait(3000);
+
+    ASSERT_EQ(spy.count(), 1);
+}

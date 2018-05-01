@@ -23,7 +23,7 @@
 using namespace DigitalRooster;
 using namespace std::chrono;
 
-/***********************************************************************/
+/*****************************************************************************/
 
 AlarmDispatcher::AlarmDispatcher(
     std::shared_ptr<ConfigurationManager> confman, QObject* parent)
@@ -47,4 +47,16 @@ void AlarmDispatcher::check_alarms() {
             emit alarm_triggered(alarm);
         }
     }
+}
+
+/*****************************************************************************/
+void AlarmDispatcher::set_interval(std::chrono::seconds iv) {
+    interval_timer.setInterval(
+        std::chrono::duration_cast<std::chrono::milliseconds>(iv));
+    interval = iv;
+}
+
+/*****************************************************************************/
+std::chrono::seconds AlarmDispatcher::get_interval() {
+    return interval;
 }

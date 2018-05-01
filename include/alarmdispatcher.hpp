@@ -42,17 +42,13 @@ public:
      * Update alarm check interval
      * @param iv interval in seconds
      */
-    void set_interval(std::chrono::seconds iv) {
-        interval = iv;
-    }
+    void set_interval(std::chrono::seconds iv);
 
     /**
      * Current alarm check interval
      * @return interval in seconds
      */
-    std::chrono::seconds get_interval() {
-        return interval;
-    }
+    std::chrono::seconds get_interval();
 
 public slots:
     /**
