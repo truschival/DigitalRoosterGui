@@ -15,6 +15,7 @@
 
 #include <QObject>
 #include <QTimer>
+#include <chrono>
 #include <memory>
 
 #include "alarm.hpp"
@@ -29,7 +30,34 @@ class ConfigurationManager;
 class AlarmDispatcher : public QObject {
     Q_OBJECT
 public:
+    /**
+     * Constructor for AlarmDispatcher
+     * @param confman
+     * @param parent
+     */
     AlarmDispatcher(ConfigurationManager* confman, QObject* parent = nullptr);
+
+    /**
+     * Update alarm check interval
+     * @param iv interval in seconds
+     */
+    void set_interval(std::chrono::seconds iv) {
+        interval = iv;
+    }
+
+    /**
+     * Current alarm check interval
+     * @return interval in seconds
+     */
+    std::chrono::seconds get_interval() {
+        return interval;
+    }
+
+public slots:
+    /**
+     * Will walk alarms and check if ready for dispatch
+     * */
+    void check_alarms();
 
 signals:
     void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>);
@@ -47,13 +75,7 @@ private:
      * Time interval to check for alarm dispatching and if new alarms are
      * available in configuration
      */
-    int interval = 30000;
-
-public slots:
-    /**
-     * Will walk alarms and check if ready for dispatch
-     * */
-    void check_alarms();
+    std::chrono::seconds interval;
 };
 } // namespace DigitalRooster
 

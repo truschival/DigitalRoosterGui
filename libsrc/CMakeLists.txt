@@ -47,6 +47,7 @@ set(SRCS
 # Moc any classes derived from QObject
 qt5_wrap_cpp(MOC_SRC 
         ${PROJECT_INCLUDE_DIR}/confmon.hpp
+        ${PROJECT_INCLUDE_DIR}/configuration_manager.hpp
         ${PROJECT_INCLUDE_DIR}/DownloadManager.hpp
         ${PROJECT_INCLUDE_DIR}/UpdateTask.hpp
         ${PROJECT_INCLUDE_DIR}/PlayableItem.hpp
