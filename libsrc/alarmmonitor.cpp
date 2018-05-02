@@ -15,19 +15,19 @@
 
 #include "alarm.hpp"
 #include "alarmmonitor.hpp"
-#include "mediaplayerproxy.hpp"
+#include "mediaplayer.hpp"
 
 using namespace DigitalRooster;
 
-/***********************************************************************/
-AlarmMonitor::AlarmMonitor(MediaPlayerProxy* player, QObject* parent)
+/*****************************************************************************/
+AlarmMonitor::AlarmMonitor(std::shared_ptr<MediaPlayer> player, QObject* parent)
     : QObject(parent)
     , mpp(player) {
 
     /* Receive errors from player */
-    QObject::connect(mpp,
-        static_cast<void (MediaPlayerProxy::*)(QMediaPlayer::Error)>(
-            &MediaPlayerProxy::error),
+    QObject::connect(mpp.get(),
+        static_cast<void (MediaPlayer::*)(QMediaPlayer::Error)>(
+            &MediaPlayer::error),
         [=](QMediaPlayer::Error error) {
             /* if any error occurs while we are expecting an alarm fallback! */
             if (error != QMediaPlayer::NoError && expecting_alarm_playing) {
@@ -35,7 +35,7 @@ AlarmMonitor::AlarmMonitor(MediaPlayerProxy* player, QObject* parent)
             }
         });
 
-    QObject::connect(mpp, &MediaPlayerProxy::playback_state_changed,
+    QObject::connect(mpp.get(), &MediaPlayer::playback_state_changed,
         [=](QMediaPlayer::State state) {
             /* only do something if we started the alarm */
             if (!alarm_auto_stop_timer.isActive())

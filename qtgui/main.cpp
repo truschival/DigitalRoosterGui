@@ -37,8 +37,8 @@ int main(int argc, char* argv[]) {
     qmlRegisterType<DigitalRooster::PodcastEpisode>(
         "ruschi.PodcastEpisode", 1, 0, "PodcastEpisode");
     qmlRegisterType<DigitalRooster::Alarm>("ruschi.Alarm", 1, 0, "Alarm");
-    qmlRegisterType<DigitalRooster::MediaPlayerProxy>(
-        "ruschi.MediaPlayerProxy", 1, 0, "MediaPlayerProxy");
+    qmlRegisterType<DigitalRooster::MediaPlayer>(
+        "ruschi.AbstractMediaPlayer", 1, 0, "AbstractMediaPlayer");
     qmlRegisterType<DigitalRooster::IRadioListModel>(
         "ruschi.IRadioListModel", 1, 0, "IRadioListModel");
     qmlRegisterType<DigitalRooster::PlayableItem>(
@@ -46,22 +46,22 @@ int main(int argc, char* argv[]) {
 
     /*Get available Podcasts */
     ConfigurationManager cm(DigitalRooster::SYSTEM_CONFIG_PATH);
-    MediaPlayerProxy playerproxy;
+    auto  playerproxy = std::make_shared<MediaPlayerProxy>();
 
     AlarmDispatcher alarmdispatcher(std::make_shared<ConfigurationManager>(
         DigitalRooster::SYSTEM_CONFIG_PATH));
-    AlarmMonitor wd(&playerproxy);
+    AlarmMonitor wd(playerproxy);
     QObject::connect(&alarmdispatcher,
         SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)), &wd,
         SLOT(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
 
-    PodcastSourceModel psmodel(&cm, &playerproxy);
-    IRadioListModel iradiolistmodel(&cm, &playerproxy);
+    PodcastSourceModel psmodel(&cm, playerproxy.get());
+    IRadioListModel iradiolistmodel(&cm, playerproxy.get());
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
     ctxt->setContextProperty("podcastmodel", &psmodel);
-    ctxt->setContextProperty("playerProxy", &playerproxy);
+    ctxt->setContextProperty("playerProxy", playerproxy.get());
     ctxt->setContextProperty("iradiolistmodel", &iradiolistmodel);
 
     view.load(QUrl("qrc:/main.qml"));
