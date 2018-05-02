@@ -36,8 +36,6 @@ int main(int argc, char* argv[]) {
     qmlRegisterType<DigitalRooster::PodcastEpisode>(
         "ruschi.PodcastEpisode", 1, 0, "PodcastEpisode");
     qmlRegisterType<DigitalRooster::Alarm>("ruschi.Alarm", 1, 0, "Alarm");
-    qmlRegisterType<DigitalRooster::MediaPlayer>(
-        "ruschi.AbstractMediaPlayer", 1, 0, "AbstractMediaPlayer");
     qmlRegisterType<DigitalRooster::IRadioListModel>(
         "ruschi.IRadioListModel", 1, 0, "IRadioListModel");
     qmlRegisterType<DigitalRooster::PlayableItem>(

@@ -78,31 +78,27 @@ protected:
     MediaPlayer() = default;
 
 private:
-    /*****************************************************************************
-     Virtual Function are only implemented because QML does not want to register
-     abstract class as type using
-
-     qmlRegisterType<DigitalRooster::MediaPlayer>("ruschi.MediaPlayer", 1, 0,
-            "MediaPlayer");
-    ******************************************************************************/
-    virtual bool is_seekable() const;
-    virtual bool is_muted() const;
-    virtual int do_get_volume() const;
-    virtual qint64 do_get_duration() const;
-    virtual qint64 do_get_position() const;
-    virtual QMediaPlayer::MediaStatus do_media_status() const;
-    virtual QMediaPlayer::State do_playback_state() const;
-    virtual QMediaPlayer::Error do_error() const;
+    /*
+     Pure virtual methods for derived classed to implement
+     */
+    virtual bool is_seekable() const = 0;
+    virtual bool is_muted() const = 0;
+    virtual int do_get_volume() const = 0;
+    virtual qint64 do_get_duration() const = 0;
+    virtual qint64 do_get_position() const = 0;
+    virtual QMediaPlayer::MediaStatus do_media_status() const = 0;
+    virtual QMediaPlayer::State do_playback_state() const = 0;
+    virtual QMediaPlayer::Error do_error() const = 0;
     virtual void do_set_media(
-        std::shared_ptr<DigitalRooster::PlayableItem> media){};
-    virtual void do_set_playlist(QMediaPlaylist* playlist){};
-    virtual void do_set_position(qint64 position){};
-    virtual void do_set_muted(bool muted){};
-    virtual void do_set_volume(int volume){};
-    virtual void do_seek(qint64 incr){};
-    virtual void do_pause(){};
-    virtual void do_play(){};
-    virtual void do_stop(){};
+        std::shared_ptr<DigitalRooster::PlayableItem> media) = 0;
+    virtual void do_set_playlist(QMediaPlaylist* playlist) = 0;
+    virtual void do_set_position(qint64 position) = 0;
+    virtual void do_set_muted(bool muted) = 0;
+    virtual void do_set_volume(int volume) = 0;
+    virtual void do_seek(qint64 incr) = 0;
+    virtual void do_pause() = 0;
+    virtual void do_play() = 0;
+    virtual void do_stop() = 0;
 };
 } // namespace DigitalRooster
 #endif /*_MEDIAPLAYER_HPP_*/
