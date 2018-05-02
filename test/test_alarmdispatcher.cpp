@@ -20,26 +20,14 @@
 
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
-#include "configuration_manager.hpp"
+
+#include "cm_mock.hpp"
 
 using namespace DigitalRooster;
 using namespace ::testing;
 using ::testing::AtLeast;
 
-class CmMock : public ConfigurationManager {
-public:
-    CmMock() {
-        auto timepoint = QDateTime::currentDateTimeUtc().addSecs(3);
-        auto alm =
-            std::make_shared<Alarm>(QUrl("https://www.heise.de"), timepoint);
-        alarms.push_back(alm);
 
-        qRegisterMetaType<std::shared_ptr<DigitalRooster::Alarm>>(
-            "std::shared_ptr<DigitalRooster::Alarm>");
-    };
-    MOCK_METHOD0(get_alarm_list, QVector<std::shared_ptr<Alarm>>&());
-    QVector<std::shared_ptr<Alarm>> alarms;
-};
 /*****************************************************************************/
 
 TEST(AlarmDispatcher, callsGetAlarms) {

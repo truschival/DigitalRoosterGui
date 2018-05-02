@@ -33,7 +33,8 @@ public:
     PodcastEpisodeModel(
         const QVector<std::shared_ptr<DigitalRooster::PodcastEpisode>>*
             episodes,
-        DigitalRooster::MediaPlayerProxy* pp, QObject* parent = nullptr);
+        std::shared_ptr<DigitalRooster::MediaPlayerProxy> pp,
+        QObject* parent = nullptr);
 
     enum PodcastEpisodeRoles {
         DisplayNameRole = Qt::UserRole + 1,
@@ -67,7 +68,7 @@ protected:
 
 private:
     const QVector<std::shared_ptr<DigitalRooster::PodcastEpisode>>* episodes;
-    DigitalRooster::MediaPlayerProxy* mpp;
+    std::shared_ptr<DigitalRooster::MediaPlayerProxy> mpp;
 
     QString name;
 };

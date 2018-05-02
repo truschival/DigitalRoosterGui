@@ -39,6 +39,7 @@ set(SRCS
    ${CMAKE_CURRENT_SOURCE_DIR}/DownloadManager.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/UpdateTask.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/alarm.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/mediaplayer.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/mediaplayerproxy.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/alarmmonitor.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/alarmdispatcher.cpp
@@ -53,6 +54,7 @@ qt5_wrap_cpp(MOC_SRC
         ${PROJECT_INCLUDE_DIR}/PlayableItem.hpp
         ${PROJECT_INCLUDE_DIR}/PodcastSource.hpp
         ${PROJECT_INCLUDE_DIR}/alarm.hpp
+		${PROJECT_INCLUDE_DIR}/mediaplayer.hpp
 		${PROJECT_INCLUDE_DIR}/mediaplayerproxy.hpp
 		${PROJECT_INCLUDE_DIR}/alarmdispatcher.hpp
 		${PROJECT_INCLUDE_DIR}/alarmmonitor.hpp

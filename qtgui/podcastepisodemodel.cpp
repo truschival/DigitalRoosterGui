@@ -23,8 +23,8 @@ using namespace DigitalRooster;
 
 /*****************************************************************************/
 PodcastEpisodeModel::PodcastEpisodeModel(
-    const QVector<std::shared_ptr<PodcastEpisode>>* ep, MediaPlayerProxy* pp,
-    QObject* parent)
+    const QVector<std::shared_ptr<PodcastEpisode>>* ep,
+    std::shared_ptr<MediaPlayerProxy> pp, QObject* parent)
     : QAbstractListModel(parent)
     , episodes(ep)
     , mpp(pp) {

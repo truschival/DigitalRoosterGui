@@ -20,14 +20,14 @@
 #include <memory>
 
 #include "alarm.hpp"
+#include "mediaplayer.hpp"
 
 namespace DigitalRooster {
-class MediaPlayerProxy;
 
 class AlarmMonitor : public QObject {
     Q_OBJECT
 public:
-    AlarmMonitor(MediaPlayerProxy* player, QObject* parent = nullptr);
+    AlarmMonitor(std::shared_ptr<MediaPlayer> player, QObject* parent = nullptr);
 
 public slots:
     void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>);
@@ -36,7 +36,7 @@ private:
     /**
      * PlayerBackend that receives the Alarms
      */
-    MediaPlayerProxy* mpp;
+    std::shared_ptr<MediaPlayer> mpp;
     /**
      * Timer to trigger fallback behavior if player did not start to play
      * resource from alarm
