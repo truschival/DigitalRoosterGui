@@ -29,7 +29,6 @@ int main(int argc, char* argv[]) {
     qDebug() << "SSL Support: " << QSslSocket::supportsSsl()
              << QSslSocket::sslLibraryVersionString();
 
-
     app.setWindowIcon(QIcon("qrc:/ClockIcon48x48.png"));
 
     qmlRegisterType<PodcastEpisodeModel>(
@@ -45,18 +44,18 @@ int main(int argc, char* argv[]) {
         "ruschi.PlayableItem", 1, 0, "PlayableItem");
 
     /*Get available Podcasts */
-    ConfigurationManager cm(DigitalRooster::SYSTEM_CONFIG_PATH);
-    auto  playerproxy = std::make_shared<MediaPlayerProxy>();
+    auto cm = std::make_shared<ConfigurationManager>(
+        DigitalRooster::SYSTEM_CONFIG_PATH);
+    auto playerproxy = std::make_shared<MediaPlayerProxy>();
 
-    AlarmDispatcher alarmdispatcher(std::make_shared<ConfigurationManager>(
-        DigitalRooster::SYSTEM_CONFIG_PATH));
+    AlarmDispatcher alarmdispatcher(cm);
     AlarmMonitor wd(playerproxy);
     QObject::connect(&alarmdispatcher,
         SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)), &wd,
         SLOT(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
 
-    PodcastSourceModel psmodel(&cm, playerproxy.get());
-    IRadioListModel iradiolistmodel(&cm, playerproxy.get());
+    PodcastSourceModel psmodel(cm, playerproxy);
+    IRadioListModel iradiolistmodel(cm, playerproxy);
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
