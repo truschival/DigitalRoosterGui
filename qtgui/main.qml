@@ -20,9 +20,9 @@ ApplicationWindow {
         id: currentTime
     }
 
-	FontLoader { 
+	FontLoader {
 		id: materialdesignIconsFont;
-		source: "materialdesignicons-webfont.ttf" 
+		source: "materialdesignicons-webfont.ttf"
 	}
 
 
@@ -43,6 +43,40 @@ ApplicationWindow {
                 font.pixelSize: 20
                 elide: Label.ElideRight
                 Layout.fillWidth: true
+            }
+
+			IconButton {
+                id : volButton
+                text: "\uf4c3"
+                onClicked:{
+					volumeMenu.popup(-width/3,height/3)
+				}
+
+				Menu {
+					id: volumeMenu
+					width: 50
+                    height: 180
+					/* x: parent.x-parent.width */
+					/* y: parent.y-100 */
+
+                    Label{
+                        text: volumeSlider.value
+						anchors.horizontalCenter:parent.horizontalCenter
+					}
+					Slider {
+						id: volumeSlider
+						anchors.horizontalCenter:parent.horizontalCenter
+                        orientation: Qt.Vertical
+                        from: 0
+                        to: 100
+                        stepSize: 1
+						wheelEnabled: true
+                        value: playerProxy.volume
+                        onMoved: {
+                            playerProxy.volume = value;
+                        }
+					}
+				}
             }
 
             IconButton {
@@ -139,7 +173,7 @@ ApplicationWindow {
                 console.log("playBtn")
                 interactiontimer.restart()
 
-                if(playerProxy.playbackState == MediaPlayer.PlayingState){
+                if(playerProxy.playbackState === MediaPlayer.PlayingState){
                     playerProxy.pause()
                 }
                 else{
