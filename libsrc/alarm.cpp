@@ -10,8 +10,8 @@
  *
  *****************************************************************************/
 
-#include "alarm.hpp"
 #include "PlayableItem.hpp"
+#include "alarm.hpp"
 #include "appconstants.hpp"
 using namespace DigitalRooster;
 

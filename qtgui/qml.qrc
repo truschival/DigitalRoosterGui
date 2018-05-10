@@ -11,5 +11,6 @@
         <file>Jsutil.js</file>
         <file>IRadioDelegate.qml</file>
         <file>IRadioList.qml</file>
+        <file>PlayerControlWidget.qml</file>
     </qresource>
 </RCC>

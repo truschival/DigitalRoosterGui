@@ -45,6 +45,16 @@ ApplicationWindow {
                 Layout.fillWidth: true
             }
 
+			 IconButton {
+                id : playerControlBtn
+                text: MdiFont.Icon.play
+
+                onClicked:{
+					playerControlWidget.setVisible(true)
+                }
+            }
+
+
 			IconButton {
                 id : volButton
                 text: "\uf4c3"
@@ -56,8 +66,6 @@ ApplicationWindow {
 					id: volumeMenu
 					width: 50
                     height: 180
-					/* x: parent.x-parent.width */
-					/* y: parent.y-100 */
 
                     Label{
                         text: volumeSlider.value
@@ -134,13 +142,11 @@ ApplicationWindow {
 				ListElement { title: "\uf43B"; source: "qrc:/IRadioList.qml"; objectName:"InternetRadio"; }
             }
         }
-
     }
 
-    Rectangle {
-        id: playerControlWidget
-
-        anchors.horizontalCenter: parent.horizontalCenter
+	PlayerControlWidget{
+		id: playerControlWidget
+		anchors.horizontalCenter: parent.horizontalCenter
         width: parent.width*0.8
         height: parent.height*0.3
         anchors.horizontalCenterOffset: 0
@@ -148,123 +154,7 @@ ApplicationWindow {
         visible: false
         z: 1
         anchors.bottom: parent.bottom
-
-        function setVisible(visible){
-            interactiontimer.restart()
-            playerControlWidget.visible=visible
-        }
-
-        Timer {
-            id: interactiontimer
-            interval: 2500;
-            running: true;
-            repeat: false;
-            onTriggered: parent.setVisible(false)
-        }
-
-        IconButton {
-            id: playBtn
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top : parent.top
-            anchors.topMargin: 2
-            text: MdiFont.Icon.play // default to play icon
-
-            onClicked: {
-                console.log("playBtn")
-                interactiontimer.restart()
-
-                if(playerProxy.playbackState === MediaPlayer.PlayingState){
-                    playerProxy.pause()
-                }
-                else{
-                    playerProxy.play()
-                }
-            }
-
-			function switchPlayButtonIcon(playbackState){
-                switch (playbackState){
-                case MediaPlayer.PlayingState:
-                    playBtn.text =  MdiFont.Icon.pause
-                    break
-                case MediaPlayer.PausedState:
-                    playBtn.text = MdiFont.Icon.play
-                    break
-                case MediaPlayer.StoppedState:
-                    playBtn.text = MdiFont.Icon.play
-                    break
-                default:
-                    console.log("player???")
-                }
-            }
-        }
-
-        IconButton {
-            id: forwardBtn
-            anchors.left: playBtn.right
-            anchors.leftMargin: 25
-            anchors.top: playBtn.top
-            text: MdiFont.Icon.fastForward
-            onClicked: {
-                interactiontimer.restart()
-                playerProxy.seek(5000)
-            }
-        }
-
-        IconButton {
-            id: backwardBtn
-            anchors.right: playBtn.left
-            anchors.rightMargin: 25
-
-            text: MdiFont.Icon.rewind
-            onClicked: {
-                interactiontimer.restart()
-                playerProxy.seek(-5000)
-            }
-        }
-
-        Slider {
-            id: slider
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: parent.width*0.85
-            anchors.top: playBtn.bottom
-            anchors.topMargin: -15
-            enabled: playerProxy.seekable
-			visible: playerProxy.seekable
-
-            onValueChanged: {
-                interactiontimer.restart()
-            }
-            onMoved:{
-                playerProxy.set_position(value* playerProxy.duration)
-            }
-        }
-
-        Text{
-            id: timeElapsed
-            text: Util.display_time_ms(playerProxy.position)
-            anchors.horizontalCenter: slider.left
-            anchors.top: slider.bottom
-            anchors.margins: 2
-        }
-        Text{
-            id: durationTotal
-			text: Util.display_time_ms(playerProxy.duration)
-            anchors.horizontalCenter: slider.right
-            anchors.top: slider.bottom
-            anchors.margins: 2
-        }
-
-		function updatePosition(pos){
-			slider.value = pos/playerProxy.duration
-			timeElapsed.text=Util.display_time_ms(pos)
-		}
-
-		/***********************************************************************/
-		Component.onCompleted : {
-			playerProxy.playback_state_changed.connect(playBtn.switchPlayButtonIcon)
-			playerProxy.position_changed.connect(updatePosition)
-		}
-    }
+	}
 
 
     StackView {
