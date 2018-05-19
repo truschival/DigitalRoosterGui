@@ -100,9 +100,9 @@ TEST(Alarm, WorkdaysPast) {
     if (dow_today != Qt::Friday && dow_today != Qt::Saturday)
         expected_trigger = expected_trigger.addDays(1);
     if (dow_today == Qt::Friday)
-        expected_trigger = expected_trigger.addDays(2);
+        expected_trigger = expected_trigger.addDays(3);
     if (dow_today == Qt::Saturday)
-        expected_trigger = expected_trigger.addDays(1);
+        expected_trigger = expected_trigger.addDays(2);
 
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
         Alarm::Workdays);
