@@ -30,8 +30,6 @@ ExternalProject_Add(GTestExternal
   # 	-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE:PATH=${CMAKE_LIBRARY_OUTPUT_DIRECTORY}
   )
 
-
-
 if(POLICY CMP0048)
   cmake_policy(POP)
 endif()
