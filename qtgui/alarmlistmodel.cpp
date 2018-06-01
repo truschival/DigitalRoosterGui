@@ -42,8 +42,8 @@ QHash<int, QByteArray> AlarmListModel::roleNames() const {
 
     roles[PeriodicityRole] = "periodicity";
     roles[UriRole] = "uri";
-    roles[TimeRole] = "time";
-    roles[EnabledRole] = "enabled";
+    roles[TimeRole] = "triggerTime";
+    roles[EnabledRole] = "alarmEnabled";
     return roles;
 }
 
@@ -73,6 +73,7 @@ QVariant AlarmListModel::data(const QModelIndex& index, int role) const {
     case UriRole:
         return QVariant("some uri");
     case TimeRole:
+        qDebug() << alarm->get_time();
         return QVariant(alarm->get_time());
     case EnabledRole:
         return QVariant(alarm->is_enabled());

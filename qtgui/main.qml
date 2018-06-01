@@ -70,8 +70,7 @@ ApplicationWindow {
 					id: volumeMenu
 					width: 50
                     height: 180
-					Layout.margins: 2
-
+				
                     Label{
                         text: volumeSlider.value
 						anchors.horizontalCenter:parent.horizontalCenter

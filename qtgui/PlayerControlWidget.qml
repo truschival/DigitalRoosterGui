@@ -15,6 +15,11 @@ Rectangle {
 	radius: 3
     z: 1
 
+	gradient: Gradient {
+        GradientStop { position: 0.2; color: "#3F51B5" }
+		GradientStop { position: 1.0; color: "#607D8B" }
+    }
+
     Timer {
         id: interactiontimer
         interval: 2500
@@ -63,7 +68,6 @@ Rectangle {
         anchors.left: playBtn.right
         anchors.top: playBtn.top
         anchors.leftMargin: 25
-		anchors.topMargin: 2
 
         text: MdiFont.Icon.fastForward
         onClicked: {
@@ -76,9 +80,7 @@ Rectangle {
         id: backwardBtn
         anchors.right: playBtn.left
         anchors.top: playBtn.top
-
         anchors.rightMargin: 25
-	    anchors.topMargin: 2
 
         text: MdiFont.Icon.rewind
         onClicked: {
@@ -90,7 +92,7 @@ Rectangle {
     Slider {
         id: slider
         anchors.horizontalCenter: parent.horizontalCenter
-        width: parent.width * 0.85
+        width: parent.width * 0.6
         anchors.top: playBtn.bottom
         anchors.topMargin: -15
         enabled: playerProxy.seekable
@@ -107,16 +109,18 @@ Rectangle {
     Text {
         id: timeElapsed
         text: Util.display_time_ms(playerProxy.position)
-        anchors.horizontalCenter: slider.left
-        anchors.top: slider.bottom
+        anchors.right: slider.left
+        anchors.top: slider.top
         anchors.margins: 2
+		visible: playerProxy.seekable
     }
     Text {
         id: durationTotal
         text: Util.display_time_ms(playerProxy.duration)
-        anchors.horizontalCenter: slider.right
-        anchors.top: slider.bottom
+        anchors.left: slider.right
+        anchors.top: slider.top
         anchors.margins: 2
+		visible: playerProxy.seekable
     }
 
 
