@@ -1,59 +1,55 @@
 /*************************************************************************************
  * \filename
- * \brief	Internet Radiostation Listmodel
+ * \brief	Listmodel for alarms in QML Gui
  *
- * \details needed to bind a list of episodes to QML
+ * \details
  *
  * \author Thomas Ruschival
  * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
  *
  * 			 SPDX-License-Identifier: GPL-2.0-or-later}
  *************************************************************************************/
-#ifndef QTGUI_IRADIOLISTMODEL_HPP_
-#define QTGUI_IRADIOLISTMODEL_HPP_
+#ifndef QTGUI_ALARMLISTMODEL_HPP_
+#define QTGUI_ALARMLISTMODEL_HPP_
 
 #include <QAbstractListModel>
 #include <QObject>
 #include <memory>
 
 namespace DigitalRooster {
-class PlayableItem;
-class MediaPlayerProxy;
+class Alarm;
 class ConfigurationManager;
 
 /**
- * Simple Model for displaying Internet Radio stations in QML List
+ * ListModel to show alarms in QML Gui
  */
-class IRadioListModel : public QAbstractListModel {
+class AlarmListModel : public QAbstractListModel {
     Q_OBJECT
 public:
-    IRadioListModel(QObject* parent = nullptr);
+    AlarmListModel(QObject* parent = nullptr);
 
-    IRadioListModel(
+    AlarmListModel(
         std::shared_ptr<DigitalRooster::ConfigurationManager> confman,
-        std::shared_ptr<DigitalRooster::MediaPlayerProxy> pp,
         QObject* parent = nullptr);
 
-    enum IRadioStationRoles {
-        StationNameRole = Qt::UserRole + 1,
+    enum AlarmRoles {
+        PeriodRole = Qt::UserRole + 1,
         UriRole,
-        DateRole
+        TimeRole,
+		EnabledRole
     };
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
-    Q_INVOKABLE DigitalRooster::PlayableItem* get_station(int index);
-    Q_INVOKABLE void send_to_player(int index);
 
 protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
     std::shared_ptr<DigitalRooster::ConfigurationManager> cm;
-    std::shared_ptr<DigitalRooster::MediaPlayerProxy> mpp;
 };
 } // namespace DigitalRooster
 
-#endif /* QTGUI_IRADIOLISTMODEL_HPP_*/
+#endif /* QTGUI_ALARMLISTMODEL_HPP_ */

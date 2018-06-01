@@ -6,8 +6,6 @@ SET(BINARY_NAME "DigitalRoosterGui")
 find_package(Threads REQUIRED)
 
 find_package(Qt5 COMPONENTS Core Widgets Multimedia Qml Quick REQUIRED)
-
-#find_package(Qt5Widgets REQUIRED)
 MESSAGE(STATUS "Found Qt5 version: ${Qt5Widgets_VERSION_STRING}")
 
 #Find includes in corresponding build directories
@@ -25,6 +23,7 @@ SET(SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/podcastsourcemodel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/podcastepisodemodel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/iradiolistmodel.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/alarmlistmodel.cpp
 )
 
 # --------------------------------------------------------------------------------
@@ -106,4 +105,3 @@ INSTALL(TARGETS ${BINARY_NAME}
   RUNTIME DESTINATION ${INSTALL_BIN_DIR}
   INCLUDES DESTINATION ${INSTALL_INCLUDE_DIR}
   )
-
