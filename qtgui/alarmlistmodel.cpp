@@ -16,14 +16,15 @@
 #include <QQmlEngine>
 
 #include "alarm.hpp"
-#include "configuration_manager.hpp"
 #include "alarmlistmodel.hpp"
+#include "configuration_manager.hpp"
 
 using namespace DigitalRooster;
 
 /*************************************************************************************/
 AlarmListModel::AlarmListModel(
-    std::shared_ptr<DigitalRooster::ConfigurationManager> confman,  QObject* parent)
+    std::shared_ptr<DigitalRooster::ConfigurationManager> confman,
+    QObject* parent)
     : QAbstractListModel(parent)
     , cm(confman) {
 }
@@ -39,9 +40,9 @@ AlarmListModel::AlarmListModel(QObject* parent)
 QHash<int, QByteArray> AlarmListModel::roleNames() const {
     QHash<int, QByteArray> roles;
 
-    roles[PeriodRole] = "station_name";
+    roles[PeriodicityRole] = "periodicity";
     roles[UriRole] = "uri";
-    roles[TimeRole] = "pub_date";
+    roles[TimeRole] = "time";
     roles[EnabledRole] = "enabled";
     return roles;
 }
@@ -67,12 +68,12 @@ QVariant AlarmListModel::data(const QModelIndex& index, int role) const {
     auto alarm = cm->get_alarms().at(index.row());
 
     switch (role) {
-    case PeriodRole:
-        return QVariant("periodicity");
+    case PeriodicityRole:
+        return QVariant(alarm->get_period_string());
     case UriRole:
         return QVariant("some uri");
     case TimeRole:
-        return QVariant("Datestring - makes no sense");
+        return QVariant(alarm->get_time());
     case EnabledRole:
         return QVariant(alarm->is_enabled());
     }

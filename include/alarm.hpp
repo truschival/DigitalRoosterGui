@@ -38,6 +38,7 @@ public:
         Weekend = 3, //!< Saturdays & Sundays
         Workdays = 4 //!< Monday through Friday
     };
+    Q_ENUM(Period)
 
     /**
      * One-shot alarm for a exact DateTime to trigger
@@ -101,6 +102,12 @@ public:
     Alarm::Period get_period() const {
         return period;
     }
+
+	/**
+	 * Convert the periodicity into a human readable string
+	 * @return string representation for enum
+	 */
+    QString get_period_string() const;
 
     /**
      * Change periodicity

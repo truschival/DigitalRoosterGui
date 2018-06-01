@@ -28,17 +28,19 @@ ApplicationWindow {
 
     header: ToolBar {
         RowLayout {
-            spacing: 10
+            spacing: 5
             anchors.fill: parent
 
             IconButton {
                 text: MdiFont.Icon.menu
+				Layout.margins: 2
                 onClicked: {
                     drawer.open()
                 }
             }
             Label {
                 id: titleLabel
+				Layout.margins: 2
                 text: currentTime.timestring_lz
                 font.pixelSize: 20
                 elide: Label.ElideRight
@@ -48,6 +50,7 @@ ApplicationWindow {
 			 IconButton {
                 id : playerControlBtn
                 text: MdiFont.Icon.play
+				Layout.margins: 2
 
                 onClicked:{
 					playerControlWidget.setVisible(true)
@@ -57,6 +60,7 @@ ApplicationWindow {
 
 			IconButton {
                 id : volButton
+				Layout.margins: 2
                 text: "\uf4c3"
                 onClicked:{
 					volumeMenu.popup(-width/3,height/3)
@@ -66,6 +70,7 @@ ApplicationWindow {
 					id: volumeMenu
 					width: 50
                     height: 180
+					Layout.margins: 2
 
                     Label{
                         text: volumeSlider.value
@@ -90,6 +95,7 @@ ApplicationWindow {
             IconButton {
                 id : backButton
                 text: MdiFont.Icon.keyboardBackspace
+				Layout.margins: 2
                 visible: (stackView.depth > 1)
 
                 onClicked:{
@@ -140,6 +146,7 @@ ApplicationWindow {
                 ListElement { title: "\uf150"; source: "qrc:/ClockPage.qml";   objectName:"ClockPage"; }
                 ListElement { title: "\uf223"; source: "qrc:/PodcastList.qml"; objectName:"PodcastList"; }
 				ListElement { title: "\uf43B"; source: "qrc:/IRadioList.qml"; objectName:"InternetRadio"; }
+				ListElement { title: "\uf020"; source: "qrc:/AlarmList.qml"; objectName:"AlarmList"; }
             }
         }
     }

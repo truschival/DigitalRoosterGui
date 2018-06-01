@@ -33,7 +33,7 @@ public:
         QObject* parent = nullptr);
 
     enum AlarmRoles {
-        PeriodRole = Qt::UserRole + 1,
+        PeriodicityRole = Qt::UserRole + 1,
         UriRole,
         TimeRole,
 		EnabledRole
