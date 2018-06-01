@@ -33,10 +33,10 @@ public:
      * Alarm periodicity
      */
     enum Period {
-        Once = 1,    //!< next time the time of day occurs (within 24 hrs)
-        Daily = 2,   //!< every day
-        Weekend = 3, //!< Saturdays & Sundays
-        Workdays = 4 //!< Monday through Friday
+        Once = 0,   //!< next time the time of day occurs (within 24 hrs)
+        Daily,		//!< every day
+        Weekend ,	//!< Saturdays & Sundays
+        Workdays	//!< Monday through Friday
     };
     Q_ENUM(Period)
 

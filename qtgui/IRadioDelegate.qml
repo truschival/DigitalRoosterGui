@@ -8,14 +8,15 @@ Rectangle{
     radius: 3;
 	border.width: 1;
 	border.color: "#9E9E9E" ;
-
+	color: "Grey";
+	
 	Text {
         id:stationName
-        width: parent.width;
+        width: parent.width*0.9;
 		height: parent.height;
         text: station_name;
 		anchors.top: parent.top;
-		anchors.topMargin: 3;
+		anchors.margins: 5;
         font.pointSize: 14;
 		font.bold: true;
 		elide: Text.ElideRight

@@ -42,8 +42,9 @@ public:
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
-
-
+  
+	Q_INVOKABLE void set_enabled(int row, bool enabled);
+    
 protected:
     QHash<int, QByteArray> roleNames() const;
 

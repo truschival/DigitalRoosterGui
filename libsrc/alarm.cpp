@@ -107,18 +107,18 @@ const QDateTime& Alarm::get_next_trigger() {
 }
 
 /*****************************************************************************/
-QString Alarm::get_period_string() const{ 
-	switch (get_period()) {
+QString Alarm::get_period_string() const {
+    switch (get_period()) {
     case Alarm::Once:
         return QString(tr("Once"));
     case Alarm::Weekend:
-        return QString(tr("Weekend")); 
+        return QString(tr("Weekend"));
     case Alarm::Workdays:
-        return QString(tr("Workdays")); 
+        return QString(tr("Workdays"));
     case Alarm::Daily:
-        return QString(tr("Daily")); 
+        return QString(tr("Daily"));
     default:
-        return QString(tr("Error")); 
+        return QString(tr("Error"));
     }
 }
 

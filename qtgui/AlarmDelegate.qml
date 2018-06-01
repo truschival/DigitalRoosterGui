@@ -6,31 +6,28 @@ import QtQuick.Controls.Material 2.1
 Rectangle{
     id: alarmDelegate
 	width: parent.width;
-    height: 60;
+    height: 80;
     radius: 3;
 	border.width: 1;
-
-	gradient: Gradient {
-        GradientStop { position: 0.0; color: "#673AB7" }
-        GradientStop { position: 0.7; color: "#3F51B5" }
-		GradientStop { position: 1.0; color: "#607D8B" }
-    }
+	color: "Grey";
 	
-	Text {
-        id: period
-        width: parent.width*0.8;
-		height: parent.height/2.5;
-        text: periodicity;
+	ComboBox {
+		id: period
 		anchors.top: parent.top;
 		anchors.topMargin: 3;
-        font.pointSize: 12;
-		elide: Text.ElideRight
+	
+		model: ListModel {
+			id: model
+			ListElement { text: qsTr("Once") }
+			ListElement { text: qsTr("Daily") }
+			ListElement { text: qsTr("Weekend") }
+			ListElement { text: qsTr("Workdays") }
+		}
+		currentIndex: periodicity;
 	}
 
 	Text {
 		id: alarmtime;
-		width: parent.width*0.8;
-		height: parent.height/2.5;
 		anchors.bottom: parent.bottom;
 		anchors.bottomMargin: 3;
         font.pointSize: 12;
@@ -46,6 +43,10 @@ Rectangle{
 		anchors.margins: 5
 		position: alarmEnabled;
 		text: alarmEnabled ? qsTr("enabled") : qsTr("disabled")
+
+		onToggled:{
+			alarmlistmodel.set_enabled(index, position)
+		}
 	}
 	    
 }

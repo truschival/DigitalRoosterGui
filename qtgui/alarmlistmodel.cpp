@@ -50,7 +50,6 @@ QHash<int, QByteArray> AlarmListModel::roleNames() const {
 /*************************************************************************************/
 
 int AlarmListModel::rowCount(const QModelIndex& /*parent */) const {
-    qDebug() << __FUNCTION__;
     if (cm->get_alarms().size() <= 0) {
         qWarning() << " alarms configured ";
     }
@@ -69,7 +68,7 @@ QVariant AlarmListModel::data(const QModelIndex& index, int role) const {
 
     switch (role) {
     case PeriodicityRole:
-        return QVariant(alarm->get_period_string());
+        return QVariant(alarm->get_period());
     case UriRole:
         return QVariant("some uri");
     case TimeRole:
@@ -81,3 +80,18 @@ QVariant AlarmListModel::data(const QModelIndex& index, int role) const {
 
     return QVariant();
 }
+
+/*************************************************************************************/
+void AlarmListModel::set_enabled(int row, bool enabled) {
+    if (row < 0 || row >= cm->get_alarms().size()) {
+        qWarning() << "Invalid Selection";
+        return;
+	}
+    cm->get_alarms().at(row)->enable(enabled);
+   
+	dataChanged(index(row, 0), index(row, 0),
+        {TimeRole, EnabledRole, PeriodicityRole, UriRole});
+}
+
+/*************************************************************************************/
+
