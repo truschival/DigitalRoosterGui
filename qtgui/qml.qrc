@@ -12,5 +12,7 @@
         <file>IRadioDelegate.qml</file>
         <file>IRadioList.qml</file>
         <file>PlayerControlWidget.qml</file>
+        <file>AlarmDelegate.qml</file>
+        <file>AlarmList.qml</file>
     </qresource>
 </RCC>

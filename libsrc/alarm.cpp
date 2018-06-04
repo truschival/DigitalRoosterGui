@@ -44,14 +44,12 @@ Alarm::Alarm(const QUrl& media, const QDateTime& timepoint, bool enabled,
 }
 
 /*****************************************************************************/
-
 void Alarm::set_trigger(const QTime& timeofday, Alarm::Period period) {
     trigger_instant.setTime(timeofday);
     set_period(period);
 }
 
 /*****************************************************************************/
-
 void Alarm::set_trigger(const QDateTime& timeinstance) {
     trigger_instant = timeinstance;
     set_period(Alarm::Once);
@@ -102,12 +100,26 @@ void Alarm::update_trigger() {
     // qDebug() << "Next trigger_instant " << trigger_instant;
 }
 
-
 /*****************************************************************************/
-
 const QDateTime& Alarm::get_next_trigger() {
     update_trigger();
     return trigger_instant;
+}
+
+/*****************************************************************************/
+QString Alarm::get_period_string() const {
+    switch (get_period()) {
+    case Alarm::Once:
+        return QString(tr("Once"));
+    case Alarm::Weekend:
+        return QString(tr("Weekend"));
+    case Alarm::Workdays:
+        return QString(tr("Workdays"));
+    case Alarm::Daily:
+        return QString(tr("Daily"));
+    default:
+        return QString(tr("Error"));
+    }
 }
 
 /*****************************************************************************/

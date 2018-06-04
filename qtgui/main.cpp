@@ -11,6 +11,7 @@
 
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
+#include "alarmlistmodel.hpp"
 #include "alarmmonitor.hpp"
 #include "configuration_manager.hpp"
 #include "iradiolistmodel.hpp"
@@ -54,11 +55,13 @@ int main(int argc, char* argv[]) {
 
     PodcastSourceModel psmodel(cm, playerproxy);
     IRadioListModel iradiolistmodel(cm, playerproxy);
+    AlarmListModel alarmlistmodel(cm);
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
     ctxt->setContextProperty("podcastmodel", &psmodel);
     ctxt->setContextProperty("playerProxy", playerproxy.get());
+    ctxt->setContextProperty("alarmlistmodel", &alarmlistmodel);
     ctxt->setContextProperty("iradiolistmodel", &iradiolistmodel);
 
     view.load(QUrl("qrc:/main.qml"));
