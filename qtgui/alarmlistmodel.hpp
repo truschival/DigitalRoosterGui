@@ -34,6 +34,7 @@ public:
 
     enum AlarmRoles {
         PeriodicityRole = Qt::UserRole + 1,
+		PeriodStringRole,
         UriRole,
         TimeRole,
 		EnabledRole
