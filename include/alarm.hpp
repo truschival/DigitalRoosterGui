@@ -211,5 +211,19 @@ private:
     void update_trigger();
 };
 
+/**
+ * Map a Alarm period literal to enum value
+ * @param literal "daily", "once", "weekend" or "workdays"
+ * @return enum value
+ */
+Alarm::Period json_string_to_alarm_period(const QString& literal);
+
+/**
+ * Get String for period
+ * @param period Alarm::Once "1".... etc
+ * @return QString "Once"
+ */
+QString alarm_period_to_json_string(const Alarm::Period period);
+
 };     // namespace DigitalRooster
 #endif // _ALARM_HPP_

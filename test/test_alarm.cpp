@@ -187,7 +187,7 @@ TEST(Alarm, updatePeriodSetsNextTrigger) {
 TEST(Alarm, defaultTimeout) {
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
         QTime::currentTime().addSecs(-3600));
-    ASSERT_EQ(al.get_timeout().count(), default_alarm_timeout.count());
+    ASSERT_EQ(al.get_timeout().count(), DEFAULT_ALARM_TIMEOUT.count());
 }
 /*****************************************************************************/
 TEST(Alarm, updatedTimeout) {

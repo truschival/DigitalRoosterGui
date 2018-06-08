@@ -43,4 +43,8 @@ public:
     MOCK_METHOD1(do_set_muted, void(bool muted));
     MOCK_METHOD1(do_set_volume, void(int volume));
     MOCK_METHOD1(do_seek, void(qint64 position));
+
+    void emitError(QMediaPlayer::Error err){
+    	emit error(err);
+    }
 };

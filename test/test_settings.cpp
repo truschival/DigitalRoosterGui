@@ -11,6 +11,7 @@
  *****************************************************************************/
 #include <QSettings>
 #include <QSignalSpy>
+#include <QStandardPaths>
 
 #include <gtest/gtest.h>
 
@@ -24,10 +25,19 @@
 
 using namespace DigitalRooster;
 
+
+class ConfigurationManagerTest : public ConfigurationManager {
+
+private:
+    virtual QDir make_sure_config_path_exists() {
+        return QDir(TEST_FILE_PATH + "/");
+    };
+};
+
 class SettingsFixture : public virtual ::testing::Test {
 public:
     SettingsFixture()
-        : filename(TEST_FILE_PATH + "testsettings.json") {
+        : filename(TEST_FILE_PATH +"/" +CONFIG_JSON_FILE_NAME) {
     }
 
     ~SettingsFixture() {
@@ -42,6 +52,8 @@ public:
         tf.open(QIODevice::ReadWrite | QIODevice::Text);
         tf.write(doc.toJson());
         tf.close();
+
+		cm.update_configuration();
     }
 
     void TearDown() {
@@ -52,6 +64,7 @@ public:
 protected:
     QString filename;
     QJsonObject appconfig;
+    ConfigurationManagerTest cm;
 
     void add_podcast_sources(QJsonObject& root) {
         QJsonArray radiosources;
@@ -114,18 +127,17 @@ protected:
         root[KEY_GROUP_ALARMS] = alarms;
     }
 };
+
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, read_radio_streams_two_streams) {
-    ConfigurationManager cm(filename);
     auto& v = cm.get_stream_sources();
     ASSERT_EQ(2, v.size());
 }
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, addRadioStation_no_write) {
-    ConfigurationManager cm(filename);
-    cm.add_radio_station(
+	cm.add_radio_station(
         std::make_shared<PlayableItem>("foo", QUrl("http://bar.baz")));
     cm.add_radio_station(
         std::make_shared<PlayableItem>("ref", QUrl("http://gmx.net")));
@@ -136,7 +148,6 @@ TEST_F(SettingsFixture, addRadioStation_no_write) {
 
 TEST_F(SettingsFixture, addRadioStation_write) {
     {
-        ConfigurationManager cm(filename);
         cm.add_radio_station(
             std::make_shared<PlayableItem>("foo", QUrl("http://bar.baz")));
         cm.add_radio_station(
@@ -144,7 +155,8 @@ TEST_F(SettingsFixture, addRadioStation_write) {
         /* should write file in destructor */
         cm.store_current_config();
     }
-    ConfigurationManager control(filename);
+    ConfigurationManagerTest control;
+    control.update_configuration();
     auto& v = control.get_stream_sources();
     ASSERT_EQ(4, v.size());
 
@@ -154,14 +166,12 @@ TEST_F(SettingsFixture, addRadioStation_write) {
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, read_2podcasts) {
-    ConfigurationManager cm(filename);
     auto& v = cm.get_podcast_sources();
     ASSERT_EQ(2, v.size());
 }
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, read_PodcastUri) {
-    ConfigurationManager cm(filename);
     auto& v = cm.get_podcast_sources();
     ASSERT_EQ(v[0]->get_url(),
         QString("https://alternativlos.org/alternativlos.rss"));
@@ -172,7 +182,6 @@ TEST_F(SettingsFixture, read_PodcastUri) {
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, podcastSource_incomplete) {
-    ConfigurationManager cm(filename);
     auto& v = cm.get_podcast_sources();
     ASSERT_EQ(v[0]->get_url(),
         QString("https://alternativlos.org/alternativlos.rss"));
@@ -194,13 +203,11 @@ TEST(StringToPeriodEnum, mapping_bad) {
 }
 /*****************************************************************************/
 TEST_F(SettingsFixture, alarm_count) {
-    ConfigurationManager cm(filename);
     auto& v = cm.get_alarms();
     ASSERT_EQ(v.size(), 4);
 }
 /*****************************************************************************/
 TEST_F(SettingsFixture, alarm_daily) {
-    ConfigurationManager cm(filename);
     auto& v = cm.get_alarms();
     ASSERT_EQ(v[0]->get_period(), Alarm::Daily);
     ASSERT_EQ(v[0]->get_time(), QTime::fromString("10:00", "hh:mm"));
@@ -209,7 +216,6 @@ TEST_F(SettingsFixture, alarm_daily) {
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, alarm_workdays) {
-    ConfigurationManager cm(filename);
     auto& v = cm.get_alarms();
     ASSERT_EQ(v[1]->get_period(), Alarm::Workdays);
     ASSERT_EQ(v[1]->get_time(), QTime::fromString("07:00", "hh:mm"));
@@ -218,8 +224,7 @@ TEST_F(SettingsFixture, alarm_workdays) {
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, alarm_weekends) {
-    ConfigurationManager cm(filename);
-    auto& v = cm.get_alarms();
+	auto& v = cm.get_alarms();
     ASSERT_EQ(v[2]->get_period(), Alarm::Weekend);
     ASSERT_EQ(v[2]->get_time(), QTime::fromString("09:00", "hh:mm"));
     ASSERT_FALSE(v[2]->is_enabled());
@@ -227,7 +232,6 @@ TEST_F(SettingsFixture, alarm_weekends) {
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, alarm_once) {
-    ConfigurationManager cm(filename);
     auto& v = cm.get_alarms();
     ASSERT_EQ(v[3]->get_period(), Alarm::Once);
     ASSERT_EQ(v[3]->get_time(), QTime::fromString("13:00", "hh:mm"));
@@ -236,7 +240,6 @@ TEST_F(SettingsFixture, alarm_once) {
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, emitConfigChanged) {
-    ConfigurationManager cm(filename);
     auto number_of_alarms = cm.get_alarms().size();
     QSignalSpy spy(&cm, SIGNAL(configuration_changed()));
     ASSERT_TRUE(spy.isValid());
@@ -244,3 +247,32 @@ TEST_F(SettingsFixture, emitConfigChanged) {
     ASSERT_EQ(spy.count(), 1);
     ASSERT_EQ(cm.get_alarms().size(), number_of_alarms);
 }
+
+/*****************************************************************************/
+TEST(ConfigManager, CreateDefaultConfigDir) {
+    auto config_path =
+        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+    QDir config_dir(config_path);
+    config_dir.remove(".");
+
+    ConfigurationManager cm;
+    cm.update_configuration();
+	ASSERT_TRUE(config_dir.exists());
+}
+/*****************************************************************************/
+
+TEST(ConfigManager, CreateDefaultConfig) {
+    auto config_path =
+        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+    QDir config_dir(config_path);
+    config_dir.removeRecursively();
+    auto file_path = config_dir.filePath(CONFIG_JSON_FILE_NAME);
+    QFile config_file(file_path);
+
+    ConfigurationManager cm;
+    cm.update_configuration();
+
+    ASSERT_GT(config_file.size(),0);
+}
+
+/*****************************************************************************/

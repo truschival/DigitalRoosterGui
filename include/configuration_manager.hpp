@@ -33,12 +33,10 @@ namespace DigitalRooster {
 class ConfigurationManager : public QObject {
     Q_OBJECT
 public:
-    /**
-     * Default constructor with path to ini file
-     * @param filepath
-     */
-    ConfigurationManager(
-        const QString& filepath = DigitalRooster::SYSTEM_CONFIG_PATH);
+	/**
+	 * Default Constructor will use QT Standard paths for configuration
+	 */
+	ConfigurationManager();
 
     virtual ~ConfigurationManager() = default;
 
@@ -86,9 +84,7 @@ public:
     /**
      * Write memory config to file - will overwrite changes in file
      */
-    void store_current_config() {
-        write_config_file();
-    }
+    void store_current_config();
 
 public slots:
     void update_configuration() {
@@ -98,16 +94,6 @@ signals:
     void configuration_changed();
 
 private:
-    /**
-     * Path for configuration file
-     */
-    QString filepath;
-    /**
-     * JSon Object containing the configuration including podcasts, Internet
-     * radio etc read form digitalrooster.json
-     */
-    QJsonObject appconfig;
-
     /**
      * Internet radio stream souces are directly read form INI file
      */
@@ -127,30 +113,59 @@ private:
      * Duration for alarm to stop automatically
      */
     std::chrono::minutes alarmtimeout;
+   
+	/**
+     * Stop playback automatically (globally)
+     */
+    std::chrono::minutes sleeptimeout;
+	
+	/**
+     * Check if config path exist, otherwise create it
+     * @return directory that exist and is writable
+     */
+    
+	virtual QDir make_sure_config_path_exists();
+
+	/**
+	 * Check if config and path exist, otherwise create default config file at that location
+	 * @return full file path to configuration file
+	 */
+    virtual QString check_and_create_config();
+
+	/**
+	 * Create "sensible" default entries for podcasts, alarms and internet radio
+	 * and store to default file 
+	 */
+    virtual void create_default_configuration();
 
     /**
-     * read Json file and fill sources
+     * read file and return content as string
      */
-    virtual void readJson();
+    virtual QString getJsonFromFile(const QString& path);
+
+    /**
+     * interpret json string
+     */
+    virtual void parseJson(const QByteArray& json);
     /**
      * Fills the vector stream_sources with entries form settings file
      */
-    virtual void read_radio_streams_from_file();
+    virtual void read_radio_streams_from_file(const QJsonObject& appconfig);
 
     /**
      * Read all podcast sources form configuration file
      */
-    virtual void read_podcasts_from_file();
+    virtual void read_podcasts_from_file(const QJsonObject& appconfig);
 
     /**
      * Read Alarm objects
      */
-    virtual void read_alarms_from_file();
+    virtual void read_alarms_from_file(const QJsonObject& appconfig);
 
     /**
      * Store settings permanently to file
      */
-    virtual void write_config_file();
+    virtual void write_config_file(const QJsonObject& appconfig);
 
     /**
      * Update all configuration items
@@ -178,13 +193,5 @@ private:
         return alarms;
     }
 };
-
-/**
- * Map a Alarm period literal to enum value
- * @param literal "daily", "once", "weekend" or "workdays"
- * @return enum value
- */
-Alarm::Period json_string_to_alarm_period(const QString& literal);
-
 } // namespace DigitalRooster
 #endif // _SETTINGS_READER_HPP_

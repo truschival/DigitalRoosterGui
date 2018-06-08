@@ -10,12 +10,16 @@
  *
  *****************************************************************************/
 
+#include <QStandardPaths>
 #include <QString>
 #include <QTime>
-#include <appconstants.hpp>
+
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
+
+#include "alarm.hpp"
+#include "appconstants.hpp"
 
 #include "UpdateTask.hpp"
 #include "configuration_manager.hpp"
@@ -23,30 +27,27 @@
 using namespace DigitalRooster;
 
 /*****************************************************************************/
-ConfigurationManager::ConfigurationManager(const QString& filepath)
-    : filepath(filepath)
-    , alarmtimeout(default_alarm_timeout) {
-    refresh_configuration();
-};
+ConfigurationManager::ConfigurationManager()
+    : alarmtimeout(DEFAULT_ALARM_TIMEOUT)
+    , sleeptimeout(DEFAULT_SLEEP_TIMEOUT){};
+
 /*****************************************************************************/
 void ConfigurationManager::refresh_configuration() {
     alarms.clear();
     podcast_sources.clear();
     stream_sources.clear();
+    auto filepath = check_and_create_config();
 
-    readJson();
-    read_radio_streams_from_file();
-    read_podcasts_from_file();
-    read_alarms_from_file();
+    auto content = getJsonFromFile(filepath);
+    parseJson(content.toUtf8());
 
     emit configuration_changed();
 }
 
-
 /*****************************************************************************/
-void ConfigurationManager::readJson() {
-    QString val;
-    QFile file(filepath);
+QString ConfigurationManager::getJsonFromFile(const QString& path) {
+    QString content;
+    QFile file(path);
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug() << file.errorString();
@@ -55,19 +56,33 @@ void ConfigurationManager::readJson() {
             file.errorString().toStdString());
     }
 
-    val = file.readAll();
+    content = file.readAll();
     file.close();
 
-    QJsonDocument doc = QJsonDocument::fromJson(val.toUtf8());
-    appconfig = doc.object();
-    /* get application config */
-    auto at = appconfig[DigitalRooster::KEY_ALARM_TIMEOUT];
-    alarmtimeout =
-        std::chrono::minutes(at.toInt(default_alarm_timeout.count()));
+    return content;
 }
 
 /*****************************************************************************/
-void ConfigurationManager::read_radio_streams_from_file() {
+void ConfigurationManager::parseJson(const QByteArray& json) {
+    QJsonDocument doc = QJsonDocument::fromJson(json);
+    QJsonObject appconfig = doc.object();
+    /* get application config */
+    auto at = appconfig[DigitalRooster::KEY_ALARM_TIMEOUT];
+    if (!at.isUndefined()) {
+        alarmtimeout =
+            std::chrono::minutes(at.toInt(DEFAULT_ALARM_TIMEOUT.count()));
+    } else {
+        alarmtimeout = std::chrono::minutes(DEFAULT_ALARM_TIMEOUT.count());
+    }
+
+    read_radio_streams_from_file(appconfig);
+    read_podcasts_from_file(appconfig);
+    read_alarms_from_file(appconfig);
+}
+
+/*****************************************************************************/
+void ConfigurationManager::read_radio_streams_from_file(
+    const QJsonObject& appconfig) {
     QJsonArray irconfig =
         appconfig[DigitalRooster::KEY_GROUP_IRADIO_SOURCES].toArray();
     for (const auto ir : irconfig) {
@@ -80,7 +95,8 @@ void ConfigurationManager::read_radio_streams_from_file() {
 }
 
 /*****************************************************************************/
-void ConfigurationManager::read_podcasts_from_file() {
+void ConfigurationManager::read_podcasts_from_file(
+    const QJsonObject& appconfig) {
     QJsonArray podcasts =
         appconfig[DigitalRooster::KEY_GROUP_PODCAST_SOURCES].toArray();
     for (const auto pc : podcasts) {
@@ -96,7 +112,7 @@ void ConfigurationManager::read_podcasts_from_file() {
 }
 
 /*****************************************************************************/
-void ConfigurationManager::read_alarms_from_file() {
+void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
     QJsonArray alarm_config =
         appconfig[DigitalRooster::KEY_GROUP_ALARMS].toArray();
     for (const auto al : alarm_config) {
@@ -114,7 +130,7 @@ void ConfigurationManager::read_alarms_from_file() {
         auto timepoint =
             QTime::fromString(json_alarm[KEY_TIME].toString(), "hh:mm");
         auto alarm = std::make_shared<Alarm>(media, timepoint, period, enabled);
-        auto volume = json_alarm[KEY_VOLUME].toInt(default_alarm_volume);
+        auto volume = json_alarm[KEY_VOLUME].toInt(DEFAULT_ALARM_VOLUME);
         alarm->set_volume(volume);
         /* if no specific alarm timeout is given take application default */
         auto timeout =
@@ -134,9 +150,11 @@ void ConfigurationManager::add_radio_station(
 void ConfigurationManager::add_alarm(std::shared_ptr<Alarm> alm) {
     this->alarms.push_back(alm);
 }
+
 /*****************************************************************************/
-void ConfigurationManager::write_config_file() {
-    /*clear previous doc */
+void ConfigurationManager::store_current_config() {
+    QJsonObject appconfig;
+
     QJsonArray podcasts;
     for (const auto& ps : get_podcast_sources()) {
         QJsonObject psconfig;
@@ -144,7 +162,6 @@ void ConfigurationManager::write_config_file() {
         psconfig[KEY_URI] = ps->get_url().toString();
         podcasts.append(psconfig);
     }
-
     appconfig[KEY_GROUP_PODCAST_SOURCES] = podcasts;
 
     QJsonArray iradios;
@@ -156,23 +173,83 @@ void ConfigurationManager::write_config_file() {
     }
     appconfig[KEY_GROUP_IRADIO_SOURCES] = iradios;
 
-    QFile tf(filepath);
-    tf.open(QIODevice::ReadWrite | QIODevice::Text);
+    QJsonArray alarms_json;
+    for (const auto& alarm : get_alarms()) {
+        QJsonObject alarmcfg;
+        alarmcfg[KEY_ALARM_PERIOD] =
+            alarm_period_to_json_string(alarm->get_period());
+        alarmcfg[KEY_TIME] = alarm->get_time().toString("hh:mm");
+        alarmcfg[KEY_VOLUME] = alarm->get_volume();
+        alarmcfg[KEY_URI] = alarm->get_media()->get_url().toString();
+        alarms_json.append(alarmcfg);
+    }
+    appconfig[KEY_GROUP_ALARMS] = alarms_json;
+
+    appconfig[KEY_ALARM_TIMEOUT] = static_cast<qint64>(alarmtimeout.count());
+    appconfig[KEY_SLEEP_TIMEOUT] = static_cast<qint64>(sleeptimeout.count());
+    /* Static info - which version created the config file*/
+    appconfig[KEY_VERSION] = PROJECT_VERSION;
+
+    write_config_file(appconfig);
+}
+
+/*****************************************************************************/
+void ConfigurationManager::write_config_file(const QJsonObject& appconfig) {
+    auto config_dir = make_sure_config_path_exists();
+    auto file_path = config_dir.filePath(CONFIG_JSON_FILE_NAME);
+
+	QFile config_file(file_path);
+    config_file.open(
+        QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text);
     QJsonDocument doc(appconfig);
-    tf.write(doc.toJson());
-    tf.close();
+    config_file.write(doc.toJson());
+    config_file.close();
+}
+
+/*****************************************************************************/
+void ConfigurationManager::create_default_configuration() {
+    auto alm = std::make_shared<DigitalRooster::Alarm>(
+        QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
+        QTime::fromString("06:30", "hh:mm"));
+    alm->set_period(Alarm::Workdays);
+    alarms.push_back(alm);
+
+    auto stations = std::make_shared<DigitalRooster::PodcastSource>(
+        QUrl("http://armscontrolwonk.libsyn.com/rss"));
+    podcast_sources.push_back(stations);
+
+    auto radio =
+        std::make_shared<DigitalRooster::PlayableItem>("Deutschlandfunk",
+            QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"));
+    stream_sources.push_back(radio);
+
+    store_current_config();
+}
+
+/*****************************************************************************/
+QDir ConfigurationManager::make_sure_config_path_exists() {
+    auto config_path =
+        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+    QDir config_dir(config_path);
+    if (!config_dir.mkpath(".")) {
+        throw std::system_error(
+            make_error_code(std::errc::no_such_file_or_directory),
+            "Cannot create configuration path!");
+    }
+    return config_dir;
 }
 
 /*****************************************************************************/
 
-static const QMap<QString, Alarm::Period> period_literals = {
-    {KEY_ALARM_DAILY, Alarm::Daily}, {KEY_ALARM_WORKDAYS, Alarm::Workdays},
-    {KEY_ALARM_WEEKEND, Alarm::Weekend}, {KEY_ALARM_ONCE, Alarm::Once}};
-/*****************************************************************************/
-
-Alarm::Period DigitalRooster::json_string_to_alarm_period(
-    const QString& literal) {
-    if (period_literals.contains(literal))
-        return period_literals[literal];
-    throw(std::invalid_argument(literal.toStdString()));
+QString ConfigurationManager::check_and_create_config() {
+    auto config_dir = make_sure_config_path_exists();
+    // check if file exists -> assume some default config and write file
+    auto file_path = config_dir.filePath(CONFIG_JSON_FILE_NAME);
+    QFile config_file(file_path);
+    if (!config_file.exists()) {
+        create_default_configuration();
+    }
+    return file_path;
 }
+
+/*****************************************************************************/

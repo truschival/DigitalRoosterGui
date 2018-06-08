@@ -43,10 +43,6 @@ const QString KEY_GROUP_ALARMS("Alarms");
  * Optional keyword for Alarm volume
  */
 const QString KEY_VOLUME("volume");
-/**
- * Default alarm volume
- */
-const int default_alarm_volume = 30;
 
 /**
  * Key for all URIs
@@ -101,10 +97,6 @@ const QString KEY_UPDATE_INTERVAL("UpdateInterval");
  * Keyword for alarms timeout
  */
 const QString KEY_ALARM_TIMEOUT("AlarmTimeout");
-/**
- * Default Alarm timeout
- */
-const std::chrono::minutes default_alarm_timeout(30);
 
 /**
  * Keyword configuration Sleep timer duration
@@ -112,9 +104,31 @@ const std::chrono::minutes default_alarm_timeout(30);
 const QString KEY_SLEEP_TIMEOUT("SleepTimeout");
 
 /**
+ * Keyword to identify the creating project version of the config file
+ */
+const QString KEY_VERSION("Version");
+
+/**
  * Directory for all downloaded RSS Files
  */
 const QString RSS_FILE_DIR(QDir::tempPath());
+
+/**
+ * Default alarm volume
+ */
+const int DEFAULT_ALARM_VOLUME = 30;
+
+/**
+ * Time after which an alarm should stop playing 
+ * (probably because nobody is in to switch it off manually)
+ */
+const std::chrono::minutes DEFAULT_ALARM_TIMEOUT(30);
+
+/**
+ * Time after which media should stop playing
+ * (probably because I am already asleep)
+ */
+const std::chrono::minutes DEFAULT_SLEEP_TIMEOUT(60);
 
 /*****************************************************************************
  CMake build configurations from config.h
@@ -134,10 +148,8 @@ const QString APPLICATION_NAME(CMAKE_PROJECT_NAME);
 const QString PROJECT_VERSION(CMAKE_PROJECT_VERSION);
 
 /**
-* Name + Path of configuration file
-*/
-const QString SYSTEM_CONFIG_PATH(
-	QString(CMAKE_SETTINGS_PATH) + "/" + QString(CMAKE_SETTINGS_FILE_NAME));
-
+ * Json file name for configuration
+ */
+const QString CONFIG_JSON_FILE_NAME(CMAKE_SETTINGS_FILE_NAME);
 
 } // namespace DigitalRooster
