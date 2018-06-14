@@ -8,9 +8,11 @@
         <file>PodcastEpisodeDelegate.qml</file>
         <file>PodcastEpisodeList.qml</file>
         <file>qtquickcontrols2.conf</file>
-        <file>IconLabel.qml</file>
-        <file>IconButton.qml</file>
-        <file alias="Icon.js">Icon.js</file>
         <file>Jsutil.js</file>
+        <file>IRadioDelegate.qml</file>
+        <file>IRadioList.qml</file>
+        <file>PlayerControlWidget.qml</file>
+        <file>AlarmDelegate.qml</file>
+        <file>AlarmList.qml</file>
     </qresource>
 </RCC>

@@ -1,12 +1,15 @@
-/*************************************************************************************
+/******************************************************************************
  * \filename
  * \brief
  *
  * \details
  *
- * \author ruschi
+ * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
+ * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
+ * 			 SPDX-License-Identifier: GPL-2.0-or-later}
  *
- *************************************************************************************/
+ *****************************************************************************/
+
 #include <appconstants.hpp>
 #include <DownloadManager.hpp>
 #include <QDebug>
@@ -17,8 +20,10 @@ DownloadManager::DownloadManager() {
 	connect(&manager, SIGNAL(finished(QNetworkReply*)),
 			SLOT(downloadFinished(QNetworkReply*)));
 }
+/*****************************************************************************/
 
 void DownloadManager::doDownload(const QUrl &url) {
+//	qDebug() << __FUNCTION__ << "(" << url.toString() <<")";
 	QNetworkRequest request(url);
 	QNetworkReply *reply = manager.get(request);
 
@@ -29,6 +34,7 @@ void DownloadManager::doDownload(const QUrl &url) {
 
 	currentDownloads.append(reply);
 }
+/*****************************************************************************/
 
 QString DownloadManager::saveFileName(const QUrl &url) {
 	QString path = url.path();
@@ -51,6 +57,7 @@ QString DownloadManager::saveFileName(const QUrl &url) {
 
 	return targetname;
 }
+/*****************************************************************************/
 
 bool DownloadManager::saveToDisk(const QString &targetpath, QIODevice *data) {
 	QFile file(targetpath);
@@ -65,6 +72,7 @@ bool DownloadManager::saveToDisk(const QString &targetpath, QIODevice *data) {
 
 	return true;
 }
+/*****************************************************************************/
 
 bool DownloadManager::isHttpRedirect(QNetworkReply *reply) {
 	int statusCode =
@@ -72,6 +80,7 @@ bool DownloadManager::isHttpRedirect(QNetworkReply *reply) {
 	return statusCode == 301 || statusCode == 302 || statusCode == 303
 			|| statusCode == 305 || statusCode == 307 || statusCode == 308;
 }
+/*****************************************************************************/
 
 void DownloadManager::sslErrors(const QList<QSslError> &sslErrors) {
 //#if QT_CONFIG(ssl)
@@ -81,6 +90,7 @@ void DownloadManager::sslErrors(const QList<QSslError> &sslErrors) {
 	Q_UNUSED(sslErrors);
 // #endif
 }
+/*****************************************************************************/
 
 void DownloadManager::downloadFinished(QNetworkReply *reply) {
 	QUrl url = reply->url();

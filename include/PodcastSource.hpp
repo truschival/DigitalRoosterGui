@@ -1,13 +1,14 @@
-/*************************************************************************************
+/******************************************************************************
  * \filename
  * \brief
  *
  * \details
  *
- * \author ruschi
+ * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
+ * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
+ * 			 SPDX-License-Identifier: GPL-2.0-or-later}
  *
- *
- *************************************************************************************/
+ *****************************************************************************/
 
 #ifndef _PODCASTSOURCE_HPP_
 #define _PODCASTSOURCE_HPP_
@@ -16,6 +17,7 @@
 #include <QObject>
 #include <QString>
 #include <QVector>
+#include <QTimer>
 #include <cstddef> //size_t
 #include <limits>
 #include <memory>
@@ -38,15 +40,7 @@ public:
      * Preconfigured Podcast Source
      * @param url Feed URL
      */
-    explicit PodcastSource(QUrl url)
-        : rss_feed_uri(url){};
-
-    /**
-     * Preconfigured Podcast Source
-     * @param url Feed URL
-     */
-    explicit PodcastSource(const char* url)
-        : rss_feed_uri(url){};
+	explicit PodcastSource(const QUrl& url);
 
     /**
      * Add an episode to episodes
@@ -110,13 +104,21 @@ public:
         return title;
     }
 
-    /**
-     * seconds until update is meaningful. Calculated from optional items skip_days
-     * and skip_hours
-     */
-    int get_update_period()  const {
-        return update_period;
+	/**
+	* Get the PodcastSourceAutoupdating
+	* @return interval in ms
+	*/
+    int get_update_interval()  const {
+        return update_interval;
     };
+
+	/**
+	* Set the PodcastSourceAutoupdating
+	* will restart the timer if interval is less than current update_interval
+	* @param interval in ms
+	*/
+	void set_update_interval(int interval);
+
     /**
      * URL for rss feed of this podcast
      */
@@ -170,15 +172,6 @@ public:
     }
 
     /**
-     * seconds until update is meaningful. Calculated from optional items skip_days
-     * and skip_hours
-     * \param period new period
-     */
-    void set_update_period(int period) {
-        update_period = period;
-    }
-
-    /**
      * Access to episodes as QList (the Playable items)
      */
     const QVector<std::shared_ptr<PodcastEpisode>>& get_episodes() {
@@ -190,11 +183,7 @@ public:
      */
     QVector<QString> get_episodes_names();
 
-    /**
-     * Set the PodcastSourceAutoupdating
-     * @param interval update interval
-     */
-    void set_updateInterval(int interval = 10);
+
 
 public slots:
     void updateFinished();
@@ -251,15 +240,21 @@ private:
     QString rss_file;
 
     /**
-     * seconds until update is meaningful. Calculated from optional items skip_days
-     * and skip_hours
+     * Interval in ms for auto refresh of content
+	 * default to 1h
      */
-    int update_period = 0;
+	int update_interval = 60*60*1000;  
 
     /**
      * Optional UpdateTask
      */
     std::unique_ptr<UpdateTask> updater = nullptr;
+
+	/**
+	* QTimer for periodic updates
+	*/
+	QTimer timer;
+
 };
 }
 #endif // _PODCASTSOURCE_HPP_

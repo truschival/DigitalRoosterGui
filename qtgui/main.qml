@@ -1,13 +1,8 @@
 import QtQuick 2.9
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.1
-import QtQuick.Controls.Material 2.1
-import QtMultimedia 5.8
-/* import QtQuick.Controls.Universal 2.1 */
-import Qt.labs.settings 1.0
-
+import QtMultimedia 5.9
 import ruschi.PodcastEpisode 1.0
-
 import "Icon.js" as MdiFont
 import "Jsutil.js" as Util
 
@@ -25,29 +20,81 @@ ApplicationWindow {
         id: currentTime
     }
 
+	FontLoader {
+		id: materialdesignIconsFont;
+		source: "materialdesignicons-webfont.ttf"
+	}
+
+
     header: ToolBar {
-        Material.foreground: "white"
         RowLayout {
-            spacing: 10
+            spacing: 5
             anchors.fill: parent
 
             IconButton {
                 text: MdiFont.Icon.menu
+				Layout.margins: 2
                 onClicked: {
                     drawer.open()
                 }
             }
             Label {
                 id: titleLabel
+				Layout.margins: 2
                 text: currentTime.timestring_lz
                 font.pixelSize: 20
                 elide: Label.ElideRight
                 Layout.fillWidth: true
             }
 
+			 IconButton {
+                id : playerControlBtn
+                text: MdiFont.Icon.play
+				Layout.margins: 2
+
+                onClicked:{
+					playerControlWidget.setVisible(true)
+                }
+            }
+
+
+			IconButton {
+                id : volButton
+				Layout.margins: 2
+                text: "\uf4c3"
+                onClicked:{
+					volumeMenu.popup(-width/3,height/3)
+				}
+
+				Menu {
+					id: volumeMenu
+					width: 50
+                    height: 180
+				
+                    Label{
+                        text: volumeSlider.value
+						anchors.horizontalCenter:parent.horizontalCenter
+					}
+					Slider {
+						id: volumeSlider
+						anchors.horizontalCenter:parent.horizontalCenter
+                        orientation: Qt.Vertical
+                        from: 0
+                        to: 100
+                        stepSize: 1
+						wheelEnabled: true
+                        value: playerProxy.volume
+                        onMoved: {
+                            playerProxy.volume = value;
+                        }
+					}
+				}
+            }
+
             IconButton {
                 id : backButton
                 text: MdiFont.Icon.keyboardBackspace
+				Layout.margins: 2
                 visible: (stackView.depth > 1)
 
                 onClicked:{
@@ -55,7 +102,6 @@ ApplicationWindow {
                         stackView.pop()
                         console.log("BackButton")
                     }
-                    console.log("CurrentItem :" + stackView.currentItem.objectName)
                 }
 
                 Shortcut {
@@ -90,7 +136,6 @@ ApplicationWindow {
 
                         stackView.pop(null)
                         stackView.push(model.source)
-                        console.log("CurrentItem :" + stackView.currentItem.objectName)
                     }
                     drawer.close()
                 }
@@ -99,15 +144,15 @@ ApplicationWindow {
             model: ListModel {
                 ListElement { title: "\uf150"; source: "qrc:/ClockPage.qml";   objectName:"ClockPage"; }
                 ListElement { title: "\uf223"; source: "qrc:/PodcastList.qml"; objectName:"PodcastList"; }
+				ListElement { title: "\uf43B"; source: "qrc:/IRadioList.qml"; objectName:"InternetRadio"; }
+				ListElement { title: "\uf020"; source: "qrc:/AlarmList.qml"; objectName:"AlarmList"; }
             }
         }
-
     }
 
-    Rectangle {
-        id: playerControlWidget
-
-        anchors.horizontalCenter: parent.horizontalCenter
+	PlayerControlWidget{
+		id: playerControlWidget
+		anchors.horizontalCenter: parent.horizontalCenter
         width: parent.width*0.8
         height: parent.height*0.3
         anchors.horizontalCenterOffset: 0
@@ -115,154 +160,7 @@ ApplicationWindow {
         visible: false
         z: 1
         anchors.bottom: parent.bottom
-
-        MediaPlayer {
-            id: player
-
-            property PodcastEpisode currentEpisode;
-
-            onPlaybackStateChanged: {
-                switch (playbackState){
-                case MediaPlayer.PlayingState:
-                    console.log("player.playing")
-                    playBtn.text =  MdiFont.Icon.pause
-                    break
-                case MediaPlayer.PausedState:
-                    console.log("player.paused")
-                    playBtn.text = MdiFont.Icon.play
-                    break
-                case MediaPlayer.StoppedState:
-                    console.log("player.stopped")
-                    playBtn.text = MdiFont.Icon.play
-                    break
-                default:
-                    console.log("player???")
-                }
-            }
-
-            onPositionChanged: {
-                if (currentEpisode != null){
-                    currentEpisode.position = position
-                    slider.value = position/currentEpisode.duration
-                    timeElapsed.text = Util.msToTime(position)
-                }
-            }
-        }
-
-
-        function playEpisode(newEpisode){
-            if(newEpisode == null){
-                console.log("newEpisode is null")
-            }
-            if( player.currentEpisode != null){
-                // remeber last position
-                player.currentEpisode.position = player.position
-            }
-            player.stop()
-            durationTotal.text = Util.msToTime(newEpisode.duration)
-
-            var oldpos = newEpisode.position
-            console.log("new episodes has positions set to "+ oldpos)
-            player.currentEpisode = newEpisode
-            player.source = newEpisode.url
-            player.play()
-            player.seek(oldpos) // restore previous position
-            setVisible(true)
-        }
-
-        function setVisible(visible){
-            interactiontimer.restart()
-            playerControlWidget.visible=visible
-        }
-
-        Timer {
-            id: interactiontimer
-            interval: 2500;
-            running: true;
-            repeat: false;
-            onTriggered: parent.setVisible(false)
-        }
-
-
-        IconButton {
-            id: playBtn
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top : parent.top
-            anchors.topMargin: 2
-            enabled: (player.currentEpisode != null)
-            text: MdiFont.Icon.play // default to play icon
-
-            onClicked: {
-                console.log("playBtn")
-                interactiontimer.restart()
-
-                if(player.playbackState == MediaPlayer.PlayingState){
-                    player.pause()
-                }
-                else{
-                    player.play()
-                }
-            }
-        }
-
-        IconButton {
-            id: forwardBtn
-            anchors.left: playBtn.right
-            anchors.leftMargin: 25
-            anchors.top: playBtn.top
-            text: MdiFont.Icon.fastForward
-            onClicked: {
-                console.log("forwardBtn")
-                interactiontimer.restart()
-                player.seek(player.position+5000)
-                parent.updateSlider()
-            }
-        }
-
-        IconButton {
-            id: backwardBtn
-            anchors.right: playBtn.left
-            anchors.rightMargin: 25
-
-            text: MdiFont.Icon.rewind
-            onClicked: {
-                console.log("backwardBtn")
-                interactiontimer.restart()
-                player.seek(player.position-5000)
-                parent.updateSlider()
-            }
-        }
-
-        Slider {
-            id: slider
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: parent.width*0.85
-            anchors.top: playBtn.bottom
-            anchors.topMargin: -15
-            value: player.position/player.duration
-            enabled: (player.currentEpisode != null)
-
-            onValueChanged: {
-                interactiontimer.restart()
-            }
-            onMoved:{
-                player.seek(value* player.currentEpisode.duration)
-            }
-        }
-        Text{
-            id: timeElapsed
-            text: player.position
-            anchors.horizontalCenter: slider.left
-            anchors.top: slider.bottom
-            anchors.margins: 2
-        }
-        Text{
-            id: durationTotal
-            anchors.horizontalCenter: slider.right
-            anchors.top: slider.bottom
-            anchors.margins: 2
-        }
-    }
+	}
 
 
     StackView {

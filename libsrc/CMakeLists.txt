@@ -32,21 +32,30 @@ LIST(APPEND CPP_DEFS "FOO_BAR=1")
 #------------------------------
 
 set(SRCS
-   ${CMAKE_CURRENT_SOURCE_DIR}/confmon.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/configuration_manager.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/PodcastSourceReader.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/PodcastSource.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/DownloadManager.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/UpdateTask.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/alarm.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/mediaplayer.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/mediaplayerproxy.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/alarmmonitor.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/alarmdispatcher.cpp
 )
 
 # Moc any classes derived from QObject
 qt5_wrap_cpp(MOC_SRC 
-        ${PROJECT_INCLUDE_DIR}/confmon.hpp
+        ${PROJECT_INCLUDE_DIR}/configuration_manager.hpp
         ${PROJECT_INCLUDE_DIR}/DownloadManager.hpp
         ${PROJECT_INCLUDE_DIR}/UpdateTask.hpp
         ${PROJECT_INCLUDE_DIR}/PlayableItem.hpp
         ${PROJECT_INCLUDE_DIR}/PodcastSource.hpp
+        ${PROJECT_INCLUDE_DIR}/alarm.hpp
+		${PROJECT_INCLUDE_DIR}/mediaplayer.hpp
+		${PROJECT_INCLUDE_DIR}/mediaplayerproxy.hpp
+		${PROJECT_INCLUDE_DIR}/alarmdispatcher.hpp
+		${PROJECT_INCLUDE_DIR}/alarmmonitor.hpp
         )
 
 #------------------------------
@@ -54,31 +63,40 @@ qt5_wrap_cpp(MOC_SRC
 #------------------------------
 ADD_LIBRARY(${LIBRARY_NAME} STATIC ${SRCS} ${MOC_SRC})
 
-set_target_properties(
+SET_TARGET_PROPERTIES(
   ${LIBRARY_NAME} PROPERTIES
-  COMPILE_DEFINITIONS ${CPP_DEFS}
   VERSION ${LIBRARY_VERSION}
   SOVERSION ${LIBRARY_VERSION}
   )
 
-target_link_libraries(
-	${LIBRARY_NAME} 
-	PUBLIC
-	Qt5::Core 
-	Qt5::Multimedia
-	PRIVATE
-	Qt5::Core 
-	Qt5::Multimedia
-	Qt5::Network
-	)
-
-target_include_directories(
+TARGET_INCLUDE_DIRECTORIES(
   ${LIBRARY_NAME}
   PRIVATE
   $<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>
   PUBLIC
   $<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>
   )
+
+TARGET_COMPILE_DEFINITIONS(${LIBRARY_NAME}
+  PUBLIC ${CPP_DEFS} 
+  )
+
+TARGET_COMPILE_OPTIONS(${LIBRARY_NAME} PRIVATE
+  $<$<COMPILE_LANGUAGE:CXX>:${CUSTOM_CXX_FLAGS}>
+  $<$<COMPILE_LANGUAGE:C>:${CUSTOM_C_FLAGS}>
+  )
+
+target_link_libraries(
+  ${LIBRARY_NAME} 
+  PUBLIC
+  Qt5::Core 
+  Qt5::Multimedia
+  PRIVATE
+  Qt5::Core 
+  Qt5::Multimedia
+  Qt5::Network
+  )
+
 
 #-----
 # Install

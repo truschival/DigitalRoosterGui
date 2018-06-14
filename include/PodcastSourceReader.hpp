@@ -1,13 +1,15 @@
-/*************************************************************************************
- * \filename    
+/******************************************************************************
+ * \filename
  * \brief
  *
  * \details
- * 
- * \author ruschi
- * 
  *
- *************************************************************************************/
+ * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
+ * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
+ * 			 SPDX-License-Identifier: GPL-2.0-or-later}
+ *
+ *****************************************************************************/
+
 
 #ifndef _PODCASTSOURCEREADER_HPP_
 #define _PODCASTSOURCEREADER_HPP_ 
@@ -22,7 +24,7 @@ namespace DigitalRooster {
  * in the PodcastSource configuration
  * @param podcastsource podcast source
  */
-extern "C" void update_podcast(PodcastSource& podcastsource);
+void update_podcast(PodcastSource& podcastsource);
 
 }
 ;

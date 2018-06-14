@@ -15,7 +15,7 @@ list(APPEND CMAKE_MODULE_PATH  ${CMAKE_SOURCE_DIR}/CMakeModules/)
 #-------------------------------------------------------------------------------
 # Project Name
 project (DigitalRooster
-	VERSION 0.1.0 
+	VERSION 0.2.0 
 	DESCRIPTION  "A digital alarm clock and podcast player"
 	LANGUAGES CXX C)
 
@@ -35,15 +35,14 @@ endif()
 #-------------------------------------------------------------------------------
 option(BUILD_EXE "Build QT Gui" On)
 option(BUILD_TEST "Build Tests" On)
-option(PROFILE "Build with Profiling" Off)
-option(TEST_COVERAGE "Test Coverage" Off)
+option(PROFILE "Build with Profiling" OFF)
+option(TEST_COVERAGE "Test Coverage" OFF)
 option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" On)
 option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." Off)
 
 SET(SETTINGS_FILE_NAME "digitalrooster.json" CACHE STRING "application configuration file name")
 SET(SETTINGS_PATH  "${CMAKE_CURRENT_BINARY_DIR}/settings" CACHE PATH "application configuration path")
 set(GENERATED_DIR  "${CMAKE_BINARY_DIR}/generated" CACHE INTERNAL "" )
-
 
 #-------------------------------------------------------------------------------
 # Command line parameters  or default
@@ -68,7 +67,8 @@ message(STATUS "------------- Config --------- " )
 message(STATUS "Build-type:\t\t ${CMAKE_BUILD_TYPE} " )
 message(STATUS "Build UnitTests:\t ${BUILD_TEST} ")
 message(STATUS "Build GoogleTest:\t ${BUILD_GTEST_FROM_SRC} ")
-message(STATUS "GCOV Coverage:\t ${TEST_COVERAGE} ")
+message(STATUS "Test coverage:\t ${TEST_COVERAGE} ")
+message(STATUS "Profiling:\t\t ${PROFILE} ")
 message(STATUS "------------------------------ " )
 
 #-------------------------------------------------------------------------------
@@ -119,34 +119,42 @@ export(PACKAGE ${PROJECT_NAME})
 # Compiler & Linker Flags
 # #-------------------------------------------------------------------------------
 
-if(MSVC)
+SET(CUSTOM_CXX_FLAGS "")
+SET(CUSTOM_C_FLAGS "")
+SET(CUSTOM_LINK_FLAGS "")
+
+IF(MSVC)
   # Force to always compile with W4
-  SET(WARNING_FLAGS   " /W3 " )
-elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-	SET(WARNING_FLAGS   " -Wall -Wextra -fmessage-length=0 -Wno-unused-parameter " )
-endif()
+  SET(WARNING_FLAGS   /W3 )
+ELSEIF(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+  SET(WARNING_FLAGS   -Wall -Wextra -fmessage-length=0 -Wno-unused-parameter )
 
-SET(CMAKE_C_FLAGS       " ${CMAKE_C_FLAGS} ${WARNING_FLAGS} ")
-SET(CMAKE_CXX_FLAGS     " ${CMAKE_CXX_FLAGS} ${WARNING_FLAGS} ")
+  LIST(APPEND CUSTOM_C_FLAGS   -ffunction-sections -fdata-sections )
+  LIST(APPEND CUSTOM_CXX_FLAGS   -ffunction-sections -fdata-sections )
 
-SET(CMAKE_CXX_FLAGS_RELEASE  " ${CMAKE_CXX_FLAGS_RELEASE} -ffunction-sections -fdata-sections ")
-SET(CMAKE_C_FLAGS_RELEASE  " ${CMAKE_C_FLAGS_RELEASE} -ffunction-sections -fdata-sections ")
+  # Link final Executable with Map, clean up unused sections
+  LIST(APPEND CUSTOM_LINK_FLAGS	 -Wl,--gc-sections -Wl,-Map,Symbols.map )
+ENDIF()
 
-# Link final Executable with Map, clean up unused sections
-SET(CMAKE_EXE_LINKER_FLAGS_RELEASE
-    " ${CMAKE_EXE_LINKER_FLAGS_RELEASE} -Wl,--gc-sections -Wl,-Map,Symbols.map ")
+LIST(APPEND CUSTOM_C_FLAGS   ${WARNING_FLAGS})
+LIST(APPEND CUSTOM_CXX_FLAGS ${WARNING_FLAGS})
 
-if(TEST_COVERAGE)
-  include(CodeCoverage)
-  APPEND_COVERAGE_COMPILER_FLAGS()
-endif(TEST_COVERAGE)
+IF(TEST_COVERAGE AND NOT MSVC)
+	include(CodeCoverage) # does not work for MSVC
+	APPEND_COVERAGE_COMPILER_FLAGS()
+ENDIF()
 
-
-if(PROFILE) # manually add -g because it could be a profile-release build
-    SET(CMAKE_C_FLAGS      " ${CMAKE_C_FLAGS} -g  -pg ")
-    SET(CMAKE_CXX_FLAGS    " ${CMAKE_CXX_FLAGS} -g -pg ")
-    SET(CMAKE_LINK_FLAGS   " ${CMAKE_LINK_FLAGS} -O2 -g -pg ")
-endif()
+IF(PROFILE) 
+  IF(NOT MSVC)
+	MESSAGE(WARNING "gprof ist not the best...")
+	# manually add -g because it could be a profile-release build
+	LIST(APPEND CUSTOM_C_FLAGS       -g  -pg )	
+	LIST(APPEND CUSTOM_CXX_FLAGS     -g -pg )
+	LIST(APPEND CUSTOM_LINK_FLAGS    -O2  -g -pg )
+  ELSE(NOT MSVC)
+	LIST(APPEND  CUSTOM_LINK_FLAGS     -PROFILE)
+  ENDIF(NOT MSVC)
+ENDIF(PROFILE)
 
 #-------------------------------------------------------------------------------
 # Generate documentation
@@ -169,7 +177,7 @@ if(DOXYGEN_FOUND)
    INSTALL(DIRECTORY
        ${CMAKE_CURRENT_BINARY_DIR}/${DOXYGEN_DOC_DIR_NAME}/html/
        COMPONENT APIDOC
-       DESTINATION ${INSTALL_DOC_DIR}
+       DESTINATION ${INSTALL_DOC_DIR}  OPTIONAL
     )
 endif(DOXYGEN_FOUND)
 
@@ -179,8 +187,6 @@ endif(DOXYGEN_FOUND)
 
 # Library source
 add_subdirectory(${PROJECT_SOURCE_DIR}/libsrc/)
-# external resources
-add_subdirectory(${PROJECT_SOURCE_DIR}/externalRes/)
 
 if(BUILD_EXE)
   add_subdirectory(${PROJECT_SOURCE_DIR}/qtgui/)

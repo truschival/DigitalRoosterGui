@@ -14,17 +14,22 @@
 #include <QAbstractListModel>
 #include <QObject>
 #include <QStringList>
+#include <memory>
 
 namespace DigitalRooster {
-	class ConfigurationManager;
-}
+class ConfigurationManager;
+class MediaPlayerProxy;
+} // namespace DigitalRooster
 
 class PodcastEpisodeModel;
 
 class PodcastSourceModel : public QAbstractListModel {
     Q_OBJECT
- public:
-    PodcastSourceModel(DigitalRooster::ConfigurationManager* confman, QObject* parent = nullptr);
+public:
+    PodcastSourceModel(
+        std::shared_ptr<DigitalRooster::ConfigurationManager> confman,
+        std::shared_ptr<DigitalRooster::MediaPlayerProxy> pp,
+        QObject* parent = nullptr);
 
     enum PodcastSourceRoles {
         DisplayNameRole = Qt::UserRole + 1,
@@ -47,7 +52,8 @@ protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
-    DigitalRooster::ConfigurationManager* cm;
+    std::shared_ptr<DigitalRooster::ConfigurationManager> cm;
+    std::shared_ptr<DigitalRooster::MediaPlayerProxy> mpp;
 };
 
 #endif /* QTGUI_PODCASTSOURCEMODEL_HPP_ */

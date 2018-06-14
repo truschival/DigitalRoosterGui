@@ -9,31 +9,44 @@
  /**
   * Date Time string when CMake was run
   */
- #ifndef BUILD_TIME_STAMP
- #define BUILD_TIME_STAMP  "@CMAKE_CONFIGURATION_TIME@"
+ #ifndef CMAKE_BUILD_TIME_STAMP
+ #define CMAKE_BUILD_TIME_STAMP  "@CMAKE_CONFIGURATION_TIME@"
  #endif
 
  /**
   * Project version string Major.Minor.Patch
   */
- #ifndef PROJECT_VERSION_STRING
- #define PROJECT_VERSION_STRING  "@PROJECT_VERSION@"
+ #ifndef CMAKE_PROJECT_NAME
+ #define CMAKE_PROJECT_NAME  "@PROJECT_NAME@"
+ #endif
+ 
+ /**
+  * Project version string Major.Minor.Patch
+  */
+ #ifndef CMAKE_PROJECT_VERSION
+ #define CMAKE_PROJECT_VERSION  "@PROJECT_VERSION@"
  #endif
  
  
  /**
   * Application configuration file 
   */
- #ifndef SETTINGS_FILE_NAME
- #define SETTINGS_FILE_NAME  "@SETTINGS_FILE_NAME@"
+ #ifndef CMAKE_SETTINGS_FILE_NAME
+ #define CMAKE_SETTINGS_FILE_NAME  "@SETTINGS_FILE_NAME@"
  #endif
 
  /**
   * Directory where to find SETTINGS_FILE_NAME
   */
- #ifndef SETTINGS_PATH
- #define SETTINGS_PATH  "@SETTINGS_PATH@"
+ #ifndef CMAKE_SETTINGS_PATH
+ #define CMAKE_SETTINGS_PATH  "@SETTINGS_PATH@"
  #endif
 
+ /**
+  * Build directory to find and generate files during tests 
+  */
+ #ifndef CMAKE_BUILD_DIR
+ #define CMAKE_BUILD_DIR  "@CMAKE_BINARY_DIR@"
+ #endif
 
  #endif /* _CONFIG_H_ */

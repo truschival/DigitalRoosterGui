@@ -1,0 +1,69 @@
+#cloud-config
+disk_setup:
+  /dev/sdc:
+    table_type: 'gpt'
+    layout:
+      - [ 99, 83 ]
+    overwrite: True
+
+fs_setup:
+  - label: data0
+    filesystem: 'ext4'
+    device:    /dev/sdc1
+    partition: auto
+
+mounts:
+  - ["/dev/sdc1", "/mnt/jenkins", "ext4", "defaults,nofail,relatime", "0" , "0"]
+
+package_upgrade: true
+packages:
+  - git
+  - curl
+  - wget
+  
+write_files:
+  - path: /etc/systemd/system/docker.service.d/docker.conf
+    content: |
+      [Service]
+        ExecStart=
+        ExecStart=/usr/bin/dockerd
+
+  - path: /etc/docker/daemon.json
+    content: |
+      {
+        "hosts": ["fd://","tcp://127.0.0.1:2375"]
+      }
+
+  - path: /etc/default/jenkins-mnt
+    content: |
+      NAME=jenkins
+      JAVA=/usr/bin/java
+      JAVA_ARGS="-Djava.awt.headless=true"
+      PIDFILE=/var/run/$NAME/$NAME.pid
+      JENKINS_USER=$NAME
+      JENKINS_GROUP=$NAME
+      RUN_STANDALONE=true
+      JENKINS_LOG=daemon.info
+      MAXOPENFILES=4096
+      HTTP_PORT=8080
+      PREFIX=/$NAME
+      JENKINS_WAR=/usr/share/$NAME/$NAME.war
+      # jenkins home location
+      JENKINS_HOME=/mnt/jenkins
+      JENKINS_ARGS="--webroot=/var/cache/$NAME/war --httpPort=$HTTP_PORT"
+
+
+runcmd:
+  - wget -q -O - https://jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -
+  - sh -c 'echo deb http://pkg.jenkins-ci.org/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+  - apt-get update && apt-get install jenkins -y
+  - curl -sSL https://get.docker.com/ | sh
+  - mv /etc/default/jenkins /etc/default/jenkins.orig
+  - ln -s /etc/default/jenkins-mnt /etc/default/jenkins
+  - mkdir -p /mnt/jenkins
+  - mount -o defaults -o rw -o relatime -o nofail /dev/sdc1 /mnt/jenkins
+  - chown jenkins:jenkins /mnt/jenkins
+  - usermod -d /mnt/jenkins jenkins
+  - usermod -aG docker thomas
+  - usermod -aG docker jenkins
+  - service jenkins restart

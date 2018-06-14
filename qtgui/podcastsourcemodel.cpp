@@ -14,19 +14,23 @@
 
 #include "PodcastSource.hpp"
 #include "configuration_manager.hpp"
+#include "mediaplayerproxy.hpp"
 #include "podcastepisodemodel.hpp"
 #include "podcastsourcemodel.hpp"
 
 using namespace DigitalRooster;
 /*************************************************************************************/
 
-PodcastSourceModel::PodcastSourceModel(ConfigurationManager* confman, QObject* parent)
+PodcastSourceModel::PodcastSourceModel(
+    std::shared_ptr<ConfigurationManager> confman,
+    std::shared_ptr<MediaPlayerProxy> pp, QObject* parent)
     : QAbstractListModel(parent)
-    , cm(confman) {
+    , cm(confman)
+    , mpp(pp) {
     auto v = cm->get_podcast_sources();
     for (auto ps : v) {
-        ps->set_updateInterval(100);
-        connect(ps.get(), SIGNAL(newDataAvailable()), this, SLOT(newDataAvailable()));
+        connect(ps.get(), SIGNAL(newDataAvailable()), this,
+            SLOT(newDataAvailable()));
     }
 }
 /*************************************************************************************/
@@ -54,13 +58,13 @@ void PodcastSourceModel::newDataAvailable() {
 
 /*******************************************************************************/
 PodcastEpisodeModel* PodcastSourceModel::get_episodes(int index) {
-    qDebug() << __FUNCTION__ << " index: " << index;
+    // qDebug() << __FUNCTION__ << " index: " << index;
 
     auto v = cm->get_podcast_sources();
     if (index < 0 || index >= v.size())
         return nullptr;
 
-    return new PodcastEpisodeModel(&(v[index]->get_episodes()));
+    return new PodcastEpisodeModel(&(v[index]->get_episodes()), mpp);
 }
 /*************************************************************************************/
 
