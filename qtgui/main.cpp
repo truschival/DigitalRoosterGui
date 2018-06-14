@@ -43,8 +43,8 @@ int main(int argc, char* argv[]) {
         "ruschi.PlayableItem", 1, 0, "PlayableItem");
 
     /*Get available Podcasts */
-    auto cm = std::make_shared<ConfigurationManager>(
-        DigitalRooster::SYSTEM_CONFIG_PATH);
+    auto cm = std::make_shared<ConfigurationManager>();
+    cm->update_configuration();
     auto playerproxy = std::make_shared<MediaPlayerProxy>();
 
     AlarmDispatcher alarmdispatcher(cm);

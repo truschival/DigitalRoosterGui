@@ -25,7 +25,7 @@ Alarm::Alarm(const QUrl& media, const QTime& timepoint, Alarm::Period period,
     , period(period)
     , trigger_instant(QDateTime::currentDateTime()) // today, set time later
     , enabled(enabled)
-    , alarmtimeout(default_alarm_timeout) {
+    , alarmtimeout(DEFAULT_ALARM_TIMEOUT) {
 
     trigger_instant.setTime(timepoint);
     // qDebug() << __FUNCTION__ << "timepoint" << trigger_instant;
@@ -39,7 +39,7 @@ Alarm::Alarm(const QUrl& media, const QDateTime& timepoint, bool enabled,
     , period(Alarm::Once)
     , trigger_instant(timepoint)
     , enabled(enabled)
-    , alarmtimeout(default_alarm_timeout) {
+    , alarmtimeout(DEFAULT_ALARM_TIMEOUT) {
     // qDebug() << __FUNCTION__ << "timepoint" << trigger_instant;
 }
 
@@ -122,4 +122,37 @@ QString Alarm::get_period_string() const {
     }
 }
 
+/*****************************************************************************/
+
+static const std::vector<std::pair<Alarm::Period, QString>> period_to_string = {
+    {Alarm::Daily, KEY_ALARM_DAILY}, {Alarm::Workdays, KEY_ALARM_WORKDAYS},
+    {Alarm::Weekend, KEY_ALARM_WEEKEND}, {Alarm::Once, KEY_ALARM_ONCE}};
+
+
+/*****************************************************************************/
+
+Alarm::Period DigitalRooster::json_string_to_alarm_period(
+    const QString& literal) {
+    auto res = std::find_if(period_to_string.begin(), period_to_string.end(),
+        [&](const std::pair<Alarm::Period, QString>& item) {
+            return item.second == literal;
+        });
+    if (res == period_to_string.end())
+        throw(std::invalid_argument(std::string("can't resolve argument")));
+
+    return res->first;
+}
+/*****************************************************************************/
+
+QString DigitalRooster::alarm_period_to_json_string(
+    const Alarm::Period period) {
+    auto res = std::find_if(period_to_string.begin(), period_to_string.end(),
+        [&](const std::pair<Alarm::Period, QString>& item) {
+            return item.first == period;
+        });
+    if (res == period_to_string.end())
+        throw(std::invalid_argument(std::string("can't resolve argument")));
+
+    return res->second;
+}
 /*****************************************************************************/

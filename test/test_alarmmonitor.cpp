@@ -14,7 +14,10 @@
 #include <QSignalSpy>
 #include <QUrl>
 #include <QVector>
+
 #include <memory>
+#include <chrono>
+#include <thread>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -28,17 +31,43 @@ using namespace DigitalRooster;
 using namespace ::testing;
 using namespace std;
 using ::testing::AtLeast;
+using namespace std::chrono_literals;
 
 TEST(AlarmMonitor, playsAlarm) {
-    auto player = std::make_shared<PlayerMock>();
-    AlarmMonitor mon(player);
-    auto timepoint = QDateTime::currentDateTimeUtc().addSecs(3);
-    auto alm = make_shared<DigitalRooster::Alarm>(
-        QUrl("https://www.heise.de"), timepoint);
+	auto player = std::make_shared<PlayerMock>();
+	AlarmMonitor mon(player);
+	auto timepoint = QDateTime::currentDateTimeUtc().addSecs(3);
+	auto alm = make_shared<DigitalRooster::Alarm>(
+			QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"), timepoint);
 
-    EXPECT_CALL(*(player.get()), do_play()).Times(1);
-    EXPECT_CALL(*(player.get()), do_set_volume(_)).Times(1);
-    EXPECT_CALL(*(player.get()), do_set_media(_)).Times(1);
+	EXPECT_CALL(*(player.get()), do_play()).Times(1);
+	EXPECT_CALL(*(player.get()), do_stop()).Times(1);
 
-    mon.alarm_triggered(alm);
+	EXPECT_CALL(*(player.get()), do_set_volume(_)).Times(1);
+	EXPECT_CALL(*(player.get()), do_set_media(_)).Times(1);
+
+	mon.alarm_triggered(alm);
+
+	player->stop();
+}
+
+TEST(AlarmMonitor, triggersFallbackForError) {
+	auto player = std::make_shared<PlayerMock>();
+	AlarmMonitor mon(player);
+	auto timepoint = QDateTime::currentDateTimeUtc().addSecs(1);
+	auto alm = make_shared<DigitalRooster::Alarm>(QUrl("https://www.heise.de"),
+			timepoint);
+
+	EXPECT_CALL(*(player.get()), do_play()).Times(2);
+	EXPECT_CALL(*(player.get()), do_set_media(_)).Times(1);
+	EXPECT_CALL(*(player.get()), do_set_volume(40)).Times(1);
+
+	// Fallback behavior
+	EXPECT_CALL(*(player.get()), do_set_volume(80)).Times(1);
+	EXPECT_CALL(*(player.get()), do_set_playlist(_)).Times(1);
+
+	mon.alarm_triggered(alm);
+	player->emitError(QMediaPlayer::NetworkError);
+
+	std::this_thread::sleep_for(2s);
 }
