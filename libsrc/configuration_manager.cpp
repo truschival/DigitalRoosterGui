@@ -29,7 +29,12 @@ using namespace DigitalRooster;
 /*****************************************************************************/
 ConfigurationManager::ConfigurationManager()
     : alarmtimeout(DEFAULT_ALARM_TIMEOUT)
-    , sleeptimeout(DEFAULT_SLEEP_TIMEOUT){};
+    , sleeptimeout(DEFAULT_SLEEP_TIMEOUT) {
+
+	connect(&filewatcher, SIGNAL(fileChanged(const QString &)), this,
+			SLOT(fileChanged(const QString &)));
+}
+;
 
 /*****************************************************************************/
 void ConfigurationManager::refresh_configuration() {
@@ -238,6 +243,12 @@ QDir ConfigurationManager::make_sure_config_path_exists() {
     }
     return config_dir;
 }
+/*****************************************************************************/
+
+void  ConfigurationManager::fileChanged(const QString &path){
+	qDebug() << " Config changed, reloading";
+	refresh_configuration();
+}
 
 /*****************************************************************************/
 
@@ -249,6 +260,8 @@ QString ConfigurationManager::check_and_create_config() {
     if (!config_file.exists()) {
         create_default_configuration();
     }
+    filewatcher.addPath(file_path);
+
     return file_path;
 }
 
