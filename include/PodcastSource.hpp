@@ -86,7 +86,7 @@ public:
     /**
      * show max_episodes in the list
      */
-    size_t get_max_episodes() {
+    int get_max_episodes() {
         return max_episodes;
     };
 
@@ -150,9 +150,11 @@ public:
 
     /**
      * set number of displayed/downloaded episodes
+     * @param max value >=0 
      */
-    void set_max_episodes(size_t max) {
-        max_episodes = max;
+    void set_max_episodes(int max) {
+        if (max >= 0)
+			max_episodes = max;
     }
 
     /**
@@ -233,7 +235,7 @@ private:
     /**
      * show max_episodes in the list
      */
-    size_t max_episodes = std::numeric_limits<size_t>::max();
+    int max_episodes = std::numeric_limits<int>::max();
     /**
      * path local XML file for RSS feed
      */
