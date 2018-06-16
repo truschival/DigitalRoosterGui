@@ -1,5 +1,19 @@
+/*************************************************************************************
+ * \filename
+ * \brief   Main entry point for QML Gui
+ *
+ * \details
+ *
+ * \author Thomas Ruschival
+ * \copyright 2018 Thomas Ruschival <thomas@ruschival.de>
+ * 			  This file is licensed under GNU PUBLIC LICENSE Version 2 or later
+ * 			  SPDX-License-Identifier: GPL-2.0-or-later
+ *************************************************************************************/
 
-#define QT_QML_DEBUG
+/* only allow QML debugging for Debug builds */
+#ifndef NDEBUG
+	#define QT_QML_DEBUG
+#endif
 
 #include <QDebug>
 #include <QFontDatabase>
@@ -26,6 +40,7 @@ int main(int argc, char* argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setApplicationName(APPLICATION_NAME);
     QCoreApplication::setApplicationVersion(PROJECT_VERSION);
+
     // QLoggingCategory::setFilterRules("*.debug=true");
     qDebug() << "SSL Support: " << QSslSocket::supportsSsl()
              << QSslSocket::sslLibraryVersionString();
