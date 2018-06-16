@@ -17,7 +17,7 @@ Rectangle {
 
 	gradient: Gradient {
         GradientStop { position: 0.2; color: "#3F51B5" }
-		GradientStop { position: 1.0; color: "#607D8B" }
+		GradientStop { position: 1.0; color: "#673AB7" }
     }
 
     Timer {
@@ -36,10 +36,8 @@ Rectangle {
         text: MdiFont.Icon.play // default to play icon
 
         onClicked: {
-            console.log("playBtn")
             interactiontimer.restart()
-
-            if (playerProxy.playbackState === MediaPlayer.PlayingState) {
+            if (playerProxy.playbackState == MediaPlayer.PlayingState) {
                 playerProxy.pause()
             } else {
                 playerProxy.play()
@@ -110,7 +108,7 @@ Rectangle {
         id: timeElapsed
         text: Util.display_time_ms(playerProxy.position)
         anchors.right: slider.left
-        anchors.top: slider.top
+        anchors.top: playBtn.bottom
         anchors.margins: 2
 		visible: playerProxy.seekable
     }
@@ -118,7 +116,7 @@ Rectangle {
         id: durationTotal
         text: Util.display_time_ms(playerProxy.duration)
         anchors.left: slider.right
-        anchors.top: slider.top
+        anchors.top: playBtn.bottom
         anchors.margins: 2
 		visible: playerProxy.seekable
     }
