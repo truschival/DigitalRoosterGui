@@ -8,17 +8,13 @@ import "Jsutil.js" as Util
 
 Rectangle {
     width: 300
-    height: 120
+    height: 130
     anchors.horizontalCenterOffset: 0
-    anchors.bottomMargin: 0
     visible: false
-	radius: 3
+	radius: 0
     z: 1
 
-	gradient: Gradient {
-        GradientStop { position: 0.2; color: "#3F51B5" }
-		GradientStop { position: 1.0; color: "#673AB7" }
-    }
+	color: "#3F51B5"
 
     Timer {
         id: interactiontimer
@@ -28,99 +24,115 @@ Rectangle {
         onTriggered: parent.setVisible(false)
     }
 
-    IconButton {
-        id: playBtn
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 2
-        text: MdiFont.Icon.play // default to play icon
+	GridLayout{
+		columns: 3;
+		rows: 3;
+		columnSpacing:3
+		rowSpacing:0
+		anchors.margins: 3
+		anchors.fill: parent
+		
+		Text{
+			id: currentMediaTitle
+			text: "" ;
+			font.pointSize: 10;
+			font.bold: true;
+			color: "white";
+			elide: Text.ElideRight;
+			
+			Layout.columnSpan: 3;
+			Layout.fillWidth: true;
+			Layout.alignment: Qt.AlignCenter| Qt.AlignTop
+			Layout.bottomMargin: 3
+		}
 
-        onClicked: {
-            interactiontimer.restart()
-            if (playerProxy.playbackState == MediaPlayer.PlayingState) {
-                playerProxy.pause()
-            } else {
-                playerProxy.play()
-            }
-        }
+		IconButton {
+			id: backwardBtn
+			Layout.alignment: Qt.AlignRight| Qt.AlignTop
+			Layout.fillWidth: true;
 
-        function switchPlayButtonIcon(playbackState) {
-            switch (playbackState) {
-            case MediaPlayer.PlayingState:
-                playBtn.text = MdiFont.Icon.pause
-                break
-            case MediaPlayer.PausedState:
-                playBtn.text = MdiFont.Icon.play
-                break
-            case MediaPlayer.StoppedState:
-                playBtn.text = MdiFont.Icon.play
-                break
-            default:
-                console.log("player???")
-            }
-        }
-    }
+			text: MdiFont.Icon.rewind
+			onClicked: {
+				interactiontimer.restart()
+				playerProxy.seek(-5000)
+			}
+		}
 
-    IconButton {
-        id: forwardBtn
-        anchors.left: playBtn.right
-        anchors.top: playBtn.top
-        anchors.leftMargin: 25
+		IconButton {
+			id: playBtn
+			Layout.alignment: Qt.AlignCenter| Qt.AlignTop
+			Layout.fillWidth: true;
+			text: MdiFont.Icon.play // default to play icon
 
-        text: MdiFont.Icon.fastForward
-        onClicked: {
-            interactiontimer.restart()
-            playerProxy.seek(5000)
-        }
-    }
+			onClicked: {
+				interactiontimer.restart()
+				if (playerProxy.playbackState == MediaPlayer.PlayingState) {
+					playerProxy.pause()
+				} else {
+					playerProxy.play()
+				}
+			}
 
-    IconButton {
-        id: backwardBtn
-        anchors.right: playBtn.left
-        anchors.top: playBtn.top
-        anchors.rightMargin: 25
+			function switchPlayButtonIcon(playbackState) {
+				switch (playbackState) {
+				case MediaPlayer.PlayingState:
+					playBtn.text = MdiFont.Icon.pause
+					break
+				case MediaPlayer.PausedState:
+					playBtn.text = MdiFont.Icon.play
+					break
+				case MediaPlayer.StoppedState:
+					playBtn.text = MdiFont.Icon.play
+					break
+				default:
+					console.log("player???")
+				}
+			}
+		}
 
-        text: MdiFont.Icon.rewind
-        onClicked: {
-            interactiontimer.restart()
-            playerProxy.seek(-5000)
-        }
-    }
+		IconButton {
+			id: forwardBtn
+			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
+			Layout.fillWidth: true;
 
-    Slider {
-        id: slider
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: parent.width * 0.6
-        anchors.top: playBtn.bottom
-        anchors.topMargin: -15
-        enabled: playerProxy.seekable
-        visible: playerProxy.seekable
-
-        onValueChanged: {
-            interactiontimer.restart()
-        }
-        onMoved: {
-            playerProxy.set_position(value * playerProxy.duration)
-        }
-    }
-
-    Text {
-        id: timeElapsed
-        text: Util.display_time_ms(playerProxy.position)
-        anchors.right: slider.left
-        anchors.top: playBtn.bottom
-        anchors.margins: 2
-		visible: playerProxy.seekable
-    }
-    Text {
-        id: durationTotal
-        text: Util.display_time_ms(playerProxy.duration)
-        anchors.left: slider.right
-        anchors.top: playBtn.bottom
-        anchors.margins: 2
-		visible: playerProxy.seekable
-    }
-
+			text: MdiFont.Icon.fastForward
+			onClicked: {
+				interactiontimer.restart()
+				playerProxy.seek(5000)
+			}
+		}
+		//Row 3
+		Text {
+			id: timeElapsed
+			text: Util.display_time_ms(playerProxy.position)
+			Layout.alignment: Qt.AlignCenter|Qt.AlignTop
+			color: "white"
+		}
+		
+		Slider {
+			id: slider
+			Layout.fillWidth: true;
+			Layout.alignment: Qt.AlignCenter|Qt.AlignTop
+			Layout.topMargin: -15
+			enabled: playerProxy.seekable
+			
+			onValueChanged: {
+				interactiontimer.restart()
+			}
+			onMoved: {
+				playerProxy.set_position(value * playerProxy.duration)
+			}
+		}	
+		Text {
+			id: durationTotal
+			text: playerProxy.seekable? Util.display_time_ms(playerProxy.duration): "\u221E"
+			color: "white"
+			
+			Layout.alignment: Qt.AlignCenter|Qt.AlignTop
+			//visible: playerProxy.seekable
+		}
+		
+	}
 
     /***********************************************************************/
     function setVisible(visible) {
@@ -133,6 +145,9 @@ Rectangle {
         timeElapsed.text = Util.display_time_ms(pos)
     }
 
+	function setCurrentMediaTitle(title) {
+		currentMediaTitle.text = title;
+    }
     /***********************************************************************/
     Component.onCompleted: {
         playerProxy.playback_state_changed.connect(playBtn.switchPlayButtonIcon)

@@ -154,7 +154,7 @@ ApplicationWindow {
 		id: playerControlWidget
 		anchors.horizontalCenter: parent.horizontalCenter
         width: parent.width*0.8
-        height: parent.height*0.3
+        height: 100
         anchors.horizontalCenterOffset: 0
         anchors.bottomMargin: 0
         visible: false
