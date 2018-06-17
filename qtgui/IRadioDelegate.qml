@@ -29,6 +29,7 @@ Rectangle{
 		onPressAndHold:  {
 			iradiolist.currentIndex =index;
 			iradiolistmodel.send_to_player(index)
+			playerControlWidget.setCurrentMediaTitle(station_name)
 			playerControlWidget.setVisible(true)
 		}
 	}
