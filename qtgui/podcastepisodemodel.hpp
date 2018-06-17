@@ -27,6 +27,8 @@ class MediaPlayerProxy;
 } // namespace DigitalRooster
 class PodcastEpisodeModel : public QAbstractListModel {
     Q_OBJECT
+    Q_PROPERTY(int currentIndex READ get_current_index WRITE set_current_index
+            NOTIFY current_index_changed)
 public:
     PodcastEpisodeModel(QObject* parent = nullptr);
 
@@ -60,8 +62,20 @@ public:
         name = n;
     }
 
+    void set_current_index(int val) {
+        currentIndex = val;
+        emit current_index_changed(currentIndex);
+    }
+
+    int get_current_index() {
+        return currentIndex;
+    }
+
     Q_INVOKABLE DigitalRooster::PodcastEpisode* get_episode(int index);
     Q_INVOKABLE void send_to_player(int index);
+
+signals:
+    void current_index_changed(int newIndex);
 
 protected:
     QHash<int, QByteArray> roleNames() const;
@@ -70,6 +84,7 @@ private:
     const QVector<std::shared_ptr<DigitalRooster::PodcastEpisode>>* episodes;
     std::shared_ptr<DigitalRooster::MediaPlayerProxy> mpp;
 
+    int currentIndex = -1;
     QString name;
 };
 

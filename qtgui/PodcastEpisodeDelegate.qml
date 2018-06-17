@@ -8,7 +8,7 @@ Rectangle{
 	id: rectangle
 	width:  parent.width;
 	height: 100;
-	color: model.currentIndex == index ? "lightblue" : "white"
+	color: episodemodel.currentIndex == index ? "lightblue" : "white"
 	anchors.margins: 3
 
 	Text {
@@ -71,7 +71,7 @@ Rectangle{
 			playerControlWidget.setVisible(true)
 		}
 		onPressAndHold:  {
-			model.currentIndex =index;
+			episodemodel.currentIndex =index;
 			episodemodel.send_to_player(index)
 			playerControlWidget.setCurrentMediaTitle(display_name)
 			playerControlWidget.setVisible(true)
