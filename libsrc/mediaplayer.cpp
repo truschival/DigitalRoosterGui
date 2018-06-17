@@ -9,7 +9,7 @@
  * 			 SPDX-License-Identifier: GPL-2.0-or-later}
  *
  *****************************************************************************/
-
+#include <QDebug>
 #include "mediaplayer.hpp"
 using namespace DigitalRooster;
 
@@ -86,16 +86,19 @@ void MediaPlayer::set_playlist(QMediaPlaylist* playlist) {
 
 /*****************************************************************************/
 void MediaPlayer::pause() {
-    return do_pause();
+	//qDebug() << Q_FUNC_INFO;
+	return do_pause();
 }
 
 /*****************************************************************************/
 void MediaPlayer::play() {
-    return do_play();
+	//qDebug() << Q_FUNC_INFO;
+	return do_play();
 }
 
 /*****************************************************************************/
 void MediaPlayer::stop() {
-    return do_stop();
+	//qDebug() << Q_FUNC_INFO;
+	return do_stop();
 }
 /*****************************************************************************/

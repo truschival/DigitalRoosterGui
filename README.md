@@ -25,14 +25,49 @@ The respective license details can be found in the file LICENSE
 # Build configuration
 
 ## Options & Defaults (compilation flags & targets):
-- -DBUILD_TEST=OFF      (build google test)
-                        requires GTest installed as library or `-DBUILD_GTEST_FROM_SRC=On`
-- `-DBUILD_GTEST_FROM_SRC=Off` (recompile gtest as external project)
-- `-DTEST_COVERAGE=Off`   (code coverage)
+
+- `-DBUILD_TEST=On`            build unit tests
+- `-DBUILD_GTEST_FROM_SRC=On`  download GoogleTest and build it from source (`OFF` requires gtest as external project)
+- `-DTEST_COVERAGE=Off`        code coverage
+- `-DPROFILING=On`             profiling build for Visual Studio 
 
 Slightly useless configurations
+
 - `-DSETTINGS_FILE_NAME=...` Filename for settings default to digitalrooster.json
 - `-DSETTINGS_FILE_PATH=...` Where to find configuration file
+
+
+## Build pre-requisites
+
+DigitalRooster requires OpenSSL and QT5.10 to run. For the build a C++14
+Compiler, cmake-3.0 are required.
+
+### Windows (7/10)
+
+This build was tested with QT5.10 Open Source license with Visual Studio 2017
+Community.
+
+### Linux 
+
+QT5.10 is included in Debian Buster or later. Ubuntu should also work.
+
+Setup the basic development environment.
+
+	apt-get update && apt-get install -y \
+		bc 	cmake curl 	git \
+		build-essential g++ gcc \
+		doxygen lcov gcovr \
+		autoconf automake libtool pkg-config \
+		flex  bison zip unzip \
+		libssl-dev 	uuid-dev
+	
+Install QT5 development libraries
+	
+	apt-get install -y \
+		qt5-default qtbase5-dev-tools \
+		qtdeclarative5-dev 	qtmultimedia5-dev \
+		qtquickcontrols2-5-dev 	qtdeclarative5-dev-tools
+
 
 ## Build Setup
 	
@@ -54,18 +89,22 @@ Slightly useless configurations
 	 -DCMAKE_ECLIPSE_MAKE_ARGUMENTS=-j4 -DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT=true \
 	 <this_directory>
 
-###Build command
+## Build command
 	
 	cmake --build .  --target all
 	
 of just 
 	
-	make -j 4
+	make -j 9
 	
 ### Create Doxygen documentation (if Doxygen is installed)
 
 	make DOC
 	
+## Packaging
+
+	cpack
+
 -------
 
 
