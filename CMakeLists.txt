@@ -27,14 +27,14 @@ message(STATUS "Running ${CMAKE_COMMAND} ${CMAKE_VERSION} on ${CMAKE_PROJECT_NAM
 
 if(POLICY CMP0071)
 	# POLICY since CMake 3.10 (https://cmake.org/cmake/help/git-stage/policy/CMP0071.html)
-  cmake_policy(SET CMP0071 NEW)
+	cmake_policy(SET CMP0071 NEW)
 endif()
 
 #-------------------------------------------------------------------------------
 # user Configuration + Defaults
 #-------------------------------------------------------------------------------
 option(BUILD_EXE "Build QT Gui" On)
-option(BUILD_TEST "Build Tests" On)
+option(BUILD_TESTS "Build Tests" On)
 option(PROFILE "Build with Profiling" OFF)
 option(TEST_COVERAGE "Test Coverage" OFF)
 option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" On)
@@ -60,12 +60,23 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT )
 endif(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
 #-------------------------------------------------------------------------------
+# External Dependencies
+#-------------------------------------------------------------------------------
+# Threading library for gtest and others use  ${CMAKE_THREAD_LIBS_INIT} to link
+# executable with thread support
+find_package(Threads REQUIRED)
+
+find_package(OpenSSL 1.0.2 REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets Multimedia REQUIRED)
+MESSAGE(STATUS "Found Qt5 version: ${Qt5Widgets_VERSION_STRING}")
+
+#-------------------------------------------------------------------------------
 # Print Summary
 #-------------------------------------------------------------------------------
 
 message(STATUS "------------- Config --------- " )
 message(STATUS "Build-type:\t\t ${CMAKE_BUILD_TYPE} " )
-message(STATUS "Build UnitTests:\t ${BUILD_TEST} ")
+message(STATUS "Build UnitTests:\t ${BUILD_TESTS} ")
 message(STATUS "Build GoogleTest:\t ${BUILD_GTEST_FROM_SRC} ")
 message(STATUS "Test coverage:\t ${TEST_COVERAGE} ")
 message(STATUS "Profiling:\t\t ${PROFILE} ")
@@ -201,11 +212,11 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config/digitalrooster.json"
            "${SETTINGS_PATH}/${SETTINGS_FILE_NAME}" COPYONLY)
 
 # Tests
-if(BUILD_TEST)
+if(BUILD_TESTS)
   # enable Cmake's make test
   enable_testing()
   add_subdirectory(${PROJECT_SOURCE_DIR}/test/)
-endif(BUILD_TEST)
+endif(BUILD_TESTS)
 
 
 # --------------------------------------------------------------------

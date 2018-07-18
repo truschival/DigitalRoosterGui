@@ -1,10 +1,6 @@
 MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
 SET(BINARY_NAME "DigitalRoosterGui")
 
-# Threading library for gtest
-# Use ${CMAKE_THREAD_LIBS_INIT} for the library
-find_package(Threads REQUIRED)
-
 find_package(Qt5 COMPONENTS Core Widgets Multimedia Qml Quick REQUIRED)
 MESSAGE(STATUS "Found Qt5 version: ${Qt5Widgets_VERSION_STRING}")
 
