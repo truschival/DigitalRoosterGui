@@ -33,7 +33,7 @@ pipeline {
             steps{
                 sh "echo U: $USER H: $HOME P: $PWD"
                 sh "cmake -B${BUILD_DIR} -H${SOURCE_DIR} \
-                    -DBUILD_TEST=On \
+                    -DBUILD_TESTS=On \
                     -DBUILD_GTEST_FROM_SRC=On \
                     -DTEST_COVERAGE=On "
             }

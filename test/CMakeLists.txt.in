@@ -2,16 +2,15 @@
 
 cmake_minimum_required(VERSION 2.8.2)
 
-
 if(POLICY CMP0048)
-  MESSAGE(STATUS "Cmake Policy 0048 set to old!")
   cmake_policy(PUSH)
   cmake_policy(SET CMP0048 NEW)
 endif()
 
 
-PROJECT(GTestExternal NONE)
-set(PROJECT_VERSION 1.7 )
+PROJECT(GTestExternal
+  VERSION 1.7
+  LANGUAGES NONE)
 
 include(ExternalProject)
 

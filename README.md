@@ -4,7 +4,7 @@ DigitalRooster
 Internet radio and podcast player and alarmclock.
 
 ----
-#License
+# License
 
 Copyright 2018 by Thomas Ruschival <thomas@ruschival.de>
 
@@ -26,7 +26,7 @@ The respective license details can be found in the file LICENSE
 
 ## Options & Defaults (compilation flags & targets):
 
-- `-DBUILD_TEST=On`            build unit tests
+- `-DBUILD_TESTS=On`           build unit tests
 - `-DBUILD_GTEST_FROM_SRC=On`  download GoogleTest and build it from source (`OFF` requires gtest as external project)
 - `-DTEST_COVERAGE=Off`        code coverage
 - `-DPROFILING=On`             profiling build for Visual Studio 
@@ -75,13 +75,11 @@ Install QT5 development libraries
 	
 	cd build
 
-
-
 ### Debug & coverage configuration	
 
 	cmake -G "Eclipse CDT4 - Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug\
 	 -DCMAKE_ECLIPSE_MAKE_ARGUMENTS=-j4 -DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT=true \
-	 -DBUILD_TEST=On -DTEST_COVERAGE=On -DBUILD_GTEST_FROM_SRC=On <this_directory>
+	 -DBUILD_TESTS=On -DTEST_COVERAGE=On -DBUILD_GTEST_FROM_SRC=On <this_directory>
 
 ### Release
 

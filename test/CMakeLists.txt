@@ -4,7 +4,6 @@ SET(BINARY_NAME "${PROJECT_NAME}_gtest")
 
 #set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 find_package(Qt5 COMPONENTS Core Multimedia Test REQUIRED)
-find_package(OpenSSL 1.1 REQUIRED)
 # Threading library for gtest
 # Use ${CMAKE_THREAD_LIBS_INIT} for the library
 find_package(Threads REQUIRED)
