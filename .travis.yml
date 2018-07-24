@@ -14,15 +14,16 @@ before_install:
   - docker exec build_container git clone https://github.com/truschival/DigitalRoosterGui.git $SRC_DIR
 
 script:
-  - docker exec build_container cmake -H $SRC_DIR -B $BUILD_DIR -DBUILD_TESTS=On -DTEST_COVERAGE=On -DBUILD_GTEST_FROM_SRC=On
+  - docker exec build_container cmake -H$SRC_DIR -B$BUILD_DIR -DBUILD_TESTS=On -DTEST_COVERAGE=On -DBUILD_GTEST_FROM_SRC=On
   - docker exec build_container cmake --build $BUILD_DIR
-  - docker exec build_container cmake --build $BUILD_DIR --target test
+#  - docker exec build_container cmake --build $BUILD_DIR --target test
   
-after_success:
-  - docker exec build_container gcovr -k -s -r $SRC_DIR       
-                --object-directory=$BUILD_DIR
-                --gcov-exclude='.*moc_.*'              
-                --gcov-exclude='.*automoc_dir.*'       
-                --gcov-exclude='.*/GTestExternal/.*'   
-                --gcov-exclude='/usr/.*'               
-                --xml-pretty -o coverage.xml 
+#after_success:
+#  - docker exec build_container gcovr -k -s -r $SRC_DIR       
+#                --object-directory=$BUILD_DIR
+#                --gcov-exclude='.*moc_.*'              
+#                --gcov-exclude='.*automoc_dir.*'       
+#                --gcov-exclude='.*/GTestExternal/.*'   
+#                --gcov-exclude='/usr/.*'               
+#                --xml-pretty -o coverage.xml 
+
