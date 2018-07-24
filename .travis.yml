@@ -1,19 +1,24 @@
 sudo: required
-dist: trusty
-
 language: cpp
 
-compiler:
-  - gcc
-  - clang
+services:
+  - docker
 
-before_script:
-  - mkdir build
-  - cd build
+before_install:
+  - docker pull ruschi/devlinuxqtquick2:latest
+  - docker run -itd --name build_container ruschi/devlinuxqtquick2
+  - docker exec build_container git clone https://github.com/truschival/DigitalRoosterGui.git /checkout
 
 script:
-  - cmake ../
-  - make
-
+  - docker exec build_container cmake -H/checkout -B/build
+  - docker exec build_container cmake --build /build
+  - docker exec build_container cmake --build /build --target test
+  
 after_success:
-  - cpack
+  - docker exec build_container gcovr -k -s -r /checkout       
+                --object-directory=/build
+                --gcov-exclude='.*moc_.*'              
+                --gcov-exclude='.*automoc_dir.*'       
+                --gcov-exclude='.*/GTestExternal/.*'   
+                --gcov-exclude='/usr/.*'               
+                --xml-pretty -o coverage.xml 
