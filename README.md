@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/truschival/DigitalRoosterGui.svg?branch=develop)](https://travis-ci.com/truschival/DigitalRoosterGui)
+
 DigitalRooster
 ===================
 
