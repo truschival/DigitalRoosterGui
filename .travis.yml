@@ -1,22 +1,26 @@
 sudo: required
 language: cpp
 
+env:
+  BUILD_DIR=/tmp/build
+  SRC_DIR=/tmp/checkout
+
 services:
   - docker
 
 before_install:
   - docker pull ruschi/devlinuxqtquick2:latest
   - docker run -itd --name build_container ruschi/devlinuxqtquick2
-  - docker exec build_container git clone https://github.com/truschival/DigitalRoosterGui.git /checkout
+  - docker exec build_container git clone https://github.com/truschival/DigitalRoosterGui.git $SRC_DIR
 
 script:
-  - docker exec build_container cmake -H/checkout -B/build
-  - docker exec build_container cmake --build /build
-  - docker exec build_container cmake --build /build --target test
+  - docker exec build_container cmake -H $SRC_DIR -B $BUILD_DIR -DBUILD_TESTS=On -DTEST_COVERAGE=On -DBUILD_GTEST_FROM_SRC=On
+  - docker exec build_container cmake --build $BUILD_DIR
+  - docker exec build_container cmake --build $BUILD_DIR --target test
   
 after_success:
-  - docker exec build_container gcovr -k -s -r /checkout       
-                --object-directory=/build
+  - docker exec build_container gcovr -k -s -r $SRC_DIR       
+                --object-directory=$BUILD_DIR
                 --gcov-exclude='.*moc_.*'              
                 --gcov-exclude='.*automoc_dir.*'       
                 --gcov-exclude='.*/GTestExternal/.*'   
