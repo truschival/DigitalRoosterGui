@@ -11,6 +11,8 @@ services:
 before_install:
   - docker pull ruschi/devlinuxqtquick2:latest
   - docker run -itd --name build_container ruschi/devlinuxqtquick2
+  - docker exec build_container pip install --upgrade setuptools
+  - docker exec build_container pip install cpp-coveralls
   - docker exec build_container git clone https://github.com/truschival/DigitalRoosterGui.git $SRC_DIR
 
 script:
