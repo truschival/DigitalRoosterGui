@@ -18,15 +18,15 @@ script:
   
 after_success:
   - docker exec build_container sh -c '
-    cd ${BUILD_DIR};
-    ${BUILD_DIR}/bin/DigitalRooster_gtest --gtest_filter=-Player*;
+    cd $BUILD_DIR;
+    $BUILD_DIR/bin/DigitalRooster_gtest --gtest_filter=-Player*;
     lcov --directory . --capture --output-file coverage.info;
     lcov --remove coverage.info "/usr/*" --output-file coverage.info;
     lcov --remove coverage.info "*/GTestExternal/*" --output-file coverage.info;
     lcov --remove coverage.info "*/__/*" --output-file coverage.info;
     lcov --list coverage.info;
-    cd ${SRC_DIR};
+    cd $SRC_DIR;
     curl -o codecov.sh https://codecov.io/bash 
-    bash ./codecov.sh -s ${BUILD_DIR} '
+    bash ./codecov.sh -s $BUILD_DIR '
 
     
