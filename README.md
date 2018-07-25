@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.com/truschival/DigitalRoosterGui.svg?branch=develop)](https://travis-ci.com/truschival/DigitalRoosterGui)
 [![Coverage Status](https://coveralls.io/repos/github/truschival/DigitalRoosterGui/badge.svg?branch=develop)](https://coveralls.io/github/truschival/DigitalRoosterGui?branch=develop)
+[![codecov](https://codecov.io/gh/truschival/DigitalRoosterGui/branch/develop/graph/badge.svg)](https://codecov.io/gh/truschival/DigitalRoosterGui)
 
 DigitalRooster
 ===================
