@@ -17,7 +17,14 @@ before_install:
 script:
   - docker exec build_container cmake -H$SRC_DIR -B$BUILD_DIR -DBUILD_TESTS=On -DTEST_COVERAGE=On -DBUILD_GTEST_FROM_SRC=On
   - docker exec build_container cmake --build $BUILD_DIR
-  - docker exec build_container $BUILD_DIR/bin/DigitalRooster_gtest --gtest_filter=-Player*
   
 after_success:
-  - docker exec build_container /home/build/.local/bin/coveralls -r $SRC_DIR -b $BUILD_DIR -E '.*moc_.*' -E '.*automoc_dir.*' -E '.*/GTestExternal/.*' -E '/usr/.*' 
+  - docker exec build_container sh -e '
+    cd ${BUILD_DIR};
+    ./bin/DigitalRooster_gtest --gtest_filter=-Player*;
+    lcov --directory . --capture --output-file coverage.info;
+    lcov --remove coverage.info '/usr/*' --output-file coverage.info;
+    lcov --list coverage.info;
+    bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"'
+
+    
