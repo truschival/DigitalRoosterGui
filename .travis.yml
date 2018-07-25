@@ -4,7 +4,8 @@ language: cpp
 env:
   BUILD_DIR=/tmp/build
   SRC_DIR=/tmp/checkout
-
+  COVERALLS_REPO_TOKEN=4MbPQVwHTR2vXt7nn1z1R3aBJUrE4gyCn
+  
 services:
   - docker
 
@@ -20,4 +21,4 @@ script:
   - docker exec build_container $BUILD_DIR/bin/DigitalRooster_gtest --gtest_filter=-Player*
   
 after_success:
-  - docker exec build_container /home/build/.local/bin/coveralls -r $SRC_DIR -b $BUILD_DIR -E '.*moc_.*' -E '.*automoc_dir.*' -E '.*/GTestExternal/.*' -E '/usr/.*' 
+  - docker exec build_container /home/build/.local/bin/coveralls -b $BUILD_DIR -E '.*moc_.*' -E '.*automoc_dir.*' -E '.*/GTestExternal/.*' -E '/usr/.*' 
