@@ -4,7 +4,6 @@ language: cpp
 env:
   BUILD_DIR=/tmp/build
   SRC_DIR=/tmp/checkout
-  COVERALLS_REPO_TOKEN=4MbPQVwHTR2vXt7nn1z1R3aBJUrE4gyCn
   
 services:
   - docker
