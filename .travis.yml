@@ -1,5 +1,4 @@
 sudo: required
-language: cpp
 
 env:
   BUILD_DIR=/tmp/build
