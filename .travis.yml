@@ -26,6 +26,7 @@ after_success:
     lcov --remove coverage.info "*/__/*" --output-file coverage.info;
     lcov --list coverage.info;
     cd ${SRC_DIR};
-    bash <(curl -s https://codecov.io/bash) -s ${BUILD_DIR} '
+    curl -o codecov.sh https://codecov.io/bash 
+    bash ./codecov.sh -s ${BUILD_DIR} '
 
     
