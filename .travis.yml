@@ -26,7 +26,7 @@ after_success:
     lcov --remove coverage.info "*/__/*" --output-file coverage.info;
     lcov --list coverage.info;
     cd /tmp/checkout;
-    curl -o codecov.sh https://codecov.io/bash 
-    bash ./codecov.sh -s /tmp/build '
+    curl -o codecov.sh https://codecov.io/bash ;
+    /bin/sh ./codecov.sh -s /tmp/build ; '
 
     
