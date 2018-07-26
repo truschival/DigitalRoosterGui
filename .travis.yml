@@ -10,6 +10,7 @@ services:
 before_install:
   - docker pull ruschi/devlinuxqtquick2:latest
   - docker run -itd --name build_container ruschi/devlinuxqtquick2
+  - docker exec build_container python -m pip install cpp-coveralls
   - docker exec build_container git clone https://github.com/truschival/DigitalRoosterGui.git $SRC_DIR
 
 script:
@@ -27,6 +28,9 @@ after_success:
     lcov --list coverage.info;
     cd /tmp/checkout;
     curl -o codecov.sh https://codecov.io/bash ;
-    /bin/sh ./codecov.sh -s /tmp/build ; '
+    /bin/bash ./codecov.sh -s /tmp/build ; '
+  - docker exec build_container sh -c 'cd /tmp/checkout; date; 
+    /home/build/.local/bin/coveralls -r /tmp/checkout -b /tmp/build 
+    -E ".*moc_.*" -E ".*automoc_dir.*"  -E ".*/GTestExternal/.*" -E "/usr/.*" ; echo DONE'
 
     
