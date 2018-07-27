@@ -29,7 +29,7 @@ after_success:
     lcov --list coverage.info;'
   - docker exec build_container curl -o /tmp/codecov.sh https://codecov.io/bash
   - docker exec build_container chmod 755 /tmp/codecov.sh
-  - docker exec -e BUILD_DIR=$BUILD_DIR -e SRC_DIR=$SRC_DIR -e CI -e TRAVIS -e TRAVIS_BRANCH build_container /tmp/codecov.sh -s $BUILD_DIR -R $SRC_DIR -X gcov 
-  - docker exec -e BUILD_DIR=$BUILD_DIR -e SRC_DIR=$SRC_DIR -e CI -e TRAVIS -e TRAVIS_BRANCH build_container /home/build/.local/bin/coveralls -r $SRC_DIR -b $BUILD_DIR -E ".*moc_.*" -E ".*automoc_dir.*"  -E ".*/GTestExternal/.*" -E "/usr/.*"
+  - docker exec -e BUILD_DIR=$BUILD_DIR -e SRC_DIR=$SRC_DIR -e CI -e TRAVIS=$TRAVIS -e TRAVIS_BRANCH=$TRAVIS_BRANCH -e TRAVIS_COMMIT=$TRAVIS_COMMIT -e TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG build_container /tmp/codecov.sh -s $BUILD_DIR -R $SRC_DIR -X gcov 
+  - docker exec -e BUILD_DIR=$BUILD_DIR -e SRC_DIR=$SRC_DIR -e CI -e TRAVIS=$TRAVIS -e TRAVIS_BRANCH=$TRAVIS_BRANCH -e TRAVIS_COMMIT=$TRAVIS_COMMIT -e TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG build_container /home/build/.local/bin/coveralls -r $SRC_DIR -b $BUILD_DIR --verbose --lcov-file=/tmp/build/coverage.info
 
     
