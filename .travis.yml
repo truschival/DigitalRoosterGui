@@ -27,7 +27,7 @@ after_success:
     lcov --remove coverage.info "*/__/*" --output-file coverage.info;
     lcov --list coverage.info;
   - ci_env=`bash <(curl -s https://codecov.io/env)`
-  - docker exec build_container -w $BUILD_DIR $ci_env -s $BUILD_DIR
+  - docker exec -w $BUILD_DIR build_container $ci_env -s $BUILD_DIR
   - docker exec build_container sh -c 'cd /tmp/checkout; date; 
     /home/build/.local/bin/coveralls -r /tmp/checkout -b /tmp/build 
     -E ".*moc_.*" -E ".*automoc_dir.*"  -E ".*/GTestExternal/.*" -E "/usr/.*" ; echo DONE'
