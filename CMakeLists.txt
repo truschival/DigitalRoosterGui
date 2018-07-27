@@ -15,7 +15,7 @@ list(APPEND CMAKE_MODULE_PATH  ${CMAKE_SOURCE_DIR}/CMakeModules/)
 #-------------------------------------------------------------------------------
 # Project Name
 project (DigitalRooster
-	VERSION 0.2.2 
+	VERSION 0.3.0
 	DESCRIPTION  "A digital alarm clock and podcast player"
 	LANGUAGES CXX C)
 
@@ -155,11 +155,11 @@ IF(TEST_COVERAGE AND NOT MSVC)
 	APPEND_COVERAGE_COMPILER_FLAGS()
 ENDIF()
 
-IF(PROFILE) 
+IF(PROFILE)
   IF(NOT MSVC)
 	MESSAGE(WARNING "gprof ist not the best...")
 	# manually add -g because it could be a profile-release build
-	LIST(APPEND CUSTOM_C_FLAGS       -g  -pg )	
+	LIST(APPEND CUSTOM_C_FLAGS       -g  -pg )
 	LIST(APPEND CUSTOM_CXX_FLAGS     -g -pg )
 	LIST(APPEND CUSTOM_LINK_FLAGS    -O2  -g -pg )
   ELSE(NOT MSVC)
@@ -208,7 +208,7 @@ endif(BUILD_EXE)
 #-------------------------------------------------------------------------------
 
 #default configuration installation
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config/digitalrooster.json" 
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/config/digitalrooster.json"
            "${SETTINGS_PATH}/${SETTINGS_FILE_NAME}" COPYONLY)
 
 # Tests
