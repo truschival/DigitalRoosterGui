@@ -11,7 +11,6 @@ before_install:
   - docker pull ruschi/devlinuxqtquick2:latest
   - docker version
   - docker run -itd --name build_container ruschi/devlinuxqtquick2
-  - docker exec build_container python -m pip install cpp-coveralls
   - docker exec build_container git clone https://github.com/truschival/DigitalRoosterGui.git $SRC_DIR
 
 script:
@@ -30,6 +29,5 @@ after_success:
   - docker exec build_container curl -o /tmp/codecov.sh https://codecov.io/bash
   - docker exec build_container chmod 755 /tmp/codecov.sh
   - docker exec -e BUILD_DIR=$BUILD_DIR -e SRC_DIR=$SRC_DIR -e CI -e TRAVIS=$TRAVIS -e TRAVIS_BRANCH=$TRAVIS_BRANCH -e TRAVIS_COMMIT=$TRAVIS_COMMIT -e TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG build_container /tmp/codecov.sh -s $BUILD_DIR -R $SRC_DIR -X gcov 
-  - docker exec -e BUILD_DIR=$BUILD_DIR -e SRC_DIR=$SRC_DIR -e CI -e TRAVIS=$TRAVIS -e TRAVIS_BRANCH=$TRAVIS_BRANCH -e TRAVIS_COMMIT=$TRAVIS_COMMIT -e TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG build_container /home/build/.local/bin/coveralls -r $SRC_DIR -b $BUILD_DIR --verbose --lcov-file=/tmp/build/coverage.info
 
     
