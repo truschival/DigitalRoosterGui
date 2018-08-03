@@ -68,11 +68,14 @@ ApplicationWindow {
 
 				Menu {
 					id: volumeMenu
-					width: 50
-                    height: 180
+					width: 55
+                    height: applicationWindow.height*0.8
 				
                     Label{
-                        text: volumeSlider.value
+                        font.pointSize: 24
+						font.weight: Font.DemiBold 
+						
+						text: volumeSlider.value
 						anchors.horizontalCenter:parent.horizontalCenter
 					}
 					Slider {
@@ -114,19 +117,22 @@ ApplicationWindow {
 
     Drawer {
         id: drawer
-        width: applicationWindow.width * 0.2
+        width: applicationWindow.width/8
         height: applicationWindow.height
-        interactive: true
+        interactive: true;
+		edge: Qt.LeftEdge;
+		dragMargin: 20;
 
         ListView {
             id: listView
-
+			anchors.fill: parent
             focus: true
             currentIndex: -1
-            anchors.fill: parent
+			spacing: 4
 
             delegate: IconButton {
-                width: parent.width
+                width: parent.width-4
+				height: parent.width-4
                 text: model.title
                 highlighted: listView.currentIndex == index
 
@@ -142,7 +148,6 @@ ApplicationWindow {
             }
 
             model: ListModel {
-                ListElement { title: "\uf150"; source: "qrc:/ClockPage.qml";   objectName:"ClockPage"; }
                 ListElement { title: "\uf223"; source: "qrc:/PodcastList.qml"; objectName:"PodcastList"; }
 				ListElement { title: "\uf43B"; source: "qrc:/IRadioList.qml"; objectName:"InternetRadio"; }
 				ListElement { title: "\uf020"; source: "qrc:/AlarmList.qml"; objectName:"AlarmList"; }
