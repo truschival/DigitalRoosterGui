@@ -26,6 +26,7 @@
 #include "PodcastSource.hpp"
 #include "alarm.hpp"
 #include "appconstants.hpp"
+#include "weather.hpp"
 
 namespace DigitalRooster {
 
@@ -61,6 +62,13 @@ public:
 	 */
 	const QVector<std::shared_ptr<Alarm>>& get_alarms() {
 		return get_alarm_list();
+	}
+
+	/**
+	 * Weather configuration object
+	 */
+    const WeatherConfig& get_weather_config(){
+        return weather_cfg;
 	}
 
 	/**
@@ -120,6 +128,11 @@ private:
 	QVector<std::shared_ptr<Alarm>> alarms;
 
 	/**
+	 * Weather configuration
+ 	 */
+    WeatherConfig weather_cfg;
+
+	/**
 	 * Duration for alarm to stop automatically
 	 */
 	std::chrono::minutes alarmtimeout;
@@ -162,6 +175,7 @@ private:
 	 * interpret json string
 	 */
 	virtual void parseJson(const QByteArray& json);
+
 	/**
 	 * Fills the vector stream_sources with entries form settings file
 	 */
@@ -176,6 +190,11 @@ private:
 	 * Read Alarm objects
 	 */
 	virtual void read_alarms_from_file(const QJsonObject& appconfig);
+
+	/**
+     * Read weatherconfig
+     */
+    virtual void read_weather_from_file(const QJsonObject& appconfig);
 
 	/**
 	 * Store settings permanently to file
