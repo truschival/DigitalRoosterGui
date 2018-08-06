@@ -15,6 +15,8 @@
 
 #include <QObject>
 #include <QString>
+#include <QUrl>
+#include <QJsonObject>
 #include <QTimer>
 #include <QtNetwork>
 #include <chrono>
@@ -48,8 +50,10 @@ struct WeatherConfig {
  */
 class Weather : public QObject {
     Q_OBJECT
-    Q_PROPERTY(QString display_name READ get_title)
-    Q_PROPERTY(QUrl url READ get_url)
+    Q_PROPERTY(QString city READ get_city)
+    Q_PROPERTY(
+        float temperature READ get_temperature NOTIFY temperature_changed)
+    Q_PROPERTY(QUrl weatherIcon READ get_weather_icon_url NOTIFY icon_changed)
 
 public:
     /**
@@ -63,7 +67,7 @@ public:
      * Update Download interval
      * @param iv interval in seconds
      */
-    void set_interval(std::chrono::seconds iv);
+    void set_update_interval(std::chrono::seconds iv);
 
     /**
      * Current download interval
@@ -71,12 +75,36 @@ public:
      */
     std::chrono::seconds get_interval();
 
+    /**
+     * Access to temperature
+     */
+    float get_temperature() const {
+        return temperature;
+    }
+
+    /**
+     * Access to city name
+     */
+    QString get_city() const {
+        return city_name;
+    }
+
+    /**
+     * Construct a URL from icon_id
+     */
+    QUrl get_weather_icon_url() const {
+        const QString base_uri("http://openweathermap.org/img/w/");
+        return QUrl(base_uri + icon_id + ".png");
+    }
 
 public slots:
+
     /**
-     * Update wheatherinformation
+     * Read Json from content bytearray and update internal fields
+     * @oaram content  JSON as bytearray
      */
-    void update();
+    void parse_response(QByteArray& content);
+
 signals:
     /**
      * Provide a full info as received from Openweathermaps
@@ -100,6 +128,31 @@ signals:
     void icon_changed(const QUrl& img_uri);
 
 private:
+    /**
+     * Interval in ms for auto refresh of content
+     * default to 1h
+     */
+    std::chrono::seconds update_interval;  
+
+    /**
+     * Current Temperature
+     */
+    float temperature = 0.0;
+
+    /**
+     * Name of location matching the ID, retured by weather-api
+     */
+    QString city_name;
+
+    /**
+     * Icon matching the current weather condtion returned by weather-api
+     */
+    QString icon_id;
+    
+    /**
+     * QTimer for periodic updates
+     */
+    QTimer timer;
 };
 } // namespace DigitalRooster
 #endif /* _WEATHER_HPP_ */
