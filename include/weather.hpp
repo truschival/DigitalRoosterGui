@@ -13,37 +13,20 @@
 #ifndef _WEATHER_HPP_
 #define _WEATHER_HPP_
 
+#include <QJsonObject>
 #include <QObject>
 #include <QString>
-#include <QUrl>
-#include <QJsonObject>
 #include <QTimer>
+#include <QUrl>
 #include <QtNetwork>
 #include <chrono>
+
+#include "DownloadManager.hpp"
 
 namespace DigitalRooster {
 
 class ConfigurationManager;
-
-/**
- * Simple POD for openweathermaps configuration
- * with sensible default values
- */
-struct WeatherConfig {
-    /**
-     *  location id
-     * from http://bulk.openweathermap.org/sample/city.list.json.gz
-     * e.g. 'Esslingen,de' = id 4891, Porto Alegre=3452925
-     */
-    QString cityid = {"4891"};
-    /** Openweathermap API Key */
-    QString apikey = {"a904431b4e0eae431bcc1e075c761abb"};
-    /** metric, imperial, */
-    QString units = {"metric"};
-    /* language for description 'en', 'de'...*/
-    QString language = {"en"};
-};
-
+struct WeatherConfig;
 
 /**
  * Periodically downloads weather info from Openweathermaps
@@ -68,13 +51,8 @@ public:
      * @param iv interval in seconds
      */
     void set_update_interval(std::chrono::seconds iv);
-
-    /**
-     * Current download interval
-     * @return interval in seconds
-     */
-    std::chrono::seconds get_interval();
-
+	std::chrono::seconds get_update_interval() const;
+		
     /**
      * Access to temperature
      */
@@ -99,11 +77,15 @@ public:
 
 public slots:
 
+	/**
+	 * Slot triggers refresh of weather data and starts a new download process
+	 */
+	void refresh();
     /**
      * Read Json from content bytearray and update internal fields
      * @oaram content  JSON as bytearray
      */
-    void parse_response(QByteArray& content);
+    void parse_response(QByteArray content);
 
 signals:
     /**
@@ -129,10 +111,15 @@ signals:
 
 private:
     /**
+     * Central configuration and data handler
+     */
+    std::shared_ptr<ConfigurationManager> cm;
+
+    /**
      * Interval in ms for auto refresh of content
      * default to 1h
      */
-    std::chrono::seconds update_interval;  
+    std::chrono::seconds update_interval{3600LL};
 
     /**
      * Current Temperature
@@ -148,11 +135,26 @@ private:
      * Icon matching the current weather condtion returned by weather-api
      */
     QString icon_id;
-    
+
     /**
      * QTimer for periodic updates
      */
     QTimer timer;
+    
+	/**
+	 * HTTP handle to download JSONs
+ 	 */
+    DownloadManager downloader;
 };
+
+/**
+ * create a valid URL to download weather-json from openweathermaps
+ * based on infromation in WeatherConfig
+ * @param cfg configuration with location, units etc.
+ * @return uri e.g. api.openweathermap.org/data/2.5/weather?zip=94040,us
+ */
+QUrl create_weather_uri(const WeatherConfig& cfg);
+
+
 } // namespace DigitalRooster
 #endif /* _WEATHER_HPP_ */
