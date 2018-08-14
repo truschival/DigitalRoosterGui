@@ -33,7 +33,8 @@ struct WeatherConfig;
  */
 class Weather : public QObject {
     Q_OBJECT
-    Q_PROPERTY(QString city READ get_city)
+    Q_PROPERTY(QString city READ get_city NOTIFY city_updated)
+    Q_PROPERTY(QString condition READ get_condition NOTIFY condition_changed)
     Q_PROPERTY(
         float temperature READ get_temperature NOTIFY temperature_changed)
     Q_PROPERTY(QUrl weatherIcon READ get_weather_icon_url NOTIFY icon_changed)
@@ -51,15 +52,22 @@ public:
      * @param iv interval in seconds
      */
     void set_update_interval(std::chrono::seconds iv);
-	std::chrono::seconds get_update_interval() const;
-		
+    std::chrono::seconds get_update_interval() const;
+
     /**
      * Access to temperature
      */
-    float get_temperature() const {
+    double get_temperature() const {
         return temperature;
     }
 
+    /**
+     * Current wheather condition description (localized string)
+     * e.g. "light clouds", "light intensity drizzle"
+     */
+    QString get_condition() const {
+        return condition;
+    }
     /**
      * Access to city name
      */
@@ -77,10 +85,10 @@ public:
 
 public slots:
 
-	/**
-	 * Slot triggers refresh of weather data and starts a new download process
-	 */
-	void refresh();
+    /**
+     * Slot triggers refresh of weather data and starts a new download process
+     */
+    void refresh();
     /**
      * Read Json from content bytearray and update internal fields
      * @oaram content  JSON as bytearray
@@ -95,14 +103,18 @@ signals:
 
     /**
      * Current Condition description
-     * e.g. "light clouds", "light intensity drizzle"
      */
     void condition_changed(const QString& temp);
 
     /**
+     * City name available
+     */
+    void city_updated(const QString& cityname);
+
+    /**
      * Current temperature
      */
-    void temperature_changed(const float temperature);
+    void temperature_changed(const double temperature);
 
     /**
      * Weather icon corresponding to current condition
@@ -124,12 +136,17 @@ private:
     /**
      * Current Temperature
      */
-    float temperature = 0.0;
+    double temperature = 0.0;
 
     /**
      * Name of location matching the ID, retured by weather-api
      */
     QString city_name;
+
+    /**
+     * Localized weathercondition string
+     */
+    QString condition;
 
     /**
      * Icon matching the current weather condtion returned by weather-api
@@ -140,11 +157,16 @@ private:
      * QTimer for periodic updates
      */
     QTimer timer;
-    
-	/**
-	 * HTTP handle to download JSONs
- 	 */
+
+    /**
+     * HTTP handle to download JSONs
+     */
     DownloadManager downloader;
+
+
+    void parse_city(const QJsonObject& o);
+    void parse_temperature(const QJsonObject& o);
+    void parse_condition(const QJsonObject& o);
 };
 
 /**

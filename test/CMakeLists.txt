@@ -162,6 +162,11 @@ SET(AUDIO_TEST_FILE "testaudio.mp3")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${AUDIO_TEST_FILE}"	
   "${CMAKE_BINARY_DIR}/${AUDIO_TEST_FILE}" COPYONLY)
   
+SET(WEATHER_TEST_FILE "sample_weather.json")
+configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${WEATHER_TEST_FILE}"	
+  "${CMAKE_BINARY_DIR}/${WEATHER_TEST_FILE}" COPYONLY)
+  
+
 #------------------------------
 # Binary
 #------------------------------
