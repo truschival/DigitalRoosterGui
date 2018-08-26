@@ -25,6 +25,11 @@ Rectangle{
 			text: display_name;
 			font.pointSize: 14;
 			font.bold: true;
+			Layout.fillWidth: true
+			Layout.preferredWidth: parent.width-16
+			Layout.preferredHeight: parent.heigth*0.5
+			Layout.maximumWidth: parent.width-4
+			Layout.maximumHeight: parent.heigth*0.6
 			elide: Text.ElideRight
 			Layout.columnSpan: 2
 			Layout.alignment: Qt.AlignLeft | Qt.AlignTop

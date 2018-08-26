@@ -41,7 +41,7 @@ struct WeatherConfig {
      * from http://bulk.openweathermap.org/sample/city.list.json.gz
      * e.g. 'Esslingen,de' = id 2928751, Porto Alegre=3452925
      */
-    QString cityid = {"4891"};
+    QString cityid = {"2928751"};
     /** Openweathermap API Key */
     QString apikey = {"a904431b4e0eae431bcc1e075c761abb"};
     /** metric, imperial, */
