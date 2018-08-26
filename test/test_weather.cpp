@@ -91,3 +91,4 @@ TEST_F(WeatherFile, ParseConditionFromFile) {
     EXPECT_EQ(spy.count(), 1);
     ASSERT_EQ(dut.get_condition(), QString("few clouds"));
 }
+

@@ -23,4 +23,14 @@ Page {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
     }
+   
+    Label{
+        x: 307
+        y: 120
+        text: weather.temperature
+        anchors.verticalCenterOffset: 70
+        font.pointSize: 24
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
+    }
 }

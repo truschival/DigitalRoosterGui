@@ -27,10 +27,10 @@ void DownloadManager::doDownload(const QUrl& url) {
     QNetworkRequest request(url);
     QNetworkReply* reply = manager.get(request);
 
-    //#if QT_CONFIG(ssl)
+    #if QT_CONFIG(ssl)
     connect(reply, SIGNAL(sslErrors(QList<QSslError>)),
         SLOT(sslErrors(QList<QSslError>)));
-    //#endif
+    #endif
 
     currentDownloads.append(reply);
 }
@@ -103,12 +103,13 @@ void DownloadManager::downloadFinished(QNetworkReply* reply) {
             fputs("Request was redirected.\n", stderr);
         } else {
             // TODO: cleanup design for download manager
-            emit dataAvailable(reply->readAll());
+            // emit dataAvailable(reply->readAll());
 
             QString filename = saveFileName(url);
             if (saveToDisk(filename, reply)) {
                 emit newFileAvailable(filename);
             }
+            emit dataAvailable(reply->readAll());
         }
     }
 
