@@ -43,8 +43,8 @@ Page {
 			
 				Image {
 					id: cloudicon
-					Layout.maximumWidth: 48
-					Layout.maximumHeight: 48
+					Layout.maximumWidth: 64
+					Layout.maximumHeight: 64
 					Layout.preferredWidth: 48
 					Layout.preferredHeight: 48
 					Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter

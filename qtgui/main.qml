@@ -101,10 +101,7 @@ ApplicationWindow {
                 visible: (stackView.depth > 1)
 
                 onClicked:{
-                    if (stackView.depth > 1){
-                        stackView.pop()
-                        console.log("BackButton")
-                    }
+					stackView.backNavigate()
                 }
 
                 Shortcut {
@@ -137,12 +134,12 @@ ApplicationWindow {
                 highlighted: listView.currentIndex == index
 
                 onClicked: {
-                    if(listView.currentIndex != index){
-                        listView.currentIndex = index
-
-                        stackView.pop(null)
-                        stackView.push(model.source)
-                    }
+					console.log("Current "+ listView.currentIndex + " index: "+index + " DEPTH: "+ stackView.depth) 
+					if( stackView.depth > 1){
+						stackView.pop(null)
+					} 
+					listView.currentIndex = index
+					stackView.push(model.source)
                     drawer.close()
                 }
             }
@@ -175,5 +172,13 @@ ApplicationWindow {
             id:initalClockPage
             property string objectName : "InitialPage"
         }
+
+		function backNavigate(){
+			if (stackView.depth > 1){
+					stackView.pop()
+			} else{
+				stackView.currentIndex = -1;
+			}
+		}
     }
 }
