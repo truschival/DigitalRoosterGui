@@ -35,11 +35,11 @@ namespace DigitalRooster {
  */
 struct WeatherConfig {
 	/* Base uri for OpenWeatherMaps API */
-    QString base_uri{"https://api.openweathermap.org/data/2.5/weather?"};
+    QString base_uri{"http://api.openweathermap.org/data/2.5/weather?"};
     /**
      *  location id
      * from http://bulk.openweathermap.org/sample/city.list.json.gz
-     * e.g. 'Esslingen,de' = id 4891, Porto Alegre=3452925
+     * e.g. 'Esslingen,de' = id 2928751, Porto Alegre=3452925
      */
     QString cityid = {"4891"};
     /** Openweathermap API Key */

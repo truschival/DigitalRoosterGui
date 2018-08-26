@@ -23,7 +23,7 @@ DownloadManager::DownloadManager() {
 /*****************************************************************************/
 
 void DownloadManager::doDownload(const QUrl& url) {
-    //	qDebug() << __FUNCTION__ << "(" << url.toString() <<")";
+    qDebug() << __FUNCTION__ << "(" << url.toString() <<")";
     QNetworkRequest request(url);
     QNetworkReply* reply = manager.get(request);
 
@@ -86,7 +86,7 @@ bool DownloadManager::isHttpRedirect(QNetworkReply* reply) {
 void DownloadManager::sslErrors(const QList<QSslError>& sslErrors) {
     //#if QT_CONFIG(ssl)
     for (const QSslError& error : sslErrors)
-        fprintf(stderr, "SSL error: %s\n", qPrintable(error.errorString()));
+        qCritical() << "SSL error:" << qPrintable(error.errorString());
     // #else
     Q_UNUSED(sslErrors);
     // #endif
@@ -96,20 +96,20 @@ void DownloadManager::sslErrors(const QList<QSslError>& sslErrors) {
 void DownloadManager::downloadFinished(QNetworkReply* reply) {
     QUrl url = reply->url();
     if (reply->error()) {
-        fprintf(stderr, "Download of %s failed: %s\n",
-            url.toEncoded().constData(), qPrintable(reply->errorString()));
+        qCritical() << "Download of %s failed" <<
+            url.toEncoded().constData() << qPrintable(reply->errorString());
     } else {
         if (isHttpRedirect(reply)) {
-            fputs("Request was redirected.\n", stderr);
+            qInfo() << "Request redirected";
         } else {
             // TODO: cleanup design for download manager
-            // emit dataAvailable(reply->readAll());
+            emit dataAvailable(reply->readAll());
 
             QString filename = saveFileName(url);
-            if (saveToDisk(filename, reply)) {
-                emit newFileAvailable(filename);
-            }
-            emit dataAvailable(reply->readAll());
+            // if (saveToDisk(filename, reply)) {
+            //    emit newFileAvailable(filename);
+            // }
+            //emit dataAvailable(reply->readAll());
         }
     }
 

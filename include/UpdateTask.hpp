@@ -34,6 +34,8 @@ public slots:
 	 */
 	void newFileAvailable(const QString& filename);
 
+
+	void dataAvailable(const QByteArray& data);
 	/**
 	 * Starts download and parsing
 	 */

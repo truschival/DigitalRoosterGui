@@ -26,6 +26,8 @@ namespace DigitalRooster {
  */
 void update_podcast(PodcastSource& podcastsource);
 
+void update_podcast(PodcastSource& podcastsource, const QByteArray& data);
+
 }
 ;
 #endif // _PODCASTSOURCEREADER_HPP_ 
