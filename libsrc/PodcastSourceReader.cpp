@@ -184,3 +184,33 @@ void DigitalRooster::update_podcast(PodcastSource& podcastsource) {
 	}
 	//    qDebug() <<"parsing o.k.";
 }
+
+
+/*****************************************************************************/
+void DigitalRooster::update_podcast(PodcastSource& podcastsource, const QByteArray & data) {
+    qDebug() << Q_FUNC_INFO;
+
+    QXmlStreamReader xml(data);
+    xml.setNamespaceProcessing(true);
+
+    // loop the entire file, a rss is really flat
+    try {
+        while (!xml.atEnd() && !xml.hasError()) {
+            QXmlStreamReader::TokenType token = xml.readNext();
+
+            if (token == QXmlStreamReader::StartDocument) {
+                continue;
+            }
+            if (token == QXmlStreamReader::StartElement) {
+                if (xml.name() == "rss") {
+                    continue;
+                } else if (xml.name() == "channel") {
+                    parse_channel(podcastsource, xml);
+                }
+            }
+        }
+    } catch (std::invalid_argument& exc) {
+        qWarning() << " XML error in line:" << xml.lineNumber() << exc.what();
+        return;
+    }
+}

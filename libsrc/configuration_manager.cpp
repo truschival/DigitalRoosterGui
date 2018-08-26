@@ -31,10 +31,9 @@ ConfigurationManager::ConfigurationManager()
     : alarmtimeout(DEFAULT_ALARM_TIMEOUT)
     , sleeptimeout(DEFAULT_SLEEP_TIMEOUT) {
 
-	connect(&filewatcher, SIGNAL(fileChanged(const QString &)), this,
-			SLOT(fileChanged(const QString &)));
-}
-;
+    connect(&filewatcher, SIGNAL(fileChanged(const QString&)), this,
+        SLOT(fileChanged(const QString&)));
+};
 
 /*****************************************************************************/
 void ConfigurationManager::refresh_configuration() {
@@ -83,6 +82,7 @@ void ConfigurationManager::parseJson(const QByteArray& json) {
     read_radio_streams_from_file(appconfig);
     read_podcasts_from_file(appconfig);
     read_alarms_from_file(appconfig);
+    read_weather_from_file(appconfig);
 }
 
 /*****************************************************************************/
@@ -146,6 +146,29 @@ void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
     }
 }
 
+
+/*****************************************************************************/
+void ConfigurationManager::read_weather_from_file(
+    const QJsonObject& appconfig) {
+    if (appconfig[KEY_WEATHER].isNull()) {
+        qWarning() << "no weather configuration found!";
+        return;
+    }
+    QJsonObject json_weather = appconfig[KEY_WEATHER].toObject();
+    if (!json_weather[KEY_WEATHER_API_KEY].isNull()) {
+        weather_cfg.apikey = json_weather[KEY_WEATHER_API_KEY].toString();
+    } else {
+        qWarning() << "No openweathermaps API Key configured goto "
+                      "https://openweathermap.org and get one!";
+    }
+
+    if (!json_weather[KEY_WEATHER_LOCATION_ID].isNull()) {
+        weather_cfg.cityid = json_weather[KEY_WEATHER_LOCATION_ID].toString();
+    } else {
+        qWarning() << "No weather location ID configured!";
+    }
+}
+
 /*****************************************************************************/
 void ConfigurationManager::add_radio_station(
     std::shared_ptr<PlayableItem> src) {
@@ -190,6 +213,13 @@ void ConfigurationManager::store_current_config() {
     }
     appconfig[KEY_GROUP_ALARMS] = alarms_json;
 
+    /* Store Weather information*/
+    QJsonObject json_weather;
+    json_weather[KEY_WEATHER_API_KEY] = weather_cfg.apikey;
+    json_weather[KEY_WEATHER_LOCATION_ID] = weather_cfg.cityid;
+    appconfig[KEY_WEATHER] = json_weather;
+
+    /* global application configuration */
     appconfig[KEY_ALARM_TIMEOUT] = static_cast<qint64>(alarmtimeout.count());
     appconfig[KEY_SLEEP_TIMEOUT] = static_cast<qint64>(sleeptimeout.count());
     /* Static info - which version created the config file*/
@@ -203,7 +233,7 @@ void ConfigurationManager::write_config_file(const QJsonObject& appconfig) {
     auto config_dir = make_sure_config_path_exists();
     auto file_path = config_dir.filePath(CONFIG_JSON_FILE_NAME);
 
-	QFile config_file(file_path);
+    QFile config_file(file_path);
     config_file.open(
         QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text);
     QJsonDocument doc(appconfig);
@@ -245,9 +275,9 @@ QDir ConfigurationManager::make_sure_config_path_exists() {
 }
 /*****************************************************************************/
 
-void  ConfigurationManager::fileChanged(const QString &path){
-	qDebug() << " Config changed, reloading";
-	refresh_configuration();
+void ConfigurationManager::fileChanged(const QString& path) {
+    qDebug() << " Config changed, reloading";
+    refresh_configuration();
 }
 
 /*****************************************************************************/

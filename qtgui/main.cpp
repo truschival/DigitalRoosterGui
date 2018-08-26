@@ -32,6 +32,7 @@
 #include "mediaplayerproxy.hpp"
 #include "podcastepisodemodel.hpp"
 #include "podcastsourcemodel.hpp"
+#include "weather.hpp"
 
 using namespace DigitalRooster;
 
@@ -71,6 +72,7 @@ int main(int argc, char* argv[]) {
     PodcastSourceModel psmodel(cm, playerproxy);
     IRadioListModel iradiolistmodel(cm, playerproxy);
     AlarmListModel alarmlistmodel(cm);
+    Weather weather(cm);
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
@@ -78,6 +80,7 @@ int main(int argc, char* argv[]) {
     ctxt->setContextProperty("playerProxy", playerproxy.get());
     ctxt->setContextProperty("alarmlistmodel", &alarmlistmodel);
     ctxt->setContextProperty("iradiolistmodel", &iradiolistmodel);
+    ctxt->setContextProperty("weather", &weather);
 
     view.load(QUrl("qrc:/main.qml"));
 

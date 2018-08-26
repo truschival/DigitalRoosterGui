@@ -109,6 +109,22 @@ const QString KEY_SLEEP_TIMEOUT("SleepTimeout");
 const QString KEY_VERSION("Version");
 
 /**
+ * Weather retrieval configuration
+ */
+const QString KEY_WEATHER("Weather");
+
+/**
+ * Location ID for openweathermaps
+ */
+const QString KEY_WEATHER_LOCATION_ID("LocationID");
+
+/**
+ * API key to access openweathermaps
+ */
+const QString KEY_WEATHER_API_KEY("API-Key");
+
+
+/**
  * Directory for all downloaded RSS Files
  */
 const QString RSS_FILE_DIR(QDir::tempPath());

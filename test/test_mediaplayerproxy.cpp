@@ -53,7 +53,7 @@ TEST_F(PlayerFixture, emitStateChanged) {
     ASSERT_TRUE(spy.isValid());
     dut.set_media(podcast);
     dut.play();
-    spy.wait();
+    spy.wait(500);
     dut.pause();
     ASSERT_EQ(spy.count(), 2); // 1 play, 2 pause
 }
@@ -67,7 +67,7 @@ TEST_F(PlayerFixture, setMuted) {
     dut.play();
     dut.set_muted(true);
     dut.pause();
-    spy.wait();
+    spy.wait(500);
     ASSERT_TRUE(dut.muted());
     dut.set_muted(false);
     ASSERT_EQ(spy.count(), 2);

@@ -28,9 +28,18 @@ public:
 
         qRegisterMetaType<std::shared_ptr<DigitalRooster::Alarm>>(
             "std::shared_ptr<DigitalRooster::Alarm>");
+
+		weather_cfg.cityid = "2172797"; // Cairns, AU
+		weather_cfg.language = "de";
+        weather_cfg.units = "metric";
+
     };
     MOCK_METHOD0(
         get_alarm_list, QVector<std::shared_ptr<DigitalRooster::Alarm>>&());
 
+	MOCK_METHOD0(get_weather_cfg, DigitalRooster::WeatherConfig&());
+
     QVector<std::shared_ptr<DigitalRooster::Alarm>> alarms;
+
+	DigitalRooster::WeatherConfig weather_cfg;
 };
