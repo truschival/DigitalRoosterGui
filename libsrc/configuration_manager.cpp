@@ -249,12 +249,15 @@ void ConfigurationManager::create_default_configuration() {
     alm->set_period(Alarm::Workdays);
     alarms.push_back(alm);
 
-    auto stations = std::make_shared<DigitalRooster::PodcastSource>(
+    auto acw = std::make_shared<DigitalRooster::PodcastSource>(
         QUrl("http://armscontrolwonk.libsyn.com/rss"));
-    podcast_sources.push_back(stations);
+    podcast_sources.push_back(acw);
+    auto mdwap = std::make_shared<DigitalRooster::PodcastSource>(
+        QUrl("https://rss.acast.com/mydadwroteaporno"));
+    podcast_sources.push_back(mdwap);
 
     auto radio =
-        std::make_shared<DigitalRooster::PlayableItem>("Deutschlandfunk",
+        std::make_shared<DigitalRooster::PlayableItem>("Deutschlandfunk (Ogg)",
             QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"));
     stream_sources.push_back(radio);
 
