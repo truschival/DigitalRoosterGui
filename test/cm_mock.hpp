@@ -5,8 +5,8 @@
  * \details
  *
  * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
- * 			 SPDX-License-Identifier: GPL-2.0-or-later}
+ * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
+ * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
 
@@ -28,9 +28,18 @@ public:
 
         qRegisterMetaType<std::shared_ptr<DigitalRooster::Alarm>>(
             "std::shared_ptr<DigitalRooster::Alarm>");
+
+		weather_cfg.cityid = "2172797"; // Cairns, AU
+		weather_cfg.language = "de";
+        weather_cfg.units = "metric";
+
     };
     MOCK_METHOD0(
         get_alarm_list, QVector<std::shared_ptr<DigitalRooster::Alarm>>&());
 
+	MOCK_METHOD0(get_weather_cfg, DigitalRooster::WeatherConfig&());
+
     QVector<std::shared_ptr<DigitalRooster::Alarm>> alarms;
+
+	DigitalRooster::WeatherConfig weather_cfg;
 };

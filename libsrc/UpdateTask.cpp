@@ -5,8 +5,8 @@
  * \details
  *
  * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
- * 			 SPDX-License-Identifier: GPL-2.0-or-later}
+ * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
+ * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
 
@@ -25,6 +25,9 @@ UpdateTask::UpdateTask(PodcastSource& source) :
 		ps(source) {
 	connect(&dlm, SIGNAL(newFileAvailable(const QString&)), this,
 			SLOT(newFileAvailable(const QString&)));
+
+    connect(&dlm, SIGNAL(dataAvailable(const QByteArray)), this,
+        SLOT(dataAvailable(const QByteArray)));
 }
 /*****************************************************************************/
 
@@ -48,6 +51,12 @@ void UpdateTask::newFileAvailable(const QString& filepath) {
 				file.errorString().toStdString());
 	}
 	file.remove();
+}
+
+/*****************************************************************************/
+
+void UpdateTask::dataAvailable(const QByteArray& data) {
+       update_podcast(ps, data);
 }
 
 /*****************************************************************************/

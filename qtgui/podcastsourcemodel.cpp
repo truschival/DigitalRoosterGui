@@ -6,8 +6,8 @@
  *
  * \author Thomas Ruschival
  * \copyright 2018 Thomas Ruschival <thomas@ruschival.de>
- * 			  This file is licensed under GNU PUBLIC LICENSE Version 2 or later
- * 			  SPDX-License-Identifier: GPL-2.0-or-later
+ * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
+ * 			  SPDX-License-Identifier: GPL-3.0-or-later
  *************************************************************************************/
 #include <QByteArray>
 #include <QHash>

@@ -5,9 +5,9 @@
  * \details needed to bind a list of episodes to QML
  *
  * \author Thomas Ruschival
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
+ * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
  *
- * 			 SPDX-License-Identifier: GPL-2.0-or-later}
+ * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  ******************************************************************************/
 #ifndef QTGUI_PODCASTEPISODEMODEL_HPP_
 #define QTGUI_PODCASTEPISODEMODEL_HPP_

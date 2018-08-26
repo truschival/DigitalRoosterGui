@@ -5,8 +5,8 @@
  * \details
  *
  * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
- * 			 SPDX-License-Identifier: GPL-2.0-or-later}
+ * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
+ * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
 #include <QSettings>
@@ -37,7 +37,7 @@ private:
 class SettingsFixture : public virtual ::testing::Test {
 public:
     SettingsFixture()
-        : filename(TEST_FILE_PATH +"/" +CONFIG_JSON_FILE_NAME) {
+        : filename(TEST_FILE_PATH + "/" + CONFIG_JSON_FILE_NAME) {
     }
 
     ~SettingsFixture() {
@@ -47,13 +47,13 @@ public:
         add_podcast_sources(appconfig);
         add_internet_radio(appconfig);
         add_alarms(appconfig);
+        add_weather_config(appconfig);
         QJsonDocument doc(appconfig);
         QFile tf(filename);
         tf.open(QIODevice::ReadWrite | QIODevice::Text);
         tf.write(doc.toJson());
         tf.close();
-
-		cm.update_configuration();
+        cm.update_configuration();
     }
 
     void TearDown() {
@@ -126,6 +126,15 @@ protected:
 
         root[KEY_GROUP_ALARMS] = alarms;
     }
+
+    void add_weather_config(QJsonObject& root) {
+        /* Store Weather information*/
+        QJsonObject json_weather;
+        json_weather[KEY_WEATHER_API_KEY] =
+            QString("d77bd1ca2fd77ce4e1cdcdd5f8b7206c");
+        json_weather[KEY_WEATHER_LOCATION_ID] = QString("3452925");
+        root[KEY_WEATHER] = json_weather;
+    }
 };
 
 /*****************************************************************************/
@@ -137,7 +146,7 @@ TEST_F(SettingsFixture, read_radio_streams_two_streams) {
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, addRadioStation_no_write) {
-	cm.add_radio_station(
+    cm.add_radio_station(
         std::make_shared<PlayableItem>("foo", QUrl("http://bar.baz")));
     cm.add_radio_station(
         std::make_shared<PlayableItem>("ref", QUrl("http://gmx.net")));
@@ -224,7 +233,7 @@ TEST_F(SettingsFixture, alarm_workdays) {
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, alarm_weekends) {
-	auto& v = cm.get_alarms();
+    auto& v = cm.get_alarms();
     ASSERT_EQ(v[2]->get_period(), Alarm::Weekend);
     ASSERT_EQ(v[2]->get_time(), QTime::fromString("09:00", "hh:mm"));
     ASSERT_FALSE(v[2]->is_enabled());
@@ -257,7 +266,7 @@ TEST(ConfigManager, CreateDefaultConfigDir) {
 
     ConfigurationManager cm;
     cm.update_configuration();
-	ASSERT_TRUE(config_dir.exists());
+    ASSERT_TRUE(config_dir.exists());
 }
 /*****************************************************************************/
 
@@ -272,7 +281,19 @@ TEST(ConfigManager, CreateDefaultConfig) {
     ConfigurationManager cm;
     cm.update_configuration();
 
-    ASSERT_GT(config_file.size(),0);
+    ASSERT_GT(config_file.size(), 0);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, GetweatherConfigApiToken) {
+    auto cfg = cm.get_weather_config();
+    ASSERT_EQ(cfg.apikey, QString("d77bd1ca2fd77ce4e1cdcdd5f8b7206c"));
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, GetweatherConfigCityId) {
+    auto cfg = cm.get_weather_config();
+    ASSERT_EQ(cfg.cityid, QString("3452925"));
 }
 
 /*****************************************************************************/

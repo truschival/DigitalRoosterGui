@@ -6,15 +6,15 @@ import QtQuick.Controls 2.1
 ListView {
     id:podcastlist
 	property string objectName : "PodcastList"
-    width: parent.width
-    height: parent.height
+    width: stackView.width
+    height: stackView.height
     antialiasing: true
     highlightRangeMode: ListView.ApplyRange
     boundsBehavior: Flickable.StopAtBounds
     maximumFlickVelocity: 1500
     flickDeceleration: 1800
     snapMode: ListView.SnapOneItem
-    contentWidth: parent.width
+    contentWidth: stackView.width
     focus: true
 
     delegate: PodcastDelegate{

@@ -1,4 +1,4 @@
-[![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Build Status](https://travis-ci.com/truschival/DigitalRoosterGui.svg?branch=develop)](https://travis-ci.com/truschival/DigitalRoosterGui)
 [![codecov](https://codecov.io/gh/truschival/DigitalRoosterGui/branch/develop/graph/badge.svg)](https://codecov.io/gh/truschival/DigitalRoosterGui)
 
@@ -10,7 +10,11 @@ Internet radio and podcast player and alarmclock.
 ----
 # License
 
-Copyright 2018 by Thomas Ruschival <thomas@ruschival.de>
+Copyright (c) 2018 by Thomas Ruschival <thomas@ruschival.de> 
+
+Licensed under [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0-standalone.html) 
+
+SPDX-License-Identifier: GPL-3.0-or-later
 
 DigitalRooster uses Qmlbridgeformaterialfonts software by Kevin Carlso
 (https://github.com/kevincarlson/QmlBridgeForMaterialDesignIcons)

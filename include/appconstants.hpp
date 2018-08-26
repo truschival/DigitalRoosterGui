@@ -5,8 +5,8 @@
  * \details
  *
  * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
- * 			 SPDX-License-Identifier: GPL-2.0-or-later}
+ * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
+ * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
 #pragma once
@@ -107,6 +107,22 @@ const QString KEY_SLEEP_TIMEOUT("SleepTimeout");
  * Keyword to identify the creating project version of the config file
  */
 const QString KEY_VERSION("Version");
+
+/**
+ * Weather retrieval configuration
+ */
+const QString KEY_WEATHER("Weather");
+
+/**
+ * Location ID for openweathermaps
+ */
+const QString KEY_WEATHER_LOCATION_ID("LocationID");
+
+/**
+ * API key to access openweathermaps
+ */
+const QString KEY_WEATHER_API_KEY("API-Key");
+
 
 /**
  * Directory for all downloaded RSS Files

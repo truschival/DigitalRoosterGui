@@ -5,8 +5,8 @@
  * \details
  *
  * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
- * 			 SPDX-License-Identifier: GPL-2.0-or-later}
+ * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
+ * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
 
@@ -183,4 +183,34 @@ void DigitalRooster::update_podcast(PodcastSource& podcastsource) {
 		return;
 	}
 	//    qDebug() <<"parsing o.k.";
+}
+
+
+/*****************************************************************************/
+void DigitalRooster::update_podcast(PodcastSource& podcastsource, const QByteArray & data) {
+    qDebug() << Q_FUNC_INFO;
+
+    QXmlStreamReader xml(data);
+    xml.setNamespaceProcessing(true);
+
+    // loop the entire file, a rss is really flat
+    try {
+        while (!xml.atEnd() && !xml.hasError()) {
+            QXmlStreamReader::TokenType token = xml.readNext();
+
+            if (token == QXmlStreamReader::StartDocument) {
+                continue;
+            }
+            if (token == QXmlStreamReader::StartElement) {
+                if (xml.name() == "rss") {
+                    continue;
+                } else if (xml.name() == "channel") {
+                    parse_channel(podcastsource, xml);
+                }
+            }
+        }
+    } catch (std::invalid_argument& exc) {
+        qWarning() << " XML error in line:" << xml.lineNumber() << exc.what();
+        return;
+    }
 }

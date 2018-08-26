@@ -5,9 +5,9 @@
  * \details
  *
  * \author Thomas Ruschival
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 2 or later
+ * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
  *
- * 			 SPDX-License-Identifier: GPL-2.0-or-later}
+ * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *************************************************************************************/
 #ifndef QTGUI_ALARMLISTMODEL_HPP_
 #define QTGUI_ALARMLISTMODEL_HPP_
