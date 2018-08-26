@@ -35,6 +35,7 @@ Weather::Weather(std::shared_ptr<ConfigurationManager> confman, QObject* parent)
     timer.setInterval(duration_cast<milliseconds>(update_interval));
     timer.setSingleShot(false);
     timer.start();
+    downloader.doDownload(create_weather_uri(cm->get_weather_config()));
 }
 
 /*****************************************************************************/
@@ -80,7 +81,7 @@ QUrl DigitalRooster::create_weather_uri(const WeatherConfig& cfg) {
     uri_str += cfg.units;
     uri_str += "&appid=";
     uri_str += cfg.apikey;
-    qDebug() << uri_str;
+//    qDebug() << uri_str;
     return QUrl(uri_str);
 }
 /*****************************************************************************/
