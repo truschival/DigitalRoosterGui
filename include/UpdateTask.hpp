@@ -13,13 +13,13 @@
 #ifndef INCLUDE_UPDATETASK_HPP_
 #define INCLUDE_UPDATETASK_HPP_
 
+#include <httpclient.hpp>
 #include <memory>
 #include <chrono>
 
 #include <QObject>
 #include <QString>
 #include <QTimer>
-#include "DownloadManager.hpp"
 
 
 namespace DigitalRooster {
@@ -71,7 +71,7 @@ private:
     /**
      * handles downloads
      */
-    DownloadManager dlm;
+    HttpClient dlm;
 
     /**
      * Periodic timer for update action

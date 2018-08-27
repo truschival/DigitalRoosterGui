@@ -10,7 +10,7 @@
  *
  *****************************************************************************/
 
-#include <DownloadManager.hpp>
+#include <httpclient.hpp>
 
 namespace DigitalRooster {
 

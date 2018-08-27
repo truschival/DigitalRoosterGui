@@ -10,19 +10,19 @@
  *
  *****************************************************************************/
 
-#include <DownloadManager.hpp>
 #include <QDebug>
 #include <appconstants.hpp>
+#include <httpclient.hpp>
 
 namespace DigitalRooster {
 
-DownloadManager::DownloadManager() {
+HttpClient::HttpClient() {
     connect(&manager, SIGNAL(finished(QNetworkReply*)),
         SLOT(downloadFinished(QNetworkReply*)));
 }
 /*****************************************************************************/
 
-void DownloadManager::doDownload(const QUrl& url) {
+void HttpClient::doDownload(const QUrl& url) {
     qDebug() << __FUNCTION__ << "(" << url.toString() <<")";
     QNetworkRequest request(url);
     QNetworkReply* reply = manager.get(request);
@@ -36,7 +36,7 @@ void DownloadManager::doDownload(const QUrl& url) {
 }
 /*****************************************************************************/
 
-bool DownloadManager::isHttpRedirect(QNetworkReply* reply) {
+bool HttpClient::isHttpRedirect(QNetworkReply* reply) {
     int statusCode =
         reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     return statusCode == 301 || statusCode == 302 || statusCode == 303 ||
@@ -44,7 +44,7 @@ bool DownloadManager::isHttpRedirect(QNetworkReply* reply) {
 }
 /*****************************************************************************/
 
-void DownloadManager::sslErrors(const QList<QSslError>& sslErrors) {
+void HttpClient::sslErrors(const QList<QSslError>& sslErrors) {
     #if QT_CONFIG(ssl)
     for (const QSslError& error : sslErrors)
         qCritical() << "SSL error:" << qPrintable(error.errorString());
@@ -54,7 +54,7 @@ void DownloadManager::sslErrors(const QList<QSslError>& sslErrors) {
 }
 /*****************************************************************************/
 
-void DownloadManager::downloadFinished(QNetworkReply* reply) {
+void HttpClient::downloadFinished(QNetworkReply* reply) {
     QUrl url = reply->url();
     if (reply->error()) {
         qCritical() << "Download of %s failed" <<

@@ -13,6 +13,7 @@
 #ifndef _WEATHER_HPP_
 #define _WEATHER_HPP_
 
+#include <httpclient.hpp>
 #include <QJsonObject>
 #include <QObject>
 #include <QString>
@@ -21,7 +22,6 @@
 #include <QtNetwork>
 #include <chrono>
 
-#include "DownloadManager.hpp"
 
 namespace DigitalRooster {
 
@@ -161,7 +161,7 @@ private:
     /**
      * HTTP handle to download JSONs
      */
-    DownloadManager downloader;
+    HttpClient downloader;
 
 
     void parse_city(const QJsonObject& o);

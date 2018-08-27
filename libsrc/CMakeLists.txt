@@ -33,9 +33,9 @@ LIST(APPEND CPP_DEFS "FOO_BAR=1")
 
 set(SRCS
    ${CMAKE_CURRENT_SOURCE_DIR}/configuration_manager.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/PodcastSourceReader.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/rss2podcastsource.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/PodcastSource.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/DownloadManager.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/httpclient.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/UpdateTask.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/alarm.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/mediaplayer.cpp
@@ -48,7 +48,7 @@ set(SRCS
 # Moc any classes derived from QObject
 qt5_wrap_cpp(MOC_SRC 
         ${PROJECT_INCLUDE_DIR}/configuration_manager.hpp
-        ${PROJECT_INCLUDE_DIR}/DownloadManager.hpp
+        ${PROJECT_INCLUDE_DIR}/httpclient.hpp
         ${PROJECT_INCLUDE_DIR}/UpdateTask.hpp
         ${PROJECT_INCLUDE_DIR}/PlayableItem.hpp
         ${PROJECT_INCLUDE_DIR}/PodcastSource.hpp

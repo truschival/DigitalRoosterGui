@@ -11,7 +11,7 @@
  *****************************************************************************/
 
 #include <appconstants.hpp>
-#include "PodcastSourceReader.hpp"
+#include <rss2podcastsource.hpp>
 #include <QDebug>
 #include <QFile>
 #include <QTime>

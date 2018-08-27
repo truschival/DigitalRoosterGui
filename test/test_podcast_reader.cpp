@@ -12,10 +12,10 @@
 
 #include <QMap>
 #include <gtest/gtest.h>
+#include <rss2podcastsource.hpp>
 #include <stdexcept> // std::system_error
 
 #include "appconstants.hpp"
-#include "PodcastSourceReader.hpp"
 
 using namespace DigitalRooster;
 

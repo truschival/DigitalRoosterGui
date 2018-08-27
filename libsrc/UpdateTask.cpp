@@ -10,12 +10,12 @@
  *
  *****************************************************************************/
 
+#include <httpclient.hpp>
+#include <rss2podcastsource.hpp>
 #include <cstdio>
 #include <stdexcept>
 
-#include "DownloadManager.hpp"
 #include "PodcastSource.hpp"
-#include "PodcastSourceReader.hpp"
 #include "UpdateTask.hpp"
 
 using namespace DigitalRooster;
