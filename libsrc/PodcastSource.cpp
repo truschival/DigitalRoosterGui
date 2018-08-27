@@ -17,49 +17,45 @@
 using namespace DigitalRooster;
 
 /*****************************************************************************/
-PodcastSource::PodcastSource(const QUrl& url) :
-		rss_feed_uri(url), updater(std::make_unique<UpdateTask>(*this)) {
-	connect(updater.get(), SIGNAL(newDataAvailable()), this,
-			SLOT(updateFinished()));
-	connect(&timer, SIGNAL(timeout()), updater.get(), SLOT(start()));
-	timer.start(update_interval);
-	// initial download immediately
-	updater->start();
+PodcastSource::PodcastSource(const QUrl& url)
+    : rss_feed_uri(url) {
 }
-;
 
 /*****************************************************************************/
 void PodcastSource::add_episode(std::shared_ptr<PodcastEpisode> newep) {
-	if (episodes.size() < max_episodes) {
-		auto ep = std::find_if(episodes.begin(), episodes.end(),
-				[newep](std::shared_ptr<PodcastEpisode> episode) {
-					return episode->get_guid() == newep->get_guid();
-				});
+    if (episodes.size() < max_episodes) {
+        auto ep = std::find_if(episodes.begin(), episodes.end(),
+            [newep](std::shared_ptr<PodcastEpisode> episode) {
+                return episode->get_guid() == newep->get_guid();
+            });
 
-		if (ep == episodes.end()) {
-			episodes.push_back(newep);
-			emit newDataAvailable();
-		}
-	}
+        if (ep == episodes.end()) {
+            episodes.push_back(newep);
+            emit episodesChanged();
+        }
+    }
 }
 /*****************************************************************************/
-void PodcastSource::set_update_interval(int interval) {
-	update_interval = interval;
-	if (interval < timer.remainingTime())
-		timer.start(update_interval);
+void PodcastSource::set_update_interval(std::chrono::seconds interval) {
+    update_interval = interval;
+    if (updater != nullptr) {
+        updater->set_update_interval(interval);
+    }
 }
 
 /*****************************************************************************/
-void PodcastSource::updateFinished() {
-	emit newDataAvailable();
-	timer.start(update_interval);
+void PodcastSource::set_update_task(std::unique_ptr<UpdateTask>&& ut) {
+    updater = std::move(ut);
+    // make sure updater is not constructed with another podcastsource
+    updater->set_podcast_source(this); 
+    updater->set_update_interval(update_interval);
 }
 
 /*****************************************************************************/
 QVector<QString> PodcastSource::get_episodes_names() {
-	auto ret = QVector<QString>();
-	for (const auto& e : episodes) {
-		ret.push_back(e->get_display_name());
-	}
-	return ret;
+    auto ret = QVector<QString>();
+    for (const auto& e : episodes) {
+        ret.push_back(e->get_display_name());
+    }
+    return ret;
 }

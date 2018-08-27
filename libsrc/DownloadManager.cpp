@@ -84,12 +84,12 @@ bool DownloadManager::isHttpRedirect(QNetworkReply* reply) {
 /*****************************************************************************/
 
 void DownloadManager::sslErrors(const QList<QSslError>& sslErrors) {
-    //#if QT_CONFIG(ssl)
+    #if QT_CONFIG(ssl)
     for (const QSslError& error : sslErrors)
         qCritical() << "SSL error:" << qPrintable(error.errorString());
-    // #else
+	#else
     Q_UNUSED(sslErrors);
-    // #endif
+    #endif
 }
 /*****************************************************************************/
 

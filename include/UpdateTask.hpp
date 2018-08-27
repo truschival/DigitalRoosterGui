@@ -12,55 +12,67 @@
 
 #ifndef INCLUDE_UPDATETASK_HPP_
 #define INCLUDE_UPDATETASK_HPP_
+#include "DownloadManager.hpp"
 #include <QObject>
 #include <QString>
+#include <QTimer>
 #include <memory>
-#include "DownloadManager.hpp"
 
 namespace DigitalRooster {
 
 class PodcastSource;
 
-class UpdateTask: public QObject {
-Q_OBJECT
+class UpdateTask : public QObject {
+    Q_OBJECT
 public:
-	explicit UpdateTask(PodcastSource& source);
-	virtual ~UpdateTask() = default;
+    explicit UpdateTask(PodcastSource* source = nullptr);
+    virtual ~UpdateTask() = default;
+
+    /**
+     * Set the PodcastSourceAutoupdating
+     * will restart the timer if interval is less than current update_interval
+     * @param interval
+     */
+    void set_update_interval(std::chrono::seconds interval);
+
+    /**
+     * Source to update when timer elapsed
+     * @param ps
+     */
+    void set_podcast_source(PodcastSource* ps);
 
 public slots:
-	/**
-	 * Called by DownloadManager when download completed
-	 * @param filename
-	 */
-	void newFileAvailable(const QString& filename);
-
-
-	void dataAvailable(const QByteArray& data);
-	/**
-	 * Starts download and parsing
-	 */
-	void start();
+    /**
+     * Called by DownloadManager when download completed
+     * @param data content of networkreply
+     */
+    void dataAvailable(const QByteArray& data);
+    /**
+     * Starts download and parsing
+     */
+    void start();
 
 signals:
-	/**
-	 * Download and parsing has completed
-	 */
-	void newDataAvailable();
+    /**
+     * Download and parsing has completed
+     */
+    void dataChanged();
 
 private:
-	/**
-	 * local copy of podcast source to update
-	 */
-	PodcastSource& ps;
+    /**
+     * podcast source to update
+     */
+    PodcastSource* ps;
 
-	/**
-	 * handles downloads
-	 */
-	DownloadManager dlm;
-	/**
-	 * Filehash of last download
-	 */
-	QByteArray lasthash;
+    /**
+     * handles downloads
+     */
+    DownloadManager dlm;
+
+    /**
+     * Periodic timer for update action
+     */
+    QTimer timer;
 };
 
 } /* namespace DigitalRooster */

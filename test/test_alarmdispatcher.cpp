@@ -13,10 +13,11 @@
 #include <QSignalSpy>
 #include <QUrl>
 #include <QVector>
-#include <memory>
-
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <memory>
+#include <thread>
+#include <chrono>
 
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
@@ -137,18 +138,19 @@ TEST(AlarmDispatcher, willTriggerItself) {
 TEST(AlarmDispatcher, LoopTimerTriggers) {
     auto cm = std::make_shared<CmMock>();
     AlarmDispatcher a(cm);
-    a.set_interval(std::chrono::seconds(1));
-    ASSERT_EQ(a.get_interval(), std::chrono::seconds(1));
-
-    EXPECT_CALL(*(cm.get()), get_alarm_list())
-        .Times(2)
-        .WillRepeatedly(ReturnRef(cm->alarms));
-
     QSignalSpy spy(
         &a, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
     ASSERT_TRUE(spy.isValid());
 
-    spy.wait(5000);
+    a.set_interval(std::chrono::seconds(1));
+    ASSERT_EQ(a.get_interval(), std::chrono::seconds(1));
+
+    EXPECT_CALL(*(cm.get()), get_alarm_list())
+        .Times(AtLeast(2))
+        .WillRepeatedly(ReturnRef(cm->alarms));
+
+    spy.wait(1500);
+    spy.wait(1500);
     ASSERT_EQ(spy.count(), 1);
 }
 
