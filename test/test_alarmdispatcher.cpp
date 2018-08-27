@@ -149,8 +149,9 @@ TEST(AlarmDispatcher, LoopTimerTriggers) {
         .Times(AtLeast(2))
         .WillRepeatedly(ReturnRef(cm->alarms));
 
-    spy.wait(5000);
-    ASSERT_EQ(spy.count(), 2);
+    spy.wait(1500);
+    spy.wait(1500);
+    ASSERT_EQ(spy.count(), 1);
 }
 
 /*****************************************************************************/
