@@ -28,7 +28,6 @@ using namespace DigitalRooster;
 using namespace ::testing;
 using ::testing::AtLeast;
 
-
 /*****************************************************************************/
 
 TEST(AlarmDispatcher, callsGetAlarms) {
@@ -149,9 +148,10 @@ TEST(AlarmDispatcher, LoopTimerTriggers) {
         .Times(AtLeast(2))
         .WillRepeatedly(ReturnRef(cm->alarms));
 
-    spy.wait(1500);
-    spy.wait(1500);
-    ASSERT_EQ(spy.count(), 1);
+    spy.wait(1200);
+    spy.wait(1200);
+    spy.wait(1200);
+    ASSERT_GE(spy.count(), 2);
 }
 
 /*****************************************************************************/
