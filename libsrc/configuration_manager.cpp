@@ -110,7 +110,8 @@ void ConfigurationManager::read_podcasts_from_file(
         QUrl url(jo[KEY_URI].toString());
         if (url.isValid()) {
             auto ps = std::make_shared<PodcastSource>(url);
-            ps->set_update_interval(jo[KEY_UPDATE_INTERVAL].toInt(3600) * 1000);
+            ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
+            ps->set_update_interval( std::chrono::seconds(jo[KEY_UPDATE_INTERVAL].toInt(3600)));
             podcast_sources.push_back(ps);
         }
     }

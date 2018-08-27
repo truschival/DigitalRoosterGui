@@ -29,8 +29,8 @@ PodcastSourceModel::PodcastSourceModel(
     , mpp(pp) {
     auto v = cm->get_podcast_sources();
     for (auto ps : v) {
-        connect(ps.get(), SIGNAL(newDataAvailable()), this,
-            SLOT(newDataAvailable()));
+        connect(ps.get(), SIGNAL(dataChanged()), this,
+            SLOT(dataChanged()));
     }
 }
 /*************************************************************************************/

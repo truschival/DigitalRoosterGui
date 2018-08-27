@@ -17,8 +17,7 @@
 #include <QObject>
 #include <QString>
 #include <QVector>
-#include <QTimer>
-#include <cstddef> //size_t
+#include <chrono>
 #include <limits>
 #include <memory>
 
@@ -40,17 +39,18 @@ public:
      * Preconfigured Podcast Source
      * @param url Feed URL
      */
-	explicit PodcastSource(const QUrl& url);
+    explicit PodcastSource(const QUrl& url);
+
+    /**
+     * Give the Podcast source a (new) update task
+     * takes ownership!
+     */
+    void set_update_task(std::unique_ptr<UpdateTask>&& ut);
 
     /**
      * Add an episode to episodes
      */
     void add_episode(std::shared_ptr<PodcastEpisode> episode);
-
-    /**
-     * Deletes all episodes from list
-     */
-    void flush_episodes();
 
     /**
      * Description of the Channel (mandatory by RSS2.0 spec)
@@ -62,12 +62,13 @@ public:
     /**
      * When was this podcast source last scanned for new items
      */
-    const QDateTime& get_last_updated()  const {
+    const QDateTime& get_last_updated() const {
         return last_updated;
     };
 
     /**
-     * Website of RSS feed channel (not the rss xml URI but additional information)
+     * Website of RSS feed channel (not the rss xml URI but additional
+     * information)
      */
     const QUrl& get_link() {
         return link;
@@ -91,33 +92,26 @@ public:
     };
 
     /**
-     * path local XML file for RSS feed
-     */
-    const QString& get_rss_file()  const {
-        return rss_file;
-    }
-
-    /**
      * title element of RSS channel
      */
     const QString& get_title() const {
         return title;
     }
 
-	/**
-	* Get the PodcastSourceAutoupdating
-	* @return interval in ms
-	*/
-    int get_update_interval()  const {
+    /**
+     * Get the PodcastSourceAutoupdating
+     * @return interval in ms
+     */
+    std::chrono::seconds get_update_interval() const {
         return update_interval;
     };
 
-	/**
-	* Set the PodcastSourceAutoupdating
-	* will restart the timer if interval is less than current update_interval
-	* @param interval in ms
-	*/
-	void set_update_interval(int interval);
+    /**
+     * Set the PodcastSourceAutoupdating
+     * will restart the timer if interval is less than current update_interval
+     * @param interval
+     */
+    void set_update_interval(std::chrono::seconds interval);
 
     /**
      * URL for rss feed of this podcast
@@ -131,6 +125,7 @@ public:
      */
     void set_description(QString newVal) {
         description = newVal;
+        emit descriptionChanged();
     }
 
     /**
@@ -141,27 +136,21 @@ public:
     }
 
     /**
-     * Website of RSS feed channel (not the rss xml URI but additional information)
+     * Website of RSS feed channel (not the rss xml URI but additional
+     * information)
      */
     void set_link(QUrl newVal) {
         link = newVal;
-        emit newDataAvailable();
+        emit dataChanged();
     }
 
     /**
      * set number of displayed/downloaded episodes
-     * @param max value >=0 
+     * @param max value >=0
      */
     void set_max_episodes(int max) {
         if (max >= 0)
-			max_episodes = max;
-    }
-
-    /**
-     * local XML file last read from internet
-     */
-    void set_rss_file(QString filepath) {
-        rss_file = filepath;
+            max_episodes = max;
     }
 
     /**
@@ -170,7 +159,7 @@ public:
      */
     void set_title(QString newTitle) {
         title = newTitle;
-        emit newDataAvailable();
+        emit titleChanged();
     }
 
     /**
@@ -185,16 +174,17 @@ public:
      */
     QVector<QString> get_episodes_names();
 
-
-
-public slots:
-    void updateFinished();
-
 signals:
     /**
-     * The episodes list has been updated
+     * The episodes list or any other member has been updated
      */
-    void newDataAvailable();
+    void dataChanged();
+
+    void titleChanged();
+
+    void descriptionChanged();
+
+	void episodesChanged();
 
 private:
     /**
@@ -223,7 +213,8 @@ private:
     QDateTime last_updated;
 
     /**
-     * Website of RSS feed channel (not the rss xml URI but additional information)
+     * Website of RSS feed channel (not the rss xml URI but additional
+     * information)
      */
     QUrl link;
 
@@ -236,27 +227,17 @@ private:
      * show max_episodes in the list
      */
     int max_episodes = std::numeric_limits<int>::max();
-    /**
-     * path local XML file for RSS feed
-     */
-    QString rss_file;
 
     /**
      * Interval in ms for auto refresh of content
-	 * default to 1h
+     * default to 1h
      */
-	int update_interval = 60*60*1000;  
+    std::chrono::seconds update_interval{3600LL};
 
     /**
      * Optional UpdateTask
      */
     std::unique_ptr<UpdateTask> updater = nullptr;
-
-	/**
-	* QTimer for periodic updates
-	*/
-	QTimer timer;
-
 };
-}
+} // namespace DigitalRooster
 #endif // _PODCASTSOURCE_HPP_

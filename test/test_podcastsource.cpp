@@ -56,8 +56,11 @@ TEST(PodcastSource, get_episode_names) {
 
 TEST(PodcastSource, set_updater) {
 	PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-	QSignalSpy spy(&ps, SIGNAL(newDataAvailable()));
+    ps.set_update_task(std::make_unique<UpdateTask>());
+    ps.set_update_interval(std::chrono::seconds(1));
+
+	QSignalSpy spy(&ps, SIGNAL(dataChanged()));
 	spy.wait(7000);
-	ASSERT_GT(spy.count(), 1);
+	ASSERT_GE(spy.count(), 1);
 }
 
