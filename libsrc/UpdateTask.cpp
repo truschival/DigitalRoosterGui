@@ -10,7 +10,6 @@
  *
  *****************************************************************************/
 
-#include <QCryptographicHash>
 #include <cstdio>
 #include <stdexcept>
 

@@ -36,45 +36,6 @@ void DownloadManager::doDownload(const QUrl& url) {
 }
 /*****************************************************************************/
 
-QString DownloadManager::saveFileName(const QUrl& url) {
-    QString path = url.path();
-    QString basename = QFileInfo(path).fileName();
-
-    if (basename.isEmpty())
-        basename = "download";
-
-    QString targetname =
-        DigitalRooster::RSS_FILE_DIR + QDir::separator() + basename;
-
-    if (QFile::exists(targetname)) {
-        // already exists, don't overwrite
-        int i = 0;
-        targetname += '.';
-        while (QFile::exists(targetname + QString::number(i)))
-            ++i;
-
-        targetname += QString::number(i);
-    }
-
-    return targetname;
-}
-/*****************************************************************************/
-
-bool DownloadManager::saveToDisk(const QString& targetpath, QIODevice* data) {
-    QFile file(targetpath);
-    if (!file.open(QIODevice::WriteOnly)) {
-        fprintf(stderr, "Could not open %s for writing: %s\n",
-            qPrintable(targetpath), qPrintable(file.errorString()));
-        return false;
-    }
-
-    file.write(data->readAll());
-    file.close();
-
-    return true;
-}
-/*****************************************************************************/
-
 bool DownloadManager::isHttpRedirect(QNetworkReply* reply) {
     int statusCode =
         reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -102,14 +63,7 @@ void DownloadManager::downloadFinished(QNetworkReply* reply) {
         if (isHttpRedirect(reply)) {
             qInfo() << "Request redirected";
         } else {
-            // TODO: cleanup design for download manager
             emit dataAvailable(reply->readAll());
-
-            QString filename = saveFileName(url);
-            // if (saveToDisk(filename, reply)) {
-            //    emit newFileAvailable(filename);
-            // }
-            //emit dataAvailable(reply->readAll());
         }
     }
 

@@ -31,8 +31,6 @@ class DownloadManager : public QObject {
 public:
     DownloadManager();
     void doDownload(const QUrl& url);
-    static QString saveFileName(const QUrl& url);
-    bool saveToDisk(const QString& targetpath, QIODevice* data);
     static bool isHttpRedirect(QNetworkReply* reply);
 
 public slots:
@@ -40,7 +38,6 @@ public slots:
     void sslErrors(const QList<QSslError>& errors);
 
 signals:
-    void newFileAvailable(const QString& filename);
     void dataAvailable(QByteArray content);
 
 };

@@ -12,11 +12,15 @@
 
 #ifndef INCLUDE_UPDATETASK_HPP_
 #define INCLUDE_UPDATETASK_HPP_
-#include "DownloadManager.hpp"
+
+#include <memory>
+#include <chrono>
+
 #include <QObject>
 #include <QString>
 #include <QTimer>
-#include <memory>
+#include "DownloadManager.hpp"
+
 
 namespace DigitalRooster {
 
