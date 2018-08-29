@@ -10,10 +10,10 @@
  *
  *****************************************************************************/
 
+#include <QLoggingCategory>
 #include <QStandardPaths>
 #include <QString>
 #include <QTime>
-
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
@@ -25,11 +25,13 @@
 #include "configuration_manager.hpp"
 
 using namespace DigitalRooster;
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
 
 /*****************************************************************************/
 ConfigurationManager::ConfigurationManager()
     : alarmtimeout(DEFAULT_ALARM_TIMEOUT)
     , sleeptimeout(DEFAULT_SLEEP_TIMEOUT) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     connect(&filewatcher, SIGNAL(fileChanged(const QString&)), this,
         SLOT(fileChanged(const QString&)));
@@ -37,6 +39,8 @@ ConfigurationManager::ConfigurationManager()
 
 /*****************************************************************************/
 void ConfigurationManager::refresh_configuration() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+
     alarms.clear();
     podcast_sources.clear();
     stream_sources.clear();
@@ -52,9 +56,10 @@ void ConfigurationManager::refresh_configuration() {
 QString ConfigurationManager::getJsonFromFile(const QString& path) {
     QString content;
     QFile file(path);
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << file.errorString();
+        qCCritical(CLASS_LC) << file.errorString();
         throw std::system_error(
             make_error_code(std::errc::no_such_file_or_directory),
             file.errorString().toStdString());
@@ -68,6 +73,7 @@ QString ConfigurationManager::getJsonFromFile(const QString& path) {
 
 /*****************************************************************************/
 void ConfigurationManager::parseJson(const QByteArray& json) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonDocument doc = QJsonDocument::fromJson(json);
     QJsonObject appconfig = doc.object();
     /* get application config */
@@ -88,44 +94,54 @@ void ConfigurationManager::parseJson(const QByteArray& json) {
 /*****************************************************************************/
 void ConfigurationManager::read_radio_streams_from_file(
     const QJsonObject& appconfig) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonArray irconfig =
         appconfig[DigitalRooster::KEY_GROUP_IRADIO_SOURCES].toArray();
     for (const auto ir : irconfig) {
         QString name(ir.toObject()[KEY_NAME].toString());
         QUrl url(ir.toObject()[KEY_URI].toString());
-        if (url.isValid()) {
-            stream_sources.push_back(std::make_shared<PlayableItem>(name, url));
+        if (!url.isValid()) {
+            qCWarning(CLASS_LC)
+                << "Invalid URI " << ir.toObject()[KEY_URI].toString();
+            continue;
         }
+        stream_sources.push_back(std::make_shared<PlayableItem>(name, url));
     }
 }
 
 /*****************************************************************************/
 void ConfigurationManager::read_podcasts_from_file(
     const QJsonObject& appconfig) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonArray podcasts =
         appconfig[DigitalRooster::KEY_GROUP_PODCAST_SOURCES].toArray();
     for (const auto pc : podcasts) {
         auto jo = pc.toObject();
 
         QUrl url(jo[KEY_URI].toString());
-        if (url.isValid()) {
-            auto ps = std::make_shared<PodcastSource>(url);
-            ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
-            ps->set_update_interval( std::chrono::seconds(jo[KEY_UPDATE_INTERVAL].toInt(3600)));
-            podcast_sources.push_back(ps);
+        if (!url.isValid()) {
+            qCWarning(CLASS_LC) << "Invalid URI " << jo[KEY_URI].toString();
+            continue;
         }
+        auto ps = std::make_shared<PodcastSource>(url);
+        ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
+        ps->set_update_interval(
+            std::chrono::seconds(jo[KEY_UPDATE_INTERVAL].toInt(3600)));
+        podcast_sources.push_back(ps);
     }
 }
 
 /*****************************************************************************/
 void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonArray alarm_config =
         appconfig[DigitalRooster::KEY_GROUP_ALARMS].toArray();
     for (const auto al : alarm_config) {
         auto json_alarm = al.toObject();
         QUrl url(json_alarm[KEY_URI].toString());
         if (!url.isValid()) {
-            qDebug() << "Invalid URI " << json_alarm[KEY_URI].toString();
+            qCWarning(CLASS_LC)
+                << "Invalid URI " << json_alarm[KEY_URI].toString();
             continue;
         }
         auto period = json_string_to_alarm_period(
@@ -152,36 +168,39 @@ void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
 void ConfigurationManager::read_weather_from_file(
     const QJsonObject& appconfig) {
     if (appconfig[KEY_WEATHER].isNull()) {
-        qWarning() << "no weather configuration found!";
+        qCWarning(CLASS_LC) << "no weather configuration found!";
         return;
     }
     QJsonObject json_weather = appconfig[KEY_WEATHER].toObject();
     if (!json_weather[KEY_WEATHER_API_KEY].isNull()) {
         weather_cfg.apikey = json_weather[KEY_WEATHER_API_KEY].toString();
     } else {
-        qWarning() << "No openweathermaps API Key configured goto "
-                      "https://openweathermap.org and get one!";
+        qCWarning(CLASS_LC) << "No openweathermaps API Key configured goto "
+                               "https://openweathermap.org and get one!";
     }
 
     if (!json_weather[KEY_WEATHER_LOCATION_ID].isNull()) {
         weather_cfg.cityid = json_weather[KEY_WEATHER_LOCATION_ID].toString();
     } else {
-        qWarning() << "No weather location ID configured!";
+        qCWarning(CLASS_LC) << "No weather location ID configured!";
     }
 }
 
 /*****************************************************************************/
 void ConfigurationManager::add_radio_station(
     std::shared_ptr<PlayableItem> src) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     this->stream_sources.push_back(src);
 }
 /*****************************************************************************/
 void ConfigurationManager::add_alarm(std::shared_ptr<Alarm> alm) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     this->alarms.push_back(alm);
 }
 
 /*****************************************************************************/
 void ConfigurationManager::store_current_config() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject appconfig;
 
     QJsonArray podcasts;
@@ -231,6 +250,7 @@ void ConfigurationManager::store_current_config() {
 
 /*****************************************************************************/
 void ConfigurationManager::write_config_file(const QJsonObject& appconfig) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto config_dir = make_sure_config_path_exists();
     auto file_path = config_dir.filePath(CONFIG_JSON_FILE_NAME);
 
@@ -244,6 +264,7 @@ void ConfigurationManager::write_config_file(const QJsonObject& appconfig) {
 
 /*****************************************************************************/
 void ConfigurationManager::create_default_configuration() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
         QTime::fromString("06:30", "hh:mm"));
@@ -267,6 +288,7 @@ void ConfigurationManager::create_default_configuration() {
 
 /*****************************************************************************/
 QDir ConfigurationManager::make_sure_config_path_exists() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto config_path =
         QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
     QDir config_dir(config_path);
@@ -280,13 +302,14 @@ QDir ConfigurationManager::make_sure_config_path_exists() {
 /*****************************************************************************/
 
 void ConfigurationManager::fileChanged(const QString& path) {
-    qDebug() << " Config changed, reloading";
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << " Config changed, reloading";
     refresh_configuration();
 }
 
 /*****************************************************************************/
 
 QString ConfigurationManager::check_and_create_config() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto config_dir = make_sure_config_path_exists();
     // check if file exists -> assume some default config and write file
     auto file_path = config_dir.filePath(CONFIG_JSON_FILE_NAME);

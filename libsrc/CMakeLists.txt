@@ -43,6 +43,7 @@ set(SRCS
    ${CMAKE_CURRENT_SOURCE_DIR}/alarmmonitor.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/alarmdispatcher.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/weather.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/logger.cpp
 )
 
 # Moc any classes derived from QObject

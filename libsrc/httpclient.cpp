@@ -10,33 +10,39 @@
  *
  *****************************************************************************/
 
+#include "appconstants.hpp"
+#include "httpclient.hpp"
 #include <QDebug>
-#include <appconstants.hpp>
-#include <httpclient.hpp>
+#include <QLoggingCategory>
+using namespace DigitalRooster;
 
-namespace DigitalRooster {
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HttpClient");
+
+/*****************************************************************************/
 
 HttpClient::HttpClient() {
     connect(&manager, SIGNAL(finished(QNetworkReply*)),
         SLOT(downloadFinished(QNetworkReply*)));
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }
 /*****************************************************************************/
 
 void HttpClient::doDownload(const QUrl& url) {
-    qDebug() << __FUNCTION__ << "(" << url.toString() <<")";
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << "(" << url.toString() << ")";
     QNetworkRequest request(url);
     QNetworkReply* reply = manager.get(request);
 
-    #if QT_CONFIG(ssl)
+#if QT_CONFIG(ssl)
     connect(reply, SIGNAL(sslErrors(QList<QSslError>)),
         SLOT(sslErrors(QList<QSslError>)));
-    #endif
+#endif
 
     currentDownloads.append(reply);
 }
 /*****************************************************************************/
 
 bool HttpClient::isHttpRedirect(QNetworkReply* reply) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     int statusCode =
         reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
     return statusCode == 301 || statusCode == 302 || statusCode == 303 ||
@@ -45,23 +51,26 @@ bool HttpClient::isHttpRedirect(QNetworkReply* reply) {
 /*****************************************************************************/
 
 void HttpClient::sslErrors(const QList<QSslError>& sslErrors) {
-    #if QT_CONFIG(ssl)
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+#if QT_CONFIG(ssl)
     for (const QSslError& error : sslErrors)
-        qCritical() << "SSL error:" << qPrintable(error.errorString());
-	#else
+        qCCritical(CLASS_LC) << "SSL error:" << qPrintable(error.errorString());
+#else
     Q_UNUSED(sslErrors);
-    #endif
+#endif
 }
 /*****************************************************************************/
 
 void HttpClient::downloadFinished(QNetworkReply* reply) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QUrl url = reply->url();
     if (reply->error()) {
-        qCritical() << "Download of %s failed" <<
-            url.toEncoded().constData() << qPrintable(reply->errorString());
+        qCCritical(CLASS_LC)
+            << "Download of %s failed" << url.toEncoded().constData()
+            << qPrintable(reply->errorString());
     } else {
         if (isHttpRedirect(reply)) {
-            qInfo() << "Request redirected";
+            qCInfo(CLASS_LC) << "Request redirected";
         } else {
             emit dataAvailable(reply->readAll());
         }
@@ -70,5 +79,3 @@ void HttpClient::downloadFinished(QNetworkReply* reply) {
     currentDownloads.removeAll(reply);
     reply->deleteLater();
 }
-
-} /* namespace DigitalRooster */
