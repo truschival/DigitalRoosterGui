@@ -91,15 +91,15 @@ public slots:
     void refresh();
     /**
      * Read Json from content bytearray and update internal fields
-     * @oaram content  JSON as bytearray
+     * @param content  JSON as bytearray
      */
     void parse_response(QByteArray content);
 
 signals:
     /**
-     * Provide a full info as received from Openweathermaps
+     * Flag new weather information received
      */
-    void weather_info_available(const QJsonObject& current);
+    void weather_info_updated();
 
     /**
      * Current Condition description

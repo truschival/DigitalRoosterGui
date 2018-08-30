@@ -75,7 +75,7 @@ void Weather::parse_response(QByteArray content) {
     parse_city(o);
     parse_temperature(o);
     parse_condition(o); // also extracts icon
-    emit weather_info_available(o);
+    emit weather_info_updated();
 }
 /*****************************************************************************/
 

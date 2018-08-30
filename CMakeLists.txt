@@ -2,7 +2,7 @@
 # Top-level CMakeLists.txt
 ##
 
-cmake_minimum_required (VERSION 3.2)
+cmake_minimum_required (VERSION 3.9)
 SET(CMAKE_CXX_STANDARD 14)
 set(CMAKE_VERBOSE_MAKEFILE  OFF)
 set(CMAKE_COLOR_MAKEFILE ON)
@@ -40,8 +40,10 @@ option(TEST_COVERAGE "Test Coverage" OFF)
 option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" On)
 option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." Off)
 
-SET(SETTINGS_FILE_NAME "digitalrooster.json" CACHE STRING "application configuration file name")
-SET(SETTINGS_PATH  "${CMAKE_CURRENT_BINARY_DIR}/settings" CACHE PATH "application configuration path")
+SET(SETTINGS_FILE_NAME "digitalrooster.json" 
+	CACHE STRING "application configuration file name")
+SET(SETTINGS_PATH  "${CMAKE_CURRENT_BINARY_DIR}/settings" 
+	CACHE PATH "application configuration path")
 set(GENERATED_DIR  "${CMAKE_BINARY_DIR}/generated" CACHE INTERNAL "" )
 
 #-------------------------------------------------------------------------------
