@@ -61,7 +61,7 @@ QT5.10 is included in Debian Buster or later. Ubuntu should also work.
 
 1. Setup the basic development environment.
 
-```
+    ```
     apt-get install -y \
 		bc cmake curl git \
 		build-essential g++ gcc \
@@ -69,16 +69,16 @@ QT5.10 is included in Debian Buster or later. Ubuntu should also work.
 		autoconf automake libtool pkg-config \
 		flex bison zip unzip \
 		libssl-dev uuid-dev
- ```
+    ```
 	
 2. Install QT5 development libraries
 	
-```
+    ```
 	apt-get install -y \
 		qt5-default qtbase5-dev-tools \
 		qtdeclarative5-dev qtmultimedia5-dev \
 		qtquickcontrols2-5-dev qtdeclarative5-dev-tools
-```
+    ```
 
 ### Docker container for build
 
@@ -101,16 +101,15 @@ The following commands will checkout the sources to `/tmp/checkout/`, create a b
 configure and build DigitalRooster.
 	
 1. Setup directories and checkout
-
-```
+    ```
     export SRC_DIR=/tmp/checkout
     export BUILD_DIR=/tmp/build
     git clone https://github.com/truschival/DigitalRoosterGui.git $SRC_DIR
-```
+    ```
 
 2. Configuration 
 
-```
+    ```
     cmake -G "Eclipse CDT4 - Unix Makefiles"  \
     -H$SRC_DIR -B$BUILD_DIR  \
     -DCMAKE_BUILD_TYPE=Debug \
@@ -119,43 +118,39 @@ configure and build DigitalRooster.
     -DBUILD_TESTS=On \
     -DBUILD_GTEST_FROM_SRC=On \
     -DTEST_COVERAGE=On 
-```
+    ```
 
 3. Build
 
-```
+    ```
     cmake --build $BUILD_DIR
-```
+    ```
 
 ### Optional post build steps
 
 1. Run Tests
  
     The tests must be executed in the build directory.
-
-```
+    ```
     cd $BUILD_DIR
     bin/DigitalRooster_gtest
-```
-   
-   or with lcov coverage output as HTML:
-
-```
+    ```
+    or with lcov coverage output as HTML:
+    ```
     cmake --build $BUILD_DIR --target DigitalRooster_gtest_coverage
-```
+    ```
 	
-2. Create Doxygen documentation (if Doxygen is installed)
-    
-```
+2. Create Doxygen documentation (if Doxygen is installed)    
+    ```
 	cmake --build $BUILD_DIR --target DOC
-```
+    ```
 	
 3. Packaging (optional)
-
-```
+    ```
     cd $BUILD_DIR
     cpack
-```
+    ```
+    
 -------
 
 ## Runtime configuration
