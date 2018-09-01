@@ -29,11 +29,10 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
 
 /*****************************************************************************/
-ConfigurationManager::ConfigurationManager()
+ConfigurationManager::ConfigurationManager(const QString& configdir)
     : alarmtimeout(DEFAULT_ALARM_TIMEOUT)
     , sleeptimeout(DEFAULT_SLEEP_TIMEOUT)
-    , config_dir(
-          QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)) {
+    , config_dir(configdir) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     writeTimer.setInterval(std::chrono::seconds(5));
@@ -230,7 +229,7 @@ void ConfigurationManager::store_current_config() {
     QJsonObject appconfig;
 
     QJsonArray podcasts;
-    for (const auto& ps : get_podcast_sources()) {
+    for (const auto& ps : podcast_sources) {
         QJsonObject psconfig;
         psconfig[KEY_NAME] = ps->get_title();
         psconfig[KEY_URI] = ps->get_url().toString();
@@ -239,7 +238,7 @@ void ConfigurationManager::store_current_config() {
     appconfig[KEY_GROUP_PODCAST_SOURCES] = podcasts;
 
     QJsonArray iradios;
-    for (const auto& iradiostream : get_stream_sources()) {
+    for (const auto& iradiostream : stream_sources) {
         QJsonObject irconfig;
         irconfig[KEY_NAME] = iradiostream->get_display_name();
         irconfig[KEY_URI] = iradiostream->get_url().toString();
@@ -248,7 +247,7 @@ void ConfigurationManager::store_current_config() {
     appconfig[KEY_GROUP_IRADIO_SOURCES] = iradios;
 
     QJsonArray alarms_json;
-    for (const auto& alarm : get_alarms()) {
+    for (const auto& alarm : alarms) {
         QJsonObject alarmcfg;
         alarmcfg[KEY_ALARM_PERIOD] =
             alarm_period_to_json_string(alarm->get_period());
@@ -293,7 +292,7 @@ void ConfigurationManager::write_config_file(const QJsonObject& appconfig) {
         QJsonDocument doc(appconfig);
         config_file.write(doc.toJson());
         config_file.commit();
-    } catch (std::exception exc) {
+    } catch (std::exception& exc) {
         qCCritical(CLASS_LC) << exc.what();
     }
     // Reconnect filewatcher to be notified if someone else changes file

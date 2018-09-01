@@ -52,7 +52,6 @@ struct WeatherConfig {
     std::chrono::seconds update_interval{3600LL};
 };
 
-
 /**
  * Reads JSON configuration
  */
@@ -62,7 +61,9 @@ public:
     /**
      * Default Constructor will use QT Standard paths for configuration
      */
-    ConfigurationManager();
+    ConfigurationManager(
+        const QString& configdir = QStandardPaths::writableLocation(
+            QStandardPaths::AppConfigLocation));
 
     virtual ~ConfigurationManager() = default;
 
@@ -101,7 +102,7 @@ public:
     std::chrono::minutes get_alarm_timeout() const {
         return alarmtimeout;
     }
-	/**
+    /**
      * Read full configuration file path
      * @return path to configuration file
      */
@@ -117,7 +118,6 @@ public:
      * @param alarm
      */
     void add_alarm(std::shared_ptr<Alarm> alarm);
-
 
 public slots:
     /**
@@ -185,30 +185,30 @@ private:
      */
     QMetaObject::Connection fwConn;
 
-	/**
-	 * Configuration directory, writable, created if it doesn't exist
-	 */
-	QDir config_dir;
+    /**
+     * Configuration directory, writable, created if it doesn't exist
+     */
+    QDir config_dir;
 
     /**
      * Check if config directory exist, otherwise create it
      * @return directory that exist and is writable
      */
 
-    virtual QDir make_sure_config_path_exists() const;
+    QDir make_sure_config_path_exists() const;
 
     /**
      * Check if config and path exist, otherwise create default config file at
      * that location
      * @return full file path to configuration file
      */
-    virtual QString check_and_create_config();
+    QString check_and_create_config();
 
     /**
      * Create "sensible" default entries for podcasts, alarms and internet radio
      * and store to default file
      */
-    virtual void create_default_configuration();
+    void create_default_configuration();
 
     /**
      * read file and return content as string
@@ -243,12 +243,12 @@ private:
     /**
      * Store settings permanently to file
      */
-    virtual void write_config_file(const QJsonObject& appconfig);
+    void write_config_file(const QJsonObject& appconfig);
 
     /**
      * Update all configuration items
      */
-    virtual void refresh_configuration();
+    void refresh_configuration();
 
     /**
      * get all radio stream sources

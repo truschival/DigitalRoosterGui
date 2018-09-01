@@ -25,19 +25,11 @@
 
 using namespace DigitalRooster;
 
-
-class ConfigurationManagerTest : public ConfigurationManager {
-
-private:
-    virtual QDir make_sure_config_path_exists() {
-        return QDir(TEST_FILE_PATH + "/");
-    };
-};
-
 class SettingsFixture : public virtual ::testing::Test {
 public:
     SettingsFixture()
-        : filename(TEST_FILE_PATH + "/" + CONFIG_JSON_FILE_NAME) {
+        : filename(TEST_FILE_PATH + "/" + CONFIG_JSON_FILE_NAME),
+		  cm(TEST_FILE_PATH){
     }
 
     ~SettingsFixture() {
@@ -64,7 +56,7 @@ public:
 protected:
     QString filename;
     QJsonObject appconfig;
-    ConfigurationManagerTest cm;
+    ConfigurationManager cm;
 
     void add_podcast_sources(QJsonObject& root) {
         QJsonArray radiosources;
@@ -164,7 +156,7 @@ TEST_F(SettingsFixture, addRadioStation_write) {
         /* should write file in destructor */
         cm.store_current_config();
     }
-    ConfigurationManagerTest control;
+    ConfigurationManager control(TEST_FILE_PATH);
     control.update_configuration();
     auto& v = control.get_stream_sources();
     ASSERT_EQ(4, v.size());
@@ -226,6 +218,7 @@ TEST_F(SettingsFixture, alarm_daily) {
 
 TEST_F(SettingsFixture, alarm_workdays) {
     auto& v = cm.get_alarms();
+
     ASSERT_EQ(v[1]->get_period(), Alarm::Workdays);
     ASSERT_EQ(v[1]->get_time(), QTime::fromString("07:00", "hh:mm"));
     ASSERT_TRUE(v[1]->is_enabled());
