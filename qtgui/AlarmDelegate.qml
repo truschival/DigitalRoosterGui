@@ -68,7 +68,7 @@ Rectangle{
 			position: alarmEnabled;
 			text: alarmEnabled ? qsTr("enabled") : qsTr("disabled")
 
-			onToggled:{
+			onCheckedChanged:{
 				alarmlistmodel.set_enabled(index, position)
 			}
 		}
