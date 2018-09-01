@@ -118,7 +118,11 @@ bool MediaPlayerProxy::is_muted() const {
 /*****************************************************************************/
 int MediaPlayerProxy::do_get_volume() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return backend->volume();
+
+    auto linearVolume = QAudio::convertVolume(backend->volume()/100.0f,
+          QAudio::LinearVolumeScale,QAudio::LogarithmicVolumeScale);
+
+    return qRound(linearVolume * 100);
 }
 
 /*****************************************************************************/
