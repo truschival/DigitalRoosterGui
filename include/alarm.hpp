@@ -171,10 +171,17 @@ public slots:
 
     void enable(bool state) {
         enabled = state;
+        emit dataChanged();
+        emit enabled_changed(true);
     }
 
 signals:
     void enabled_changed(bool state);
+
+	/**
+	 * Generic event, some data of this object changed
+	 */
+	void dataChanged();
 
 private:
     /**

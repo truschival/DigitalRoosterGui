@@ -65,8 +65,6 @@ void Alarm::update_trigger() {
     auto now = QDateTime::currentDateTime();
     auto day_of_week_today = now.date().dayOfWeek();
 
-    qCDebug(CLASS_LC) << "Old trigger_instant " << trigger_instant;
-
     // trigger instant is in the future - nothing to adjust for
     if (now < trigger_instant) {
         return;

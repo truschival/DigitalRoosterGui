@@ -34,7 +34,7 @@ namespace DigitalRooster {
  * with sensible default values
  */
 struct WeatherConfig {
-	/* Base uri for OpenWeatherMaps API */
+    /* Base uri for OpenWeatherMaps API */
     QString base_uri{"http://api.openweathermap.org/data/2.5/weather?"};
     /**
      *  location id
@@ -96,12 +96,16 @@ public:
 
     /**
      * Access configuration when Alarm should stop automatically
-     * @return minutes
+     * @return default alarm timeout
      */
     std::chrono::minutes get_alarm_timeout() const {
         return alarmtimeout;
     }
-
+	/**
+     * Read full configuration file path
+     * @return path to configuration file
+     */
+    QString get_configuration_path() const;
     /**
      * Append the radio stream to list - duplicates will not be checked
      * @param src the new stream source - we take ownership
@@ -114,12 +118,19 @@ public:
      */
     void add_alarm(std::shared_ptr<Alarm> alarm);
 
+
+public slots:
+    /**
+     * Any Item (Alarm, PodcastSource...) changed
+     * Trigger timer for writing configuration file
+     */
+    void dataChanged();
+
     /**
      * Write memory config to file - will overwrite changes in file
      */
     void store_current_config();
 
-public slots:
     /**
      * The monitored file has changed -
      * adapter function since QFilesytemwatcher
@@ -169,13 +180,22 @@ private:
      * File system monitor to get updated if someone changed the file
      */
     QFileSystemWatcher filewatcher;
+    /**
+     * file changed connection stored to disconnect & reconnect
+     */
+    QMetaObject::Connection fwConn;
+
+	/**
+	 * Configuration directory, writable, created if it doesn't exist
+	 */
+	QDir config_dir;
 
     /**
-     * Check if config path exist, otherwise create it
+     * Check if config directory exist, otherwise create it
      * @return directory that exist and is writable
      */
 
-    virtual QDir make_sure_config_path_exists();
+    virtual QDir make_sure_config_path_exists() const;
 
     /**
      * Check if config and path exist, otherwise create default config file at
@@ -257,6 +277,11 @@ private:
     virtual WeatherConfig& get_weather_cfg() {
         return weather_cfg;
     }
+
+    /**
+     * Timer tor write configuration to disk
+     */
+    QTimer writeTimer;
 };
 } // namespace DigitalRooster
 #endif // _SETTINGS_READER_HPP_

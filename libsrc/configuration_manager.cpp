@@ -11,6 +11,7 @@
  *****************************************************************************/
 
 #include <QLoggingCategory>
+#include <QSaveFile>
 #include <QStandardPaths>
 #include <QString>
 #include <QTime>
@@ -30,11 +31,21 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
 /*****************************************************************************/
 ConfigurationManager::ConfigurationManager()
     : alarmtimeout(DEFAULT_ALARM_TIMEOUT)
-    , sleeptimeout(DEFAULT_SLEEP_TIMEOUT) {
+    , sleeptimeout(DEFAULT_SLEEP_TIMEOUT)
+    , config_dir(
+          QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation)) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
-    connect(&filewatcher, SIGNAL(fileChanged(const QString&)), this,
-        SLOT(fileChanged(const QString&)));
+    writeTimer.setInterval(std::chrono::seconds(5));
+    writeTimer.setSingleShot(true);
+    connect(&writeTimer, SIGNAL(timeout()), this, SLOT(store_current_config()));
+    // open or create configuration
+    make_sure_config_path_exists();
+    auto path = check_and_create_config();
+    filewatcher.addPath(path);
+    // store connection to disconnect during write_config_file
+    fwConn = connect(&filewatcher, &QFileSystemWatcher::fileChanged, this,
+        &ConfigurationManager::fileChanged);
 };
 
 /*****************************************************************************/
@@ -44,11 +55,8 @@ void ConfigurationManager::refresh_configuration() {
     alarms.clear();
     podcast_sources.clear();
     stream_sources.clear();
-    auto filepath = check_and_create_config();
-
-    auto content = getJsonFromFile(filepath);
+    auto content = getJsonFromFile(get_configuration_path());
     parseJson(content.toUtf8());
-
     emit configuration_changed();
 }
 
@@ -127,6 +135,11 @@ void ConfigurationManager::read_podcasts_from_file(
         ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
         ps->set_update_interval(
             std::chrono::seconds(jo[KEY_UPDATE_INTERVAL].toInt(3600)));
+
+        // Get notifications if name etc. changes
+        connect(ps.get(), &PodcastSource::dataChanged, this,
+            &ConfigurationManager::dataChanged);
+
         podcast_sources.push_back(ps);
     }
 }
@@ -159,6 +172,7 @@ void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
             json_alarm[KEY_ALARM_TIMEOUT].toInt(alarmtimeout.count());
         alarm->set_timeout(std::chrono::minutes(timeout));
 
+        connect(alarm.get(), SIGNAL(dataChanged()), this, SLOT(dataChanged()));
         alarms.push_back(alarm);
     }
 }
@@ -199,6 +213,18 @@ void ConfigurationManager::add_alarm(std::shared_ptr<Alarm> alm) {
 }
 
 /*****************************************************************************/
+void ConfigurationManager::dataChanged() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    writeTimer.start();
+}
+
+/*****************************************************************************/
+void ConfigurationManager::fileChanged(const QString& path) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    refresh_configuration();
+}
+
+/*****************************************************************************/
 void ConfigurationManager::store_current_config() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject appconfig;
@@ -229,6 +255,7 @@ void ConfigurationManager::store_current_config() {
         alarmcfg[KEY_TIME] = alarm->get_time().toString("hh:mm");
         alarmcfg[KEY_VOLUME] = alarm->get_volume();
         alarmcfg[KEY_URI] = alarm->get_media()->get_url().toString();
+        alarmcfg[KEY_ENABLED] = alarm->is_enabled();
         alarms_json.append(alarmcfg);
     }
     appconfig[KEY_GROUP_ALARMS] = alarms_json;
@@ -251,15 +278,31 @@ void ConfigurationManager::store_current_config() {
 /*****************************************************************************/
 void ConfigurationManager::write_config_file(const QJsonObject& appconfig) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto config_dir = make_sure_config_path_exists();
-    auto file_path = config_dir.filePath(CONFIG_JSON_FILE_NAME);
+    auto file_path = get_configuration_path();
 
-    QFile config_file(file_path);
-    config_file.open(
-        QIODevice::ReadWrite | QIODevice::Truncate | QIODevice::Text);
-    QJsonDocument doc(appconfig);
-    config_file.write(doc.toJson());
-    config_file.close();
+    // Disconnect filewatcher while we are saving the file to avoid event loops
+    if (!disconnect(fwConn)) {
+        qCCritical(CLASS_LC) << "Disconnect failed!";
+    }
+    filewatcher.removePath(file_path);
+
+    QSaveFile config_file(file_path);
+    try {
+        config_file.open(
+            QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
+        QJsonDocument doc(appconfig);
+        config_file.write(doc.toJson());
+        config_file.commit();
+    } catch (std::exception exc) {
+        qCCritical(CLASS_LC) << exc.what();
+    }
+    // Reconnect filewatcher to be notified if someone else changes file
+    fwConn = connect(&filewatcher, &QFileSystemWatcher::fileChanged, this,
+        &ConfigurationManager::fileChanged);
+    if (!fwConn) {
+        qCCritical(CLASS_LC) << "reconnect failed!";
+    }
+    filewatcher.addPath(file_path);
 }
 
 /*****************************************************************************/
@@ -287,39 +330,35 @@ void ConfigurationManager::create_default_configuration() {
 }
 
 /*****************************************************************************/
-QDir ConfigurationManager::make_sure_config_path_exists() {
+QDir ConfigurationManager::make_sure_config_path_exists() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto config_path =
-        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
-    QDir config_dir(config_path);
     if (!config_dir.mkpath(".")) {
+        qCCritical(CLASS_LC) << "Cannot create configuration path!";
         throw std::system_error(
             make_error_code(std::errc::no_such_file_or_directory),
             "Cannot create configuration path!");
     }
     return config_dir;
 }
+
 /*****************************************************************************/
 
-void ConfigurationManager::fileChanged(const QString& path) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO << " Config changed, reloading";
-    refresh_configuration();
+QString ConfigurationManager::get_configuration_path() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    return config_dir.filePath(CONFIG_JSON_FILE_NAME);
 }
 
 /*****************************************************************************/
 
 QString ConfigurationManager::check_and_create_config() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto config_dir = make_sure_config_path_exists();
     // check if file exists -> assume some default config and write file
-    auto file_path = config_dir.filePath(CONFIG_JSON_FILE_NAME);
-    QFile config_file(file_path);
+    auto path = get_configuration_path();
+    QFile config_file(path);
     if (!config_file.exists()) {
         create_default_configuration();
     }
-    filewatcher.addPath(file_path);
-
-    return file_path;
+    return path;
 }
 
 /*****************************************************************************/
