@@ -11,6 +11,7 @@
  *****************************************************************************/
 
 #include <QDebug>
+#include <QLoggingCategory>
 #include <QMediaPlayer>
 
 #include "alarm.hpp"
@@ -18,12 +19,13 @@
 #include "mediaplayer.hpp"
 
 using namespace DigitalRooster;
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.AlarmMonitor");
 
 /*****************************************************************************/
 AlarmMonitor::AlarmMonitor(std::shared_ptr<MediaPlayer> player, QObject* parent)
     : QObject(parent)
     , mpp(player) {
-
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     /* Receive errors from player */
     QObject::connect(mpp.get(),
         static_cast<void (MediaPlayer::*)(QMediaPlayer::Error)>(
@@ -31,6 +33,7 @@ AlarmMonitor::AlarmMonitor(std::shared_ptr<MediaPlayer> player, QObject* parent)
         [=](QMediaPlayer::Error error) {
             /* if any error occurs while we are expecting an alarm fallback! */
             if (error != QMediaPlayer::NoError && expecting_alarm_playing) {
+                qCWarning(CLASS_LC) << "player error occurred";
                 trigger_fallback_behavior();
             }
         });
@@ -49,8 +52,8 @@ AlarmMonitor::AlarmMonitor(std::shared_ptr<MediaPlayer> player, QObject* parent)
                     alarm_auto_stop_timer.stop();
                 }
             }
-            qDebug() << " AlarmMonitor received " << state
-                     << " Player error: " << mpp->error();
+            qCDebug(CLASS_LC) << " AlarmMonitor received " << state
+                              << " Player error: " << mpp->error();
         });
     /* setup fallback behavior */
     fallback_alarm.addMedia(QMediaContent(QUrl("qrc:/TempleBell.mp3")));
@@ -74,6 +77,7 @@ AlarmMonitor::AlarmMonitor(std::shared_ptr<MediaPlayer> player, QObject* parent)
 /*****************************************************************************/
 void AlarmMonitor::alarm_triggered(
     std::shared_ptr<DigitalRooster::Alarm> alarm) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     mpp->set_media(alarm->get_media());
     mpp->set_volume(alarm->get_volume());
     expecting_alarm_playing = true;
@@ -87,8 +91,9 @@ void AlarmMonitor::alarm_triggered(
 
 /*****************************************************************************/
 void AlarmMonitor::trigger_fallback_behavior() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (expecting_alarm_playing) {
-        qWarning() << "Player has not started in due time!";
+        qCWarning(CLASS_LC) << "Player has not started in due time!";
         expecting_alarm_playing = false;
         fallback_alarm.setCurrentIndex(0);
         mpp->set_volume(80);
@@ -99,11 +104,12 @@ void AlarmMonitor::trigger_fallback_behavior() {
 
 /*****************************************************************************/
 void AlarmMonitor::start_playing() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     mpp->play();
     alarm_auto_stop_timer.start();
 }
 /*****************************************************************************/
 void AlarmMonitor::stop_running_alarm() {
-    qDebug() << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     mpp->stop();
 }

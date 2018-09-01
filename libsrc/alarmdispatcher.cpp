@@ -11,6 +11,7 @@
  *****************************************************************************/
 
 #include <QDebug>
+#include <QLoggingCategory>
 #include <QMediaPlayer>
 #include <chrono>
 #include <memory>
@@ -23,6 +24,8 @@
 using namespace DigitalRooster;
 using namespace std::chrono;
 
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.AlarmDispatcher");
+
 /*****************************************************************************/
 
 AlarmDispatcher::AlarmDispatcher(
@@ -30,6 +33,7 @@ AlarmDispatcher::AlarmDispatcher(
     : QObject(parent)
     , cm(confman)
     , interval(std::chrono::seconds(30)) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     interval_timer.setInterval(duration_cast<milliseconds>(interval));
     interval_timer.setSingleShot(false);
     connect(&interval_timer, SIGNAL(timeout()), this, SLOT(check_alarms()));
@@ -38,7 +42,7 @@ AlarmDispatcher::AlarmDispatcher(
 
 /*****************************************************************************/
 void AlarmDispatcher::check_alarms() {
-    // qDebug() << Q_FUNC_INFO << QDateTime::currentDateTime();
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto now = QDateTime::currentDateTime();
     for (const auto& alarm : cm->get_alarms()) {
         auto delta = seconds(now.secsTo(alarm->get_next_trigger()));
@@ -51,6 +55,7 @@ void AlarmDispatcher::check_alarms() {
 
 /*****************************************************************************/
 void AlarmDispatcher::set_interval(std::chrono::seconds iv) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     interval = iv;
     interval_timer.setInterval(
         std::chrono::duration_cast<std::chrono::milliseconds>(iv));
@@ -58,5 +63,6 @@ void AlarmDispatcher::set_interval(std::chrono::seconds iv) {
 
 /*****************************************************************************/
 std::chrono::seconds AlarmDispatcher::get_interval() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return interval;
 }

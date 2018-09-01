@@ -13,6 +13,7 @@
 #ifndef _WEATHER_HPP_
 #define _WEATHER_HPP_
 
+#include <httpclient.hpp>
 #include <QJsonObject>
 #include <QObject>
 #include <QString>
@@ -21,7 +22,6 @@
 #include <QtNetwork>
 #include <chrono>
 
-#include "DownloadManager.hpp"
 
 namespace DigitalRooster {
 
@@ -91,15 +91,15 @@ public slots:
     void refresh();
     /**
      * Read Json from content bytearray and update internal fields
-     * @oaram content  JSON as bytearray
+     * @param content  JSON as bytearray
      */
     void parse_response(QByteArray content);
 
 signals:
     /**
-     * Provide a full info as received from Openweathermaps
+     * Flag new weather information received
      */
-    void weather_info_available(const QJsonObject& current);
+    void weather_info_updated();
 
     /**
      * Current Condition description
@@ -161,7 +161,7 @@ private:
     /**
      * HTTP handle to download JSONs
      */
-    DownloadManager downloader;
+    HttpClient downloader;
 
 
     void parse_city(const QJsonObject& o);

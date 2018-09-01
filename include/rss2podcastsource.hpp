@@ -11,23 +11,18 @@
  *****************************************************************************/
 
 
-#ifndef _PODCASTSOURCEREADER_HPP_
-#define _PODCASTSOURCEREADER_HPP_ 
-
-
+#pragma once
 #include "PodcastSource.hpp"
 
 namespace DigitalRooster {
 
 /**
- * retrieve and parse RSS feed for general information, stores the retrieved RSS
- * in the PodcastSource configuration
+ * parse RSS feed and update podcastsource
+ *
  * @param podcastsource podcast source
+ * @param data - RSS XML feed from network reply or file or else
  */
-void update_podcast(PodcastSource& podcastsource);
-
 void update_podcast(PodcastSource& podcastsource, const QByteArray& data);
 
-}
-;
-#endif // _PODCASTSOURCEREADER_HPP_ 
+};     // namespace DigitalRooster
+

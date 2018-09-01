@@ -1,25 +1,36 @@
 import QtQuick 2.9
+import QtQuick.Layouts 1.3
+import QtQuick.Controls 2.1
+import QtQuick.Controls.Material 2.1
+
 import ruschi.PlayableItem 1.0
 
 Rectangle{
-	id: rectangle
+	id: iradiodelegatearea
 	width:  parent.width;
-	height: 50;
-	anchors.margins: 3
+    height: 60;
+    radius: 3;
+	border.width: 1;
 	color: iradiolist.currentItem == this ? "lightblue" : "white"
 
-	Text {
-		id:stationName
-		width: parent.width*0.9;
-		height: parent.height;
-		text: station_name;
-		anchors.verticalCenter: parent.verticalCenter;
-		anchors.left: parent.left;
+	RowLayout{
+		anchors.fill: parent
 		anchors.leftMargin: 10;
-		font.pointSize: 14;
-		font.bold: true;
-		elide: Text.ElideRight
+		anchors.rightMargin: 10;
+		spacing: 10;
+		anchors.verticalCenter: parent.verticalCenter;
+
+		Text {
+			id:stationName
+			text: station_name;
+			Layout.preferredWidth: iradiodelegatearea.width
+
+			font.pointSize: 14;
+			font.bold: true;
+			elide: Text.ElideRight
+		}
 	}
+
 
 	MouseArea {
 		anchors.fill: parent
@@ -33,7 +44,4 @@ Rectangle{
 			playerControlWidget.setVisible(true)
 		}
 	}
-
 }
-
-

@@ -11,8 +11,8 @@
  *
  *****************************************************************************/
 
-#ifndef INCLUDE_DOWNLOADMANAGER_HPP_
-#define INCLUDE_DOWNLOADMANAGER_HPP_
+#ifndef INCLUDE_HTTPCLIENT_HPP_
+#define INCLUDE_HTTPCLIENT_HPP_
 
 #include <QByteArray>
 #include <QtCore>
@@ -23,16 +23,14 @@ class QSslError;
 
 namespace DigitalRooster {
 
-class DownloadManager : public QObject {
+class HttpClient : public QObject {
     Q_OBJECT
     QNetworkAccessManager manager;
     QVector<QNetworkReply*> currentDownloads;
 
 public:
-    DownloadManager();
+    HttpClient();
     void doDownload(const QUrl& url);
-    static QString saveFileName(const QUrl& url);
-    bool saveToDisk(const QString& targetpath, QIODevice* data);
     static bool isHttpRedirect(QNetworkReply* reply);
 
 public slots:
@@ -40,11 +38,10 @@ public slots:
     void sslErrors(const QList<QSslError>& errors);
 
 signals:
-    void newFileAvailable(const QString& filename);
     void dataAvailable(QByteArray content);
 
 };
 
 } /* namespace DigitalRooster */
 
-#endif /* INCLUDE_DOWNLOADMANAGER_HPP_ */
+#endif /* INCLUDE_HTTPCLIENT_HPP_ */

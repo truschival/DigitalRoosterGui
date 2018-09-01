@@ -51,7 +51,7 @@ TEST(Weather, GetConfigForDownloadAfterTimerExpired) {
     Weather dut(cm);
     dut.set_update_interval(seconds(1));
 
-    QSignalSpy spy(&dut, SIGNAL(weather_info_available(const QJsonObject&)));
+    QSignalSpy spy(&dut, SIGNAL(weather_info_updated()));
     ASSERT_TRUE(spy.isValid());
     spy.wait(1500); // only to make sure time elapses during test
     // ASSERT_EQ(spy.count(), 1);
@@ -60,6 +60,9 @@ TEST(Weather, GetConfigForDownloadAfterTimerExpired) {
 /*****************************************************************************/
 TEST_F(WeatherFile, ParseTemperatureFromFile) {
     auto cm = std::make_shared<CmMock>();
+    EXPECT_CALL(*(cm.get()), get_weather_cfg())
+        .Times(1)
+        .WillRepeatedly(ReturnRef(cm->weather_cfg));
     Weather dut(cm);
 
     QSignalSpy spy(&dut, SIGNAL(temperature_changed(double)));
@@ -71,7 +74,11 @@ TEST_F(WeatherFile, ParseTemperatureFromFile) {
 /*****************************************************************************/
 TEST_F(WeatherFile, GetCityFromFile) {
     auto cm = std::make_shared<CmMock>();
-    Weather dut(cm);
+    EXPECT_CALL(*(cm.get()), get_weather_cfg())
+        .Times(1)
+        .WillRepeatedly(ReturnRef(cm->weather_cfg));
+	
+	Weather dut(cm);
 
     QSignalSpy spy(&dut, SIGNAL(city_updated(const QString&)));
     dut.parse_response(weatherFile.readAll());
@@ -83,6 +90,9 @@ TEST_F(WeatherFile, GetCityFromFile) {
 /*****************************************************************************/
 TEST_F(WeatherFile, ParseConditionFromFile) {
     auto cm = std::make_shared<CmMock>();
+    EXPECT_CALL(*(cm.get()), get_weather_cfg())
+        .Times(1)
+        .WillRepeatedly(ReturnRef(cm->weather_cfg));
     Weather dut(cm);
 
     QSignalSpy spy(&dut, SIGNAL(condition_changed(const QString&)));

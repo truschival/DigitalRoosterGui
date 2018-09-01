@@ -20,7 +20,7 @@ script:
 after_success:
   - docker exec build_container sh -c '
     cd /tmp/build;
-    /tmp/build/bin/DigitalRooster_gtest --gtest_filter=-Player*;
+    /tmp/build/bin/DigitalRooster_gtest ;
     lcov --directory . --capture --output-file coverage.info;
     lcov --remove coverage.info "/usr/*" --output-file coverage.info;
     lcov --remove coverage.info "*/GTestExternal/*" --output-file coverage.info;

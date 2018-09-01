@@ -10,19 +10,21 @@
  *
  *****************************************************************************/
 
-#include "mediaplayerproxy.hpp"
 #include "PlayableItem.hpp"
+#include "mediaplayerproxy.hpp"
 #include <QAudio>
 #include <QDebug>
+#include <QLoggingCategory>
 #include <QMediaPlayer>
-
 using namespace DigitalRooster;
+
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.MediaPlayerProxy");
 
 /***********************************************************************/
 
 MediaPlayerProxy::MediaPlayerProxy()
     : backend(std::make_unique<QMediaPlayer>()) {
-    // qDebug() << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     backend->setVolume(initial_volume);
     QObject::connect(backend.get(), &QMediaPlayer::mediaChanged,
         [=](const QMediaContent& media) { emit media_changed(media); });
@@ -39,7 +41,7 @@ MediaPlayerProxy::MediaPlayerProxy()
         static_cast<void (QMediaPlayer::*)(QMediaPlayer::Error)>(
             &QMediaPlayer::error),
         [=](QMediaPlayer::Error err) {
-            qDebug() << "Player Error" << err;
+            qCWarning(CLASS_LC) << "Player Error" << err;
             emit error(err);
         });
 
@@ -66,61 +68,67 @@ MediaPlayerProxy::MediaPlayerProxy()
 
 /*****************************************************************************/
 void MediaPlayerProxy::do_seek(qint64 incr) {
-	if (seekable())
-		set_position(get_position() + incr);
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    if (seekable())
+        set_position(get_position() + incr);
 };
 
 /*****************************************************************************/
 bool MediaPlayerProxy::is_seekable() const {
-    // qDebug() << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return backend->isSeekable();
 }
 
 /*****************************************************************************/
 QMediaPlayer::Error MediaPlayerProxy::do_error() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return backend->error();
 }
 
 /*****************************************************************************/
 qint64 MediaPlayerProxy::do_get_position() const {
-    // qDebug() << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return backend->position();
 }
 
 /*****************************************************************************/
 
 QMediaPlayer::MediaStatus MediaPlayerProxy::do_media_status() const {
-    // qDebug() << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return backend->mediaStatus();
 }
 
 /*****************************************************************************/
 qint64 MediaPlayerProxy::do_get_duration() const {
-    // qDebug() << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return backend->duration();
 }
 
 /*****************************************************************************/
 void MediaPlayerProxy::do_set_position(qint64 position) {
-    // qDebug() << Q_FUNC_INFO << position;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << position;
     backend->setPosition(position);
 }
 /*****************************************************************************/
 bool MediaPlayerProxy::is_muted() const {
-    // qDebug() << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return backend->isMuted();
 }
 
 /*****************************************************************************/
 int MediaPlayerProxy::do_get_volume() const {
-    // qDebug() << Q_FUNC_INFO;
-    return backend->volume();
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+
+    auto linearVolume = QAudio::convertVolume(backend->volume()/100.0f,
+          QAudio::LinearVolumeScale,QAudio::LogarithmicVolumeScale);
+
+    return qRound(linearVolume * 100);
 }
 
 /*****************************************************************************/
 void MediaPlayerProxy::do_set_media(
     std::shared_ptr<DigitalRooster::PlayableItem> media) {
-    // qDebug() << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     current_item = media;
     auto previous_position = media->get_position();
 
@@ -132,24 +140,24 @@ void MediaPlayerProxy::do_set_media(
 }
 /*****************************************************************************/
 void MediaPlayerProxy::do_set_playlist(QMediaPlaylist* playlist) {
-    // qDebug() << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     backend->setPlaylist(playlist);
 }
 /*****************************************************************************/
 void MediaPlayerProxy::do_set_muted(bool muted) {
-    // qDebug() << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     backend->setMuted(muted);
 }
 
 /*****************************************************************************/
 QMediaPlayer::State MediaPlayerProxy::do_playback_state() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return backend->state();
 }
 
 /*****************************************************************************/
 void MediaPlayerProxy::do_set_volume(int volume) {
-    // volumeSliderValue is in the range [0..100]
-    // qDebug() << Q_FUNC_INFO << volume;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << volume;
 
     auto linearVolume = QAudio::convertVolume(volume / qreal(100.0),
         QAudio::LogarithmicVolumeScale, QAudio::LinearVolumeScale);
@@ -158,17 +166,17 @@ void MediaPlayerProxy::do_set_volume(int volume) {
 }
 /*****************************************************************************/
 void MediaPlayerProxy::do_pause() {
-    // qDebug() << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     backend->pause();
 }
 /*****************************************************************************/
 void MediaPlayerProxy::do_play() {
-    // qDebug() << Q_FUNC_INFO << backend->media().isNull();
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     backend->play();
 }
 /*****************************************************************************/
 void MediaPlayerProxy::do_stop() {
-    // qDebug() << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     backend->stop();
 }
 /*****************************************************************************/

@@ -10,59 +10,61 @@
  *
  *****************************************************************************/
 
-#include <QCryptographicHash>
+#include <QLoggingCategory>
 #include <cstdio>
+#include <httpclient.hpp>
+#include <rss2podcastsource.hpp>
 #include <stdexcept>
 
-#include "DownloadManager.hpp"
 #include "PodcastSource.hpp"
-#include "PodcastSourceReader.hpp"
 #include "UpdateTask.hpp"
 
-namespace DigitalRooster {
+using namespace DigitalRooster;
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.UpdateTask");
 
-UpdateTask::UpdateTask(PodcastSource& source) :
-		ps(source) {
-	connect(&dlm, SIGNAL(newFileAvailable(const QString&)), this,
-			SLOT(newFileAvailable(const QString&)));
-
-    connect(&dlm, SIGNAL(dataAvailable(const QByteArray)), this,
-        SLOT(dataAvailable(const QByteArray)));
-}
 /*****************************************************************************/
 
-void UpdateTask::newFileAvailable(const QString& filepath) {
-	QFile file(filepath);
-	QCryptographicHash sha256(QCryptographicHash::Sha256);
+UpdateTask::UpdateTask(PodcastSource* source)
+    : ps(source) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    connect(&dlm, SIGNAL(dataAvailable(const QByteArray)), this,
+        SLOT(dataAvailable(const QByteArray)));
 
-	if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		sha256.addData(file.readAll());
-		if (lasthash != sha256.result()) {
-			lasthash = sha256.result();
-			//qDebug() << "SHA256 :" << sha256.result().toHex();
-			ps.set_rss_file(filepath);
-			update_podcast(ps);
-			emit newDataAvailable();
-		}
-		//else nothing new to do
-	} else {
-		throw std::system_error(
-				make_error_code(std::errc::no_such_file_or_directory),
-				file.errorString().toStdString());
-	}
-	file.remove();
+    // Start timer
+    timer.setSingleShot(false);
+    connect(&timer, SIGNAL(timeout()), this, SLOT(start()));
+    if (ps) {
+        timer.start(source->get_update_interval());
+    }
+    // initial download immediately
+    start();
 }
 
 /*****************************************************************************/
 
 void UpdateTask::dataAvailable(const QByteArray& data) {
-       update_podcast(ps, data);
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    update_podcast(*ps, data);
+}
+
+
+/*****************************************************************************/
+void UpdateTask::set_podcast_source(PodcastSource* ps) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    this->ps = ps;
 }
 
 /*****************************************************************************/
 
 void UpdateTask::start() {
-	dlm.doDownload(ps.get_url());
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    if (ps) {
+        dlm.doDownload(ps->get_url());
+    }
 }
 
-} /* namespace DigitalRooster */
+/*****************************************************************************/
+void UpdateTask::set_update_interval(std::chrono::seconds interval) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    timer.start(interval);
+}

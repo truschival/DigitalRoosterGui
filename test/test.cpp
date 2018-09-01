@@ -15,6 +15,7 @@
 #include <QObject>
 #include <QTimer>
 #include <QLoggingCategory>
+#include "logger.hpp"
 
 TEST(Basics,always_true)
 {
@@ -27,6 +28,10 @@ TEST(Basics,always_true)
 
 int main(int argc, char **argv) {
     QCoreApplication app(argc, argv);
+    DigitalRooster::Logger logfacility(
+        QStandardPaths::writableLocation(QStandardPaths::TempLocation) +
+        "/Digitalrooster_tests.log");
+
     QLoggingCategory::setFilterRules("*.debug=true");
 
     ::testing::InitGoogleTest(&argc, argv);

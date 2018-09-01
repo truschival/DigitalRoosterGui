@@ -25,32 +25,35 @@ ApplicationWindow {
 		source: "materialdesignicons-webfont.ttf"
 	}
 
-
     header: ToolBar {
         RowLayout {
             spacing: 5
             anchors.fill: parent
+            Layout.margins: 2
 
             IconButton {
                 text: MdiFont.Icon.menu
-				Layout.margins: 2
+				Layout.leftMargin: 4
+				Layout.preferredHeight: 58;
+				Layout.preferredWidth: 58;
+
                 onClicked: {
                     drawer.open()
                 }
             }
             Label {
                 id: titleLabel
-				Layout.margins: 2
-                text: currentTime.timestring_lz
+                text: (stackView.depth > 1) ? currentTime.timestring_lz : qsTr("DigitalRooster");
                 font.pixelSize: 20
                 elide: Label.ElideRight
                 Layout.fillWidth: true
             }
 
-			 IconButton {
+			IconButton {
                 id : playerControlBtn
                 text: MdiFont.Icon.play
-				Layout.margins: 2
+				Layout.preferredHeight: 58;
+				Layout.preferredWidth: 58;
 
                 onClicked:{
 					playerControlWidget.setVisible(true)
@@ -60,21 +63,25 @@ ApplicationWindow {
 
 			IconButton {
                 id : volButton
-				Layout.margins: 2
                 text: "\uf4c3"
+                Layout.preferredHeight: 58;
+				Layout.preferredWidth: 58;
+				Layout.leftMargin: 4
+				Layout.rightMargin: 4
+
                 onClicked:{
 					volumeMenu.popup(-width/3,height/3)
 				}
 
 				Menu {
 					id: volumeMenu
-					width: 55
+					width: 58
                     height: applicationWindow.height*0.8
-				
+
                     Label{
                         font.pointSize: 24
-						font.weight: Font.DemiBold 
-						
+						font.weight: Font.DemiBold
+
 						text: volumeSlider.value
 						anchors.horizontalCenter:parent.horizontalCenter
 					}
@@ -97,7 +104,10 @@ ApplicationWindow {
             IconButton {
                 id : backButton
                 text: MdiFont.Icon.keyboardBackspace
-				Layout.margins: 2
+
+				Layout.preferredHeight: 58;
+				Layout.preferredWidth: 58;
+				Layout.rightMargin: 4
                 visible: (stackView.depth > 1)
 
                 onClicked:{
@@ -114,7 +124,7 @@ ApplicationWindow {
 
     Drawer {
         id: drawer
-        width: applicationWindow.width/8
+        width: 66
         height: applicationWindow.height
         interactive: true;
 		edge: Qt.LeftEdge;
@@ -125,22 +135,28 @@ ApplicationWindow {
 			anchors.fill: parent
             focus: true
             currentIndex: -1
-			spacing: 4
+			spacing: 2
+			anchors.horizontalCenter: parent.horizontalCenter
+			anchors.margins: 4
 
             delegate: IconButton {
-                width: parent.width-4
-				height: parent.width-4
+                width: 58
+				height: 58
                 text: model.title
                 highlighted: listView.currentIndex == index
 
                 onClicked: {
-					console.log("Current "+ listView.currentIndex + " index: "+index + " DEPTH: "+ stackView.depth) 
+					console.log("Current "+ listView.currentIndex + " index: "+index + " depth:"+ stackView.depth)
 					if( stackView.depth > 1){
 						stackView.pop(null)
-					} 
+					}
 					listView.currentIndex = index
 					stackView.push(model.source)
                     drawer.close()
+                    /* Special item: power off button */
+                    if(index === listView.count-1){
+                    	console.log("last item!")
+                    }
                 }
             }
 
@@ -148,6 +164,8 @@ ApplicationWindow {
                 ListElement { title: "\uf223"; source: "qrc:/PodcastList.qml"; objectName:"PodcastList"; }
 				ListElement { title: "\uf43B"; source: "qrc:/IRadioList.qml"; objectName:"InternetRadio"; }
 				ListElement { title: "\uf020"; source: "qrc:/AlarmList.qml"; objectName:"AlarmList"; }
+				ListElement { title: "\uf62e"; source: "qrc:/AlarmList.qml"; objectName:"Settings"; }
+				ListElement { title: "\uf425"; source: ""; objectName:"PowerOff"; }
             }
         }
     }
@@ -175,7 +193,7 @@ ApplicationWindow {
 
 		function backNavigate(){
 			if (stackView.depth > 1){
-					stackView.pop()
+				stackView.pop()
 			} else{
 				stackView.currentIndex = -1;
 			}

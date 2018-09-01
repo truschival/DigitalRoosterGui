@@ -43,9 +43,9 @@ public:
     /**
      * One-shot alarm for a exact DateTime to trigger
      * @param media_url what to play
-     * @param exact time instance
+     * @param timepoint exact time instance (date+time)
      * @param enabled activated/deactivated
-     * @param the obligatory QObject parent
+     * @param parent QObject parent
      */
     Alarm(const QUrl& media_url, const QDateTime& timepoint,
         bool enabled = true, QObject* parent = nullptr);
@@ -56,7 +56,7 @@ public:
      * @param timepoint time of day - any time of day
      * @param period periodicity
      * @param enabled activated/deactivated
-     * @param the obligatory QObject parent
+     * @param parent obligatory QObject parent
      */
     Alarm(const QUrl& media, const QTime& timepoint,
         Alarm::Period period = Alarm::Daily, bool enabled = true,
@@ -90,14 +90,15 @@ public:
     void set_trigger(const QDateTime& timeinstance);
 
     /**
+	 * Trigger time
      * @return time of day when alarm is due
      */
     const QTime get_time() const {
         return trigger_instant.time();
     }
     /**
-     * Set repeating behavior of alarm
-     * @param period
+     * Periodicity of Alarm
+     * @return period
      */
     Alarm::Period get_period() const {
         return period;
@@ -170,10 +171,17 @@ public slots:
 
     void enable(bool state) {
         enabled = state;
+        emit dataChanged();
+        emit enabled_changed(true);
     }
 
 signals:
     void enabled_changed(bool state);
+
+	/**
+	 * Generic event, some data of this object changed
+	 */
+	void dataChanged();
 
 private:
     /**

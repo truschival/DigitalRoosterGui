@@ -13,7 +13,10 @@
 #include "PlayableItem.hpp"
 #include "alarm.hpp"
 #include "appconstants.hpp"
+#include <QLoggingCategory>
 using namespace DigitalRooster;
+
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.Alarm");
 
 /*****************************************************************************/
 
@@ -26,9 +29,8 @@ Alarm::Alarm(const QUrl& media, const QTime& timepoint, Alarm::Period period,
     , trigger_instant(QDateTime::currentDateTime()) // today, set time later
     , enabled(enabled)
     , alarmtimeout(DEFAULT_ALARM_TIMEOUT) {
-
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << "timepoint" << trigger_instant;
     trigger_instant.setTime(timepoint);
-    // qDebug() << __FUNCTION__ << "timepoint" << trigger_instant;
 }
 /*****************************************************************************/
 
@@ -40,27 +42,28 @@ Alarm::Alarm(const QUrl& media, const QDateTime& timepoint, bool enabled,
     , trigger_instant(timepoint)
     , enabled(enabled)
     , alarmtimeout(DEFAULT_ALARM_TIMEOUT) {
-    // qDebug() << __FUNCTION__ << "timepoint" << trigger_instant;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << "timepoint" << trigger_instant;
 }
 
 /*****************************************************************************/
 void Alarm::set_trigger(const QTime& timeofday, Alarm::Period period) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     trigger_instant.setTime(timeofday);
     set_period(period);
 }
 
 /*****************************************************************************/
 void Alarm::set_trigger(const QDateTime& timeinstance) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     trigger_instant = timeinstance;
     set_period(Alarm::Once);
 }
 
 /*****************************************************************************/
 void Alarm::update_trigger() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto now = QDateTime::currentDateTime();
     auto day_of_week_today = now.date().dayOfWeek();
-
-    // qDebug() << "Old trigger_instant " << trigger_instant;
 
     // trigger instant is in the future - nothing to adjust for
     if (now < trigger_instant) {
@@ -97,7 +100,7 @@ void Alarm::update_trigger() {
         trigger_instant = trigger_instant.addDays(1);
         break;
     }
-    // qDebug() << "Next trigger_instant " << trigger_instant;
+    qCDebug(CLASS_LC) << "Next trigger_instant " << trigger_instant;
 }
 
 /*****************************************************************************/
@@ -108,6 +111,7 @@ const QDateTime& Alarm::get_next_trigger() {
 
 /*****************************************************************************/
 QString Alarm::get_period_string() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     switch (get_period()) {
     case Alarm::Once:
         return QString(tr("Once"));

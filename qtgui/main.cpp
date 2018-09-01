@@ -33,19 +33,23 @@
 #include "podcastepisodemodel.hpp"
 #include "podcastsourcemodel.hpp"
 #include "weather.hpp"
+#include "logger.hpp"
 
 using namespace DigitalRooster;
+
+Q_DECLARE_LOGGING_CATEGORY(MAIN)
+Q_LOGGING_CATEGORY(MAIN, "DigitalRooster.main")
 
 int main(int argc, char* argv[]) {
     QGuiApplication app(argc, argv);
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setApplicationName(APPLICATION_NAME);
     QCoreApplication::setApplicationVersion(PROJECT_VERSION);
-
-    // QLoggingCategory::setFilterRules("*.debug=true");
-    qDebug() << "SSL Support: " << QSslSocket::supportsSsl()
+    
+	Logger logfacility;
+    // QLoggingCategory::setFilterRules("*.debug=false");
+    qCDebug(MAIN) << "SSL Support: " << QSslSocket::supportsSsl()
              << QSslSocket::sslLibraryVersionString();
-
     app.setWindowIcon(QIcon("qrc:/ClockIcon48x48.png"));
 
     qmlRegisterType<PodcastEpisodeModel>(
