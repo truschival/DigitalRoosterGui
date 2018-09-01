@@ -38,22 +38,22 @@ static void messageHandler(
 
     switch (type) {
     case QtInfoMsg:
-        out << "INF ";
+        out << "INF\t";
         break;
     case QtDebugMsg:
-        out << "DBG ";
+        out << "DBG\t";
         break;
     case QtWarningMsg:
-        out << "WRN ";
+        out << "WRN\t";
         break;
     case QtCriticalMsg:
-        out << "CRT ";
+        out << "CRT\t";
         break;
     case QtFatalMsg:
-        out << "! FATAL ! ";
+        out << "FAT\t";
         break;
     }
-    out << context.category << ": " << msg << endl;
+    out << context.category << "\t" << msg << endl;
     out.flush();
 }
 /*****************************************************************************/
