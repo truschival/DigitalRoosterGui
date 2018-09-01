@@ -163,6 +163,27 @@ TEST(Alarm, updateTiggerSetsPeriodtoOnce) {
 }
 
 /*****************************************************************************/
+TEST(Alarm, updateTiggerSetsPeriodtoWeekend) {
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
+        QTime::currentTime(), Alarm::Daily);
+
+    al.set_trigger(QTime::currentTime().addSecs(3600), Alarm::Weekend);
+
+    auto expected_trigger = QDateTime::currentDateTime().addSecs(3600);
+    auto dow_today = expected_trigger.date().dayOfWeek();
+
+    if (dow_today != Qt::Saturday && dow_today != Qt::Sunday)
+        expected_trigger = expected_trigger.addDays(Qt::Sunday - dow_today);
+    if (dow_today == Qt::Saturday)
+        expected_trigger = expected_trigger.addDays(1);
+    if (dow_today == Qt::Sunday)
+        expected_trigger = expected_trigger.addDays(6);
+
+    ASSERT_EQ(al.get_period(), Alarm::Weekend);
+    ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
+}
+
+/*****************************************************************************/
 TEST(Alarm, updatePeriodSetsNextTrigger) {
     auto expected_trigger = QDateTime::currentDateTime().addSecs(-3600);
     auto dow_today = expected_trigger.date().dayOfWeek();
