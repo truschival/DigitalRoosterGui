@@ -59,6 +59,19 @@ TEST_F(PlayerFixture, emitStateChanged) {
 }
 
 /*****************************************************************************/
+TEST_F(PlayerFixture, stop) {
+    QSignalSpy spy(&dut, SIGNAL(playback_state_changed(QMediaPlayer::State)));
+    ASSERT_TRUE(spy.isValid());
+    dut.set_media(podcast);
+    dut.play();
+    spy.wait(500);
+    ASSERT_EQ(dut.playback_state(), QMediaPlayer::PlayingState);
+    dut.stop();
+    ASSERT_EQ(spy.count(), 2); // 1 play, 2 stop
+    ASSERT_EQ(dut.playback_state(), QMediaPlayer::StoppedState);
+}
+
+/*****************************************************************************/
 TEST_F(PlayerFixture, setMuted) {
     QSignalSpy spy(&dut, SIGNAL(muted_changed(bool)));
     ASSERT_TRUE(spy.isValid());
@@ -74,7 +87,6 @@ TEST_F(PlayerFixture, setMuted) {
     ASSERT_FALSE(dut.muted());
 }
 
-
 /*****************************************************************************/
 TEST_F(PlayerFixture, setVolume) {
     QSignalSpy spy(&dut, SIGNAL(volume_changed(int)));
@@ -82,6 +94,47 @@ TEST_F(PlayerFixture, setVolume) {
 
     dut.set_media(podcast);
     dut.play();
-    dut.set_volume(50);
+    dut.set_volume(23);
     ASSERT_EQ(spy.count(), 1);
+    ASSERT_LE(
+        std::abs(dut.get_volume() - 23LL), 1); // account for rounding errors
 }
+
+/*****************************************************************************/
+TEST_F(PlayerFixture, checkSeekable) {
+	QSignalSpy seekspy(&dut, SIGNAL(seekable_changed(bool)));
+	ASSERT_TRUE(seekspy.isValid());
+    dut.set_media(podcast);
+
+    dut.play();
+    seekspy.wait(1000);
+    ASSERT_EQ(seekspy.count(),1);
+    ASSERT_TRUE(dut.seekable());
+
+    QSignalSpy spy(&dut, SIGNAL(position_changed(qint64)));
+    ASSERT_TRUE(spy.isValid());
+    dut.seek(500);
+    spy.wait(1000);
+    spy.wait(1000);
+    ASSERT_GE(spy.count(), 2); // some times position changed was emitted
+    ASSERT_GE(dut.get_position(),500); // at least what we seeked
+}
+
+/*****************************************************************************/
+TEST_F(PlayerFixture, setPositionForward) {
+    dut.set_media(podcast);
+    dut.play();
+
+    QSignalSpy spy(&dut, SIGNAL(position_changed(qint64)));
+    ASSERT_TRUE(spy.isValid());
+    auto pos = dut.get_position();
+    dut.set_position(pos+500);
+    spy.wait(1000);
+    spy.wait(1000);
+    ASSERT_GE(spy.count(), 2); // some times position changed was emitted
+    ASSERT_GE(dut.get_position(),500); // less than 50ms delta
+}
+
+
+
+
