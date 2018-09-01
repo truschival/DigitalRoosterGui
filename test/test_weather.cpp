@@ -51,7 +51,7 @@ TEST(Weather, GetConfigForDownloadAfterTimerExpired) {
     Weather dut(cm);
     dut.set_update_interval(seconds(1));
 
-    QSignalSpy spy(&dut, SIGNAL(weather_info_available(const QJsonObject&)));
+    QSignalSpy spy(&dut, SIGNAL(weather_info_updated()));
     ASSERT_TRUE(spy.isValid());
     spy.wait(1500); // only to make sure time elapses during test
     // ASSERT_EQ(spy.count(), 1);
