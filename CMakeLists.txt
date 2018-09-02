@@ -35,8 +35,8 @@ endif()
 #-------------------------------------------------------------------------------
 option(BUILD_EXE "Build QT Gui" On)
 option(BUILD_TESTS "Build Tests" On)
-option(PROFILE "Build with Profiling" OFF)
-option(TEST_COVERAGE "Test Coverage" OFF)
+option(PROFILE "Build with Profiling" Off)
+option(TEST_COVERAGE "Test Coverage" Off)
 option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" On)
 option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." Off)
 
@@ -72,6 +72,15 @@ find_package(OpenSSL 1.0.2 REQUIRED)
 find_package(Qt5 COMPONENTS Core Widgets Multimedia REQUIRED)
 MESSAGE(STATUS "Found Qt5 version: ${Qt5Widgets_VERSION_STRING}")
 
+
+# Get the latest abbreviated commit hash of the working branch
+execute_process(
+  COMMAND git describe --abbrev=8 --dirty
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  OUTPUT_VARIABLE GIT_DESCRIBE_REV
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
 #-------------------------------------------------------------------------------
 # Print Summary
 #-------------------------------------------------------------------------------
@@ -82,6 +91,7 @@ message(STATUS "Build UnitTests:\t ${BUILD_TESTS} ")
 message(STATUS "Build GoogleTest:\t ${BUILD_GTEST_FROM_SRC} ")
 message(STATUS "Test coverage:\t ${TEST_COVERAGE} ")
 message(STATUS "Profiling:\t\t ${PROFILE} ")
+message(STATUS "Revision:\t\t ${GIT_DESCRIBE_REV} ")
 message(STATUS "------------------------------ " )
 
 #-------------------------------------------------------------------------------

@@ -57,6 +57,11 @@ struct WeatherConfig {
  */
 class ConfigurationManager : public QObject {
     Q_OBJECT
+    Q_PROPERTY(QString revision READ get_revision)
+    Q_PROPERTY(QString buildtime READ get_build)
+    Q_PROPERTY(int defaultbrightness READ get_brightness WRITE set_brightness)
+    Q_PROPERTY(int defaultvolume READ get_volume WRITE set_volume)
+
 public:
     /**
      * Default Constructor will use QT Standard paths for configuration
@@ -66,6 +71,36 @@ public:
             QStandardPaths::AppConfigLocation));
 
     virtual ~ConfigurationManager() = default;
+
+    /**
+     * return compile time version string
+     */
+    QString get_revision() const {
+        return GIT_REVISION;
+    }
+
+    /**
+     * return compile time
+     */
+    QString get_build() const {
+        return PROJECT_BUILD_TIME;
+    }
+
+    /**
+     * User set and stored volume (form config file)
+     * @return volume
+     */
+    int get_volume() const {
+        return volume;
+    }
+
+    /**
+     * User set and stored brightness (form config file)
+     * @return brightness
+     */
+    int get_brightness() const {
+        return brightness;
+    }
 
     /**
      * get all radio stream sources
@@ -127,6 +162,18 @@ public slots:
     void dataChanged();
 
     /**
+     * volume settings changed -> store
+     * @param vol new volume settings (0..100)
+     */
+    void set_volume(int vol);
+
+    /**
+     * user changed max brightness
+     * @param brightness new volume settings (0..100)
+     */
+    void set_brightness(int brightness);
+
+    /**
      * Write memory config to file - will overwrite changes in file
      */
     void store_current_config();
@@ -177,6 +224,16 @@ private:
     std::chrono::minutes sleeptimeout;
 
     /**
+     * User set and stored volume (form config file)
+     */
+    int volume;
+
+    /**
+     * User set and stored brightness (form config file)
+     */
+    int brightness;
+
+    /**
      * File system monitor to get updated if someone changed the file
      */
     QFileSystemWatcher filewatcher;
@@ -189,6 +246,11 @@ private:
      * Configuration directory, writable, created if it doesn't exist
      */
     QDir config_dir;
+
+    /**
+     * Timer tor write configuration to disk
+     */
+    QTimer writeTimer;
 
     /**
      * Check if config directory exist, otherwise create it
@@ -277,11 +339,6 @@ private:
     virtual WeatherConfig& get_weather_cfg() {
         return weather_cfg;
     }
-
-    /**
-     * Timer tor write configuration to disk
-     */
-    QTimer writeTimer;
 };
 } // namespace DigitalRooster
 #endif // _SETTINGS_READER_HPP_

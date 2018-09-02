@@ -25,7 +25,7 @@ set(CMAKE_AUTOMOC ON)
 # add compile definitions
 #------------------------------
 SET(CPP_DEFS "")
-LIST(APPEND CPP_DEFS "FOO_BAR=1")
+LIST(APPEND CPP_DEFS GIT_DESCRIBE_REV=${GIT_DESCRIBE_REV} )
 
 #------------------------------
 # normal sources
