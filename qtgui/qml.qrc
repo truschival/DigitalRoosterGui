@@ -14,5 +14,6 @@
         <file>PlayerControlWidget.qml</file>
         <file>AlarmDelegate.qml</file>
         <file>AlarmList.qml</file>
+        <file>SettingsPage.qml</file>
     </qresource>
 </RCC>

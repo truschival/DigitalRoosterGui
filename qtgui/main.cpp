@@ -12,7 +12,7 @@
 
 /* only allow QML debugging for Debug builds */
 #ifndef NDEBUG
-	#define QT_QML_DEBUG
+#define QT_QML_DEBUG
 #endif
 
 #include <QDebug>
@@ -23,17 +23,20 @@
 #include <QtQuick>
 #include <memory>
 
+#include <iostream>
+
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
 #include "alarmlistmodel.hpp"
 #include "alarmmonitor.hpp"
+#include "appconstants.hpp"
 #include "configuration_manager.hpp"
 #include "iradiolistmodel.hpp"
+#include "logger.hpp"
 #include "mediaplayerproxy.hpp"
 #include "podcastepisodemodel.hpp"
 #include "podcastsourcemodel.hpp"
 #include "weather.hpp"
-#include "logger.hpp"
 
 using namespace DigitalRooster;
 
@@ -45,11 +48,20 @@ int main(int argc, char* argv[]) {
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setApplicationName(APPLICATION_NAME);
     QCoreApplication::setApplicationVersion(PROJECT_VERSION);
-    
-	Logger logfacility;
+
+    std::cout << APPLICATION_NAME.toStdString().c_str() << " - "
+              << GIT_REVISION.toStdString().c_str() << "\n logging to: ";
+    std::cout << QString(QStandardPaths::writableLocation(
+                             QStandardPaths::TempLocation) +
+                     "/Digitalrooster.log")
+                     .toStdString()
+                     .c_str()
+              << std::endl;
+
+    Logger logfacility;
     // QLoggingCategory::setFilterRules("*.debug=false");
     qCDebug(MAIN) << "SSL Support: " << QSslSocket::supportsSsl()
-             << QSslSocket::sslLibraryVersionString();
+                  << QSslSocket::sslLibraryVersionString();
     app.setWindowIcon(QIcon("qrc:/ClockIcon48x48.png"));
 
     qmlRegisterType<PodcastEpisodeModel>(
@@ -85,6 +97,8 @@ int main(int argc, char* argv[]) {
     ctxt->setContextProperty("alarmlistmodel", &alarmlistmodel);
     ctxt->setContextProperty("iradiolistmodel", &iradiolistmodel);
     ctxt->setContextProperty("weather", &weather);
+    // TODO remove next line - only for testing of settingspage!
+    ctxt->setContextProperty("config", cm.get());
 
     view.load(QUrl("qrc:/main.qml"));
 

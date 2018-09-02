@@ -151,12 +151,13 @@ ApplicationWindow {
 						stackView.pop(null)
 					}
 					listView.currentIndex = index
-					stackView.push(model.source)
                     drawer.close()
                     /* Special item: power off button */
                     if(index === listView.count-1){
                     	console.log("last item!")
+                    	return; // nothing to do
                     }
+					stackView.push(model.source)
                 }
             }
 
@@ -164,7 +165,7 @@ ApplicationWindow {
                 ListElement { title: "\uf223"; source: "qrc:/PodcastList.qml"; objectName:"PodcastList"; }
 				ListElement { title: "\uf43B"; source: "qrc:/IRadioList.qml"; objectName:"InternetRadio"; }
 				ListElement { title: "\uf020"; source: "qrc:/AlarmList.qml"; objectName:"AlarmList"; }
-				ListElement { title: "\uf62e"; source: "qrc:/AlarmList.qml"; objectName:"Settings"; }
+				ListElement { title: "\uf62e"; source: "qrc:/SettingsPage.qml"; objectName:"Settings"; }
 				ListElement { title: "\uf425"; source: ""; objectName:"PowerOff"; }
             }
         }

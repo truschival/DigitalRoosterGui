@@ -32,6 +32,8 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
 ConfigurationManager::ConfigurationManager(const QString& configdir)
     : alarmtimeout(DEFAULT_ALARM_TIMEOUT)
     , sleeptimeout(DEFAULT_SLEEP_TIMEOUT)
+	, volume(DEFAULT_VOLUME)
+	, brightness(DEFAULT_BRIGHTNESS)
     , config_dir(configdir) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
@@ -224,6 +226,20 @@ void ConfigurationManager::fileChanged(const QString& path) {
 }
 
 /*****************************************************************************/
+void ConfigurationManager::set_volume(int vol) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << vol;
+    this->volume = vol;
+    writeTimer.start();
+}
+
+/*****************************************************************************/
+void ConfigurationManager::set_brightness(int brightness) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
+    this->brightness = brightness;
+    writeTimer.start();
+}
+
+/*****************************************************************************/
 void ConfigurationManager::store_current_config() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject appconfig;
@@ -268,6 +284,9 @@ void ConfigurationManager::store_current_config() {
     /* global application configuration */
     appconfig[KEY_ALARM_TIMEOUT] = static_cast<qint64>(alarmtimeout.count());
     appconfig[KEY_SLEEP_TIMEOUT] = static_cast<qint64>(sleeptimeout.count());
+    appconfig[KEY_VOLUME] = volume;
+    appconfig[KEY_BRIGHTNESS] = brightness;
+
     /* Static info - which version created the config file*/
     appconfig[KEY_VERSION] = PROJECT_VERSION;
 
@@ -324,7 +343,6 @@ void ConfigurationManager::create_default_configuration() {
         std::make_shared<DigitalRooster::PlayableItem>("Deutschlandfunk (Ogg)",
             QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"));
     stream_sources.push_back(radio);
-
     store_current_config();
 }
 
