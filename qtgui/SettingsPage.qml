@@ -15,7 +15,7 @@ Page {
 		anchors.leftMargin: 10;
 		anchors.rightMargin: 10;
 		Layout.alignment: Qt.AlignHCenter
-		
+
 		Text{
 			text: "Revision: "+ config.revision;
 			font.pointSize: 12
@@ -25,7 +25,7 @@ Page {
 			Layout.columnSpan: 2
 			Layout.alignment: Qt.AlignLeft | Qt.AlignTop
 		}
-		
+
 		Text{
 			text: "Build: " + config.buildtime;
 			font.pointSize: 12
@@ -37,7 +37,7 @@ Page {
 		}
 
 		Text{
-			text: "Brightness:";
+			text: "Brightness (ON):";
 			font.pointSize: 12
 			color: "white"
 			Layout.maximumHeight:25
@@ -46,17 +46,18 @@ Page {
 			Layout.topMargin: 8
 			Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 		}
+
 		Slider {
 			id: brightnessSlider
             orientation: Qt.Horizontal
-            from: 0
+            from: 5
             to: 100
-            stepSize: 1
+            stepSize: 5
 			wheelEnabled: true
 			// change that to class for handling brightness control
             value: brightnessControl.brightness
             onMoved: {
-                brightnessControl.brightness = value;
+               	brightnessControl.brightness = value;
             }
 			Layout.topMargin: 8
 			Layout.minimumWidth : 250
@@ -64,7 +65,38 @@ Page {
 			Layout.maximumWidth: 400
 			Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 		}
-		
+
+		Text{
+			text: "Brightness (OFF):";
+			font.pointSize: 12
+			color: "white"
+			Layout.maximumHeight:25
+			Layout.preferredHeight:20
+			Layout.columnSpan: 1
+			Layout.topMargin: 8
+			Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+		}
+
+		Slider {
+			id: standbySlider
+            orientation: Qt.Horizontal
+            from: 5
+            to: 100
+            stepSize: 5
+			wheelEnabled: true
+			// change that to class for handling brightness control
+            value: config.defaultbrightness
+            onMoved: {
+               	config.defaultbrightness = value;
+            }
+			Layout.topMargin: 8
+			Layout.minimumWidth : 250
+			Layout.preferredWidth: 300
+			Layout.maximumWidth: 400
+			Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+		}
+
+
 		Rectangle{
 			id: fillerRect
 			Layout.columnSpan: 2
@@ -74,7 +106,7 @@ Page {
 			border.width: 1;
 			color: "Grey" ;
 		}
-		
+
 	}
 
 }

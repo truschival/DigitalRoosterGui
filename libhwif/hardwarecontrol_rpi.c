@@ -16,6 +16,9 @@
 
 #include <wiringPi.h>
 
+static const int CLOCK_DIV = 1024	;
+static const int BRIGHTNESS_PWM_PIN = 23;
+
 /*****************************************************************************/
 int system_reboot() {
     sync();
@@ -31,15 +34,15 @@ int system_poweroff(){
 
 /*****************************************************************************/
 int set_brightness(int brightness){
-	pwmWrite(13, brightness);
+	pwmWrite(BRIGHTNESS_PWM_PIN, brightness*(1024/100));
 	return 0;
 }
 
 /*****************************************************************************/
 int setup_hardware(){
 	wiringPiSetup();
-	pinMode(13,PWM_OUTPUT) ;
-	pwmSetClock(1000);
-	pwmWrite(13, 10);
+	pinMode(BRIGHTNESS_PWM_PIN,PWM_OUTPUT) ;
+	pwmSetClock(CLOCK_DIV);
+	pwmWrite(BRIGHTNESS_PWM_PIN, 100);
 	return 0;
 }

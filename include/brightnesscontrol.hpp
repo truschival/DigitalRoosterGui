@@ -23,7 +23,8 @@ class ConfigurationManager;
  */
 class BrightnessControl : public QObject {
     Q_OBJECT
-    Q_PROPERTY(int brightness READ get_brightness WRITE set_brightness)
+    Q_PROPERTY(int brightness READ get_brightness WRITE set_brightness NOTIFY
+            brightness_changed)
 public:
     /**
      * Constructor

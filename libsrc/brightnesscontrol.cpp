@@ -29,7 +29,7 @@ BrightnessControl::BrightnessControl(
     , linear_brightness(0)
     , log_brightness(1) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    set_brightness(cm->get_brightness());
+    set_brightness(cm->get_active_brightness());
 }
 
 /*****************************************************************************/
@@ -41,7 +41,7 @@ void BrightnessControl::set_brightness(int brightness) {
     qCDebug(CLASS_LC) << " = Logarithmic:" << qRound(linearVolume * 100);
 
     ::set_brightness(qRound(linearVolume * 100));
-    cm->set_brightness(brightness);
+    cm->set_active_brightness(brightness);
 }
 /*****************************************************************************/
 

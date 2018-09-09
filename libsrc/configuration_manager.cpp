@@ -32,8 +32,9 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
 ConfigurationManager::ConfigurationManager(const QString& configdir)
     : alarmtimeout(DEFAULT_ALARM_TIMEOUT)
     , sleeptimeout(DEFAULT_SLEEP_TIMEOUT)
-	, volume(DEFAULT_VOLUME)
-	, brightness(DEFAULT_BRIGHTNESS)
+    , volume(DEFAULT_VOLUME)
+    , brightness_sb(DEFAULT_BRIGHTNESS)
+    , brightness_act(DEFAULT_BRIGHTNESS)
     , config_dir(configdir) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
@@ -92,6 +93,18 @@ void ConfigurationManager::parseJson(const QByteArray& json) {
             std::chrono::minutes(at.toInt(DEFAULT_ALARM_TIMEOUT.count()));
     } else {
         alarmtimeout = std::chrono::minutes(DEFAULT_ALARM_TIMEOUT.count());
+    }
+    auto bright_act = appconfig[KEY_BRIGHTNESS_ACT];
+    if (!bright_act.isUndefined()) {
+        set_active_brightness(bright_act.toInt(DEFAULT_BRIGHTNESS));
+    }
+    auto bright_sb = appconfig[KEY_BRIGHTNESS_SB];
+    if (!bright_sb.isUndefined()) {
+        set_standby_brightness(bright_sb.toInt(DEFAULT_BRIGHTNESS));
+    }
+    auto vol = appconfig[KEY_VOLUME];
+    if (!vol.isUndefined()) {
+        set_volume(vol.toInt(DEFAULT_VOLUME));
     }
 
     read_radio_streams_from_file(appconfig);
@@ -228,15 +241,34 @@ void ConfigurationManager::fileChanged(const QString& path) {
 /*****************************************************************************/
 void ConfigurationManager::set_volume(int vol) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << vol;
-    this->volume = vol;
-    writeTimer.start();
+    if( vol >= 0 && vol <= 100){
+    	this->volume = vol;
+    	writeTimer.start();
+    } else {
+    	qCWarning(CLASS_LC) << "invalid volume value: " << vol;
+    }
 }
 
 /*****************************************************************************/
-void ConfigurationManager::set_brightness(int brightness) {
+void ConfigurationManager::set_standby_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
-    this->brightness = brightness;
-    writeTimer.start();
+    if( brightness >= 0 && brightness <= 100){
+    	this->brightness_sb = brightness;
+    	writeTimer.start();
+    } else {
+    	qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
+    }
+}
+
+/*****************************************************************************/
+void ConfigurationManager::set_active_brightness(int brightness) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
+    if( brightness >= 0 && brightness <= 100){
+    	this->brightness_act = brightness;
+    	writeTimer.start();
+    } else {
+    	qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
+    }
 }
 
 /*****************************************************************************/
@@ -285,8 +317,8 @@ void ConfigurationManager::store_current_config() {
     appconfig[KEY_ALARM_TIMEOUT] = static_cast<qint64>(alarmtimeout.count());
     appconfig[KEY_SLEEP_TIMEOUT] = static_cast<qint64>(sleeptimeout.count());
     appconfig[KEY_VOLUME] = volume;
-    appconfig[KEY_BRIGHTNESS] = brightness;
-
+    appconfig[KEY_BRIGHTNESS_SB] = brightness_sb;
+    appconfig[KEY_BRIGHTNESS_ACT] = brightness_act;
     /* Static info - which version created the config file*/
     appconfig[KEY_VERSION] = PROJECT_VERSION;
 
