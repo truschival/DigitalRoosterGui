@@ -57,7 +57,10 @@ class ConfigurationManager : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString revision READ get_revision)
     Q_PROPERTY(QString buildtime READ get_build)
-    Q_PROPERTY(int defaultbrightness READ get_brightness WRITE set_brightness)
+    Q_PROPERTY(int standbybrightness READ get_standby_brightness WRITE
+            set_standby_brightness)
+    Q_PROPERTY(int activebrightness READ get_active_brightness WRITE
+            set_active_brightness)
     Q_PROPERTY(int defaultvolume READ get_volume WRITE set_volume)
 
 public:
@@ -93,11 +96,19 @@ public:
     }
 
     /**
-     * User set and stored brightness (form config file)
+     * User set and stored brightness for standby mode (form config file)
      * @return brightness
      */
-    int get_brightness() const {
-        return brightness;
+    int get_standby_brightness() const {
+        return brightness_sb;
+    }
+
+    /**
+     * User set and stored brightness for standby mode (form config file)
+     * @return brightness
+     */
+    int get_active_brightness() const {
+        return brightness_act;
     }
 
     /**
@@ -166,10 +177,16 @@ public slots:
     void set_volume(int vol);
 
     /**
-     * user changed max brightness
+     * user changed standby brightness
      * @param brightness new volume settings (0..100)
      */
-    void set_brightness(int brightness);
+    void set_standby_brightness(int brightness);
+
+    /**
+     * user changed standby brightness
+     * @param brightness new volume settings (0..100)
+     */
+    void set_active_brightness(int brightness);
 
     /**
      * Write memory config to file - will overwrite changes in file
@@ -227,9 +244,13 @@ private:
     int volume;
 
     /**
-     * User set and stored brightness (form config file)
+     * display brightness (0..100%) in standby mode
      */
-    int brightness;
+    int brightness_sb;
+    /**
+     * display brightness (0..100%) in active mode
+     */
+    int brightness_act;
 
     /**
      * File system monitor to get updated if someone changed the file

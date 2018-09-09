@@ -40,6 +40,7 @@ option(TEST_COVERAGE "Test Coverage" Off)
 option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" On)
 option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." Off)
 
+SET(SYSTEM_TARGET_NAME "Host" CACHE STRING "Target: {Host|Rpi}")
 SET(SETTINGS_FILE_NAME "digitalrooster.json" 
 	CACHE STRING "application configuration file name")
 SET(SETTINGS_PATH  "${CMAKE_CURRENT_BINARY_DIR}/settings" 
@@ -92,6 +93,7 @@ message(STATUS "Build GoogleTest:\t ${BUILD_GTEST_FROM_SRC} ")
 message(STATUS "Test coverage:\t ${TEST_COVERAGE} ")
 message(STATUS "Profiling:\t\t ${PROFILE} ")
 message(STATUS "Revision:\t\t ${GIT_DESCRIBE_REV} ")
+message(STATUS "System:\t\t ${SYSTEM_TARGET_NAME} ")
 message(STATUS "------------------------------ " )
 
 #-------------------------------------------------------------------------------
@@ -209,7 +211,8 @@ endif(DOXYGEN_FOUND)
 #-------------------------------------------------------------------------------
 
 # Library source
-add_subdirectory(${PROJECT_SOURCE_DIR}/libsrc/)
+add_subdirectory(${PROJECT_SOURCE_DIR}/libhwif/)
+add_subdirectory(${PROJECT_SOURCE_DIR}/libsrc/) #libsrc depends on libhwif
 
 if(BUILD_EXE)
   add_subdirectory(${PROJECT_SOURCE_DIR}/qtgui/)

@@ -1,4 +1,4 @@
-/*************************************************************************************
+/******************************************************************************
  * \filename
  * \brief   Main entry point for QML Gui
  *
@@ -8,7 +8,7 @@
  * \copyright 2018 Thomas Ruschival <thomas@ruschival.de>
  * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
  * 			  SPDX-License-Identifier: GPL-3.0-or-later
- *************************************************************************************/
+ *****************************************************************************/
 
 /* only allow QML debugging for Debug builds */
 #ifndef NDEBUG
@@ -37,6 +37,9 @@
 #include "podcastepisodemodel.hpp"
 #include "podcastsourcemodel.hpp"
 #include "weather.hpp"
+#include "hwif/hal.h"
+#include "powercontrol.hpp"
+#include "brightnesscontrol.hpp"
 
 using namespace DigitalRooster;
 
@@ -64,6 +67,9 @@ int main(int argc, char* argv[]) {
                   << QSslSocket::sslLibraryVersionString();
     app.setWindowIcon(QIcon("qrc:/ClockIcon48x48.png"));
 
+    // Initialize Hardware (or call stubs)
+    ::setup_hardware();
+
     qmlRegisterType<PodcastEpisodeModel>(
         "ruschi.PodcastEpisodeModel", 1, 0, "PodcastEpisodeModel");
     qmlRegisterType<DigitalRooster::PodcastEpisode>(
@@ -89,6 +95,8 @@ int main(int argc, char* argv[]) {
     IRadioListModel iradiolistmodel(cm, playerproxy);
     AlarmListModel alarmlistmodel(cm);
     Weather weather(cm);
+    PowerControl power;
+    BrightnessControl brightness(cm);
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
@@ -99,6 +107,8 @@ int main(int argc, char* argv[]) {
     ctxt->setContextProperty("weather", &weather);
     // TODO remove next line - only for testing of settingspage!
     ctxt->setContextProperty("config", cm.get());
+    ctxt->setContextProperty("powerControl", &power);
+    ctxt->setContextProperty("brightnessControl", &brightness);
 
     view.load(QUrl("qrc:/main.qml"));
 

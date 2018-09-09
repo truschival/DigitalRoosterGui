@@ -48,9 +48,14 @@ const QString KEY_GROUP_ALARMS("Alarms");
 const QString KEY_VOLUME("volume");
 
 /**
- * keyword for backlight brightness
+ * keyword for backlight brightness (active mode)
  */
-const QString KEY_BRIGHTNESS("brightness");
+const QString KEY_BRIGHTNESS_ACT("brightnessActive");
+
+/**
+ * keyword for backlight brightness (standby mode)
+ */
+const QString KEY_BRIGHTNESS_SB("brightnessStandby");
 
 /**
  * Key for all URIs
