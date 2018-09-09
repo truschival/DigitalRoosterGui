@@ -13,9 +13,7 @@
 #define _CONFIGURATION_MANAGER_H_
 
 #include <QFileSystemWatcher>
-#include <QMap>
 #include <QObject>
-#include <QSettings>
 #include <QString>
 #include <QVector>
 
