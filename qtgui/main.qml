@@ -155,6 +155,8 @@ ApplicationWindow {
                     /* Special item: power off button */
                     if(index === listView.count-1){
                     	console.log("last item!")
+                    	powerOffMenu.popup((applicationWindow.width-powerOffMenu.width)/2,
+										   (applicationWindow.height-powerOffMenu.height)/2)
                     	return; // nothing to do
                     }
 					stackView.push(model.source)
@@ -170,6 +172,40 @@ ApplicationWindow {
             }
         }
     }
+
+	Menu {
+		id: powerOffMenu
+		RowLayout {
+			spacing: 4
+			IconButton {
+				id: poweroffBtn
+				text: "\uf425"
+				Layout.minimumHeight: 58;
+				Layout.minimumWidth: 58;
+				Layout.preferredHeight: 58;
+				Layout.preferredWidth: 58;
+				Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+				onClicked: {
+					console.log("power off button")
+					powerControl.power_off();
+				}
+			}
+
+			IconButton {
+				id: rebootBtn
+				text: "\uf426";
+				Layout.minimumHeight: 58;
+				Layout.minimumWidth: 58;
+				Layout.preferredHeight: 58;
+				Layout.preferredWidth: 58;
+				Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+				onClicked: {
+					console.log("reboot button")
+					powerControl.reboot();
+				}
+			}
+		}
+	}
 
 	PlayerControlWidget{
 		id: playerControlWidget
