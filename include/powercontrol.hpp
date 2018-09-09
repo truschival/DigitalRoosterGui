@@ -24,8 +24,8 @@ class PowerControl : public QObject {
     Q_OBJECT
 public:
     PowerControl() = default;
-    Q_INVOKABLE int power_off();
-    Q_INVOKABLE int reboot();
+    Q_INVOKABLE void power_off();
+    Q_INVOKABLE void reboot();
 };
 
 }; // namespace DigitalRooster

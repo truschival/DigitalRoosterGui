@@ -54,9 +54,9 @@ Page {
             stepSize: 1
 			wheelEnabled: true
 			// change that to class for handling brightness control
-            value: config.defaultbrightness
+            value: brightnessControl.brightness
             onMoved: {
-                config.defaultbrightness = value;
+                brightnessControl.brightness = value;
             }
 			Layout.topMargin: 8
 			Layout.minimumWidth : 250

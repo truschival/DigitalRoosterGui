@@ -68,11 +68,13 @@ TARGET_COMPILE_OPTIONS(${LIBRARY_NAME} PRIVATE
   $<$<COMPILE_LANGUAGE:C>:${CUSTOM_C_FLAGS}>
   )
 
-target_link_libraries(
-  ${LIBRARY_NAME}
-  PUBLIC
-  ${WIRING_LIB}
-  )
+if(NOT ${SYSTEM_TARGET_NAME} STREQUAL "Host" )
+	target_link_libraries(
+	  ${LIBRARY_NAME}
+	  PUBLIC
+	  ${WIRING_LIB}
+	  )
+endif()
 
 #-----
 # Install

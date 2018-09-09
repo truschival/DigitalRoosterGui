@@ -38,6 +38,8 @@
 #include "podcastsourcemodel.hpp"
 #include "weather.hpp"
 #include "hwif/hal.h"
+#include "powercontrol.hpp"
+#include "brightnesscontrol.hpp"
 
 using namespace DigitalRooster;
 
@@ -93,6 +95,8 @@ int main(int argc, char* argv[]) {
     IRadioListModel iradiolistmodel(cm, playerproxy);
     AlarmListModel alarmlistmodel(cm);
     Weather weather(cm);
+    PowerControl power;
+    BrightnessControl brightness(cm);
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
@@ -103,6 +107,8 @@ int main(int argc, char* argv[]) {
     ctxt->setContextProperty("weather", &weather);
     // TODO remove next line - only for testing of settingspage!
     ctxt->setContextProperty("config", cm.get());
+    ctxt->setContextProperty("powerControl", &power);
+    ctxt->setContextProperty("brightnessControl", &brightness);
 
     view.load(QUrl("qrc:/main.qml"));
 

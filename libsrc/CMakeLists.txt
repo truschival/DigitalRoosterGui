@@ -60,6 +60,8 @@ set(SRCS
    ${CMAKE_CURRENT_SOURCE_DIR}/alarmdispatcher.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/weather.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/logger.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/powercontrol.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/brightnesscontrol.cpp
 )
 
 # Moc any classes derived from QObject
@@ -75,6 +77,8 @@ qt5_wrap_cpp(MOC_SRC
 		${PROJECT_INCLUDE_DIR}/alarmdispatcher.hpp
 		${PROJECT_INCLUDE_DIR}/alarmmonitor.hpp
 		${PROJECT_INCLUDE_DIR}/weather.hpp
+		${PROJECT_INCLUDE_DIR}/powercontrol.hpp
+		${PROJECT_INCLUDE_DIR}/brightnesscontrol.hpp
         )
 
 #------------------------------
