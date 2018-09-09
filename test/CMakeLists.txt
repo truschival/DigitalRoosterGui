@@ -35,9 +35,9 @@ qt5_wrap_cpp(MOC_SRC
 
 SET(DUT_LIBS "")
 IF(TARGET digitalrooster)
-  add_library(${PROJECT_NAME}::digitalrooster ALIAS digitalrooster)
+	add_library(${PROJECT_NAME}::digitalrooster ALIAS digitalrooster)
 ELSE()
-    find_package(${PROJECT_NAME} COMPONENTS digitalrooster CONFIG REQUIRED)
+	find_package(${PROJECT_NAME} COMPONENTS digitalrooster CONFIG REQUIRED)
 ENDIF()
 LIST(APPEND DUT_LIBS digitalrooster)
 

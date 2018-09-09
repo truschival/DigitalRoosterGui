@@ -1,10 +1,10 @@
 MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
 
 # name of library (without lib- prefix)
-string(TOLOWER ${PROJECT_NAME} LIBRARY_NAME)
+SET(LIBRARY_NAME hwif)
 
 #Since the "standard" cmake template works with component name set it
-set(COMPONENT_NAME ${PROJECT_NAME})
+set(COMPONENT_NAME "HWIF")
 
 #includes etc. in folder
 SET(COMPONENT_PATH ${LIBRARY_NAME})
@@ -16,74 +16,33 @@ set(targets_export_name "${COMPONENT_NAME}Targets")
 # Interface/binary version
 SET(LIBRARY_VERSION ${PROJECT_VERSION})
 
-# add . to the includes during the build
-#set(CMAKE_INCLUDE_CURRENT_DIR ON)
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-find_package(Qt5 COMPONENTS Core Multimedia Network REQUIRED)
-
-# Instruct CMake to run moc automatically when needed.
-set(CMAKE_AUTOMOC ON)
-
-# --------------------------------------------------------------------------------
-# Add dependencies
-# --------------------------------------------------------------------------------
-
-SET(OTHER_LIBS "")
-IF(TARGET hwif)
-	add_library(${PROJECT_NAME}::hwif ALIAS hwif)
-ELSE()
-	find_package(${PROJECT_NAME} COMPONENTS hwif CONFIG REQUIRED)
-ENDIF()
-LIST(APPEND OTHER_LIBS hwif)
-
 #------------------------------
 # add compile definitions
 #------------------------------
 SET(CPP_DEFS "")
-LIST(APPEND CPP_DEFS GIT_DESCRIBE_REV=${GIT_DESCRIBE_REV} )
+LIST(APPEND CPP_DEFS SYSTEM_TARGET_NAME=${SYSTEM_TARGET_NAME} )
 
 #------------------------------
 # normal sources
 #------------------------------
 
-set(SRCS
-   ${CMAKE_CURRENT_SOURCE_DIR}/configuration_manager.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/rss2podcastsource.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/PodcastSource.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/httpclient.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/UpdateTask.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/alarm.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/mediaplayer.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/mediaplayerproxy.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/alarmmonitor.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/alarmdispatcher.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/weather.cpp
-   ${CMAKE_CURRENT_SOURCE_DIR}/logger.cpp
-)
-
-# Moc any classes derived from QObject
-qt5_wrap_cpp(MOC_SRC
-        ${PROJECT_INCLUDE_DIR}/configuration_manager.hpp
-        ${PROJECT_INCLUDE_DIR}/httpclient.hpp
-        ${PROJECT_INCLUDE_DIR}/UpdateTask.hpp
-        ${PROJECT_INCLUDE_DIR}/PlayableItem.hpp
-        ${PROJECT_INCLUDE_DIR}/PodcastSource.hpp
-        ${PROJECT_INCLUDE_DIR}/alarm.hpp
-		${PROJECT_INCLUDE_DIR}/mediaplayer.hpp
-		${PROJECT_INCLUDE_DIR}/mediaplayerproxy.hpp
-		${PROJECT_INCLUDE_DIR}/alarmdispatcher.hpp
-		${PROJECT_INCLUDE_DIR}/alarmmonitor.hpp
-		${PROJECT_INCLUDE_DIR}/weather.hpp
-        )
+if(${SYSTEM_TARGET_NAME} STREQUAL "RPi" )
+	MESSAGE(STATUS "adding raspberry pi specific flags")
+	set(SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_rpi.c )
+	find_library(WIRING_LIB 
+		wiringPi
+		DOC "Wiring Pi library"
+	)
+	MESSAGE(STATUS "Found library  ${WIRING_LIB-VERSION} : ${WIRING_LIB} ")
+else()
+	set(SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_stub.c )
+endif()
 
 #------------------------------
 # Output a library
 #------------------------------
-ADD_LIBRARY(${LIBRARY_NAME} STATIC
-	${SRCS}
-	${HW_DEP_SRCS}
-	${MOC_SRC}
+ADD_LIBRARY(${LIBRARY_NAME} STATIC 
+	${SRCS} 
 	)
 
 SET_TARGET_PROPERTIES(
@@ -95,13 +54,13 @@ SET_TARGET_PROPERTIES(
 TARGET_INCLUDE_DIRECTORIES(
   ${LIBRARY_NAME}
   PRIVATE
-  $<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>
+  $<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>/hal
   PUBLIC
   $<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>
   )
 
 TARGET_COMPILE_DEFINITIONS(${LIBRARY_NAME}
-  PUBLIC ${CPP_DEFS}
+  PUBLIC ${CPP_DEFS} 
   )
 
 TARGET_COMPILE_OPTIONS(${LIBRARY_NAME} PRIVATE
@@ -112,15 +71,8 @@ TARGET_COMPILE_OPTIONS(${LIBRARY_NAME} PRIVATE
 target_link_libraries(
   ${LIBRARY_NAME}
   PUBLIC
-  Qt5::Core
-  Qt5::Multimedia
-  ${OTHER_LIBS}
-  PRIVATE
-  Qt5::Core
-  Qt5::Multimedia
-  Qt5::Network
+  ${WIRING_LIB}
   )
-
 
 #-----
 # Install
@@ -150,9 +102,8 @@ INSTALL(TARGETS ${LIBRARY_NAME}
   INCLUDES DESTINATION ${INSTALL_INCLUDE_DIR}
   )
 
-
 INSTALL(DIRECTORY
-  ${PROJECT_INCLUDE_DIR}/
+  ${PROJECT_INCLUDE_DIR}/${COMPONENT_PATH}
   COMPONENT DEVELOP
   DESTINATION ${INSTALL_INCLUDE_DIR}/${COMPONENT_PATH}
   )
@@ -169,3 +120,4 @@ INSTALL(
   COMPONENT DEVELOP
   DESTINATION "${INSTALL_CMAKE_DIR}/${COMPONENT_NAME}"
   )
+

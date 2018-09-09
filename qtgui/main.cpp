@@ -1,4 +1,4 @@
-/*************************************************************************************
+/******************************************************************************
  * \filename
  * \brief   Main entry point for QML Gui
  *
@@ -8,7 +8,7 @@
  * \copyright 2018 Thomas Ruschival <thomas@ruschival.de>
  * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
  * 			  SPDX-License-Identifier: GPL-3.0-or-later
- *************************************************************************************/
+ *****************************************************************************/
 
 /* only allow QML debugging for Debug builds */
 #ifndef NDEBUG
@@ -37,6 +37,7 @@
 #include "podcastepisodemodel.hpp"
 #include "podcastsourcemodel.hpp"
 #include "weather.hpp"
+#include "hwif/hal.h"
 
 using namespace DigitalRooster;
 
@@ -63,6 +64,9 @@ int main(int argc, char* argv[]) {
     qCDebug(MAIN) << "SSL Support: " << QSslSocket::supportsSsl()
                   << QSslSocket::sslLibraryVersionString();
     app.setWindowIcon(QIcon("qrc:/ClockIcon48x48.png"));
+
+    // Initialize Hardware (or call stubs)
+    ::setup_hardware();
 
     qmlRegisterType<PodcastEpisodeModel>(
         "ruschi.PodcastEpisodeModel", 1, 0, "PodcastEpisodeModel");
