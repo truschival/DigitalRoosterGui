@@ -73,10 +73,9 @@ find_package(OpenSSL 1.0.2 REQUIRED)
 find_package(Qt5 COMPONENTS Core Widgets Multimedia REQUIRED)
 MESSAGE(STATUS "Found Qt5 version: ${Qt5Widgets_VERSION_STRING}")
 
-
 # Get the latest abbreviated commit hash of the working branch
 execute_process(
-  COMMAND git describe --abbrev=8 --dirty
+  COMMAND git describe --abbrev=8 --always --dirty
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
   OUTPUT_VARIABLE GIT_DESCRIBE_REV
   OUTPUT_STRIP_TRAILING_WHITESPACE
