@@ -102,3 +102,18 @@ TEST_F(WeatherFile, ParseConditionFromFile) {
     ASSERT_EQ(dut.get_condition(), QString("few clouds"));
 }
 
+/*****************************************************************************/
+TEST_F(WeatherFile, IconURI) {
+    auto cm = std::make_shared<CmMock>();
+    EXPECT_CALL(*(cm.get()), get_weather_cfg())
+        .Times(1)
+        .WillRepeatedly(ReturnRef(cm->weather_cfg));
+    Weather dut(cm);
+
+    QSignalSpy spy(&dut, SIGNAL(temperature_changed(double)));
+    dut.parse_response(weatherFile.readAll());
+    spy.wait(10);
+    EXPECT_EQ(spy.count(), 1);
+    ASSERT_EQ(dut.get_weather_icon_url(), 
+		QUrl("http://openweathermap.org/img/w/02d.png"));
+}
