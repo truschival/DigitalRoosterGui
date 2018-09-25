@@ -22,6 +22,7 @@ SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test_alarmdispatcher.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_alarmmonitor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_weather.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_brightness.cpp
   )
 
 # Moc any classes derived from QObject

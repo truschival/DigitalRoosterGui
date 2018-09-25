@@ -92,7 +92,7 @@ public:
      * @return volume
      */
     int get_volume() const {
-        return volume;
+        return do_get_volume();
     }
 
     /**
@@ -100,7 +100,7 @@ public:
      * @return brightness
      */
     int get_standby_brightness() const {
-        return brightness_sb;
+        return do_get_brightness_sb();
     }
 
     /**
@@ -108,7 +108,7 @@ public:
      * @return brightness
      */
     int get_active_brightness() const {
-        return brightness_act;
+        return do_get_brightness_act();
     }
 
     /**
@@ -358,6 +358,25 @@ private:
     virtual WeatherConfig& get_weather_cfg() {
         return weather_cfg;
     }
+	
+	/**
+	 * Private virtual interface for brightness settings
+	 */
+	virtual int do_get_brightness_sb() const {
+        return brightness_sb;
+    }
+    
+	virtual int do_get_brightness_act() const {
+        return brightness_act;
+	}
+
+	/**
+	 * Private virtual interface for volume settings
+	 */
+	virtual int do_get_volume() const{
+		return volume;
+	};
+    
 };
 } // namespace DigitalRooster
 #endif // _SETTINGS_READER_HPP_

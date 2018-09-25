@@ -34,24 +34,36 @@ public:
     ~BrightnessControl() = default;
 
     /**
-     * Get appoximate logarithmic perceived brightness
-     * for linear input - this value is written to hardware
-     * @return logarithmic brightness
-     */
-    int get_log_brightness();
-
-    /**
      * Get linear (0..100%) brightness
      * @return brightness
      */
     int get_brightness();
+   
+	/**
+     * Linear brightness [0...100%] to
+     * logarithmic (perceived) brightness
+     * @param lb linear brightness
+     * @return logarithmic brightness as int [0..100] 
+     */
+    int lin2log(int lb);
 
 public slots:
     /**
-     * Change the brightness to new value
+     * Change the brightness to new value and store it as 
+     * active brightness value
      * @param brightness 0..100 (linear)
      */
     void set_brightness(int brightness);
+
+	/**
+     * Set brightness to poweron brightness
+     */
+    void restore_active_brightness();
+
+	/**
+     * Set brightness to sleep brightness
+     */
+    void restore_standby_brightness();
 
 signals:
     /**
@@ -65,9 +77,11 @@ private:
      * Central configuration and data handler
      */
     std::shared_ptr<ConfigurationManager> cm;
-
-    int linear_brightness = 0;
-    int log_brightness;
+	
+	/**
+	 * Current brightness setting (linear)
+	 */
+	int linear_brightness;
 };
 
 } // namespace DigitalRooster
