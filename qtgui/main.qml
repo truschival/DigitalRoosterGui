@@ -70,37 +70,9 @@ ApplicationWindow {
 				Layout.rightMargin: 4
 
                 onClicked:{
-					volumeMenu.popup(-width/3,height/3)
-				}
-
-				Menu {
-					id: volumeMenu
-					width: 58
-                    height: applicationWindow.height*0.8
-
-                    Label{
-                        font.pointSize: 24
-						font.weight: Font.DemiBold
-
-						text: volumeSlider.value
-						anchors.horizontalCenter:parent.horizontalCenter
-					}
-					Slider {
-						id: volumeSlider
-						anchors.horizontalCenter:parent.horizontalCenter
-                        orientation: Qt.Vertical
-                        from: 0
-                        to: 100
-                        stepSize: 1
-						wheelEnabled: true
-                        value: playerProxy.volume
-                        onMoved: {
-                            playerProxy.volume = value;
-                        }
-					}
+					volumePopUp.show();
 				}
             }
-
             IconButton {
                 id : backButton
                 text: MdiFont.Icon.keyboardBackspace
@@ -219,6 +191,11 @@ ApplicationWindow {
         anchors.bottom: parent.bottom
 	}
 
+	VolumePopup{
+		id: volumePopUp
+		x: Math.round((applicationWindow.width - width) / 2)
+		y: Math.round((applicationWindow.height - height) / 2)
+	}
 
     StackView {
         id: stackView
