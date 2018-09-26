@@ -21,38 +21,17 @@ using namespace std;
 using ::testing::AtLeast;
 
 /* log_100 values for 0:5:100 */
-const int log_ref[] = {
-    0,
-    1,
-    2,
-    4,
-    5,
-    6,
-    8,
-    9,
-    11,
-    13,
-    15,
-    17,
-    20,
-    23,
-    26,
-    30,
-    35,
-    41,
-    50,
-    65,
-	100
-};
+const int log_ref[] = {0, 1, 2, 4, 5, 6, 8, 9, 11, 13, 15, 17, 20, 23, 26, 30,
+    35, 41, 50, 65, 100};
 
 /*****************************************************************************/
 TEST(Brightness, lin2log) {
     auto cm = std::make_shared<CmMock>();
-	BrightnessControl dut(cm);
+    BrightnessControl dut(cm);
     for (int i = 0; i <= 100;) {
-        //cout << dut.lin2log(i) << ", " << endl;
-		EXPECT_EQ(dut.lin2log(i), log_ref[i / 5]);
-        i = i += 5;
+        // cout << dut.lin2log(i) << ", " << endl;
+        EXPECT_EQ(dut.lin2log(i), log_ref[i / 5]);
+        i += 5;
     }
 }
 
