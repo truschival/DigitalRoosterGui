@@ -16,11 +16,10 @@
 #include <QTimer>
 #include <QLoggingCategory>
 #include "logger.hpp"
+#include "timeprovider.hpp"
+#include <memory>
 
-TEST(Basics,always_true)
-{
-	ASSERT_TRUE(true);
-}
+std::shared_ptr<DigitalRooster::TimeProvider> DigitalRooster::wallclock = std::make_shared<DigitalRooster::TimeProvider>();
 
 /**
  * see : https://stackoverflow.com/questions/33829949/how-to-use-qtimers-in-googletest
@@ -34,6 +33,7 @@ int main(int argc, char **argv) {
 
     QLoggingCategory::setFilterRules("*.debug=true");
 
+	
     ::testing::InitGoogleTest(&argc, argv);
     int ret = RUN_ALL_TESTS();
 

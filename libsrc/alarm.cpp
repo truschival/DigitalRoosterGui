@@ -14,32 +14,33 @@
 #include "alarm.hpp"
 #include "appconstants.hpp"
 #include <QLoggingCategory>
+#include "timeprovider.hpp"
 using namespace DigitalRooster;
 
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.Alarm");
 
 /*****************************************************************************/
-
 // Alarm from time
 Alarm::Alarm(const QUrl& media, const QTime& timepoint, Alarm::Period period,
     bool enabled, QObject* parent)
     : QObject(parent)
     , media(std::make_shared<PlayableItem>("Alarm", media))
     , period(period)
-    , trigger_instant(QDateTime::currentDateTime()) // today, set time later
+    , trigger_instant(wallclock->now()) // use today's date, set time later
     , enabled(enabled)
     , alarmtimeout(DEFAULT_ALARM_TIMEOUT) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << "timepoint" << trigger_instant;
     trigger_instant.setTime(timepoint);
 }
-/*****************************************************************************/
 
-Alarm::Alarm(const QUrl& media, const QDateTime& timepoint, bool enabled,
-    QObject* parent)
+/*****************************************************************************/
+// Alarm for exact date & time
+Alarm::Alarm(const QUrl& media, const QDateTime& timepoint, Alarm::Period period,
+    bool enabled, QObject* parent)
     : QObject(parent)
     , media(std::make_shared<PlayableItem>("Alarm", media))
-    , period(Alarm::Once)
-    , trigger_instant(timepoint)
+    , period(period)
+    , trigger_instant(timepoint) // use exact timepoint
     , enabled(enabled)
     , alarmtimeout(DEFAULT_ALARM_TIMEOUT) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << "timepoint" << trigger_instant;
@@ -62,7 +63,8 @@ void Alarm::set_trigger(const QDateTime& timeinstance) {
 /*****************************************************************************/
 void Alarm::update_trigger() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto now = QDateTime::currentDateTime();
+    auto now = wallclock->now();
+    qCDebug(CLASS_LC) << now;
     auto day_of_week_today = now.date().dayOfWeek();
 
     // trigger instant is in the future - nothing to adjust for

@@ -14,12 +14,44 @@
 #include <QTime>
 #include <QUrl>
 
-#include <gtest/gtest.h>
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 #include "alarm.hpp"
 #include "appconstants.hpp"
 
 using namespace DigitalRooster;
+using namespace ::testing;
+using ::testing::AtLeast;
+
+// Mock Wallclock to test weekends & workdays
+#include "timeprovider.hpp"
+
+class MockClock : public DigitalRooster::TimeProvider {
+public:
+    MOCK_METHOD0(get_time, QDateTime());
+};
+
+// Fixture to inject fake clock as the global clock
+class AlarmFakeTime : public ::testing::Test {
+public:
+    // Make our own clock to be the wallclock
+    void SetUp() {
+        mc = std::make_shared<MockClock>();
+        DigitalRooster::wallclock =
+            std::static_pointer_cast<TimeProvider, MockClock>(mc);
+    };
+
+
+    // Restore original TimeProvider for other tests
+    void TearDown() {
+        DigitalRooster::wallclock = std::make_shared<TimeProvider>();
+    };
+
+protected:
+    std::shared_ptr<MockClock> mc;
+};
+
 
 /*****************************************************************************/
 TEST(Alarm, defaultVolume) {
@@ -79,75 +111,179 @@ TEST(Alarm, DailyFuture) {
 }
 
 /*****************************************************************************/
-TEST(Alarm, WorkdaysFuture) {
-    auto timepoint = QTime::currentTime().addSecs(3600); // in one hour
-    auto expected_trigger = QDateTime::currentDateTime().addSecs(3600);
-
+TEST_F(AlarmFakeTime, Workdays) {
+    auto timepoint = QDateTime::fromString("2018-09-27T8:30:00", Qt::ISODate);
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
-        Alarm::Workdays);
-
+        Alarm::Workdays, true);
     ASSERT_EQ(al.get_period(), Alarm::Workdays);
+
+    // We run Friday at at 8:28 and 8:31 just after the timepoint
+    EXPECT_CALL(*(mc.get()), get_time())
+        .Times(2)
+        .WillOnce(
+            Return(QDateTime::fromString("2018-09-26T8:28:00", Qt::ISODate)))
+        .WillRepeatedly(
+            Return(QDateTime::fromString("2018-09-26T8:31:00", Qt::ISODate)));
+
+    // Call today in one two minutes
+    auto expected_trigger =
+        QDateTime::fromString("2018-09-26T8:30:00", Qt::ISODate);
     ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
+    // Tomorrow morning
+    expected_trigger = QDateTime::fromString("2018-09-27T8:30:00", Qt::ISODate);
+	ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
 }
+
 /*****************************************************************************/
-TEST(Alarm, WorkdaysPast) {
-    auto timepoint = QTime::currentTime().addSecs(-3600);
-    // Tomorrow 1 hr ago
-
-    auto expected_trigger = QDateTime::currentDateTime().addSecs(-3600);
-    auto dow_today = QDateTime::currentDateTime().date().dayOfWeek();
-
-    if (dow_today != Qt::Friday && dow_today != Qt::Saturday)
-        expected_trigger = expected_trigger.addDays(1);
-    if (dow_today == Qt::Friday)
-        expected_trigger = expected_trigger.addDays(3);
-    if (dow_today == Qt::Saturday)
-        expected_trigger = expected_trigger.addDays(2);
-
+TEST_F(AlarmFakeTime, WorkdaysRunFriday) {
+    auto timepoint = QDateTime::fromString("2018-09-27T8:30:00", Qt::ISODate);
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
-        Alarm::Workdays);
-
+        Alarm::Workdays, true);
     ASSERT_EQ(al.get_period(), Alarm::Workdays);
+
+    // We run Friday at at 8:28 and 8:31 just after the timepoint
+    EXPECT_CALL(*(mc.get()), get_time())
+        .Times(2)
+        .WillOnce(
+            Return(QDateTime::fromString("2018-09-28T8:28:00", Qt::ISODate)))
+        .WillRepeatedly(
+            Return(QDateTime::fromString("2018-09-28T8:31:00", Qt::ISODate)));
+
+    // Today right now (we called at 8:28)
+    auto expected_trigger = timepoint;
+    ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
+    // Expect to be called on next monday morning
+    expected_trigger = QDateTime::fromString("2018-10-01T8:30:00", Qt::ISODate);
     ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
 }
+
 /*****************************************************************************/
-TEST(Alarm, WeekendsDateTimeFuture) {
-    auto timepoint = QTime::currentTime().addSecs(3600);
-
-    auto expected_trigger = QDateTime::currentDateTime().addSecs(3600);
-    auto dow_today = expected_trigger.date().dayOfWeek();
-    if (dow_today != Qt::Saturday && dow_today != Qt::Sunday)
-        expected_trigger = expected_trigger.addDays(Qt::Sunday - dow_today);
-
+TEST_F(AlarmFakeTime, WorkdaysRunSaturday) {
+    auto timepoint = QDateTime::fromString("2018-09-27T8:30:00", Qt::ISODate);
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
-        Alarm::Weekend);
+        Alarm::Workdays, true);
+    ASSERT_EQ(al.get_period(), Alarm::Workdays);
 
-    ASSERT_EQ(al.get_period(), Alarm::Weekend);
+    // We run Friday at at 8:28 and 8:31 just after the timepoint
+    EXPECT_CALL(*(mc.get()), get_time())
+        .Times(2)
+        .WillOnce(
+            Return(QDateTime::fromString("2018-09-29T8:28:00", Qt::ISODate)))
+        .WillRepeatedly(
+            Return(QDateTime::fromString("2018-09-29T8:31:00", Qt::ISODate)));
+
+    // In either case expect to be called on next monday morning
+    auto expected_trigger = QDateTime::fromString("2018-10-01T8:30:00", Qt::ISODate);
+    ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
     ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
 }
 
 /*****************************************************************************/
-TEST(Alarm, WeekendsPast) {
-    auto timepoint = QTime::currentTime().addSecs(-3600);
-
-    auto expected_trigger = QDateTime::currentDateTime().addSecs(-3600);
-    auto dow_today = expected_trigger.date().dayOfWeek();
-
-    if (dow_today != Qt::Saturday && dow_today != Qt::Sunday) {
-        expected_trigger = expected_trigger.addDays(Qt::Sunday - dow_today);
-    }
-    if (dow_today == Qt::Saturday) {
-        expected_trigger = expected_trigger.addDays(1);
-    }
-    if (dow_today == Qt::Sunday) {
-        expected_trigger = expected_trigger.addDays(6);
-    }
+TEST_F(AlarmFakeTime, WorkdaysPastRunSunday) {
+    auto timepoint = QDateTime::fromString("2018-09-27T8:30:00", Qt::ISODate);
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
-        Alarm::Weekend);
+        Alarm::Workdays, true);
+    ASSERT_EQ(al.get_period(), Alarm::Workdays);
 
-    ASSERT_EQ(al.get_period(), Alarm::Weekend);
+    // We run Friday at at 8:28 and 8:31 just after the timepoint
+    EXPECT_CALL(*(mc.get()), get_time())
+        .Times(2)
+        .WillOnce(
+            Return(QDateTime::fromString("2018-09-30T8:28:00", Qt::ISODate)))
+        .WillRepeatedly(
+            Return(QDateTime::fromString("2018-09-30T8:31:00", Qt::ISODate)));
+
+    // In either case expect to be called on next monday morning
+    auto expected_trigger =
+        QDateTime::fromString("2018-10-01T8:30:00", Qt::ISODate);
+    ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
     ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
 }
+
+
+/*****************************************************************************/
+TEST_F(AlarmFakeTime, WeekendsRunMonday) {
+    auto timepoint = QDateTime::fromString("2018-09-27T8:30:00", Qt::ISODate);
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
+        Alarm::Weekend, true);
+    ASSERT_EQ(al.get_period(), Alarm::Weekend);
+
+    // We run Monday at at 8:28 and 8:31 just after the timepoint
+    EXPECT_CALL(*(mc.get()), get_time())
+        .Times(2)
+        .WillOnce(
+            Return(QDateTime::fromString("2018-09-24T8:28:00", Qt::ISODate)))
+        .WillRepeatedly(
+            Return(QDateTime::fromString("2018-09-24T8:31:00", Qt::ISODate)));
+
+    // Expect to be called on Saturday morning
+    auto expected_trigger =
+        QDateTime::fromString("2018-10-29T8:30:00", Qt::ISODate);
+    ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
+    ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
+}
+
+/*****************************************************************************/
+TEST_F(AlarmFakeTime, WeekendsRunFriday) {
+    auto timepoint = QDateTime::fromString("2018-09-27T8:30:00", Qt::ISODate);
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
+        Alarm::Weekend, true);
+    ASSERT_EQ(al.get_period(), Alarm::Weekend);
+
+    // We run Sunday at 8:29 (before the expected alarm)
+    EXPECT_CALL(*(mc.get()), get_time())
+        .Times(AtLeast(1))
+        .WillRepeatedly(
+            Return(QDateTime::fromString("2018-09-28T8:29:00", Qt::ISODate)));
+
+    // Expect to be called on Saturday Morning
+    auto expected_trigger =
+        QDateTime::fromString("2018-10-01T8:30:00", Qt::ISODate);
+    ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
+}
+
+
+/*****************************************************************************/
+TEST_F(AlarmFakeTime, WeekendsRunSaturday) {
+    auto timepoint = QDateTime::fromString("2018-09-27T8:30:00", Qt::ISODate);
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
+        Alarm::Weekend, true);
+    ASSERT_EQ(al.get_period(), Alarm::Weekend);
+
+    // We run Sunday at 8:29 (before the expected alarm)
+    EXPECT_CALL(*(mc.get()), get_time())
+        .Times(AtLeast(1))
+        .WillRepeatedly(
+            Return(QDateTime::fromString("2018-09-30T8:29:00", Qt::ISODate)));
+
+    // Expect to be called on same day, in a minute
+    auto expected_trigger = timepoint;
+    ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
+}
+
+/*****************************************************************************/
+TEST_F(AlarmFakeTime, WeekendsRunSunday) {
+    auto timepoint = QDateTime::fromString("2018-09-27T8:30:00", Qt::ISODate);
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
+        Alarm::Weekend, true);
+    ASSERT_EQ(al.get_period(), Alarm::Weekend);
+
+    // We run Sunday at at 8:28 and 8:31 just after the timepoint
+    EXPECT_CALL(*(mc.get()), get_time())
+        .Times(AtLeast(1))
+        .WillOnce(Return(QDateTime::fromString("2018-09-30T8:28:00", Qt::ISODate)))
+        .WillRepeatedly(
+            Return(QDateTime::fromString("2018-09-30T8:31:00", Qt::ISODate)));
+
+	// In one minute when invoked first
+	auto expected_trigger = timepoint;
+    ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
+    // Expect to be called on next saturday morning
+    expected_trigger =
+        QDateTime::fromString("2018-10-06T8:30:00", Qt::ISODate);
+    ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
+}
+
 
 /*****************************************************************************/
 TEST(Alarm, updateTiggerSetsPeriodtoOnce) {

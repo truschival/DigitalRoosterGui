@@ -21,7 +21,7 @@
 namespace DigitalRooster {
 
 class PlayableItem;
-
+class TimeProvider;
 /**
  * A single alarm
  */
@@ -41,16 +41,6 @@ public:
     Q_ENUM(Period)
 
     /**
-     * One-shot alarm for a exact DateTime to trigger
-     * @param media_url what to play
-     * @param timepoint exact time instance (date+time)
-     * @param enabled activated/deactivated
-     * @param parent QObject parent
-     */
-    Alarm(const QUrl& media_url, const QDateTime& timepoint,
-        bool enabled = true, QObject* parent = nullptr);
-
-    /**
      * Construct an alarm for given time
      * @param media what to play
      * @param timepoint time of day - any time of day
@@ -61,6 +51,19 @@ public:
     Alarm(const QUrl& media, const QTime& timepoint,
         Alarm::Period period = Alarm::Daily, bool enabled = true,
         QObject* parent = nullptr);
+
+	 /**
+     * Construct an alarm for given time and date
+     * @param media what to play
+     * @param timepoint particular time & date
+     * @param period periodicity
+     * @param enabled activated/deactivated
+     * @param parent obligatory QObject parent
+     */
+    Alarm(const QUrl& media, const QDateTime& timepoint,
+        Alarm::Period period = Alarm::Once, bool enabled = true,
+        QObject* parent = nullptr);
+
 
     /**
      * Need Default constructor to register with QML
@@ -189,7 +192,7 @@ private:
      */
     std::shared_ptr<PlayableItem> media;
 
-    /**
+	/**
      * when alarm is repeated
      */
     Alarm::Period period;

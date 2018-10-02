@@ -9,13 +9,9 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
-#include <memory>
-
-
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 #include "mediaplayer.hpp"
-
 
 class PlayerMock : public DigitalRooster::MediaPlayer {
 public:

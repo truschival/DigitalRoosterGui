@@ -40,12 +40,20 @@
 #include "hwif/hal.h"
 #include "powercontrol.hpp"
 #include "brightnesscontrol.hpp"
+#include "timeprovider.hpp"
 
 using namespace DigitalRooster;
 
 Q_DECLARE_LOGGING_CATEGORY(MAIN)
 Q_LOGGING_CATEGORY(MAIN, "DigitalRooster.main")
 
+/**
+ * Global wall clock
+ */
+std::shared_ptr<TimeProvider> DigitalRooster::wallclock = 
+	std::make_shared<TimeProvider>();
+
+/*****************************************************************************/
 int main(int argc, char* argv[]) {
     QGuiApplication app(argc, argv);
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -65,9 +73,9 @@ int main(int argc, char* argv[]) {
     // QLoggingCategory::setFilterRules("*.debug=false");
     qCDebug(MAIN) << "SSL Support: " << QSslSocket::supportsSsl()
                   << QSslSocket::sslLibraryVersionString();
-    app.setWindowIcon(QIcon("qrc:/ClockIcon48x48.png"));
-
+	
     // Initialize Hardware (or call stubs)
+    ::setup_hardware();
     ::setup_hardware();
 
     qmlRegisterType<PodcastEpisodeModel>(
