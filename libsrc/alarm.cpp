@@ -29,8 +29,8 @@ Alarm::Alarm(const QUrl& media, const QTime& timepoint, Alarm::Period period,
     , trigger_instant(wallclock->now()) // use today's date, set time later
     , enabled(enabled)
     , alarmtimeout(DEFAULT_ALARM_TIMEOUT) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO << "timepoint" << trigger_instant;
-    trigger_instant.setTime(timepoint);
+	trigger_instant.setTime(timepoint);
+	qCDebug(CLASS_LC) << Q_FUNC_INFO << "trigger:" << trigger_instant;
 }
 
 /*****************************************************************************/
@@ -43,7 +43,7 @@ Alarm::Alarm(const QUrl& media, const QDateTime& timepoint, Alarm::Period period
     , trigger_instant(timepoint) // use exact timepoint
     , enabled(enabled)
     , alarmtimeout(DEFAULT_ALARM_TIMEOUT) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO << "timepoint" << trigger_instant;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << "trigger:" << trigger_instant;
 }
 
 /*****************************************************************************/
@@ -116,15 +116,15 @@ QString Alarm::get_period_string() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     switch (get_period()) {
     case Alarm::Once:
-        return QString(tr("Once"));
+        return QString(tr("once"));
     case Alarm::Weekend:
-        return QString(tr("Weekend"));
+        return QString(tr("weekend"));
     case Alarm::Workdays:
-        return QString(tr("Workdays"));
+        return QString(tr("workdays"));
     case Alarm::Daily:
-        return QString(tr("Daily"));
+        return QString(tr("daily"));
     default:
-        return QString(tr("Error"));
+        return QString(tr("ERROR"));
     }
 }
 
