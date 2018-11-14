@@ -59,8 +59,24 @@ TEST(Alarm, defaultVolume) {
     ASSERT_EQ(al.get_volume(), 40);
 }
 /*****************************************************************************/
-TEST(Alarm, fullConstructorEnabled) {
+TEST(Alarm, defaultID) {
+	auto before = QDateTime::currentMSecsSinceEpoch();
     Alarm al;
+    auto after = QDateTime::currentMSecsSinceEpoch();
+    ASSERT_GE(al.get_id(), before);
+    ASSERT_LE(al.get_id(), after);
+}
+
+/*****************************************************************************/
+TEST(Alarm, setID) {
+	Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
+	        QDateTime::currentDateTime().addSecs(3600));
+    al.set_id(100);
+    ASSERT_EQ(al.get_id(), 100);
+}
+/*****************************************************************************/
+TEST(Alarm, fullConstructorEnabled) {
+	Alarm al;
     Alarm al2(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
         QDateTime::currentDateTime().addSecs(3600));
     ASSERT_TRUE(al.is_enabled());

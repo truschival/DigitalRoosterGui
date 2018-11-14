@@ -181,6 +181,8 @@ void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
         auto alarm = std::make_shared<Alarm>(media, timepoint, period, enabled);
         auto volume = json_alarm[KEY_VOLUME].toInt(DEFAULT_ALARM_VOLUME);
         alarm->set_volume(volume);
+        auto id = json_alarm[KEY_ID].toInt(QDateTime::currentMSecsSinceEpoch());
+        alarm->set_id(id);
         /* if no specific alarm timeout is given take application default */
         auto timeout =
             json_alarm[KEY_ALARM_TIMEOUT].toInt(alarmtimeout.count());
@@ -297,6 +299,7 @@ void ConfigurationManager::store_current_config() {
     QJsonArray alarms_json;
     for (const auto& alarm : alarms) {
         QJsonObject alarmcfg;
+        alarmcfg[KEY_ID] = alarm->get_id();
         alarmcfg[KEY_ALARM_PERIOD] =
             alarm_period_to_json_string(alarm->get_period());
         alarmcfg[KEY_TIME] = alarm->get_time().toString("hh:mm");
@@ -362,6 +365,7 @@ void ConfigurationManager::create_default_configuration() {
         QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
         QTime::fromString("06:30", "hh:mm"));
     alm->set_period(Alarm::Workdays);
+    alm->set_id(QDateTime::currentMSecsSinceEpoch());
     alarms.push_back(alm);
 
     auto acw = std::make_shared<DigitalRooster::PodcastSource>(

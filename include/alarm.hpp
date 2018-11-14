@@ -28,15 +28,20 @@ class TimeProvider;
 class Alarm : public QObject {
     Q_OBJECT
     Q_PROPERTY(bool enabled READ is_enabled WRITE enable NOTIFY enabled_changed)
+    Q_PROPERTY(qint64 id READ get_id)
+    Q_PROPERTY(QTime time READ get_time WRITE set_time NOTIFY time_changed)
+    Q_PROPERTY(QString periodicity READ get_period_string NOTIFY dataChanged)
+    Q_PROPERTY(DigitalRooster::Alarm::Period period_id READ get_period WRITE
+            set_period NOTIFY period_changed)
 public:
     /**
      * Alarm periodicity
      */
     enum Period {
-        Once = 0,   //!< next time the time of day occurs (within 24 hrs)
-        Daily,		//!< every day
-        Weekend ,	//!< Saturdays & Sundays
-        Workdays	//!< Monday through Friday
+        Once = 0, //!< next time the time of day occurs (within 24 hrs)
+        Daily,    //!< every day
+        Weekend,  //!< Saturdays & Sundays
+        Workdays  //!< Monday through Friday
     };
     Q_ENUM(Period)
 
@@ -69,9 +74,21 @@ public:
      * Need Default constructor to register with QML
      */
     Alarm()
-        : media(nullptr)
+        : id(QDateTime::currentMSecsSinceEpoch()),
+		  media(nullptr)
         , period(Alarm::Daily)
         , enabled(true){};
+
+    /**
+     * 'unique' id for alarm
+     * @return
+     */
+    qint64 get_id() const{
+    	return id;
+    }
+    void set_id(qint64 id){
+    	this->id = id;
+    }
 
     /**
      * next trigger instant when the alarm is to be triggered
@@ -99,6 +116,8 @@ public:
     const QTime get_time() const {
         return trigger_instant.time();
     }
+    void set_time(const QTime& timeofday);
+
     /**
      * Periodicity of Alarm
      * @return period
@@ -181,12 +200,20 @@ public slots:
 signals:
     void enabled_changed(bool state);
 
+    void period_changed(Alarm::Period period);
+
+    void time_changed(QTime time);
 	/**
 	 * Generic event, some data of this object changed
 	 */
 	void dataChanged();
 
 private:
+	/**
+	 * 'unique' id for this alarm
+	 */
+	std::atomic<qint64> id;
+
     /**
      * What to play when alarm triggers
      */

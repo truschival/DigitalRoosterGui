@@ -58,6 +58,11 @@ const QString KEY_BRIGHTNESS_ACT("brightnessActive");
 const QString KEY_BRIGHTNESS_SB("brightnessStandby");
 
 /**
+ * Keyword for all ids
+ */
+const QString KEY_ID("id");
+
+/**
  * Key for all URIs
  */
 const QString KEY_URI("uri");
