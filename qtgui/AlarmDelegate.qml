@@ -13,12 +13,13 @@ Rectangle{
 	color: alarmEnabled ? "#3F51B5" :  "Grey" ;
 
 	MouseArea {
-		anchors.fill : parent;
-		onPressAndHold: {
-			console.log(index + " Pressed")
+		anchors.fill: parent
+		onPressAndHold:  {
+			alarmlistmodel.currentIndex =index;
+			console.log("Alarm pressed : "+index);
+			alarmEditDlg.open();
 		}
 	}
-
 	
 	RowLayout{
 		anchors.fill: parent

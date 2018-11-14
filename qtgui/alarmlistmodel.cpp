@@ -90,9 +90,19 @@ void AlarmListModel::set_enabled(int row, bool enabled) {
         return;
 	}
     cm->get_alarms().at(row)->enable(enabled);
-   
+
 	dataChanged(index(row, 0), index(row, 0),
         {TimeRole, EnabledRole, PeriodicityRole, UriRole});
+}
+/*************************************************************************************/
+Alarm* AlarmListModel::get_alarm(int row) {
+    if (row < 0 || row >= cm->get_alarms().size()) {
+        qWarning() << "Invalid Selection";
+	}
+    auto ret =  cm->get_alarms().at(row).get();
+    QQmlEngine::setObjectOwnership(ret, QQmlEngine::CppOwnership);
+
+    return ret;
 }
 
 /*************************************************************************************/

@@ -16,5 +16,6 @@
         <file>AlarmList.qml</file>
         <file>SettingsPage.qml</file>
         <file>VolumePopup.qml</file>
+        <file>AlarmEditDialog.qml</file>
     </qresource>
 </RCC>
