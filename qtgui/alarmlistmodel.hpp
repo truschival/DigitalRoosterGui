@@ -46,6 +46,8 @@ public:
   
 	Q_INVOKABLE void set_enabled(int row, bool enabled);
     
+	Q_INVOKABLE DigitalRooster::Alarm* get_alarm(int);
+
 protected:
     QHash<int, QByteArray> roleNames() const;
 

@@ -95,7 +95,7 @@ void AlarmListModel::set_enabled(int row, bool enabled) {
         {TimeRole, EnabledRole, PeriodicityRole, UriRole});
 }
 /*************************************************************************************/
-Alarm* AlarmListModel::get_alarm(int row) {
+DigitalRooster::Alarm* AlarmListModel::get_alarm(int row) {
     if (row < 0 || row >= cm->get_alarms().size()) {
         qWarning() << "Invalid Selection";
 	}

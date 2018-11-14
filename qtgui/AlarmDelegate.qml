@@ -2,6 +2,7 @@ import QtQuick 2.9
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.1
 import QtQuick.Controls.Material 2.1
+import ruschi.Alarm 1.0
 import "Jsutil.js" as Util
 
 Rectangle{
@@ -17,6 +18,7 @@ Rectangle{
 		onPressAndHold:  {
 			alarmlistmodel.currentIndex =index;
 			console.log("Alarm pressed : "+index);
+			alarmEditDlg.currentAlarm = alarmlistmodel.get_alarm(alarmlistmodel.currentIndex)
 			alarmEditDlg.open();
 		}
 	}
@@ -27,20 +29,7 @@ Rectangle{
 		anchors.rightMargin: 10;
 		spacing: 10;
 		anchors.verticalCenter: parent.verticalCenter;
-		
-		/*		
-				ComboBox {
-				id: period
-				model: ListModel {
-				id: model
-				ListElement { text: qsTr("Once") }
-				ListElement { text: qsTr("Daily") }
-				ListElement { text: qsTr("Weekend") }
-				ListElement { text: qsTr("Workdays") }
-				}
-				currentIndex: periodicity;
-				}
-		*/
+	
 		
 		Text {
 			id: periodicityString;

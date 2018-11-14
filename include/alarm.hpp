@@ -30,7 +30,7 @@ class Alarm : public QObject {
     Q_PROPERTY(bool enabled READ is_enabled WRITE enable NOTIFY enabled_changed)
     Q_PROPERTY(qint64 id READ get_id)
     Q_PROPERTY(QTime time READ get_time WRITE set_time NOTIFY time_changed)
-    Q_PROPERTY(QString periodicity READ get_period_string NOTIFY dataChanged)
+    Q_PROPERTY(QString periodicity READ get_period_string NOTIFY period_changed)
     Q_PROPERTY(DigitalRooster::Alarm::Period period_id READ get_period WRITE
             set_period NOTIFY period_changed)
 public:
@@ -138,6 +138,7 @@ public:
     void set_period(Alarm::Period period) {
         this->period = period;
         update_trigger();
+        emit period_changed(period);
     };
 
     /**

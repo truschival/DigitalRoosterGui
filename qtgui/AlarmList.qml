@@ -1,6 +1,7 @@
 import QtQuick 2.9
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.1
+import ruschi.Alarm 1.0
 
 ListView {
     id:alarmlist
@@ -22,10 +23,8 @@ ListView {
 
 	AlarmEditDialog{
 		id: alarmEditDlg;
-		x: Math.round((applicationWindow.width - width) / 2)
-		y: Math.round((applicationWindow.height - height) / 2)
+		x: Math.round((applicationWindow.width - width)/2)
+		y: Math.round((applicationWindow.height - height)/3)
 	}
-	
-
     model: alarmlistmodel
 }
