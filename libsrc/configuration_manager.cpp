@@ -226,6 +226,7 @@ void ConfigurationManager::add_radio_station(
 void ConfigurationManager::add_alarm(std::shared_ptr<Alarm> alm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     this->alarms.push_back(alm);
+    dataChanged();
 }
 
 /*****************************************************************************/
@@ -243,33 +244,33 @@ void ConfigurationManager::fileChanged(const QString& path) {
 /*****************************************************************************/
 void ConfigurationManager::set_volume(int vol) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << vol;
-    if( vol >= 0 && vol <= 100){
-    	this->volume = vol;
-    	writeTimer.start();
+    if (vol >= 0 && vol <= 100) {
+        this->volume = vol;
+        writeTimer.start();
     } else {
-    	qCWarning(CLASS_LC) << "invalid volume value: " << vol;
+        qCWarning(CLASS_LC) << "invalid volume value: " << vol;
     }
 }
 
 /*****************************************************************************/
 void ConfigurationManager::set_standby_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
-    if( brightness >= 0 && brightness <= 100){
-    	this->brightness_sb = brightness;
-    	writeTimer.start();
+    if (brightness >= 0 && brightness <= 100) {
+        this->brightness_sb = brightness;
+        writeTimer.start();
     } else {
-    	qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
+        qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
     }
 }
 
 /*****************************************************************************/
 void ConfigurationManager::set_active_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
-    if( brightness >= 0 && brightness <= 100){
-    	this->brightness_act = brightness;
-    	writeTimer.start();
+    if (brightness >= 0 && brightness <= 100) {
+        this->brightness_act = brightness;
+        writeTimer.start();
     } else {
-    	qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
+        qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
     }
 }
 
@@ -414,4 +415,17 @@ QString ConfigurationManager::check_and_create_config() {
     return path;
 }
 
+/*****************************************************************************/
+int ConfigurationManager::delete_alarm(qint64 id) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto old_end = alarms.end();
+    alarms.erase(std::remove_if(
+        alarms.begin(), alarms.end(), [&](const std::shared_ptr<Alarm> item) {
+            return item->get_id() == id;
+        }),alarms.end());
+    if(old_end == alarms.end()){
+    	return -1;
+    }
+    return 0;
+};
 /*****************************************************************************/

@@ -57,7 +57,7 @@ public:
         Alarm::Period period = Alarm::Daily, bool enabled = true,
         QObject* parent = nullptr);
 
-	 /**
+    /**
      * Construct an alarm for given time and date
      * @param media what to play
      * @param timepoint particular time & date
@@ -74,8 +74,8 @@ public:
      * Need Default constructor to register with QML
      */
     Alarm()
-        : id(QDateTime::currentMSecsSinceEpoch()),
-		  media(nullptr)
+        : id(QDateTime::currentMSecsSinceEpoch())
+        , media(nullptr)
         , period(Alarm::Daily)
         , enabled(true){};
 
@@ -83,11 +83,11 @@ public:
      * 'unique' id for alarm
      * @return
      */
-    qint64 get_id() const{
-    	return id;
+    qint64 get_id() const {
+        return id;
     }
-    void set_id(qint64 id){
-    	this->id = id;
+    void set_id(qint64 id) {
+        this->id = id;
     }
 
     /**
@@ -110,7 +110,7 @@ public:
     void set_trigger(const QDateTime& timeinstance);
 
     /**
-	 * Trigger time
+     * Trigger time
      * @return time of day when alarm is due
      */
     const QTime get_time() const {
@@ -126,10 +126,10 @@ public:
         return period;
     }
 
-	/**
-	 * Convert the periodicity into a human readable string
-	 * @return string representation for enum
-	 */
+    /**
+     * Convert the periodicity into a human readable string
+     * @return string representation for enum
+     */
     QString get_period_string() const;
 
     /**
@@ -139,6 +139,7 @@ public:
         this->period = period;
         update_trigger();
         emit period_changed(period);
+        emit period_changed(get_period_string());
     };
 
     /**
@@ -203,24 +204,26 @@ signals:
 
     void period_changed(Alarm::Period period);
 
+    void period_changed(QString period);
+
     void time_changed(QTime time);
-	/**
-	 * Generic event, some data of this object changed
-	 */
-	void dataChanged();
+    /**
+     * Generic event, some data of this object changed
+     */
+    void dataChanged();
 
 private:
-	/**
-	 * 'unique' id for this alarm
-	 */
-	std::atomic<qint64> id;
+    /**
+     * 'unique' id for this alarm
+     */
+    std::atomic<qint64> id;
 
     /**
      * What to play when alarm triggers
      */
     std::shared_ptr<PlayableItem> media;
 
-	/**
+    /**
      * when alarm is repeated
      */
     Alarm::Period period;

@@ -48,7 +48,7 @@ Alarm::Alarm(const QUrl& media, const QDateTime& timepoint, Alarm::Period period
 
 /*****************************************************************************/
 void Alarm::set_time(const QTime& timeofday) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << ":" << timeofday;
     trigger_instant.setTime(timeofday);
     emit time_changed(trigger_instant.time());
 }
@@ -65,6 +65,7 @@ void Alarm::set_trigger(const QDateTime& timeinstance) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     trigger_instant = timeinstance;
     set_period(Alarm::Once);
+	emit time_changed(trigger_instant.time());
 }
 
 /*****************************************************************************/

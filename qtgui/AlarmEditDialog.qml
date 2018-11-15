@@ -4,12 +4,14 @@ import QtQuick.Controls 1.4
 import QtQuick.Controls 2.2
 import QtQuick.Extras 1.4
 import ruschi.Alarm 1.0
+import "Jsutil.js" as Util 
+
 
 Popup {
 	property Alarm currentAlarm;
+	property int index;
 	focus: true
-
-	closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+	closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
 	enter: Transition {
 		NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 ; duration: 300}
@@ -21,43 +23,42 @@ Popup {
     contentItem: GridLayout {
 		rowSpacing: 2;
 		columnSpacing: 6;
-		rows: 2;
+		rows: 3;
 		columns:2;
 
 		Tumbler{
 			id: timeTumbler
-			//Layout.maximumWidth: 80
 			Layout.maximumHeight: 96 
 			Layout.rowSpan: 2
-			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
-			Layout.fillHeight: true;
-			
+			Layout.alignment: Qt.AlignLeft| Qt.AlignTop		
+				
 			TumblerColumn {
 				id: hoursTumbler
 				model: 24
 			}
 			TumblerColumn {
 				id: minutesTumbler
-				model: 60
+				model: 60	
 			}
 		}
 		//----------
 		
 		Switch{
 			id: enaAlarm;
-			Layout.minimumWidth: 100
-			Layout.preferredWidth: 200
+			Layout.minimumWidth: 120
 			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
-			position: alarmlistmodel.get_alarm(alarmlistmodel.currentIndex).enabled;
+			position: currentAlarm.enabled
 			text: currentAlarm.enabled ? qsTr("enabled") : qsTr("disabled")
 			
 			onCheckedChanged:{
-				alarmlistmodel.set_enabled(alarmlistmodel.currentIndex, position)
+				currentAlarm.enabled= position;
 			}
 		}
 		
 		ComboBox {
 			id: period
+			Layout.minimumWidth: 120
+			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
 			model: ListModel {
 				id: model
 				ListElement { text: qsTr("Once") }
@@ -73,6 +74,32 @@ Popup {
 			}
 		}
 		
+		ComboBox {
+			id: stations
+			Layout.minimumWidth: 120
+			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
+			
+			Layout.columnSpan: 2
+			model: iradiolistmodel
+			textRole: "station_name";
+			onActivated: {
+				console.log("new station" + currentIndex);
+			}
+		}		
+	} // Gridlayout
 
+	onAboutToShow : {
+		timeTumbler.setCurrentIndexAt(0,Util.get_hours(currentAlarm.time))
+		timeTumbler.setCurrentIndexAt(1,Util.get_minutes(currentAlarm.time))
+	}
+
+	onAboutToHide : {
+		var now = currentAlarm.time;
+		var h_idx =timeTumbler.currentIndexAt(0);
+		var m_idx = timeTumbler.currentIndexAt(1);
+		now.setHours(h_idx);
+		now.setMinutes(m_idx);
+		currentAlarm.time = now;
+		alarmlistmodel.update_row(alarmlistmodel.currentIndex);
 	}
 }

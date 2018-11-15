@@ -16,3 +16,13 @@ function display_time_ms(ms) {
 
     return add_leading_zero(time_h) + ":" + add_leading_zero(mm) +":" + add_leading_zero(ss)
 }
+
+function get_hours(time){
+	var hrs = Qt.formatTime(time, "hh");
+	return hrs;
+}
+
+function get_minutes(time){
+	var min = Qt.formatTime(time, "mm");
+	return min;
+}

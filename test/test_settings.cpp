@@ -223,6 +223,30 @@ TEST_F(SettingsFixture, alarm_id) {
 }
 
 /*****************************************************************************/
+TEST_F(SettingsFixture, addAlarm) {
+    auto al = std::make_shared<Alarm>();
+    auto size_before = cm.get_alarms().size();
+    cm.add_alarm(al);
+    ASSERT_EQ(cm.get_alarms().size(), size_before+1);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, deleteAlarm) {
+    auto al = std::make_shared<Alarm>();
+    auto id = al->get_id();
+    auto size_before = cm.get_alarms().size();
+    cm.add_alarm(al);
+    cm.delete_alarm(id);
+    ASSERT_EQ(cm.get_alarms().size(), size_before);
+}
+/*****************************************************************************/
+TEST_F(SettingsFixture, deleteAlarmNonExist) {
+    auto size_before = cm.get_alarms().size();
+    ASSERT_EQ(cm.delete_alarm(-5),-1);
+    ASSERT_EQ(cm.get_alarms().size(), size_before);
+}
+
+/*****************************************************************************/
 TEST_F(SettingsFixture, alarm_daily) {
     auto& v = cm.get_alarms();
     ASSERT_EQ(v[0]->get_period(), Alarm::Daily);
