@@ -10,7 +10,8 @@
  *
  *****************************************************************************/
 
-#pragma once
+#ifndef _BRIGHTNESSCONTROL_HPP_
+#define _BRIGHTNESSCONTROL_HPP_
 
 #include <QObject>
 #include <memory>
@@ -85,3 +86,5 @@ private:
 };
 
 } // namespace DigitalRooster
+#endif /* _BRIGHTNESSCONTROL_HPP_ */
+

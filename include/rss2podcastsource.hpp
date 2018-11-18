@@ -10,8 +10,9 @@
  *
  *****************************************************************************/
 
+#ifndef _RSS2PODCASTSOURCE_HPP_
+#define _RSS2PODCASTSOURCE_HPP_
 
-#pragma once
 #include "PodcastSource.hpp"
 
 namespace DigitalRooster {
@@ -26,3 +27,4 @@ void update_podcast(PodcastSource& podcastsource, const QByteArray& data);
 
 };     // namespace DigitalRooster
 
+#endif /* _RSS2PODCASTSOURCE_HPP_ */
