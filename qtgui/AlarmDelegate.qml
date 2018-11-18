@@ -2,7 +2,6 @@ import QtQuick 2.9
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
 import QtQuick.Controls.Material 2.1
-//import QtQuick.Extras 1.4
 
 import ruschi.Alarm 1.0
 import "Jsutil.js" as Util
@@ -13,7 +12,7 @@ Rectangle{
     height: 60;
     radius: 3;
 	border.width: 1;
-	color: alarmEnabled ? "#3F51B5" :  "Grey" ;
+	color: alarmEnabled ? "#2196F3" :  "LightGrey" ;
 
 	MouseArea {
 		anchors.fill: parent
@@ -30,7 +29,9 @@ Rectangle{
 		anchors.fill: parent
 		anchors.leftMargin: 10;
 		anchors.rightMargin: 10;
-		spacing: 10;
+		anchors.topMargin:2
+		anchors.bottomMargin:2
+		spacing:2;
 		anchors.verticalCenter: parent.verticalCenter;
 		
 		
@@ -67,17 +68,17 @@ Rectangle{
 		}
 		
 		DelayButton{
-			Layout.minimumHeight: 48
-			Layout.minimumWidth: 48
-			Layout.preferredWidth: 50
-			Layout.preferredHeight: 50
-			
+			Layout.minimumHeight: 56
+			Layout.minimumWidth: 56
+			Layout.maximumHeight: 56
+			Layout.maximumWidth: 56
 			delay:1000;
 			
 			contentItem: Text{
 				text: "\ufa79"
 				color: "white"
 				font.pointSize: 24
+				horizontalAlignment: Text.AlignHCenter
     			font.family: "Material Design Icons"
 			}
 			

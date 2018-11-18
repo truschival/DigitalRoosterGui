@@ -13,6 +13,7 @@
 #ifndef _ALARM_HPP_
 #define _ALARM_HPP_
 
+#include "smart_ptr_container.hpp"
 #include <QDateTime>
 #include <QObject>
 #include <chrono>
@@ -33,6 +34,9 @@ class Alarm : public QObject {
     Q_PROPERTY(QString periodicity READ get_period_string NOTIFY period_changed)
     Q_PROPERTY(DigitalRooster::Alarm::Period period_id READ get_period WRITE
             set_period NOTIFY period_changed)
+    Q_PROPERTY(QUrl url READ get_media_url WRITE update_media_url NOTIFY
+            media_url_changed)
+
 public:
     /**
      * Alarm periodicity
@@ -178,6 +182,9 @@ public:
     std::shared_ptr<PlayableItem> get_media() const {
         return media;
     }
+    void set_media(std::shared_ptr<PlayableItem>& new_media) {
+        media = new_media;
+    }
 
     /**
      * is this alarm set
@@ -185,6 +192,15 @@ public:
      */
     bool is_enabled() const {
         return enabled;
+    }
+
+    /**
+     * update media form QML
+     * @param url new media url
+     */
+    void update_media_url(QUrl url);
+    QUrl get_media_url() const {
+        return media->get_url();
     }
 
 public slots:
@@ -207,6 +223,8 @@ signals:
     void period_changed(QString period);
 
     void time_changed(QTime time);
+
+    void media_url_changed(QUrl url);
     /**
      * Generic event, some data of this object changed
      */

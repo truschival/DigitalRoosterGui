@@ -129,6 +129,7 @@ void ConfigurationManager::read_radio_streams_from_file(
         }
         stream_sources.push_back(std::make_shared<PlayableItem>(name, url));
     }
+    qCDebug(CLASS_LC) << "read" << stream_sources.size() << "streams";
 }
 
 /*****************************************************************************/
@@ -156,6 +157,7 @@ void ConfigurationManager::read_podcasts_from_file(
 
         podcast_sources.push_back(ps);
     }
+    qCDebug(CLASS_LC) << "read" << podcast_sources.size() << "podcasts";
 }
 
 /*****************************************************************************/
@@ -191,8 +193,8 @@ void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
         connect(alarm.get(), SIGNAL(dataChanged()), this, SLOT(dataChanged()));
         alarms.push_back(alarm);
     }
+    qCDebug(CLASS_LC) << "read" << alarms.size() << "alarms";
 }
-
 
 /*****************************************************************************/
 void ConfigurationManager::read_weather_from_file(
@@ -410,6 +412,7 @@ QString ConfigurationManager::check_and_create_config() {
     auto path = get_configuration_path();
     QFile config_file(path);
     if (!config_file.exists()) {
+    	qCInfo(CLASS_LC) << "Creating default config";
         create_default_configuration();
     }
     return path;
@@ -426,6 +429,7 @@ int ConfigurationManager::delete_alarm(qint64 id) {
     if(old_end == alarms.end()){
     	return -1;
     }
+    dataChanged();
     return 0;
 };
 /*****************************************************************************/
