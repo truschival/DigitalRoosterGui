@@ -140,13 +140,15 @@ int AlarmListModel::delete_alarm(qint64 row) {
 };
 
 /*****************************************************************************/
-std::shared_ptr<DigitalRooster::Alarm> AlarmListModel::create_alarm() {
+DigitalRooster::Alarm* AlarmListModel::create_alarm() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto new_alarm = std::make_shared<Alarm>();
+    new_alarm->set_media(cm->get_stream_sources().at(0));
+    new_alarm->set_time(QTime::fromString("06:30","hh:mm"));
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     QQmlEngine::setObjectOwnership(new_alarm.get(), QQmlEngine::CppOwnership);
     cm->add_alarm(new_alarm);
     endInsertRows();
-    return new_alarm;
+    return new_alarm.get();
 }
 /******************************************************************************/

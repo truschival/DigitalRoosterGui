@@ -62,7 +62,7 @@ public:
      * Default-create an alarm and add it to the list
      * @return pointer o newly created alarm
      */
-    Q_INVOKABLE std::shared_ptr<DigitalRooster::Alarm> create_alarm();
+    Q_INVOKABLE DigitalRooster::Alarm* create_alarm();
 
     /** Hook to request update of model */
     Q_INVOKABLE void update_row(int);

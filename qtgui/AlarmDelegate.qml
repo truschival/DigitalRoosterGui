@@ -24,7 +24,7 @@ Rectangle{
 			alarmEditDlg.open();
 		}
 	}
-	
+
 	RowLayout{
 		anchors.fill: parent
 		anchors.leftMargin: 10;
@@ -33,8 +33,8 @@ Rectangle{
 		anchors.bottomMargin:2
 		spacing:2;
 		anchors.verticalCenter: parent.verticalCenter;
-		
-		
+
+
 		Text {
 			id: periodicityString;
 			text:  periodstring;
@@ -66,14 +66,14 @@ Rectangle{
 				alarmlistmodel.set_enabled(index, position)
 			}
 		}
-		
+
 		DelayButton{
 			Layout.minimumHeight: 56
 			Layout.minimumWidth: 56
 			Layout.maximumHeight: 56
 			Layout.maximumWidth: 56
 			delay:1000;
-			
+
 			contentItem: Text{
 				text: "\ufa79"
 				color: "white"
@@ -81,7 +81,7 @@ Rectangle{
 				horizontalAlignment: Text.AlignHCenter
     			font.family: "Material Design Icons"
 			}
-			
+
 			onActivated:{
 				console.log("Deleting idx: " + index)
 				alarmlistmodel.delete_alarm(index);
@@ -89,5 +89,3 @@ Rectangle{
 		}
 	}
 }
-
-

@@ -11,7 +11,7 @@ Rectangle{
     height: 60;
     radius: 3;
 	border.width: 1;
-	color: iradiolist.currentItem == this ? "#3F51B5" :  "LightGrey" ;
+	color: iradiolist.currentItem == this ? "#2196F3" :  "LightGrey" ;
 
 	RowLayout{
 		anchors.fill: parent

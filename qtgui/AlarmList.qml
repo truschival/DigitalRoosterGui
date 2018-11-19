@@ -27,4 +27,19 @@ ListView {
 		y: Math.round((applicationWindow.height - height)/3)
 	}
     model: alarmlistmodel
+
+    RoundButton {
+        text: qsTr("+")
+        highlighted: true
+		width: 56;
+		height: 56;
+        anchors.margins: 10
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        onClicked: {
+            alarmEditDlg.currentAlarm = alarmlistmodel.create_alarm();
+            alarmlist.currentIndex = alarmlistmodel.rowCount()-1;
+            alarmEditDlg.open();
+        }
+    }
 }
