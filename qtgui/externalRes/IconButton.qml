@@ -3,7 +3,7 @@
 // licensed under SIL Open Font License, version 1.1,
 // https://github.com/kevincarlson/QmlBridgeForMaterialDesignIcons
 
-import QtQuick 2.7
+import QtQuick 2.9
 import QtQuick.Controls 2.0
 import "Icon.js" as MdiFont
 

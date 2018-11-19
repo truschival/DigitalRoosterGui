@@ -11,8 +11,8 @@
  *
  *****************************************************************************/
 
-#ifndef INCLUDE_HTTPCLIENT_HPP_
-#define INCLUDE_HTTPCLIENT_HPP_
+#ifndef _HTTPCLIENT_HPP_
+#define _HTTPCLIENT_HPP_
 
 #include <QByteArray>
 #include <QtCore>
@@ -44,4 +44,4 @@ signals:
 
 } /* namespace DigitalRooster */
 
-#endif /* INCLUDE_HTTPCLIENT_HPP_ */
+#endif /* _HTTPCLIENT_HPP_ */

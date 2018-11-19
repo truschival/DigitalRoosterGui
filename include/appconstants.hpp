@@ -9,7 +9,8 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
-#pragma once
+#ifndef _APPCONSTANTS_HPP_
+#define _APPCONSTANTS_HPP_
 
 #include <QDir>
 #include <QString>
@@ -207,3 +208,5 @@ const QString PROJECT_BUILD_TIME(STR_VALUE(CMAKE_BUILD_TIME_STAMP));
 const QString CONFIG_JSON_FILE_NAME(STR_VALUE(CMAKE_SETTINGS_FILE_NAME));
 
 } // namespace DigitalRooster
+
+#endif /* _APPCONSTANTS_HPP_ */

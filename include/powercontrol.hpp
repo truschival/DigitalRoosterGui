@@ -10,8 +10,8 @@
  *
  *****************************************************************************/
 
-#ifndef INCLUDE_HWIF_POWERCONTROL_HPP_
-#define INCLUDE_HWIF_POWERCONTROL_HPP_
+#ifndef _POWERCONTROL_HPP_
+#define _POWERCONTROL_HPP_
 
 #include <QObject>
 
@@ -31,4 +31,4 @@ public:
 }; // namespace DigitalRooster
 
 
-#endif /* INCLUDE_HWIF_POWERCONTROL_HPP_ */
+#endif /* _POWERCONTROL_HPP_ */

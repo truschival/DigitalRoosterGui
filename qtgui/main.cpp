@@ -30,17 +30,17 @@
 #include "alarmlistmodel.hpp"
 #include "alarmmonitor.hpp"
 #include "appconstants.hpp"
+#include "brightnesscontrol.hpp"
 #include "configuration_manager.hpp"
+#include "hwif/hal.h"
 #include "iradiolistmodel.hpp"
 #include "logger.hpp"
 #include "mediaplayerproxy.hpp"
 #include "podcastepisodemodel.hpp"
 #include "podcastsourcemodel.hpp"
-#include "weather.hpp"
-#include "hwif/hal.h"
 #include "powercontrol.hpp"
-#include "brightnesscontrol.hpp"
 #include "timeprovider.hpp"
+#include "weather.hpp"
 
 using namespace DigitalRooster;
 
@@ -50,8 +50,8 @@ Q_LOGGING_CATEGORY(MAIN, "DigitalRooster.main")
 /**
  * Global wall clock
  */
-std::shared_ptr<TimeProvider> DigitalRooster::wallclock = 
-	std::make_shared<TimeProvider>();
+std::shared_ptr<TimeProvider> DigitalRooster::wallclock =
+    std::make_shared<TimeProvider>();
 
 /*****************************************************************************/
 int main(int argc, char* argv[]) {
@@ -70,12 +70,10 @@ int main(int argc, char* argv[]) {
               << std::endl;
 
     Logger logfacility;
-    // QLoggingCategory::setFilterRules("*.debug=false");
     qCDebug(MAIN) << "SSL Support: " << QSslSocket::supportsSsl()
                   << QSslSocket::sslLibraryVersionString();
-	
+
     // Initialize Hardware (or call stubs)
-    ::setup_hardware();
     ::setup_hardware();
 
     qmlRegisterType<PodcastEpisodeModel>(

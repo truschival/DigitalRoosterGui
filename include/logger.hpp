@@ -10,7 +10,8 @@
  *
  *****************************************************************************/
 
-#pragma once
+#ifndef _LOGGER_HPP_
+#define _LOGGER_HPP_
 
 #include <QStandardPaths>
 #include <QString>
@@ -26,3 +27,5 @@ public:
                "/Digitalrooster.log"));
 };
 } // namespace DigitalRooster
+
+#endif /*_LOGGER_HPP_ */

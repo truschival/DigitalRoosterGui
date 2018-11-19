@@ -163,6 +163,13 @@ public:
      */
     void add_alarm(std::shared_ptr<Alarm> alarm);
 
+    /**
+     * Delete an alarm identified by ID from the list of alarms
+     * @param id of alarm
+     * @return 0 if alarm was deleted, -1 otherwise
+     */
+    Q_INVOKABLE int delete_alarm(qint64 id);
+
 public slots:
     /**
      * Any Item (Alarm, PodcastSource...) changed
@@ -358,25 +365,24 @@ private:
     virtual WeatherConfig& get_weather_cfg() {
         return weather_cfg;
     }
-	
-	/**
-	 * Private virtual interface for brightness settings
-	 */
-	virtual int do_get_brightness_sb() const {
+
+    /**
+     * Private virtual interface for brightness settings
+     */
+    virtual int do_get_brightness_sb() const {
         return brightness_sb;
     }
-    
-	virtual int do_get_brightness_act() const {
-        return brightness_act;
-	}
 
-	/**
-	 * Private virtual interface for volume settings
-	 */
-	virtual int do_get_volume() const{
-		return volume;
-	};
-    
+    virtual int do_get_brightness_act() const {
+        return brightness_act;
+    }
+
+    /**
+     * Private virtual interface for volume settings
+     */
+    virtual int do_get_volume() const {
+        return volume;
+    };
 };
 } // namespace DigitalRooster
 #endif // _SETTINGS_READER_HPP_

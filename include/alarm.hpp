@@ -13,6 +13,7 @@
 #ifndef _ALARM_HPP_
 #define _ALARM_HPP_
 
+#include "smart_ptr_container.hpp"
 #include <QDateTime>
 #include <QObject>
 #include <chrono>
@@ -30,9 +31,12 @@ class Alarm : public QObject {
     Q_PROPERTY(bool enabled READ is_enabled WRITE enable NOTIFY enabled_changed)
     Q_PROPERTY(qint64 id READ get_id)
     Q_PROPERTY(QTime time READ get_time WRITE set_time NOTIFY time_changed)
-    Q_PROPERTY(QString periodicity READ get_period_string NOTIFY dataChanged)
+    Q_PROPERTY(QString periodicity READ get_period_string NOTIFY period_changed)
     Q_PROPERTY(DigitalRooster::Alarm::Period period_id READ get_period WRITE
             set_period NOTIFY period_changed)
+    Q_PROPERTY(QUrl url READ get_media_url WRITE update_media_url NOTIFY
+            media_url_changed)
+
 public:
     /**
      * Alarm periodicity
@@ -57,7 +61,7 @@ public:
         Alarm::Period period = Alarm::Daily, bool enabled = true,
         QObject* parent = nullptr);
 
-	 /**
+    /**
      * Construct an alarm for given time and date
      * @param media what to play
      * @param timepoint particular time & date
@@ -74,8 +78,8 @@ public:
      * Need Default constructor to register with QML
      */
     Alarm()
-        : id(QDateTime::currentMSecsSinceEpoch()),
-		  media(nullptr)
+        : id(QDateTime::currentMSecsSinceEpoch())
+        , media(nullptr)
         , period(Alarm::Daily)
         , enabled(true){};
 
@@ -83,11 +87,11 @@ public:
      * 'unique' id for alarm
      * @return
      */
-    qint64 get_id() const{
-    	return id;
+    qint64 get_id() const {
+        return id;
     }
-    void set_id(qint64 id){
-    	this->id = id;
+    void set_id(qint64 id) {
+        this->id = id;
     }
 
     /**
@@ -110,7 +114,7 @@ public:
     void set_trigger(const QDateTime& timeinstance);
 
     /**
-	 * Trigger time
+     * Trigger time
      * @return time of day when alarm is due
      */
     const QTime get_time() const {
@@ -126,10 +130,10 @@ public:
         return period;
     }
 
-	/**
-	 * Convert the periodicity into a human readable string
-	 * @return string representation for enum
-	 */
+    /**
+     * Convert the periodicity into a human readable string
+     * @return string representation for enum
+     */
     QString get_period_string() const;
 
     /**
@@ -138,6 +142,8 @@ public:
     void set_period(Alarm::Period period) {
         this->period = period;
         update_trigger();
+        emit period_changed(period);
+        emit period_changed(get_period_string());
     };
 
     /**
@@ -176,6 +182,9 @@ public:
     std::shared_ptr<PlayableItem> get_media() const {
         return media;
     }
+    void set_media(std::shared_ptr<PlayableItem> new_media) {
+        media = new_media;
+    }
 
     /**
      * is this alarm set
@@ -183,6 +192,15 @@ public:
      */
     bool is_enabled() const {
         return enabled;
+    }
+
+    /**
+     * update media form QML
+     * @param url new media url
+     */
+    void update_media_url(QUrl url);
+    QUrl get_media_url() const {
+        return media->get_url();
     }
 
 public slots:
@@ -202,24 +220,28 @@ signals:
 
     void period_changed(Alarm::Period period);
 
+    void period_changed(QString period);
+
     void time_changed(QTime time);
-	/**
-	 * Generic event, some data of this object changed
-	 */
-	void dataChanged();
+
+    void media_url_changed(QUrl url);
+    /**
+     * Generic event, some data of this object changed
+     */
+    void dataChanged();
 
 private:
-	/**
-	 * 'unique' id for this alarm
-	 */
-	std::atomic<qint64> id;
+    /**
+     * 'unique' id for this alarm
+     */
+    std::atomic<qint64> id;
 
     /**
      * What to play when alarm triggers
      */
     std::shared_ptr<PlayableItem> media;
 
-	/**
+    /**
      * when alarm is repeated
      */
     Alarm::Period period;

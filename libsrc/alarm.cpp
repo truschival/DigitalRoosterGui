@@ -48,9 +48,10 @@ Alarm::Alarm(const QUrl& media, const QDateTime& timepoint, Alarm::Period period
 
 /*****************************************************************************/
 void Alarm::set_time(const QTime& timeofday) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << ":" << timeofday;
     trigger_instant.setTime(timeofday);
     emit time_changed(trigger_instant.time());
+	emit dataChanged();
 }
 
 /*****************************************************************************/
@@ -65,6 +66,7 @@ void Alarm::set_trigger(const QDateTime& timeinstance) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     trigger_instant = timeinstance;
     set_period(Alarm::Once);
+	emit time_changed(trigger_instant.time());
 }
 
 /*****************************************************************************/
@@ -141,6 +143,13 @@ static const std::vector<std::pair<Alarm::Period, QString>> period_to_string = {
     {Alarm::Daily, KEY_ALARM_DAILY}, {Alarm::Workdays, KEY_ALARM_WORKDAYS},
     {Alarm::Weekend, KEY_ALARM_WEEKEND}, {Alarm::Once, KEY_ALARM_ONCE}};
 
+/*****************************************************************************/
+void Alarm::update_media_url(QUrl url){
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+	media->set_url(url);
+	emit media_url_changed(url);
+	emit dataChanged();
+}
 
 /*****************************************************************************/
 

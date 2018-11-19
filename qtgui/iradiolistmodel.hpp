@@ -12,6 +12,7 @@
 #ifndef QTGUI_IRADIOLISTMODEL_HPP_
 #define QTGUI_IRADIOLISTMODEL_HPP_
 
+#include <QUrl>
 #include <QAbstractListModel>
 #include <QObject>
 #include <memory>
@@ -34,17 +35,13 @@ public:
         std::shared_ptr<DigitalRooster::MediaPlayerProxy> pp,
         QObject* parent = nullptr);
 
-    enum IRadioStationRoles {
-        StationNameRole = Qt::UserRole + 1,
-        UriRole,
-        DateRole
-    };
+    enum IRadioStationRoles { StationNameRole = Qt::UserRole + 1, UriRole };
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
-    Q_INVOKABLE DigitalRooster::PlayableItem* get_station(int index);
+    Q_INVOKABLE QUrl get_station_url(int index);
     Q_INVOKABLE void send_to_player(int index);
 
 protected:
