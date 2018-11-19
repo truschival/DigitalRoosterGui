@@ -15,6 +15,7 @@
 
 #include <QDateTime>
 #include <QObject>
+#include <QUrl>
 #include <chrono>
 #include <memory>
 
