@@ -13,7 +13,6 @@
 #ifndef _ALARM_HPP_
 #define _ALARM_HPP_
 
-#include "smart_ptr_container.hpp"
 #include <QDateTime>
 #include <QObject>
 #include <chrono>
@@ -199,9 +198,7 @@ public:
      * @param url new media url
      */
     void update_media_url(QUrl url);
-    QUrl get_media_url() const {
-        return media->get_url();
-    }
+    QUrl get_media_url() const;
 
 public slots:
     /**
