@@ -13,6 +13,7 @@
 #ifndef _ALARM_HPP_
 #define _ALARM_HPP_
 
+#include "smart_ptr_container.hpp"
 #include <QDateTime>
 #include <QObject>
 #include <chrono>
@@ -21,34 +22,32 @@
 namespace DigitalRooster {
 
 class PlayableItem;
-
+class TimeProvider;
 /**
  * A single alarm
  */
 class Alarm : public QObject {
     Q_OBJECT
     Q_PROPERTY(bool enabled READ is_enabled WRITE enable NOTIFY enabled_changed)
+    Q_PROPERTY(qint64 id READ get_id)
+    Q_PROPERTY(QTime time READ get_time WRITE set_time NOTIFY time_changed)
+    Q_PROPERTY(QString periodicity READ get_period_string NOTIFY period_changed)
+    Q_PROPERTY(DigitalRooster::Alarm::Period period_id READ get_period WRITE
+            set_period NOTIFY period_changed)
+    Q_PROPERTY(QUrl url READ get_media_url WRITE update_media_url NOTIFY
+            media_url_changed)
+
 public:
     /**
      * Alarm periodicity
      */
     enum Period {
-        Once = 0,   //!< next time the time of day occurs (within 24 hrs)
-        Daily,		//!< every day
-        Weekend ,	//!< Saturdays & Sundays
-        Workdays	//!< Monday through Friday
+        Once = 0, //!< next time the time of day occurs (within 24 hrs)
+        Daily,    //!< every day
+        Weekend,  //!< Saturdays & Sundays
+        Workdays  //!< Monday through Friday
     };
     Q_ENUM(Period)
-
-    /**
-     * One-shot alarm for a exact DateTime to trigger
-     * @param media_url what to play
-     * @param timepoint exact time instance (date+time)
-     * @param enabled activated/deactivated
-     * @param parent QObject parent
-     */
-    Alarm(const QUrl& media_url, const QDateTime& timepoint,
-        bool enabled = true, QObject* parent = nullptr);
 
     /**
      * Construct an alarm for given time
@@ -63,12 +62,37 @@ public:
         QObject* parent = nullptr);
 
     /**
+     * Construct an alarm for given time and date
+     * @param media what to play
+     * @param timepoint particular time & date
+     * @param period periodicity
+     * @param enabled activated/deactivated
+     * @param parent obligatory QObject parent
+     */
+    Alarm(const QUrl& media, const QDateTime& timepoint,
+        Alarm::Period period = Alarm::Once, bool enabled = true,
+        QObject* parent = nullptr);
+
+
+    /**
      * Need Default constructor to register with QML
      */
     Alarm()
-        : media(nullptr)
+        : id(QDateTime::currentMSecsSinceEpoch())
+        , media(nullptr)
         , period(Alarm::Daily)
         , enabled(true){};
+
+    /**
+     * 'unique' id for alarm
+     * @return
+     */
+    qint64 get_id() const {
+        return id;
+    }
+    void set_id(qint64 id) {
+        this->id = id;
+    }
 
     /**
      * next trigger instant when the alarm is to be triggered
@@ -90,12 +114,14 @@ public:
     void set_trigger(const QDateTime& timeinstance);
 
     /**
-	 * Trigger time
+     * Trigger time
      * @return time of day when alarm is due
      */
     const QTime get_time() const {
         return trigger_instant.time();
     }
+    void set_time(const QTime& timeofday);
+
     /**
      * Periodicity of Alarm
      * @return period
@@ -104,10 +130,10 @@ public:
         return period;
     }
 
-	/**
-	 * Convert the periodicity into a human readable string
-	 * @return string representation for enum
-	 */
+    /**
+     * Convert the periodicity into a human readable string
+     * @return string representation for enum
+     */
     QString get_period_string() const;
 
     /**
@@ -116,6 +142,8 @@ public:
     void set_period(Alarm::Period period) {
         this->period = period;
         update_trigger();
+        emit period_changed(period);
+        emit period_changed(get_period_string());
     };
 
     /**
@@ -154,6 +182,9 @@ public:
     std::shared_ptr<PlayableItem> get_media() const {
         return media;
     }
+    void set_media(std::shared_ptr<PlayableItem> new_media) {
+        media = new_media;
+    }
 
     /**
      * is this alarm set
@@ -161,6 +192,15 @@ public:
      */
     bool is_enabled() const {
         return enabled;
+    }
+
+    /**
+     * update media form QML
+     * @param url new media url
+     */
+    void update_media_url(QUrl url);
+    QUrl get_media_url() const {
+        return media->get_url();
     }
 
 public slots:
@@ -178,12 +218,24 @@ public slots:
 signals:
     void enabled_changed(bool state);
 
-	/**
-	 * Generic event, some data of this object changed
-	 */
-	void dataChanged();
+    void period_changed(Alarm::Period period);
+
+    void period_changed(QString period);
+
+    void time_changed(QTime time);
+
+    void media_url_changed(QUrl url);
+    /**
+     * Generic event, some data of this object changed
+     */
+    void dataChanged();
 
 private:
+    /**
+     * 'unique' id for this alarm
+     */
+    std::atomic<qint64> id;
+
     /**
      * What to play when alarm triggers
      */

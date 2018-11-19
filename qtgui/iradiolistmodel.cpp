@@ -1,4 +1,4 @@
-/*************************************************************************************
+/*****************************************************************************
  * \filename
  * \brief
  *
@@ -9,7 +9,8 @@
  * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
  *
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *************************************************************************************/
+ *****************************************************************************/
+
 #include <QByteArray>
 #include <QDebug>
 #include <QHash>
@@ -22,7 +23,7 @@
 
 using namespace DigitalRooster;
 
-/*************************************************************************************/
+/*****************************************************************************/
 IRadioListModel::IRadioListModel(
     std::shared_ptr<DigitalRooster::ConfigurationManager> confman,
     std::shared_ptr<DigitalRooster::MediaPlayerProxy> pp, QObject* parent)
@@ -31,24 +32,22 @@ IRadioListModel::IRadioListModel(
     , mpp(pp) {
 }
 
-/*************************************************************************************/
+
+/*****************************************************************************/
 IRadioListModel::IRadioListModel(QObject* parent)
     : QAbstractListModel(parent)
     , cm(nullptr) {
 }
 
-/*************************************************************************************/
-
+/*****************************************************************************/
 QHash<int, QByteArray> IRadioListModel::roleNames() const {
     QHash<int, QByteArray> roles;
     roles[StationNameRole] = "station_name";
     roles[UriRole] = "uri";
-    roles[DateRole] = "pub_date";
     return roles;
 }
 
-/*************************************************************************************/
-
+/*****************************************************************************/
 int IRadioListModel::rowCount(const QModelIndex& /*parent */) const {
     // qDebug() << __FUNCTION__;
     if (cm->get_stream_sources().size() <= 0) {
@@ -57,22 +56,21 @@ int IRadioListModel::rowCount(const QModelIndex& /*parent */) const {
     return cm->get_stream_sources().size();
 }
 
-/*******************************************************************************/
-PlayableItem* IRadioListModel::get_station(int index) {
-    // qDebug() << __FUNCTION__ << " index: " << index;
-    auto station = cm->get_stream_sources().at(index).get();
-    QQmlEngine::setObjectOwnership(station, QQmlEngine::CppOwnership);
-    return station;
+/*****************************************************************************/
+QUrl IRadioListModel::get_station_url(
+    int index) {
+    auto pi = cm->get_stream_sources().at(index);
+    return pi->get_url();
 }
 
-/*************************************************************************************/
+/*****************************************************************************/
 void IRadioListModel::send_to_player(int index) {
     auto station = cm->get_stream_sources().at(index);
     mpp->set_media(station);
     mpp->play();
 }
 
-/*************************************************************************************/
+/*****************************************************************************/
 QVariant IRadioListModel::data(const QModelIndex& index, int role) const {
     // qDebug() << __FUNCTION__ << "(" << index.row() << ")";
     if (cm->get_stream_sources().size() <= 0)
@@ -88,8 +86,6 @@ QVariant IRadioListModel::data(const QModelIndex& index, int role) const {
         return QVariant(station->get_display_name());
     case UriRole:
         return QVariant(station->get_url());
-    case DateRole:
-        return QVariant("Datestring - makes no sense");
     }
 
     return QVariant();

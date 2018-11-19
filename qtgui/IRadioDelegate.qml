@@ -7,11 +7,11 @@ import ruschi.PlayableItem 1.0
 
 Rectangle{
 	id: iradiodelegatearea
-	width:  parent.width;
+	width: parent.width;
     height: 60;
     radius: 3;
 	border.width: 1;
-	color: iradiolist.currentItem == this ? "lightblue" : "white"
+	color: iradiolist.currentItem == this ? "#2196F3" :  "LightGrey" ;
 
 	RowLayout{
 		anchors.fill: parent
@@ -30,7 +30,6 @@ Rectangle{
 			elide: Text.ElideRight
 		}
 	}
-
 
 	MouseArea {
 		anchors.fill: parent

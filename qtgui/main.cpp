@@ -1,4 +1,4 @@
-/*************************************************************************************
+/******************************************************************************
  * \filename
  * \brief   Main entry point for QML Gui
  *
@@ -8,11 +8,11 @@
  * \copyright 2018 Thomas Ruschival <thomas@ruschival.de>
  * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
  * 			  SPDX-License-Identifier: GPL-3.0-or-later
- *************************************************************************************/
+ *****************************************************************************/
 
 /* only allow QML debugging for Debug builds */
 #ifndef NDEBUG
-	#define QT_QML_DEBUG
+#define QT_QML_DEBUG
 #endif
 
 #include <QDebug>
@@ -23,34 +23,58 @@
 #include <QtQuick>
 #include <memory>
 
+#include <iostream>
+
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
 #include "alarmlistmodel.hpp"
 #include "alarmmonitor.hpp"
+#include "appconstants.hpp"
+#include "brightnesscontrol.hpp"
 #include "configuration_manager.hpp"
+#include "hwif/hal.h"
 #include "iradiolistmodel.hpp"
+#include "logger.hpp"
 #include "mediaplayerproxy.hpp"
 #include "podcastepisodemodel.hpp"
 #include "podcastsourcemodel.hpp"
+#include "powercontrol.hpp"
+#include "timeprovider.hpp"
 #include "weather.hpp"
-#include "logger.hpp"
 
 using namespace DigitalRooster;
 
 Q_DECLARE_LOGGING_CATEGORY(MAIN)
 Q_LOGGING_CATEGORY(MAIN, "DigitalRooster.main")
 
+/**
+ * Global wall clock
+ */
+std::shared_ptr<TimeProvider> DigitalRooster::wallclock =
+    std::make_shared<TimeProvider>();
+
+/*****************************************************************************/
 int main(int argc, char* argv[]) {
     QGuiApplication app(argc, argv);
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setApplicationName(APPLICATION_NAME);
     QCoreApplication::setApplicationVersion(PROJECT_VERSION);
-    
-	Logger logfacility;
-    // QLoggingCategory::setFilterRules("*.debug=false");
+
+    std::cout << APPLICATION_NAME.toStdString().c_str() << " - "
+              << GIT_REVISION.toStdString().c_str() << "\n logging to: ";
+    std::cout << QString(QStandardPaths::writableLocation(
+                             QStandardPaths::TempLocation) +
+                     "/Digitalrooster.log")
+                     .toStdString()
+                     .c_str()
+              << std::endl;
+
+    Logger logfacility;
     qCDebug(MAIN) << "SSL Support: " << QSslSocket::supportsSsl()
-             << QSslSocket::sslLibraryVersionString();
-    app.setWindowIcon(QIcon("qrc:/ClockIcon48x48.png"));
+                  << QSslSocket::sslLibraryVersionString();
+
+    // Initialize Hardware (or call stubs)
+    ::setup_hardware();
 
     qmlRegisterType<PodcastEpisodeModel>(
         "ruschi.PodcastEpisodeModel", 1, 0, "PodcastEpisodeModel");
@@ -77,6 +101,8 @@ int main(int argc, char* argv[]) {
     IRadioListModel iradiolistmodel(cm, playerproxy);
     AlarmListModel alarmlistmodel(cm);
     Weather weather(cm);
+    PowerControl power;
+    BrightnessControl brightness(cm);
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
@@ -85,6 +111,10 @@ int main(int argc, char* argv[]) {
     ctxt->setContextProperty("alarmlistmodel", &alarmlistmodel);
     ctxt->setContextProperty("iradiolistmodel", &iradiolistmodel);
     ctxt->setContextProperty("weather", &weather);
+    // TODO remove next line - only for testing of settingspage!
+    ctxt->setContextProperty("config", cm.get());
+    ctxt->setContextProperty("powerControl", &power);
+    ctxt->setContextProperty("brightnessControl", &brightness);
 
     view.load(QUrl("qrc:/main.qml"));
 

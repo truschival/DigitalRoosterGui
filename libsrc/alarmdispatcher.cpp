@@ -20,6 +20,7 @@
 #include "alarmdispatcher.hpp"
 #include "configuration_manager.hpp"
 #include "mediaplayerproxy.hpp"
+#include "timeprovider.hpp"
 
 using namespace DigitalRooster;
 using namespace std::chrono;
@@ -43,7 +44,7 @@ AlarmDispatcher::AlarmDispatcher(
 /*****************************************************************************/
 void AlarmDispatcher::check_alarms() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto now = QDateTime::currentDateTime();
+    auto now = wallclock->now();
     for (const auto& alarm : cm->get_alarms()) {
         auto delta = seconds(now.secsTo(alarm->get_next_trigger()));
         if (alarm->is_enabled() && delta <= interval) {

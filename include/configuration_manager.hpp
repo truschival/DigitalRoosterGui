@@ -13,9 +13,7 @@
 #define _CONFIGURATION_MANAGER_H_
 
 #include <QFileSystemWatcher>
-#include <QMap>
 #include <QObject>
-#include <QSettings>
 #include <QString>
 #include <QVector>
 
@@ -57,6 +55,14 @@ struct WeatherConfig {
  */
 class ConfigurationManager : public QObject {
     Q_OBJECT
+    Q_PROPERTY(QString revision READ get_revision)
+    Q_PROPERTY(QString buildtime READ get_build)
+    Q_PROPERTY(int standbybrightness READ get_standby_brightness WRITE
+            set_standby_brightness)
+    Q_PROPERTY(int activebrightness READ get_active_brightness WRITE
+            set_active_brightness)
+    Q_PROPERTY(int defaultvolume READ get_volume WRITE set_volume)
+
 public:
     /**
      * Default Constructor will use QT Standard paths for configuration
@@ -66,6 +72,44 @@ public:
             QStandardPaths::AppConfigLocation));
 
     virtual ~ConfigurationManager() = default;
+
+    /**
+     * return compile time version string
+     */
+    QString get_revision() const {
+        return GIT_REVISION;
+    }
+
+    /**
+     * return compile time
+     */
+    QString get_build() const {
+        return PROJECT_BUILD_TIME;
+    }
+
+    /**
+     * User set and stored volume (form config file)
+     * @return volume
+     */
+    int get_volume() const {
+        return do_get_volume();
+    }
+
+    /**
+     * User set and stored brightness for standby mode (form config file)
+     * @return brightness
+     */
+    int get_standby_brightness() const {
+        return do_get_brightness_sb();
+    }
+
+    /**
+     * User set and stored brightness for standby mode (form config file)
+     * @return brightness
+     */
+    int get_active_brightness() const {
+        return do_get_brightness_act();
+    }
 
     /**
      * get all radio stream sources
@@ -119,12 +163,37 @@ public:
      */
     void add_alarm(std::shared_ptr<Alarm> alarm);
 
+    /**
+     * Delete an alarm identified by ID from the list of alarms
+     * @param id of alarm
+     * @return 0 if alarm was deleted, -1 otherwise
+     */
+    Q_INVOKABLE int delete_alarm(qint64 id);
+
 public slots:
     /**
      * Any Item (Alarm, PodcastSource...) changed
      * Trigger timer for writing configuration file
      */
     void dataChanged();
+
+    /**
+     * volume settings changed -> store
+     * @param vol new volume settings (0..100)
+     */
+    void set_volume(int vol);
+
+    /**
+     * user changed standby brightness
+     * @param brightness new volume settings (0..100)
+     */
+    void set_standby_brightness(int brightness);
+
+    /**
+     * user changed standby brightness
+     * @param brightness new volume settings (0..100)
+     */
+    void set_active_brightness(int brightness);
 
     /**
      * Write memory config to file - will overwrite changes in file
@@ -177,6 +246,20 @@ private:
     std::chrono::minutes sleeptimeout;
 
     /**
+     * User set and stored volume (form config file)
+     */
+    int volume;
+
+    /**
+     * display brightness (0..100%) in standby mode
+     */
+    int brightness_sb;
+    /**
+     * display brightness (0..100%) in active mode
+     */
+    int brightness_act;
+
+    /**
      * File system monitor to get updated if someone changed the file
      */
     QFileSystemWatcher filewatcher;
@@ -189,6 +272,11 @@ private:
      * Configuration directory, writable, created if it doesn't exist
      */
     QDir config_dir;
+
+    /**
+     * Timer tor write configuration to disk
+     */
+    QTimer writeTimer;
 
     /**
      * Check if config directory exist, otherwise create it
@@ -279,9 +367,22 @@ private:
     }
 
     /**
-     * Timer tor write configuration to disk
+     * Private virtual interface for brightness settings
      */
-    QTimer writeTimer;
+    virtual int do_get_brightness_sb() const {
+        return brightness_sb;
+    }
+
+    virtual int do_get_brightness_act() const {
+        return brightness_act;
+    }
+
+    /**
+     * Private virtual interface for volume settings
+     */
+    virtual int do_get_volume() const {
+        return volume;
+    };
 };
 } // namespace DigitalRooster
 #endif // _SETTINGS_READER_HPP_

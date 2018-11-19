@@ -14,35 +14,44 @@
 #include "alarm.hpp"
 #include "appconstants.hpp"
 #include <QLoggingCategory>
+#include "timeprovider.hpp"
 using namespace DigitalRooster;
 
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.Alarm");
 
 /*****************************************************************************/
-
 // Alarm from time
 Alarm::Alarm(const QUrl& media, const QTime& timepoint, Alarm::Period period,
     bool enabled, QObject* parent)
     : QObject(parent)
     , media(std::make_shared<PlayableItem>("Alarm", media))
     , period(period)
-    , trigger_instant(QDateTime::currentDateTime()) // today, set time later
+    , trigger_instant(wallclock->now()) // use today's date, set time later
     , enabled(enabled)
     , alarmtimeout(DEFAULT_ALARM_TIMEOUT) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO << "timepoint" << trigger_instant;
-    trigger_instant.setTime(timepoint);
+	trigger_instant.setTime(timepoint);
+	qCDebug(CLASS_LC) << Q_FUNC_INFO << "trigger:" << trigger_instant;
 }
-/*****************************************************************************/
 
-Alarm::Alarm(const QUrl& media, const QDateTime& timepoint, bool enabled,
-    QObject* parent)
+/*****************************************************************************/
+// Alarm for exact date & time
+Alarm::Alarm(const QUrl& media, const QDateTime& timepoint, Alarm::Period period,
+    bool enabled, QObject* parent)
     : QObject(parent)
     , media(std::make_shared<PlayableItem>("Alarm", media))
-    , period(Alarm::Once)
-    , trigger_instant(timepoint)
+    , period(period)
+    , trigger_instant(timepoint) // use exact timepoint
     , enabled(enabled)
     , alarmtimeout(DEFAULT_ALARM_TIMEOUT) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO << "timepoint" << trigger_instant;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << "trigger:" << trigger_instant;
+}
+
+/*****************************************************************************/
+void Alarm::set_time(const QTime& timeofday) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << ":" << timeofday;
+    trigger_instant.setTime(timeofday);
+    emit time_changed(trigger_instant.time());
+	emit dataChanged();
 }
 
 /*****************************************************************************/
@@ -57,12 +66,14 @@ void Alarm::set_trigger(const QDateTime& timeinstance) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     trigger_instant = timeinstance;
     set_period(Alarm::Once);
+	emit time_changed(trigger_instant.time());
 }
 
 /*****************************************************************************/
 void Alarm::update_trigger() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto now = QDateTime::currentDateTime();
+    auto now = wallclock->now();
+    qCDebug(CLASS_LC) << now;
     auto day_of_week_today = now.date().dayOfWeek();
 
     // trigger instant is in the future - nothing to adjust for
@@ -114,15 +125,15 @@ QString Alarm::get_period_string() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     switch (get_period()) {
     case Alarm::Once:
-        return QString(tr("Once"));
+        return QString(tr("once"));
     case Alarm::Weekend:
-        return QString(tr("Weekend"));
+        return QString(tr("weekend"));
     case Alarm::Workdays:
-        return QString(tr("Workdays"));
+        return QString(tr("workdays"));
     case Alarm::Daily:
-        return QString(tr("Daily"));
+        return QString(tr("daily"));
     default:
-        return QString(tr("Error"));
+        return QString(tr("ERROR"));
     }
 }
 
@@ -132,6 +143,13 @@ static const std::vector<std::pair<Alarm::Period, QString>> period_to_string = {
     {Alarm::Daily, KEY_ALARM_DAILY}, {Alarm::Workdays, KEY_ALARM_WORKDAYS},
     {Alarm::Weekend, KEY_ALARM_WEEKEND}, {Alarm::Once, KEY_ALARM_ONCE}};
 
+/*****************************************************************************/
+void Alarm::update_media_url(QUrl url){
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+	media->set_url(url);
+	emit media_url_changed(url);
+	emit dataChanged();
+}
 
 /*****************************************************************************/
 

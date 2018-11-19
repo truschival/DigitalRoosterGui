@@ -32,6 +32,9 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
 ConfigurationManager::ConfigurationManager(const QString& configdir)
     : alarmtimeout(DEFAULT_ALARM_TIMEOUT)
     , sleeptimeout(DEFAULT_SLEEP_TIMEOUT)
+    , volume(DEFAULT_VOLUME)
+    , brightness_sb(DEFAULT_BRIGHTNESS)
+    , brightness_act(DEFAULT_BRIGHTNESS)
     , config_dir(configdir) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
@@ -91,6 +94,18 @@ void ConfigurationManager::parseJson(const QByteArray& json) {
     } else {
         alarmtimeout = std::chrono::minutes(DEFAULT_ALARM_TIMEOUT.count());
     }
+    auto bright_act = appconfig[KEY_BRIGHTNESS_ACT];
+    if (!bright_act.isUndefined()) {
+        set_active_brightness(bright_act.toInt(DEFAULT_BRIGHTNESS));
+    }
+    auto bright_sb = appconfig[KEY_BRIGHTNESS_SB];
+    if (!bright_sb.isUndefined()) {
+        set_standby_brightness(bright_sb.toInt(DEFAULT_BRIGHTNESS));
+    }
+    auto vol = appconfig[KEY_VOLUME];
+    if (!vol.isUndefined()) {
+        set_volume(vol.toInt(DEFAULT_VOLUME));
+    }
 
     read_radio_streams_from_file(appconfig);
     read_podcasts_from_file(appconfig);
@@ -114,6 +129,7 @@ void ConfigurationManager::read_radio_streams_from_file(
         }
         stream_sources.push_back(std::make_shared<PlayableItem>(name, url));
     }
+    qCDebug(CLASS_LC) << "read" << stream_sources.size() << "streams";
 }
 
 /*****************************************************************************/
@@ -141,6 +157,7 @@ void ConfigurationManager::read_podcasts_from_file(
 
         podcast_sources.push_back(ps);
     }
+    qCDebug(CLASS_LC) << "read" << podcast_sources.size() << "podcasts";
 }
 
 /*****************************************************************************/
@@ -166,6 +183,8 @@ void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
         auto alarm = std::make_shared<Alarm>(media, timepoint, period, enabled);
         auto volume = json_alarm[KEY_VOLUME].toInt(DEFAULT_ALARM_VOLUME);
         alarm->set_volume(volume);
+        auto id = json_alarm[KEY_ID].toInt(QDateTime::currentMSecsSinceEpoch());
+        alarm->set_id(id);
         /* if no specific alarm timeout is given take application default */
         auto timeout =
             json_alarm[KEY_ALARM_TIMEOUT].toInt(alarmtimeout.count());
@@ -174,8 +193,8 @@ void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
         connect(alarm.get(), SIGNAL(dataChanged()), this, SLOT(dataChanged()));
         alarms.push_back(alarm);
     }
+    qCDebug(CLASS_LC) << "read" << alarms.size() << "alarms";
 }
-
 
 /*****************************************************************************/
 void ConfigurationManager::read_weather_from_file(
@@ -209,6 +228,7 @@ void ConfigurationManager::add_radio_station(
 void ConfigurationManager::add_alarm(std::shared_ptr<Alarm> alm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     this->alarms.push_back(alm);
+    dataChanged();
 }
 
 /*****************************************************************************/
@@ -221,6 +241,39 @@ void ConfigurationManager::dataChanged() {
 void ConfigurationManager::fileChanged(const QString& path) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     refresh_configuration();
+}
+
+/*****************************************************************************/
+void ConfigurationManager::set_volume(int vol) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << vol;
+    if (vol >= 0 && vol <= 100) {
+        this->volume = vol;
+        writeTimer.start();
+    } else {
+        qCWarning(CLASS_LC) << "invalid volume value: " << vol;
+    }
+}
+
+/*****************************************************************************/
+void ConfigurationManager::set_standby_brightness(int brightness) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
+    if (brightness >= 0 && brightness <= 100) {
+        this->brightness_sb = brightness;
+        writeTimer.start();
+    } else {
+        qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
+    }
+}
+
+/*****************************************************************************/
+void ConfigurationManager::set_active_brightness(int brightness) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
+    if (brightness >= 0 && brightness <= 100) {
+        this->brightness_act = brightness;
+        writeTimer.start();
+    } else {
+        qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
+    }
 }
 
 /*****************************************************************************/
@@ -249,6 +302,7 @@ void ConfigurationManager::store_current_config() {
     QJsonArray alarms_json;
     for (const auto& alarm : alarms) {
         QJsonObject alarmcfg;
+        alarmcfg[KEY_ID] = alarm->get_id();
         alarmcfg[KEY_ALARM_PERIOD] =
             alarm_period_to_json_string(alarm->get_period());
         alarmcfg[KEY_TIME] = alarm->get_time().toString("hh:mm");
@@ -268,6 +322,9 @@ void ConfigurationManager::store_current_config() {
     /* global application configuration */
     appconfig[KEY_ALARM_TIMEOUT] = static_cast<qint64>(alarmtimeout.count());
     appconfig[KEY_SLEEP_TIMEOUT] = static_cast<qint64>(sleeptimeout.count());
+    appconfig[KEY_VOLUME] = volume;
+    appconfig[KEY_BRIGHTNESS_SB] = brightness_sb;
+    appconfig[KEY_BRIGHTNESS_ACT] = brightness_act;
     /* Static info - which version created the config file*/
     appconfig[KEY_VERSION] = PROJECT_VERSION;
 
@@ -311,6 +368,7 @@ void ConfigurationManager::create_default_configuration() {
         QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
         QTime::fromString("06:30", "hh:mm"));
     alm->set_period(Alarm::Workdays);
+    alm->set_id(QDateTime::currentMSecsSinceEpoch());
     alarms.push_back(alm);
 
     auto acw = std::make_shared<DigitalRooster::PodcastSource>(
@@ -324,7 +382,6 @@ void ConfigurationManager::create_default_configuration() {
         std::make_shared<DigitalRooster::PlayableItem>("Deutschlandfunk (Ogg)",
             QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"));
     stream_sources.push_back(radio);
-
     store_current_config();
 }
 
@@ -355,9 +412,24 @@ QString ConfigurationManager::check_and_create_config() {
     auto path = get_configuration_path();
     QFile config_file(path);
     if (!config_file.exists()) {
+    	qCInfo(CLASS_LC) << "Creating default config";
         create_default_configuration();
     }
     return path;
 }
 
+/*****************************************************************************/
+int ConfigurationManager::delete_alarm(qint64 id) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto old_end = alarms.end();
+    alarms.erase(std::remove_if(
+        alarms.begin(), alarms.end(), [&](const std::shared_ptr<Alarm> item) {
+            return item->get_id() == id;
+        }),alarms.end());
+    if(old_end == alarms.end()){
+    	return -1;
+    }
+    dataChanged();
+    return 0;
+};
 /*****************************************************************************/

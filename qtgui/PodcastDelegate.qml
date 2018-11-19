@@ -1,12 +1,15 @@
-import QtQuick 2.0
+import QtQuick 2.9
 import QtQuick.Layouts 1.3
+import QtQuick.Controls 2.2
 import ruschi.PodcastEpisodeModel 1.0
 
 Rectangle{
 	id: podcastdelegate
 	width:  podcastlist.width;
 	height: 100;
-	color: podcastlist.currentItem == this ? "lightblue" : "white"
+	radius: 3;
+	border.width: 1;
+	color: podcastlist.currentItem == this ? "#2196F3" : "LightGrey" ;
 
 	GridLayout{
 		columns: 3

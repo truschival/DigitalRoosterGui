@@ -10,8 +10,8 @@
  *
  *****************************************************************************/
 
-#ifndef INCLUDE_UPDATETASK_HPP_
-#define INCLUDE_UPDATETASK_HPP_
+#ifndef _UPDATETASK_HPP_
+#define _UPDATETASK_HPP_
 
 #include <httpclient.hpp>
 #include <memory>
@@ -81,4 +81,4 @@ private:
 
 } /* namespace DigitalRooster */
 
-#endif /* INCLUDE_UPDATETASK_HPP_ */
+#endif /* _UPDATETASK_HPP_ */

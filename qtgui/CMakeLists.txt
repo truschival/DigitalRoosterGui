@@ -71,7 +71,9 @@ SET_TARGET_PROPERTIES(
   )
 
 TARGET_COMPILE_DEFINITIONS(${BINARY_NAME}
-  PUBLIC ${CPP_DEFS} 
+  # no public flags, nobody should use the main app as dependency
+  PRIVATE 
+  ${CPP_DEFS} 
   )
 
 TARGET_COMPILE_OPTIONS(${BINARY_NAME} PRIVATE
@@ -82,6 +84,7 @@ TARGET_COMPILE_OPTIONS(${BINARY_NAME} PRIVATE
 # Linkage with gtest_main coverage etc.
 TARGET_LINK_LIBRARIES(
   ${BINARY_NAME}
+  PRIVATE
   ${PROJECT_CORE_LIB}
   Qt5::Quick
   Qt5::Qml

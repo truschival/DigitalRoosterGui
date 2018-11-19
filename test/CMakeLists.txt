@@ -22,6 +22,7 @@ SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test_alarmdispatcher.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_alarmmonitor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_weather.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_brightness.cpp
   )
 
 # Moc any classes derived from QObject
@@ -35,9 +36,9 @@ qt5_wrap_cpp(MOC_SRC
 
 SET(DUT_LIBS "")
 IF(TARGET digitalrooster)
-  add_library(${PROJECT_NAME}::digitalrooster ALIAS digitalrooster)
+	add_library(${PROJECT_NAME}::digitalrooster ALIAS digitalrooster)
 ELSE()
-    find_package(${PROJECT_NAME} COMPONENTS digitalrooster CONFIG REQUIRED)
+	find_package(${PROJECT_NAME} COMPONENTS digitalrooster CONFIG REQUIRED)
 ENDIF()
 LIST(APPEND DUT_LIBS digitalrooster)
 

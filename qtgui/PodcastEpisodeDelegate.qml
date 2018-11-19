@@ -1,14 +1,15 @@
 import QtQuick 2.9
 import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.1
-
+import QtQuick.Controls 2.2
 import ruschi.PodcastEpisode 1.0
 
 Rectangle{
 	id: rectangle
 	width:  stackView.width-2;
 	height: 100;
-	color: episodemodel.currentIndex == index ? "lightblue" : "white"
+	radius: 3;
+	border.width: 1;
+	color: episodemodel.currentIndex == index ? "#2196F3" :  "LightGrey" ;
 	anchors.margins: 2
 
 	GridLayout{

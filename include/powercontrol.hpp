@@ -1,8 +1,8 @@
 /******************************************************************************
  * \filename
- * \brief	Basic logging facility
+ * \brief
  *
- * \details will install message handler to output to file
+ * \details
  *
  * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
  * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
@@ -10,22 +10,25 @@
  *
  *****************************************************************************/
 
-#ifndef _LOGGER_HPP_
-#define _LOGGER_HPP_
+#ifndef _POWERCONTROL_HPP_
+#define _POWERCONTROL_HPP_
 
-#include <QStandardPaths>
-#include <QString>
+#include <QObject>
 
 namespace DigitalRooster {
 
-
-class Logger {
-
+/**
+ * Controls power-off & reboot
+ */
+class PowerControl : public QObject {
+    Q_OBJECT
 public:
-    Logger(QString filename = QString(
-               QStandardPaths::writableLocation(QStandardPaths::TempLocation) +
-               "/Digitalrooster.log"));
+    PowerControl() = default;
+    Q_INVOKABLE void power_off();
+    Q_INVOKABLE void reboot();
 };
-} // namespace DigitalRooster
 
-#endif /*_LOGGER_HPP_ */
+}; // namespace DigitalRooster
+
+
+#endif /* _POWERCONTROL_HPP_ */

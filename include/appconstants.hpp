@@ -9,13 +9,17 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
-#pragma once
+#ifndef _APPCONSTANTS_HPP_
+#define _APPCONSTANTS_HPP_
 
 #include <QDir>
 #include <QString>
 #include <chrono>
 
 #include "config.h"
+
+#define STRINGIZER(arg) #arg
+#define STR_VALUE(arg) STRINGIZER(arg)
 
 namespace DigitalRooster {
 
@@ -40,9 +44,24 @@ const QString KEY_GROUP_PODCAST_SOURCES("Podcasts");
 const QString KEY_GROUP_ALARMS("Alarms");
 
 /**
- * Optional keyword for Alarm volume
+ * keyword for Alarm volume / stored volume
  */
 const QString KEY_VOLUME("volume");
+
+/**
+ * keyword for backlight brightness (active mode)
+ */
+const QString KEY_BRIGHTNESS_ACT("brightnessActive");
+
+/**
+ * keyword for backlight brightness (standby mode)
+ */
+const QString KEY_BRIGHTNESS_SB("brightnessStandby");
+
+/**
+ * Keyword for all ids
+ */
+const QString KEY_ID("id");
 
 /**
  * Key for all URIs
@@ -135,7 +154,7 @@ const QString RSS_FILE_DIR(QDir::tempPath());
 const int DEFAULT_ALARM_VOLUME = 30;
 
 /**
- * Time after which an alarm should stop playing 
+ * Time after which an alarm should stop playing
  * (probably because nobody is in to switch it off manually)
  */
 const std::chrono::minutes DEFAULT_ALARM_TIMEOUT(30);
@@ -146,26 +165,48 @@ const std::chrono::minutes DEFAULT_ALARM_TIMEOUT(30);
  */
 const std::chrono::minutes DEFAULT_SLEEP_TIMEOUT(60);
 
+/**
+ * Default output volume
+ */
+const int DEFAULT_VOLUME = 30;
+
+/**
+ * Default display brightness
+ */
+const int DEFAULT_BRIGHTNESS = 25;
+
 /*****************************************************************************
  CMake build configurations from config.h
  *****************************************************************************/
 /**
  * Build directory (where testfiles are generated)
  */
-const QString TEST_FILE_PATH(CMAKE_BUILD_DIR);
+const QString TEST_FILE_PATH(STR_VALUE(CMAKE_BUILD_DIR));
 /**
  * Application Name
  */
-const QString APPLICATION_NAME(CMAKE_PROJECT_NAME);
+const QString APPLICATION_NAME(STR_VALUE(CMAKE_PROJECT_NAME));
 
 /**
- * Project Version 
+ * Project release version for configuration compatibility etc.
  */
-const QString PROJECT_VERSION(CMAKE_PROJECT_VERSION);
+const QString PROJECT_VERSION(STR_VALUE(CMAKE_PROJECT_VERSION));
+
+/**
+ * Git revision as QString
+ */
+const QString GIT_REVISION(STR_VALUE(GIT_DESCRIBE_REV));
+
+/**
+ * Project build time stamp
+ */
+const QString PROJECT_BUILD_TIME(STR_VALUE(CMAKE_BUILD_TIME_STAMP));
 
 /**
  * Json file name for configuration
  */
-const QString CONFIG_JSON_FILE_NAME(CMAKE_SETTINGS_FILE_NAME);
+const QString CONFIG_JSON_FILE_NAME(STR_VALUE(CMAKE_SETTINGS_FILE_NAME));
 
 } // namespace DigitalRooster
+
+#endif /* _APPCONSTANTS_HPP_ */

@@ -70,37 +70,9 @@ ApplicationWindow {
 				Layout.rightMargin: 4
 
                 onClicked:{
-					volumeMenu.popup(-width/3,height/3)
-				}
-
-				Menu {
-					id: volumeMenu
-					width: 58
-                    height: applicationWindow.height*0.8
-
-                    Label{
-                        font.pointSize: 24
-						font.weight: Font.DemiBold
-
-						text: volumeSlider.value
-						anchors.horizontalCenter:parent.horizontalCenter
-					}
-					Slider {
-						id: volumeSlider
-						anchors.horizontalCenter:parent.horizontalCenter
-                        orientation: Qt.Vertical
-                        from: 0
-                        to: 100
-                        stepSize: 1
-						wheelEnabled: true
-                        value: playerProxy.volume
-                        onMoved: {
-                            playerProxy.volume = value;
-                        }
-					}
+					volumePopUp.show();
 				}
             }
-
             IconButton {
                 id : backButton
                 text: MdiFont.Icon.keyboardBackspace
@@ -151,12 +123,15 @@ ApplicationWindow {
 						stackView.pop(null)
 					}
 					listView.currentIndex = index
-					stackView.push(model.source)
                     drawer.close()
                     /* Special item: power off button */
                     if(index === listView.count-1){
                     	console.log("last item!")
+                    	powerOffMenu.popup((applicationWindow.width-powerOffMenu.width)/2,
+										   (applicationWindow.height-powerOffMenu.height)/2)
+                    	return; // nothing to do
                     }
+					stackView.push(model.source)
                 }
             }
 
@@ -164,11 +139,45 @@ ApplicationWindow {
                 ListElement { title: "\uf223"; source: "qrc:/PodcastList.qml"; objectName:"PodcastList"; }
 				ListElement { title: "\uf43B"; source: "qrc:/IRadioList.qml"; objectName:"InternetRadio"; }
 				ListElement { title: "\uf020"; source: "qrc:/AlarmList.qml"; objectName:"AlarmList"; }
-				ListElement { title: "\uf62e"; source: "qrc:/AlarmList.qml"; objectName:"Settings"; }
+				ListElement { title: "\uf62e"; source: "qrc:/SettingsPage.qml"; objectName:"Settings"; }
 				ListElement { title: "\uf425"; source: ""; objectName:"PowerOff"; }
             }
         }
     }
+
+	Menu {
+		id: powerOffMenu
+		RowLayout {
+			spacing: 4
+			IconButton {
+				id: poweroffBtn
+				text: "\uf425"
+				Layout.minimumHeight: 58;
+				Layout.minimumWidth: 58;
+				Layout.preferredHeight: 58;
+				Layout.preferredWidth: 58;
+				Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+				onClicked: {
+					console.log("power off button")
+					powerControl.power_off();
+				}
+			}
+
+			IconButton {
+				id: rebootBtn
+				text: "\uf426";
+				Layout.minimumHeight: 58;
+				Layout.minimumWidth: 58;
+				Layout.preferredHeight: 58;
+				Layout.preferredWidth: 58;
+				Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+				onClicked: {
+					console.log("reboot button")
+					powerControl.reboot();
+				}
+			}
+		}
+	}
 
 	PlayerControlWidget{
 		id: playerControlWidget
@@ -182,6 +191,11 @@ ApplicationWindow {
         anchors.bottom: parent.bottom
 	}
 
+	VolumePopup{
+		id: volumePopUp
+		x: Math.round((applicationWindow.width - width) / 2)
+		y: Math.round((applicationWindow.height - height) / 2)
+	}
 
     StackView {
         id: stackView

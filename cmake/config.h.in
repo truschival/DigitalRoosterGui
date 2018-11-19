@@ -10,43 +10,51 @@
   * Date Time string when CMake was run
   */
  #ifndef CMAKE_BUILD_TIME_STAMP
- #define CMAKE_BUILD_TIME_STAMP  "@CMAKE_CONFIGURATION_TIME@"
+ #define CMAKE_BUILD_TIME_STAMP  @CMAKE_CONFIGURATION_TIME@
  #endif
 
  /**
   * Project version string Major.Minor.Patch
   */
  #ifndef CMAKE_PROJECT_NAME
- #define CMAKE_PROJECT_NAME  "@PROJECT_NAME@"
+ #define CMAKE_PROJECT_NAME  @PROJECT_NAME@
  #endif
  
  /**
   * Project version string Major.Minor.Patch
   */
  #ifndef CMAKE_PROJECT_VERSION
- #define CMAKE_PROJECT_VERSION  "@PROJECT_VERSION@"
+ #define CMAKE_PROJECT_VERSION  @PROJECT_VERSION@
  #endif
  
+ /**
+ * GIT describe output:
+ *   git -C $SRC_DIR describe --abbrev=8 --dirty
+ *   v0.4.0-1-g47cb4c6a-dirty
+ */
+#ifndef GIT_DESCRIBE_REV
+#define GIT_DESCRIBE_REV 	CMAKE_PROJECT_VERSION
+#endif
  
  /**
   * Application configuration file 
   */
  #ifndef CMAKE_SETTINGS_FILE_NAME
- #define CMAKE_SETTINGS_FILE_NAME  "@SETTINGS_FILE_NAME@"
+ #define CMAKE_SETTINGS_FILE_NAME  @SETTINGS_FILE_NAME@
  #endif
 
  /**
   * Directory where to find SETTINGS_FILE_NAME
   */
  #ifndef CMAKE_SETTINGS_PATH
- #define CMAKE_SETTINGS_PATH  "@SETTINGS_PATH@"
+ #define CMAKE_SETTINGS_PATH  @SETTINGS_PATH@
  #endif
 
  /**
   * Build directory to find and generate files during tests 
   */
  #ifndef CMAKE_BUILD_DIR
- #define CMAKE_BUILD_DIR  "@CMAKE_BINARY_DIR@"
+ #define CMAKE_BUILD_DIR  @CMAKE_BINARY_DIR@
  #endif
 
  #endif /* _CONFIG_H_ */

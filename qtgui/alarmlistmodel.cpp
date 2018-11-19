@@ -1,4 +1,4 @@
-/*************************************************************************************
+/*******************************************************************************
  * \filename
  * \brief
  *
@@ -9,7 +9,7 @@
  * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
  *
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *************************************************************************************/
+ ******************************************************************************/
 #include <QByteArray>
 #include <QDebug>
 #include <QHash>
@@ -21,7 +21,10 @@
 
 using namespace DigitalRooster;
 
-/*************************************************************************************/
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.AlarmListModel");
+
+/******************************************************************************/
+
 AlarmListModel::AlarmListModel(
     std::shared_ptr<DigitalRooster::ConfigurationManager> confman,
     QObject* parent)
@@ -29,13 +32,14 @@ AlarmListModel::AlarmListModel(
     , cm(confman) {
 }
 
-/*************************************************************************************/
+/******************************************************************************/
+
 AlarmListModel::AlarmListModel(QObject* parent)
     : QAbstractListModel(parent)
     , cm(nullptr) {
 }
 
-/*************************************************************************************/
+/******************************************************************************/
 
 QHash<int, QByteArray> AlarmListModel::roleNames() const {
     QHash<int, QByteArray> roles;
@@ -47,8 +51,7 @@ QHash<int, QByteArray> AlarmListModel::roleNames() const {
     roles[EnabledRole] = "alarmEnabled";
     return roles;
 }
-
-/*************************************************************************************/
+/******************************************************************************/
 
 int AlarmListModel::rowCount(const QModelIndex& /*parent */) const {
     if (cm->get_alarms().size() <= 0) {
@@ -57,7 +60,7 @@ int AlarmListModel::rowCount(const QModelIndex& /*parent */) const {
     return cm->get_alarms().size();
 }
 
-/*************************************************************************************/
+/******************************************************************************/
 QVariant AlarmListModel::data(const QModelIndex& index, int role) const {
     if (cm->get_alarms().size() <= 0)
         return QVariant();
@@ -82,18 +85,70 @@ QVariant AlarmListModel::data(const QModelIndex& index, int role) const {
 
     return QVariant();
 }
-
-/*************************************************************************************/
+/******************************************************************************/
 void AlarmListModel::set_enabled(int row, bool enabled) {
     if (row < 0 || row >= cm->get_alarms().size()) {
         qWarning() << "Invalid Selection";
         return;
-	}
+    }
     cm->get_alarms().at(row)->enable(enabled);
-   
-	dataChanged(index(row, 0), index(row, 0),
-        {TimeRole, EnabledRole, PeriodicityRole, UriRole});
+
+    emit dataChanged(index(row, 0), index(row, 0), {EnabledRole});
 }
 
-/*************************************************************************************/
+/******************************************************************************/
+DigitalRooster::Alarm* AlarmListModel::get_alarm(int row) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    if (row < 0 || row >= cm->get_alarms().size()) {
+        qWarning() << "Invalid Selection";
+    }
+    auto ret = cm->get_alarms().at(row).get();
+    QQmlEngine::setObjectOwnership(ret, QQmlEngine::CppOwnership);
 
+    return ret;
+}
+
+/******************************************************************************/
+void AlarmListModel::update_row(int row) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << row;
+    if (row < 0 || row >= cm->get_alarms().size()) {
+        qWarning() << "Invalid Selection";
+    }
+
+    emit dataChanged(index(row, 0), index(row, 0),
+        {TimeRole, EnabledRole, PeriodicityRole, PeriodStringRole, UriRole});
+}
+
+/*****************************************************************************/
+
+bool AlarmListModel::removeRows(
+        int row, int count, const QModelIndex& /*parent */){
+	//cm->delete_alarm(id);
+	return true;
+}
+
+/*****************************************************************************/
+int AlarmListModel::delete_alarm(qint64 row) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << row;
+    beginRemoveRows(QModelIndex(), row, row);
+    auto alarm = cm->get_alarms().at(row);
+    if(alarm){
+    	cm->delete_alarm(alarm->get_id());
+    }
+    endRemoveRows();
+    return 0;
+};
+
+/*****************************************************************************/
+DigitalRooster::Alarm* AlarmListModel::create_alarm() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto new_alarm = std::make_shared<Alarm>();
+    new_alarm->set_media(cm->get_stream_sources().at(0));
+    new_alarm->set_time(QTime::fromString("06:30","hh:mm"));
+    beginInsertRows(QModelIndex(), rowCount(), rowCount());
+    QQmlEngine::setObjectOwnership(new_alarm.get(), QQmlEngine::CppOwnership);
+    cm->add_alarm(new_alarm);
+    endInsertRows();
+    return new_alarm.get();
+}
+/******************************************************************************/
