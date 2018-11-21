@@ -117,17 +117,20 @@ void ConfigurationManager::parseJson(const QByteArray& json) {
 void ConfigurationManager::read_radio_streams_from_file(
     const QJsonObject& appconfig) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    QJsonArray irconfig =
+    QJsonArray stations =
         appconfig[DigitalRooster::KEY_GROUP_IRADIO_SOURCES].toArray();
-    for (const auto ir : irconfig) {
-        QString name(ir.toObject()[KEY_NAME].toString());
-        QUrl url(ir.toObject()[KEY_URI].toString());
+    for (const auto json_station : stations) {
+        auto station = json_station.toObject();
+        QString name(station[KEY_NAME].toString());
+        QUrl url(station[KEY_URI].toString());
         if (!url.isValid()) {
             qCWarning(CLASS_LC)
-                << "Invalid URI " << ir.toObject()[KEY_URI].toString();
+                << "Invalid URI " << station[KEY_URI].toString();
             continue;
         }
-        stream_sources.push_back(std::make_shared<PlayableItem>(name, url));
+        qint64 uid = station[KEY_ID].toInt(QDateTime::currentMSecsSinceEpoch());
+        stream_sources.push_back(
+            std::make_shared<PlayableItem>(name, url, uid));
     }
     qCDebug(CLASS_LC) << "read" << stream_sources.size() << "streams";
 }
@@ -146,7 +149,8 @@ void ConfigurationManager::read_podcasts_from_file(
             qCWarning(CLASS_LC) << "Invalid URI " << jo[KEY_URI].toString();
             continue;
         }
-        auto ps = std::make_shared<PodcastSource>(url);
+        qint64 uid = jo[KEY_ID].toInt(QDateTime::currentMSecsSinceEpoch());
+        auto ps = std::make_shared<PodcastSource>(url, uid);
         ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
         ps->set_update_interval(
             std::chrono::seconds(jo[KEY_UPDATE_INTERVAL].toInt(3600)));
@@ -412,7 +416,7 @@ QString ConfigurationManager::check_and_create_config() {
     auto path = get_configuration_path();
     QFile config_file(path);
     if (!config_file.exists()) {
-    	qCInfo(CLASS_LC) << "Creating default config";
+        qCInfo(CLASS_LC) << "Creating default config";
         create_default_configuration();
     }
     return path;
@@ -422,12 +426,13 @@ QString ConfigurationManager::check_and_create_config() {
 int ConfigurationManager::delete_alarm(qint64 id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto old_end = alarms.end();
-    alarms.erase(std::remove_if(
-        alarms.begin(), alarms.end(), [&](const std::shared_ptr<Alarm> item) {
-            return item->get_id() == id;
-        }),alarms.end());
-    if(old_end == alarms.end()){
-    	return -1;
+    alarms.erase(std::remove_if(alarms.begin(), alarms.end(),
+                     [&](const std::shared_ptr<Alarm> item) {
+                         return item->get_id() == id;
+                     }),
+        alarms.end());
+    if (old_end == alarms.end()) {
+        return -1;
     }
     dataChanged();
     return 0;

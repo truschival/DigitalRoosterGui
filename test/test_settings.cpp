@@ -28,8 +28,8 @@ using namespace DigitalRooster;
 class SettingsFixture : public virtual ::testing::Test {
 public:
     SettingsFixture()
-        : filename(TEST_FILE_PATH + "/" + CONFIG_JSON_FILE_NAME),
-		  cm(TEST_FILE_PATH){
+        : filename(TEST_FILE_PATH + "/" + CONFIG_JSON_FILE_NAME)
+        , cm(TEST_FILE_PATH) {
     }
 
     ~SettingsFixture() {
@@ -58,26 +58,30 @@ protected:
     QJsonObject appconfig;
     ConfigurationManager cm;
 
-    void add_podcast_sources(QJsonObject& root) {
+    void add_internet_radio(QJsonObject& root) {
         QJsonArray radiosources;
         QJsonObject dradio;
         dradio[KEY_NAME] = "DRadio";
+        dradio[KEY_ID] = 1;
         dradio[KEY_URI] = "http://dradio.de";
         QJsonObject swr2;
         swr2[KEY_NAME] = "SWR2";
+        swr2[KEY_ID] = 2;
         swr2[KEY_URI] = "http://swr2.de";
         radiosources.append(dradio);
         radiosources.append(swr2);
         root[KEY_GROUP_IRADIO_SOURCES] = radiosources;
     }
 
-    void add_internet_radio(QJsonObject& root) {
+    void add_podcast_sources(QJsonObject& root) {
         QJsonArray pcsources;
         QJsonObject pc1;
         pc1[KEY_NAME] = "Alternativlos";
+        pc1[KEY_ID] = 1;
         pc1[KEY_URI] = "https://alternativlos.org/alternativlos.rss";
         QJsonObject pc2;
         pc2[KEY_NAME] = "Dradio Essay&Diskurs";
+        pc2[KEY_ID] = 2;
         pc2[KEY_URI] = "http://www.deutschlandfunk.de/"
                        "podcast-essay-und-diskurs.1185.de.podcast.xml";
         pcsources.append(pc1);
@@ -214,12 +218,35 @@ TEST_F(SettingsFixture, alarm_count) {
 /*****************************************************************************/
 TEST_F(SettingsFixture, alarm_id) {
     auto& v = cm.get_alarms();
-    auto res = std::find_if(v.begin(), v.end(),
-            [&](const std::shared_ptr<Alarm>& item) {
-                return item->get_id() == 2;
-            });
-    ASSERT_NE(res,v.end());
-    ASSERT_EQ( (*res)->get_period(), Alarm::Workdays);
+    auto res = std::find_if(
+        v.begin(), v.end(), [&](const std::shared_ptr<Alarm>& item) {
+            return item->get_id() == 2;
+        });
+    ASSERT_NE(res, v.end());
+    ASSERT_EQ((*res)->get_period(), Alarm::Workdays);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, podcastid) {
+    auto& v = cm.get_podcast_sources();
+    auto res = std::find_if(
+        v.begin(), v.end(), [&](const std::shared_ptr<PodcastSource>& item) {
+            return item->get_id() == 2;
+        });
+    ASSERT_NE(res, v.end());
+    ASSERT_EQ((*res)->get_url(),
+        QString("http://www.deutschlandfunk.de/"
+                "podcast-essay-und-diskurs.1185.de.podcast.xml"));
+}
+/*****************************************************************************/
+TEST_F(SettingsFixture, streamsourceid) {
+    auto& v = cm.get_stream_sources();
+    auto res = std::find_if(
+        v.begin(), v.end(), [&](const std::shared_ptr<PlayableItem>& item) {
+            return item->get_id() == 2;
+        });
+    ASSERT_NE(res, v.end());
+    ASSERT_EQ((*res)->get_url(),QString("http://swr2.de"));
 }
 
 /*****************************************************************************/
@@ -227,7 +254,7 @@ TEST_F(SettingsFixture, addAlarm) {
     auto al = std::make_shared<Alarm>();
     auto size_before = cm.get_alarms().size();
     cm.add_alarm(al);
-    ASSERT_EQ(cm.get_alarms().size(), size_before+1);
+    ASSERT_EQ(cm.get_alarms().size(), size_before + 1);
 }
 
 /*****************************************************************************/
@@ -242,7 +269,7 @@ TEST_F(SettingsFixture, deleteAlarm) {
 /*****************************************************************************/
 TEST_F(SettingsFixture, deleteAlarmNonExist) {
     auto size_before = cm.get_alarms().size();
-    ASSERT_EQ(cm.delete_alarm(-5),-1);
+    ASSERT_EQ(cm.delete_alarm(-5), -1);
     ASSERT_EQ(cm.get_alarms().size(), size_before);
 }
 

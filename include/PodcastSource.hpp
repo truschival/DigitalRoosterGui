@@ -14,6 +14,7 @@
 #define _PODCASTSOURCE_HPP_
 
 #include <QDate>
+#include <QDateTime>
 #include <QObject>
 #include <QString>
 #include <QVector>
@@ -38,8 +39,10 @@ public:
     /**
      * Preconfigured Podcast Source
      * @param url Feed URL
+     * @param uid unique id for this podcast
      */
-    explicit PodcastSource(const QUrl& url);
+    explicit PodcastSource(
+        const QUrl& url, qint64 uid = QDateTime::currentMSecsSinceEpoch());
 
     /**
      * Give the Podcast source a (new) update task
@@ -173,6 +176,13 @@ public:
      * Access to episode names  as QList (the titles for display in a list)
      */
     QVector<QString> get_episodes_names();
+    /**
+     * 'unique' id for alarm
+     * @return
+     */
+    qint64 get_id() const {
+        return id;
+    }
 
 signals:
     /**
@@ -184,9 +194,14 @@ signals:
 
     void descriptionChanged();
 
-	void episodesChanged();
+    void episodesChanged();
 
 private:
+    /**
+     * 'unique' id for this alarm
+     */
+    const std::atomic<qint64> id;
+
     /**
      * URL for rss feed of this podcast channel
      */

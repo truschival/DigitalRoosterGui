@@ -25,26 +25,31 @@ namespace DigitalRooster {
  */
 class PlayableItem : public QObject {
     Q_OBJECT
-    Q_PROPERTY(QString display_name READ get_display_name WRITE set_display_name)
+    Q_PROPERTY(
+        QString display_name READ get_display_name WRITE set_display_name)
     Q_PROPERTY(QUrl url READ get_url WRITE set_url)
-	Q_PROPERTY(int position READ get_position WRITE set_position)
-	Q_PROPERTY(int duration READ get_duration WRITE set_duration)
+    Q_PROPERTY(qint64 id READ get_id)
+    Q_PROPERTY(int position READ get_position WRITE set_position)
+    Q_PROPERTY(int duration READ get_duration WRITE set_duration)
 public:
     /**
      * Default Constructor
      */
-    PlayableItem() = default;
+    explicit PlayableItem(qint64 uid = QDateTime::currentMSecsSinceEpoch())
+        : id(uid){};
 
     /**
      * Convenience Constructor
      * @param name display_name
      * @param url media_url
      */
-    PlayableItem(const QString& name, const QUrl& url)
-        : display_name(name)
+    PlayableItem(const QString& name, const QUrl& url,
+        qint64 uid = QDateTime::currentMSecsSinceEpoch())
+        : id(uid)
+        , display_name(name)
         , media_url(url){};
 
-    const QString& get_display_name() const{
+    const QString& get_display_name() const {
         return display_name;
     };
 
@@ -61,65 +66,77 @@ public:
         media_url = url;
     };
 
-	/**
-	* last stored position
-	*/
-	qint64 get_position() const {
-		return position;
-	};
-	/**
-	* update position of already listened content
-	* @param newVal current position in stream
-	*/
-	void set_position(qint64 newVal) {
-		if (newVal <= duration && newVal >= 0) {
-			position = newVal;
-		}
-	};
+    /**
+     * last stored position
+     */
+    qint64 get_position() const {
+        return position;
+    };
+    /**
+     * update position of already listened content
+     * @param newVal current position in stream
+     */
+    void set_position(qint64 newVal) {
+        if (newVal <= duration && newVal >= 0) {
+            position = newVal;
+        }
+    };
 
+    /**
+     * 'unique' id for alarm
+     * @return
+     */
+    qint64 get_id() const {
+        return id;
+    }
 
-	/**
-	* Total length of media in ms
-	* @return
-	*/
-	qint64 get_duration() {
-		return duration;
-	}
+    /**
+     * Total length of media in ms
+     * @return
+     */
+    qint64 get_duration() {
+        return duration;
+    }
 
-	/**
-	* Update length in ms only used for display purpose
-	* @param len >= 0
-	*/
-	void set_duration(qint64 len) {
-		if (len >= 0)
-			duration = len;
-	}
+    /**
+     * Update length in ms only used for display purpose
+     * @param len >= 0
+     */
+    void set_duration(qint64 len) {
+        if (len >= 0)
+            duration = len;
+    }
 
 private:
+    /**
+     * 'unique' id for this alarm
+     */
+    const std::atomic<qint64> id;
+
     /** human readable name*/
     QString display_name;
 
     /** Media URL */
     QUrl media_url;
 
-	/**
-	* Current Position in stream
-	*/
-	qint64 position = 0;
+    /**
+     * Current Position in stream
+     */
+    qint64 position = 0;
 
-	/**
-	* Total length in ms
-	*/
-	qint64 duration = 0;
+    /**
+     * Total length in ms
+     */
+    qint64 duration = 0;
 };
 
 /**
  * PodcastEpisode = item of RSS feed
  */
 class PodcastEpisode : public PlayableItem {
-	Q_OBJECT
-	Q_PROPERTY(QString author READ get_author)
-	Q_PROPERTY(QString description READ get_description)
+    Q_OBJECT
+    Q_PROPERTY(QString author READ get_author)
+    Q_PROPERTY(QString description READ get_description)
 public:
     PodcastEpisode() = default;
 
@@ -138,11 +155,11 @@ public:
         author = newAuthor;
     };
 
-    const QString& get_author() const{
+    const QString& get_author() const {
         return author;
     }
 
-    const QString& get_description() const{
+    const QString& get_description() const {
         return description;
     }
 
@@ -150,7 +167,7 @@ public:
         description = desc;
     };
 
-    QString get_guid() const{
+    QString get_guid() const {
         if (guid.isEmpty()) {
             return get_url().toString();
         }
@@ -188,5 +205,5 @@ private:
      */
     QDateTime publication_date;
 };
-};
+};     // namespace DigitalRooster
 #endif // _PLAYABLEITEM_HPP_
