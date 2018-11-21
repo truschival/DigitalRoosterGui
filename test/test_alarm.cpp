@@ -138,7 +138,6 @@ TEST_F(AlarmFakeTime, Once) {
 }
 /*****************************************************************************/
 
-
 TEST_F(AlarmFakeTime, Daily) {
 
 	auto timepoint = QDateTime::fromString("2018-09-22T08:30:00", Qt::ISODate);
@@ -441,6 +440,11 @@ TEST(Alarm, updatePeriodSetsNextTrigger) {
 
     ASSERT_EQ(al.get_period(), Alarm::Weekend);
     ASSERT_LE(expected_trigger.secsTo(al.get_next_trigger()), 1);
+}
+
+/*****************************************************************************/
+TEST(StringToPeriodEnum, mapping_bad) {
+    EXPECT_THROW(json_string_to_alarm_period("Foobar"), std::exception);
 }
 
 /*****************************************************************************/

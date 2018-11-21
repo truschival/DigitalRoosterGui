@@ -177,8 +177,15 @@ void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
                 << "Invalid URI " << json_alarm[KEY_URI].toString();
             continue;
         }
-        auto period = json_string_to_alarm_period(
-            json_alarm[KEY_ALARM_PERIOD].toString(KEY_ALARM_DAILY));
+        // sane default for periodicity
+        auto period = Alarm::Daily;
+        try {
+            period = json_string_to_alarm_period(
+                json_alarm[KEY_ALARM_PERIOD].toString(KEY_ALARM_DAILY));
+        } catch (std::invalid_argument& exc) {
+            qCWarning(CLASS_LC) << "invalid periodicity entry!";
+        }
+
         auto enabled = json_alarm[KEY_ENABLED].toBool(true);
         auto media = QUrl(json_alarm[KEY_URI].toString());
 
