@@ -119,10 +119,18 @@ protected:
         al4[KEY_ENABLED] = true;
         al4[KEY_ID] = 4;
 
+        QJsonObject al5;
+        al5[KEY_TIME] = "17:00";
+        al5[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
+        al5[KEY_ALARM_PERIOD] = "Manchmal";
+        al5[KEY_ENABLED] = true;
+        al5[KEY_ID] = 5;
+
         alarms.append(al1);
         alarms.append(al2);
         alarms.append(al3);
         alarms.append(al4);
+        alarms.append(al5);
 
         root[KEY_GROUP_ALARMS] = alarms;
     }
@@ -205,15 +213,11 @@ TEST(StringToPeriodEnum, mapping_good) {
     ASSERT_EQ(Alarm::Weekend, json_string_to_alarm_period(KEY_ALARM_WEEKEND));
     ASSERT_EQ(Alarm::Workdays, json_string_to_alarm_period(KEY_ALARM_WORKDAYS));
 }
-/*****************************************************************************/
 
-TEST(StringToPeriodEnum, mapping_bad) {
-    EXPECT_THROW(json_string_to_alarm_period("Foobar"), std::exception);
-}
 /*****************************************************************************/
 TEST_F(SettingsFixture, alarm_count) {
     auto& v = cm.get_alarms();
-    ASSERT_EQ(v.size(), 4);
+    ASSERT_EQ(v.size(), 5);
 }
 /*****************************************************************************/
 TEST_F(SettingsFixture, alarm_id) {
@@ -246,7 +250,7 @@ TEST_F(SettingsFixture, streamsourceid) {
             return item->get_id() == 2;
         });
     ASSERT_NE(res, v.end());
-    ASSERT_EQ((*res)->get_url(),QString("http://swr2.de"));
+    ASSERT_EQ((*res)->get_url(), QString("http://swr2.de"));
 }
 
 /*****************************************************************************/
@@ -304,6 +308,14 @@ TEST_F(SettingsFixture, alarm_once) {
     ASSERT_EQ(v[3]->get_period(), Alarm::Once);
     ASSERT_EQ(v[3]->get_time(), QTime::fromString("13:00", "hh:mm"));
     ASSERT_TRUE(v[3]->is_enabled());
+}
+/*****************************************************************************/
+
+TEST_F(SettingsFixture, alarm_once_default) {
+    auto& v = cm.get_alarms();
+    // Alarm 5 has an unknown peridicity string "Manchmal" it should default to
+    // Daily
+    ASSERT_EQ(v[4]->get_period(), Alarm::Daily);
 }
 /*****************************************************************************/
 
