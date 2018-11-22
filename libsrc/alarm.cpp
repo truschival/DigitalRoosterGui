@@ -25,8 +25,9 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.Alarm");
 /*****************************************************************************/
 // Alarm from time
 Alarm::Alarm(const QUrl& media, const QTime& timepoint, Alarm::Period period,
-    bool enabled, QObject* parent)
+    bool enabled, const QUuid& uid, QObject* parent)
     : QObject(parent)
+    , id(uid)
     , media(std::make_shared<PlayableItem>("Alarm", media))
     , period(period)
     , trigger_instant(wallclock->now()) // use today's date, set time later
@@ -39,7 +40,7 @@ Alarm::Alarm(const QUrl& media, const QTime& timepoint, Alarm::Period period,
 /*****************************************************************************/
 // Alarm for exact date & time
 Alarm::Alarm(const QUrl& media, const QDateTime& timepoint,
-    Alarm::Period period, bool enabled, QObject* parent)
+    Alarm::Period period, bool enabled, const QUuid& uid, QObject* parent)
     : QObject(parent)
     , media(std::make_shared<PlayableItem>("Alarm", media))
     , period(period)

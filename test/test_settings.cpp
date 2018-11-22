@@ -96,35 +96,35 @@ protected:
         al1[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
         al1[KEY_ALARM_PERIOD] = "daily";
         al1[KEY_ENABLED] = true;
-        al1[KEY_ID] = 1;
+        al1[KEY_ID] = "1a4bf6bd-7e67-4b40-80fd-b13e2524fc74";
 
         QJsonObject al2;
         al2[KEY_TIME] = "07:00";
         al2[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
         al2[KEY_ALARM_PERIOD] = "workdays";
         al2[KEY_ENABLED] = true;
-        al2[KEY_ID] = 2;
+        al2[KEY_ID] = "12eb4390-6abf-4626-be48-f11fe20f45cf";
 
         QJsonObject al3;
         al3[KEY_TIME] = "09:00";
         al3[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
         al3[KEY_ALARM_PERIOD] = "weekend";
         al3[KEY_ENABLED] = false;
-        al3[KEY_ID] = 3;
+        al3[KEY_ID] = "62ab05d7-d9ab-4254-8bfd-47bfdc74417a";
 
         QJsonObject al4;
         al4[KEY_TIME] = "13:00";
         al4[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
         al4[KEY_ALARM_PERIOD] = "once";
         al4[KEY_ENABLED] = true;
-        al4[KEY_ID] = 4;
+        al4[KEY_ID] = "fa3ce587-ab02-4328-9c68-4ee5e3626c86";
 
         QJsonObject al5;
         al5[KEY_TIME] = "17:00";
         al5[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
         al5[KEY_ALARM_PERIOD] = "Manchmal";
         al5[KEY_ENABLED] = true;
-        al5[KEY_ID] = 5;
+        al5[KEY_ID] = "694485e9-ac44-46f5-bc45-730a7a0ac387";
 
         alarms.append(al1);
         alarms.append(al2);
@@ -224,7 +224,7 @@ TEST_F(SettingsFixture, alarm_id) {
     auto& v = cm.get_alarms();
     auto res = std::find_if(
         v.begin(), v.end(), [&](const std::shared_ptr<Alarm>& item) {
-            return item->get_id() == 2;
+            return item->get_id() == QUuid("12eb4390-6abf-4626-be48-f11fe20f45cf");
         });
     ASSERT_NE(res, v.end());
     ASSERT_EQ((*res)->get_period(), Alarm::Workdays);
@@ -273,7 +273,7 @@ TEST_F(SettingsFixture, deleteAlarm) {
 /*****************************************************************************/
 TEST_F(SettingsFixture, deleteAlarmNonExist) {
     auto size_before = cm.get_alarms().size();
-    ASSERT_EQ(cm.delete_alarm(-5), -1);
+    ASSERT_EQ(cm.delete_alarm(QUuid("XXX")), -1);
     ASSERT_EQ(cm.get_alarms().size(), size_before);
 }
 

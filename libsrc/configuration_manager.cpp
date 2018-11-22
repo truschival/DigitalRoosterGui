@@ -191,11 +191,16 @@ void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
 
         auto timepoint =
             QTime::fromString(json_alarm[KEY_TIME].toString(), "hh:mm");
-        auto alarm = std::make_shared<Alarm>(media, timepoint, period, enabled);
+        auto id = QUuid::fromString(
+            json_alarm[KEY_ID].toString(QUuid::createUuid().toString()));
+        /*
+         * Create alarm with essential information
+         */
+        auto alarm =
+            std::make_shared<Alarm>(media, timepoint, period, enabled, id);
+
         auto volume = json_alarm[KEY_VOLUME].toInt(DEFAULT_ALARM_VOLUME);
         alarm->set_volume(volume);
-        auto id = json_alarm[KEY_ID].toInt(QDateTime::currentMSecsSinceEpoch());
-        alarm->set_id(id);
         /* if no specific alarm timeout is given take application default */
         auto timeout =
             json_alarm[KEY_ALARM_TIMEOUT].toInt(alarmtimeout.count());
@@ -297,6 +302,7 @@ void ConfigurationManager::store_current_config() {
         QJsonObject psconfig;
         psconfig[KEY_NAME] = ps->get_title();
         psconfig[KEY_URI] = ps->get_url().toString();
+        psconfig[KEY_ID] = ps->get_id();
         podcasts.append(psconfig);
     }
     appconfig[KEY_GROUP_PODCAST_SOURCES] = podcasts;
@@ -306,6 +312,7 @@ void ConfigurationManager::store_current_config() {
         QJsonObject irconfig;
         irconfig[KEY_NAME] = iradiostream->get_display_name();
         irconfig[KEY_URI] = iradiostream->get_url().toString();
+        irconfig[KEY_ID] = iradiostream->get_id();
         iradios.append(irconfig);
     }
     appconfig[KEY_GROUP_IRADIO_SOURCES] = iradios;
@@ -313,7 +320,7 @@ void ConfigurationManager::store_current_config() {
     QJsonArray alarms_json;
     for (const auto& alarm : alarms) {
         QJsonObject alarmcfg;
-        alarmcfg[KEY_ID] = alarm->get_id();
+        alarmcfg[KEY_ID] = alarm->get_id().toString();
         alarmcfg[KEY_ALARM_PERIOD] =
             alarm_period_to_json_string(alarm->get_period());
         alarmcfg[KEY_TIME] = alarm->get_time().toString("hh:mm");
@@ -377,9 +384,9 @@ void ConfigurationManager::create_default_configuration() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
-        QTime::fromString("06:30", "hh:mm"));
-    alm->set_period(Alarm::Workdays);
-    alm->set_id(QDateTime::currentMSecsSinceEpoch());
+        QTime::fromString("06:30", "hh:mm"),
+    	Alarm::Workdays
+    );
     alarms.push_back(alm);
 
     auto acw = std::make_shared<DigitalRooster::PodcastSource>(
@@ -430,7 +437,7 @@ QString ConfigurationManager::check_and_create_config() {
 }
 
 /*****************************************************************************/
-int ConfigurationManager::delete_alarm(qint64 id) {
+int ConfigurationManager::delete_alarm(const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto old_end = alarms.end();
     alarms.erase(std::remove_if(alarms.begin(), alarms.end(),
