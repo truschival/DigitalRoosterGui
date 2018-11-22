@@ -123,6 +123,7 @@ void AlarmListModel::update_row(int row) {
 
 bool AlarmListModel::removeRows(
         int row, int count, const QModelIndex& /*parent */){
+	 qCWarning(CLASS_LC) << Q_FUNC_INFO << "is not implemented!";
 	//cm->delete_alarm(id);
 	return true;
 }

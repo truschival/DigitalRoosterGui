@@ -13,6 +13,7 @@
 #include <QDebug>
 #include <QTime>
 #include <QUrl>
+#include <QUuid>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -58,25 +59,10 @@ TEST(Alarm, defaultVolume) {
     Alarm al;
     ASSERT_EQ(al.get_volume(), 40);
 }
-/*****************************************************************************/
-TEST(Alarm, defaultID) {
-	auto before = QDateTime::currentMSecsSinceEpoch();
-    Alarm al;
-    auto after = QDateTime::currentMSecsSinceEpoch();
-    ASSERT_GE(al.get_id(), before);
-    ASSERT_LE(al.get_id(), after);
-}
 
 /*****************************************************************************/
-TEST(Alarm, setID) {
-	Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
-	        QDateTime::currentDateTime().addSecs(3600));
-    al.set_id(100);
-    ASSERT_EQ(al.get_id(), 100);
-}
-/*****************************************************************************/
 TEST(Alarm, fullConstructorEnabled) {
-	Alarm al;
+    Alarm al;
     Alarm al2(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
         QDateTime::currentDateTime().addSecs(3600));
     ASSERT_TRUE(al.is_enabled());
@@ -87,7 +73,8 @@ TEST(Alarm, fullConstructorEnabled) {
 TEST(Alarm, OnceTodayFuture) {
     auto timepoint = QDateTime::currentDateTime().addSecs(3600);
 
-    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint);
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
+        Alarm::Once);
 
     ASSERT_EQ(al.get_period(), Alarm::Once);
     ASSERT_EQ(al.get_next_trigger(), timepoint);
@@ -96,7 +83,8 @@ TEST(Alarm, OnceTodayFuture) {
 TEST(Alarm, OnceTodayPast) {
     auto timepoint = QDateTime::currentDateTime().addSecs(-3600); // in one hour
 
-    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint);
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
+        Alarm::Once);
 
     ASSERT_EQ(al.get_period(), Alarm::Once);
     ASSERT_EQ(al.get_next_trigger(), timepoint);
@@ -117,7 +105,7 @@ TEST(Alarm, DailyPast) {
 
 /*****************************************************************************/
 TEST_F(AlarmFakeTime, Once) {
-	auto timepoint = QDateTime::fromString("2018-09-26T08:30:00", Qt::ISODate);
+    auto timepoint = QDateTime::fromString("2018-09-26T08:30:00", Qt::ISODate);
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
         Alarm::Once, true);
     ASSERT_EQ(al.get_period(), Alarm::Once);
@@ -140,7 +128,7 @@ TEST_F(AlarmFakeTime, Once) {
 
 TEST_F(AlarmFakeTime, Daily) {
 
-	auto timepoint = QDateTime::fromString("2018-09-22T08:30:00", Qt::ISODate);
+    auto timepoint = QDateTime::fromString("2018-09-22T08:30:00", Qt::ISODate);
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"), timepoint,
         Alarm::Daily, true);
     ASSERT_EQ(al.get_period(), Alarm::Daily);

@@ -123,12 +123,13 @@ void ConfigurationManager::read_radio_streams_from_file(
         auto station = json_station.toObject();
         QString name(station[KEY_NAME].toString());
         QUrl url(station[KEY_URI].toString());
+        auto uid = QUuid::fromString(
+            station[KEY_ID].toString(QUuid::createUuid().toString()));
         if (!url.isValid()) {
             qCWarning(CLASS_LC)
                 << "Invalid URI " << station[KEY_URI].toString();
             continue;
         }
-        qint64 uid = station[KEY_ID].toInt(QDateTime::currentMSecsSinceEpoch());
         stream_sources.push_back(
             std::make_shared<PlayableItem>(name, url, uid));
     }
@@ -149,7 +150,8 @@ void ConfigurationManager::read_podcasts_from_file(
             qCWarning(CLASS_LC) << "Invalid URI " << jo[KEY_URI].toString();
             continue;
         }
-        qint64 uid = jo[KEY_ID].toInt(QDateTime::currentMSecsSinceEpoch());
+        auto uid = QUuid::fromString(
+            jo[KEY_ID].toString(QUuid::createUuid().toString()));
         auto ps = std::make_shared<PodcastSource>(url, uid);
         ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
         ps->set_update_interval(
@@ -191,11 +193,16 @@ void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
 
         auto timepoint =
             QTime::fromString(json_alarm[KEY_TIME].toString(), "hh:mm");
-        auto alarm = std::make_shared<Alarm>(media, timepoint, period, enabled);
+        auto id = QUuid::fromString(
+            json_alarm[KEY_ID].toString(QUuid::createUuid().toString()));
+        /*
+         * Create alarm with essential information
+         */
+        auto alarm =
+            std::make_shared<Alarm>(media, timepoint, period, enabled, id);
+
         auto volume = json_alarm[KEY_VOLUME].toInt(DEFAULT_ALARM_VOLUME);
         alarm->set_volume(volume);
-        auto id = json_alarm[KEY_ID].toInt(QDateTime::currentMSecsSinceEpoch());
-        alarm->set_id(id);
         /* if no specific alarm timeout is given take application default */
         auto timeout =
             json_alarm[KEY_ALARM_TIMEOUT].toInt(alarmtimeout.count());
@@ -297,6 +304,7 @@ void ConfigurationManager::store_current_config() {
         QJsonObject psconfig;
         psconfig[KEY_NAME] = ps->get_title();
         psconfig[KEY_URI] = ps->get_url().toString();
+        psconfig[KEY_ID] = ps->get_id().toString();
         podcasts.append(psconfig);
     }
     appconfig[KEY_GROUP_PODCAST_SOURCES] = podcasts;
@@ -306,6 +314,7 @@ void ConfigurationManager::store_current_config() {
         QJsonObject irconfig;
         irconfig[KEY_NAME] = iradiostream->get_display_name();
         irconfig[KEY_URI] = iradiostream->get_url().toString();
+        irconfig[KEY_ID] = iradiostream->get_id().toString();
         iradios.append(irconfig);
     }
     appconfig[KEY_GROUP_IRADIO_SOURCES] = iradios;
@@ -313,7 +322,7 @@ void ConfigurationManager::store_current_config() {
     QJsonArray alarms_json;
     for (const auto& alarm : alarms) {
         QJsonObject alarmcfg;
-        alarmcfg[KEY_ID] = alarm->get_id();
+        alarmcfg[KEY_ID] = alarm->get_id().toString();
         alarmcfg[KEY_ALARM_PERIOD] =
             alarm_period_to_json_string(alarm->get_period());
         alarmcfg[KEY_TIME] = alarm->get_time().toString("hh:mm");
@@ -377,9 +386,7 @@ void ConfigurationManager::create_default_configuration() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
-        QTime::fromString("06:30", "hh:mm"));
-    alm->set_period(Alarm::Workdays);
-    alm->set_id(QDateTime::currentMSecsSinceEpoch());
+        QTime::fromString("06:30", "hh:mm"), Alarm::Workdays);
     alarms.push_back(alm);
 
     auto acw = std::make_shared<DigitalRooster::PodcastSource>(
@@ -389,10 +396,21 @@ void ConfigurationManager::create_default_configuration() {
         QUrl("https://rss.acast.com/mydadwroteaporno"));
     podcast_sources.push_back(mdwap);
 
-    auto radio =
+    auto alternativlos = std::make_shared<DigitalRooster::PodcastSource>(
+        QUrl("https://alternativlos.org/alternativlos.rss"));
+    podcast_sources.push_back(alternativlos);
+    auto weralive = std::make_shared<DigitalRooster::PodcastSource>(
+        QUrl("http://www.podcastone.com/podcast?categoryID2=1225"));
+    podcast_sources.push_back(weralive);
+
+    auto dradio =
         std::make_shared<DigitalRooster::PlayableItem>("Deutschlandfunk (Ogg)",
             QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"));
-    stream_sources.push_back(radio);
+    stream_sources.push_back(dradio);
+    auto dradio_nova =
+        std::make_shared<DigitalRooster::PlayableItem>("Deutschlandfunk Nova",
+            QUrl("http://st03.dlf.de/dlf/03/104/ogg/stream.ogg"));
+    stream_sources.push_back(dradio_nova);
     store_current_config();
 }
 
@@ -430,7 +448,7 @@ QString ConfigurationManager::check_and_create_config() {
 }
 
 /*****************************************************************************/
-int ConfigurationManager::delete_alarm(qint64 id) {
+int ConfigurationManager::delete_alarm(const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto old_end = alarms.end();
     alarms.erase(std::remove_if(alarms.begin(), alarms.end(),

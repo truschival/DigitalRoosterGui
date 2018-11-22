@@ -168,7 +168,7 @@ public:
      * @param id of alarm
      * @return 0 if alarm was deleted, -1 otherwise
      */
-    Q_INVOKABLE int delete_alarm(qint64 id);
+    int delete_alarm(const QUuid& id);
 
 public slots:
     /**

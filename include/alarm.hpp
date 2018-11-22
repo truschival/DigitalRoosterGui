@@ -16,6 +16,7 @@
 #include <QDateTime>
 #include <QObject>
 #include <QUrl>
+#include <QUuid>
 #include <chrono>
 #include <memory>
 
@@ -29,7 +30,7 @@ class TimeProvider;
 class Alarm : public QObject {
     Q_OBJECT
     Q_PROPERTY(bool enabled READ is_enabled WRITE enable NOTIFY enabled_changed)
-    Q_PROPERTY(qint64 id READ get_id)
+    Q_PROPERTY(QUuid id READ get_id)
     Q_PROPERTY(QTime time READ get_time WRITE set_time NOTIFY time_changed)
     Q_PROPERTY(QString periodicity READ get_period_string NOTIFY period_changed)
     Q_PROPERTY(DigitalRooster::Alarm::Period period_id READ get_period WRITE
@@ -59,7 +60,7 @@ public:
      */
     Alarm(const QUrl& media, const QTime& timepoint,
         Alarm::Period period = Alarm::Daily, bool enabled = true,
-        QObject* parent = nullptr);
+        const QUuid& uid = QUuid::createUuid(), QObject* parent = nullptr);
 
     /**
      * Construct an alarm for given time and date
@@ -70,28 +71,25 @@ public:
      * @param parent obligatory QObject parent
      */
     Alarm(const QUrl& media, const QDateTime& timepoint,
-        Alarm::Period period = Alarm::Once, bool enabled = true,
-        QObject* parent = nullptr);
+        Alarm::Period period = Alarm::Daily, bool enabled = true,
+        const QUuid& uid = QUuid::createUuid(), QObject* parent = nullptr);
 
 
     /**
      * Need Default constructor to register with QML
      */
     Alarm()
-        : id(QDateTime::currentMSecsSinceEpoch())
+        : id(QUuid::createUuid())
         , media(nullptr)
         , period(Alarm::Daily)
         , enabled(true){};
 
     /**
-     * 'unique' id for alarm
+     * unique id for alarm
      * @return
      */
-    qint64 get_id() const {
+    QUuid get_id() const {
         return id;
-    }
-    void set_id(qint64 id) {
-        this->id = id;
     }
 
     /**
@@ -232,7 +230,7 @@ private:
     /**
      * 'unique' id for this alarm
      */
-    std::atomic<qint64> id;
+    const QUuid id;
 
     /**
      * What to play when alarm triggers

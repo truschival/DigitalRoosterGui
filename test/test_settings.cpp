@@ -62,11 +62,11 @@ protected:
         QJsonArray radiosources;
         QJsonObject dradio;
         dradio[KEY_NAME] = "DRadio";
-        dradio[KEY_ID] = 1;
+        dradio[KEY_ID] = "a754affb-fd4b-4825-9eba-32b64fd7d50c";
         dradio[KEY_URI] = "http://dradio.de";
         QJsonObject swr2;
         swr2[KEY_NAME] = "SWR2";
-        swr2[KEY_ID] = 2;
+        swr2[KEY_ID] = "c98a9c37-f990-47eb-ab73-21daf48d43c0";
         swr2[KEY_URI] = "http://swr2.de";
         radiosources.append(dradio);
         radiosources.append(swr2);
@@ -77,11 +77,11 @@ protected:
         QJsonArray pcsources;
         QJsonObject pc1;
         pc1[KEY_NAME] = "Alternativlos";
-        pc1[KEY_ID] = 1;
+        pc1[KEY_ID] = "ab25693c-aae1-40dc-8946-8d2b670d4598";
         pc1[KEY_URI] = "https://alternativlos.org/alternativlos.rss";
         QJsonObject pc2;
         pc2[KEY_NAME] = "Dradio Essay&Diskurs";
-        pc2[KEY_ID] = 2;
+        pc2[KEY_ID] = "a754affb-fd4b-4825-9eba-32b64fd7d50c";
         pc2[KEY_URI] = "http://www.deutschlandfunk.de/"
                        "podcast-essay-und-diskurs.1185.de.podcast.xml";
         pcsources.append(pc1);
@@ -96,35 +96,35 @@ protected:
         al1[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
         al1[KEY_ALARM_PERIOD] = "daily";
         al1[KEY_ENABLED] = true;
-        al1[KEY_ID] = 1;
+        al1[KEY_ID] = "1a4bf6bd-7e67-4b40-80fd-b13e2524fc74";
 
         QJsonObject al2;
         al2[KEY_TIME] = "07:00";
         al2[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
         al2[KEY_ALARM_PERIOD] = "workdays";
         al2[KEY_ENABLED] = true;
-        al2[KEY_ID] = 2;
+        al2[KEY_ID] = "12eb4390-6abf-4626-be48-f11fe20f45cf";
 
         QJsonObject al3;
         al3[KEY_TIME] = "09:00";
         al3[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
         al3[KEY_ALARM_PERIOD] = "weekend";
         al3[KEY_ENABLED] = false;
-        al3[KEY_ID] = 3;
+        al3[KEY_ID] = "62ab05d7-d9ab-4254-8bfd-47bfdc74417a";
 
         QJsonObject al4;
         al4[KEY_TIME] = "13:00";
         al4[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
         al4[KEY_ALARM_PERIOD] = "once";
         al4[KEY_ENABLED] = true;
-        al4[KEY_ID] = 4;
+        al4[KEY_ID] = "fa3ce587-ab02-4328-9c68-4ee5e3626c86";
 
         QJsonObject al5;
         al5[KEY_TIME] = "17:00";
         al5[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
         al5[KEY_ALARM_PERIOD] = "Manchmal";
         al5[KEY_ENABLED] = true;
-        al5[KEY_ID] = 5;
+        al5[KEY_ID] = "694485e9-ac44-46f5-bc45-730a7a0ac387";
 
         alarms.append(al1);
         alarms.append(al2);
@@ -224,7 +224,7 @@ TEST_F(SettingsFixture, alarm_id) {
     auto& v = cm.get_alarms();
     auto res = std::find_if(
         v.begin(), v.end(), [&](const std::shared_ptr<Alarm>& item) {
-            return item->get_id() == 2;
+            return item->get_id() == QUuid("12eb4390-6abf-4626-be48-f11fe20f45cf");
         });
     ASSERT_NE(res, v.end());
     ASSERT_EQ((*res)->get_period(), Alarm::Workdays);
@@ -235,7 +235,7 @@ TEST_F(SettingsFixture, podcastid) {
     auto& v = cm.get_podcast_sources();
     auto res = std::find_if(
         v.begin(), v.end(), [&](const std::shared_ptr<PodcastSource>& item) {
-            return item->get_id() == 2;
+            return item->get_id() == QUuid("a754affb-fd4b-4825-9eba-32b64fd7d50c");
         });
     ASSERT_NE(res, v.end());
     ASSERT_EQ((*res)->get_url(),
@@ -247,7 +247,7 @@ TEST_F(SettingsFixture, streamsourceid) {
     auto& v = cm.get_stream_sources();
     auto res = std::find_if(
         v.begin(), v.end(), [&](const std::shared_ptr<PlayableItem>& item) {
-            return item->get_id() == 2;
+            return item->get_id() == QUuid("c98a9c37-f990-47eb-ab73-21daf48d43c0");
         });
     ASSERT_NE(res, v.end());
     ASSERT_EQ((*res)->get_url(), QString("http://swr2.de"));
@@ -273,7 +273,7 @@ TEST_F(SettingsFixture, deleteAlarm) {
 /*****************************************************************************/
 TEST_F(SettingsFixture, deleteAlarmNonExist) {
     auto size_before = cm.get_alarms().size();
-    ASSERT_EQ(cm.delete_alarm(-5), -1);
+    ASSERT_EQ(cm.delete_alarm(QUuid("XXX")), -1);
     ASSERT_EQ(cm.get_alarms().size(), size_before);
 }
 

@@ -20,7 +20,7 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.PodcastSource");
 
 /*****************************************************************************/
-PodcastSource::PodcastSource(const QUrl& url, qint64 uid)
+PodcastSource::PodcastSource(const QUrl& url, QUuid uid)
     : id(uid)
     , rss_feed_uri(url) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;

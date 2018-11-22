@@ -18,6 +18,7 @@
 #include <QObject>
 #include <QString>
 #include <QVector>
+#include <QUuid>
 #include <chrono>
 #include <limits>
 #include <memory>
@@ -42,7 +43,7 @@ public:
      * @param uid unique id for this podcast
      */
     explicit PodcastSource(
-        const QUrl& url, qint64 uid = QDateTime::currentMSecsSinceEpoch());
+        const QUrl& url, QUuid uid = QUuid::createUuid());
 
     /**
      * Give the Podcast source a (new) update task
@@ -176,11 +177,12 @@ public:
      * Access to episode names  as QList (the titles for display in a list)
      */
     QVector<QString> get_episodes_names();
+
     /**
-     * 'unique' id for alarm
+     * unique id for this Podcast RSS source
      * @return
      */
-    qint64 get_id() const {
+    QUuid get_id() const {
         return id;
     }
 
@@ -198,9 +200,9 @@ signals:
 
 private:
     /**
-     * 'unique' id for this alarm
+     * unique id for this Podcast RSS source
      */
-    const std::atomic<qint64> id;
+    const QUuid id;
 
     /**
      * URL for rss feed of this podcast channel
