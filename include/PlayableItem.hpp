@@ -17,6 +17,7 @@
 #include <QDebug>
 #include <QObject>
 #include <QString>
+#include <QUuid>
 #include <QUrl>
 
 namespace DigitalRooster {
@@ -28,14 +29,14 @@ class PlayableItem : public QObject {
     Q_PROPERTY(
         QString display_name READ get_display_name WRITE set_display_name)
     Q_PROPERTY(QUrl url READ get_url WRITE set_url)
-    Q_PROPERTY(qint64 id READ get_id)
+    Q_PROPERTY(QUuid id READ get_id)
     Q_PROPERTY(int position READ get_position WRITE set_position)
     Q_PROPERTY(int duration READ get_duration WRITE set_duration)
 public:
     /**
      * Default Constructor
      */
-    explicit PlayableItem(qint64 uid = QDateTime::currentMSecsSinceEpoch())
+    explicit PlayableItem(const QUuid& uid = QUuid::createUuid())
         : id(uid){};
 
     /**
@@ -44,7 +45,7 @@ public:
      * @param url media_url
      */
     PlayableItem(const QString& name, const QUrl& url,
-        qint64 uid = QDateTime::currentMSecsSinceEpoch())
+        const QUuid& uid = QUuid::createUuid())
         : id(uid)
         , display_name(name)
         , media_url(url){};
@@ -60,7 +61,6 @@ public:
     void set_display_name(const QString& name) {
         display_name = name;
     };
-
 
     void set_url(const QUrl& url) {
         media_url = url;
@@ -83,10 +83,10 @@ public:
     };
 
     /**
-     * 'unique' id for alarm
+     * unique id for this Item
      * @return
      */
-    qint64 get_id() const {
+    QUuid get_id() const {
         return id;
     }
 
@@ -111,7 +111,7 @@ private:
     /**
      * 'unique' id for this alarm
      */
-    const std::atomic<qint64> id;
+    const QUuid id;
 
     /** human readable name*/
     QString display_name;

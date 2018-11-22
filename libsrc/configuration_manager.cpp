@@ -123,12 +123,13 @@ void ConfigurationManager::read_radio_streams_from_file(
         auto station = json_station.toObject();
         QString name(station[KEY_NAME].toString());
         QUrl url(station[KEY_URI].toString());
+        auto uid = QUuid::fromString(
+            station[KEY_ID].toString(QUuid::createUuid().toString()));
         if (!url.isValid()) {
             qCWarning(CLASS_LC)
                 << "Invalid URI " << station[KEY_URI].toString();
             continue;
         }
-        qint64 uid = station[KEY_ID].toInt(QDateTime::currentMSecsSinceEpoch());
         stream_sources.push_back(
             std::make_shared<PlayableItem>(name, url, uid));
     }
@@ -149,7 +150,8 @@ void ConfigurationManager::read_podcasts_from_file(
             qCWarning(CLASS_LC) << "Invalid URI " << jo[KEY_URI].toString();
             continue;
         }
-        qint64 uid = jo[KEY_ID].toInt(QDateTime::currentMSecsSinceEpoch());
+        auto uid = QUuid::fromString(
+            jo[KEY_ID].toString(QUuid::createUuid().toString()));
         auto ps = std::make_shared<PodcastSource>(url, uid);
         ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
         ps->set_update_interval(
@@ -302,7 +304,7 @@ void ConfigurationManager::store_current_config() {
         QJsonObject psconfig;
         psconfig[KEY_NAME] = ps->get_title();
         psconfig[KEY_URI] = ps->get_url().toString();
-        psconfig[KEY_ID] = ps->get_id();
+        psconfig[KEY_ID] = ps->get_id().toString();
         podcasts.append(psconfig);
     }
     appconfig[KEY_GROUP_PODCAST_SOURCES] = podcasts;
@@ -312,7 +314,7 @@ void ConfigurationManager::store_current_config() {
         QJsonObject irconfig;
         irconfig[KEY_NAME] = iradiostream->get_display_name();
         irconfig[KEY_URI] = iradiostream->get_url().toString();
-        irconfig[KEY_ID] = iradiostream->get_id();
+        irconfig[KEY_ID] = iradiostream->get_id().toString();
         iradios.append(irconfig);
     }
     appconfig[KEY_GROUP_IRADIO_SOURCES] = iradios;

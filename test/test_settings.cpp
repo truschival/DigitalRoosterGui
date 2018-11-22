@@ -62,11 +62,11 @@ protected:
         QJsonArray radiosources;
         QJsonObject dradio;
         dradio[KEY_NAME] = "DRadio";
-        dradio[KEY_ID] = 1;
+        dradio[KEY_ID] = "a754affb-fd4b-4825-9eba-32b64fd7d50c";
         dradio[KEY_URI] = "http://dradio.de";
         QJsonObject swr2;
         swr2[KEY_NAME] = "SWR2";
-        swr2[KEY_ID] = 2;
+        swr2[KEY_ID] = "c98a9c37-f990-47eb-ab73-21daf48d43c0";
         swr2[KEY_URI] = "http://swr2.de";
         radiosources.append(dradio);
         radiosources.append(swr2);
@@ -77,11 +77,11 @@ protected:
         QJsonArray pcsources;
         QJsonObject pc1;
         pc1[KEY_NAME] = "Alternativlos";
-        pc1[KEY_ID] = 1;
+        pc1[KEY_ID] = "ab25693c-aae1-40dc-8946-8d2b670d4598";
         pc1[KEY_URI] = "https://alternativlos.org/alternativlos.rss";
         QJsonObject pc2;
         pc2[KEY_NAME] = "Dradio Essay&Diskurs";
-        pc2[KEY_ID] = 2;
+        pc2[KEY_ID] = "a754affb-fd4b-4825-9eba-32b64fd7d50c";
         pc2[KEY_URI] = "http://www.deutschlandfunk.de/"
                        "podcast-essay-und-diskurs.1185.de.podcast.xml";
         pcsources.append(pc1);
@@ -235,7 +235,7 @@ TEST_F(SettingsFixture, podcastid) {
     auto& v = cm.get_podcast_sources();
     auto res = std::find_if(
         v.begin(), v.end(), [&](const std::shared_ptr<PodcastSource>& item) {
-            return item->get_id() == 2;
+            return item->get_id() == QUuid("a754affb-fd4b-4825-9eba-32b64fd7d50c");
         });
     ASSERT_NE(res, v.end());
     ASSERT_EQ((*res)->get_url(),
@@ -247,7 +247,7 @@ TEST_F(SettingsFixture, streamsourceid) {
     auto& v = cm.get_stream_sources();
     auto res = std::find_if(
         v.begin(), v.end(), [&](const std::shared_ptr<PlayableItem>& item) {
-            return item->get_id() == 2;
+            return item->get_id() == QUuid("c98a9c37-f990-47eb-ab73-21daf48d43c0");
         });
     ASSERT_NE(res, v.end());
     ASSERT_EQ((*res)->get_url(), QString("http://swr2.de"));
