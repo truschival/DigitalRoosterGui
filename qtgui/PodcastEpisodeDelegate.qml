@@ -23,7 +23,7 @@ Rectangle{
 
 		Text {
 			id:episodeDN
-			text: display_name;
+			text: title;
 			font.pointSize: 14;
 			font.bold: true;
 			Layout.fillWidth: true
@@ -34,6 +34,14 @@ Rectangle{
 			elide: Text.ElideRight
 			Layout.columnSpan: 2
 			Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+
+			/* NumberAnimation on x { */
+			/* 	from: episodeDN.x+episodeDN.width */
+			/* 	to: episodeDN.x */
+			/* 	loops: Animation.Infinite */
+			/* 	duration: 8000 */
+			/* 	running: true; */
+			/* } */
 		}
 
 		Text {
@@ -74,7 +82,7 @@ Rectangle{
 		onPressAndHold:  {
 			episodemodel.currentIndex =index;
 			episodemodel.send_to_player(index)
-			playerControlWidget.setCurrentMediaTitle(display_name)
+			playerControlWidget.setCurrentMediaTitle(title)
 			playerControlWidget.setVisible(true)
 		}
 	}

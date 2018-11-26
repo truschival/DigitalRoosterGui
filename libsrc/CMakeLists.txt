@@ -48,6 +48,7 @@ LIST(APPEND CPP_DEFS GIT_DESCRIBE_REV=${GIT_DESCRIBE_REV} )
 #------------------------------
 
 set(SRCS
+   ${CMAKE_CURRENT_SOURCE_DIR}/playableitem.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/configuration_manager.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/rss2podcastsource.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/PodcastSource.cpp

@@ -10,12 +10,14 @@
  *
  *****************************************************************************/
 
-#include "PlayableItem.hpp"
 #include "mediaplayerproxy.hpp"
+#include "PlayableItem.hpp"
 #include <QAudio>
 #include <QDebug>
 #include <QLoggingCategory>
 #include <QMediaPlayer>
+
+#include <QMediaMetaData>
 using namespace DigitalRooster;
 
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.MediaPlayerProxy");
@@ -63,6 +65,24 @@ MediaPlayerProxy::MediaPlayerProxy()
     QObject::connect(backend.get(), &QMediaPlayer::mediaStatusChanged,
         [=](QMediaPlayer::MediaStatus status) {
             emit media_status_changed(status);
+        });
+
+    QObject::connect(backend.get(), &QMediaPlayer::metaDataAvailableChanged,
+        [=](bool available) {
+            qCDebug(CLASS_LC) << " metaDataAvailableChanged " << available;
+            if (available) {
+                QString title =
+                    backend->metaData(QMediaMetaData::Title).toString();
+                QString publisher =
+                    backend->metaData(QMediaMetaData::Publisher).toString();
+                if (title != "") {
+                    current_item->set_title(title);
+                } else if (publisher != "") {
+                    current_item->set_publisher(publisher);
+                }
+            } else {
+                qCDebug(CLASS_LC) << "No metadata.";
+            }
         });
 }
 
@@ -119,8 +139,8 @@ bool MediaPlayerProxy::is_muted() const {
 int MediaPlayerProxy::do_get_volume() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
-    auto linearVolume = QAudio::convertVolume(backend->volume()/100.0f,
-          QAudio::LinearVolumeScale,QAudio::LogarithmicVolumeScale);
+    auto linearVolume = QAudio::convertVolume(backend->volume() / 100.0f,
+        QAudio::LinearVolumeScale, QAudio::LogarithmicVolumeScale);
 
     return qRound(linearVolume * 100);
 }
@@ -128,7 +148,7 @@ int MediaPlayerProxy::do_get_volume() const {
 /*****************************************************************************/
 void MediaPlayerProxy::do_set_media(
     std::shared_ptr<DigitalRooster::PlayableItem> media) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << media->get_display_name();
     current_item = media;
     auto previous_position = media->get_position();
 

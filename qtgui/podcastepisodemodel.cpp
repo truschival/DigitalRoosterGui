@@ -41,6 +41,8 @@ PodcastEpisodeModel::PodcastEpisodeModel(QObject* parent)
 QHash<int, QByteArray> PodcastEpisodeModel::roleNames() const {
     QHash<int, QByteArray> roles;
     roles[DisplayNameRole] = "display_name";
+    roles[TitleRole] = "title";
+    roles[PublisherRole] = "publisher";
     roles[DurationRole] = "duration";
     roles[CurrentPositionRole] = "current_position";
     roles[DescriptionRole] = "description";
@@ -94,6 +96,10 @@ QVariant PodcastEpisodeModel::data(const QModelIndex& index, int role) const {
     switch (role) {
     case DisplayNameRole:
         return QVariant(ep->get_display_name());
+    case TitleRole:
+    	return QVariant(ep->get_title());
+    case PublisherRole:
+    	return QVariant(ep->get_publisher());
     case DurationRole:
         return QVariant(duration.toString("hh:mm:ss"));
     case CurrentPositionRole:

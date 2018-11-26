@@ -40,6 +40,8 @@ public:
 
     enum PodcastEpisodeRoles {
         DisplayNameRole = Qt::UserRole + 1,
+        TitleRole,
+        PublisherRole,
         DurationRole,
         CurrentPositionRole,
         DescriptionRole,
