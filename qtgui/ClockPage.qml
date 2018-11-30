@@ -34,7 +34,7 @@ Page {
 			columnSpacing:2
 			Layout.alignment: Qt.AlignHCenter
 			Text{
-				text: weather.city + " " +  weather.temperature + "\u00B0C "
+				text: weather.city + " " +  Math.round(weather.temperature*10)/10 + "\u00B0C";
 				font.pointSize: 18
 				color: "white"
 				Layout.columnSpan: 1
