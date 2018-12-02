@@ -15,8 +15,8 @@
 #include <QUrl>
 #include <QVector>
 
-#include <memory>
 #include <chrono>
+#include <memory>
 #include <thread>
 
 #include <gmock/gmock.h>
@@ -34,40 +34,41 @@ using ::testing::AtLeast;
 using namespace std::chrono_literals;
 
 TEST(AlarmMonitor, playsAlarm) {
-	auto player = std::make_shared<PlayerMock>();
-	AlarmMonitor mon(player);
-	auto timepoint = QDateTime::currentDateTimeUtc().addSecs(3);
-	auto alm = make_shared<DigitalRooster::Alarm>(
-			QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"), timepoint);
+    auto player = std::make_shared<PlayerMock>();
+    AlarmMonitor mon(player);
+    auto alm = std::make_shared<DigitalRooster::Alarm>(
+        QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
+        QTime::currentTime().addSecs(3), Alarm::Daily);
 
-	EXPECT_CALL(*(player.get()), do_play()).Times(1);
-	EXPECT_CALL(*(player.get()), do_stop()).Times(1);
+    EXPECT_CALL(*(player.get()), do_play()).Times(1);
+    EXPECT_CALL(*(player.get()), do_stop()).Times(1);
 
-	EXPECT_CALL(*(player.get()), do_set_volume(_)).Times(1);
-	EXPECT_CALL(*(player.get()), do_set_media(_)).Times(1);
+    EXPECT_CALL(*(player.get()), do_set_volume(_)).Times(1);
+    EXPECT_CALL(*(player.get()), do_set_media(_)).Times(1);
 
-	mon.alarm_triggered(alm);
+    mon.alarm_triggered(alm);
 
-	player->stop();
+    player->stop();
 }
 
 TEST(AlarmMonitor, triggersFallbackForError) {
-	auto player = std::make_shared<PlayerMock>();
-	AlarmMonitor mon(player);
-	auto timepoint = QDateTime::currentDateTimeUtc().addSecs(1);
-	auto alm = make_shared<DigitalRooster::Alarm>(QUrl("https://www.heise.de"),
-			timepoint);
+    auto player = std::make_shared<PlayerMock>();
+    AlarmMonitor mon(player);
+    auto timepoint = QDateTime::currentDateTimeUtc().addSecs(1);
+    auto alm = std::make_shared<DigitalRooster::Alarm>(
+        QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
+        QTime::currentTime().addSecs(3), Alarm::Daily);
 
-	EXPECT_CALL(*(player.get()), do_play()).Times(2);
-	EXPECT_CALL(*(player.get()), do_set_media(_)).Times(1);
-	EXPECT_CALL(*(player.get()), do_set_volume(40)).Times(1);
+    EXPECT_CALL(*(player.get()), do_play()).Times(2);
+    EXPECT_CALL(*(player.get()), do_set_media(_)).Times(1);
+    EXPECT_CALL(*(player.get()), do_set_volume(40)).Times(1);
 
-	// Fallback behavior
-	EXPECT_CALL(*(player.get()), do_set_volume(80)).Times(1);
-	EXPECT_CALL(*(player.get()), do_set_playlist(_)).Times(1);
+    // Fallback behavior
+    EXPECT_CALL(*(player.get()), do_set_volume(80)).Times(1);
+    EXPECT_CALL(*(player.get()), do_set_playlist(_)).Times(1);
 
-	mon.alarm_triggered(alm);
-	player->emitError(QMediaPlayer::NetworkError);
+    mon.alarm_triggered(alm);
+    player->emitError(QMediaPlayer::NetworkError);
 
-	std::this_thread::sleep_for(2s);
+    std::this_thread::sleep_for(2s);
 }

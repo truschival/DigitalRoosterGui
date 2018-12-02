@@ -11,7 +11,7 @@
  *****************************************************************************/
 
 
-#include <QDateTime>
+#include <QTime>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <memory>
@@ -21,11 +21,6 @@
 class CmMock : public DigitalRooster::ConfigurationManager {
 public:
     CmMock() {
-        auto timepoint = QDateTime::currentDateTimeUtc().addSecs(3);
-        auto alm = std::make_shared<DigitalRooster::Alarm>(
-            QUrl("https://www.heise.de"), timepoint);
-        alarms.push_back(alm);
-
         qRegisterMetaType<std::shared_ptr<DigitalRooster::Alarm>>(
             "std::shared_ptr<DigitalRooster::Alarm>");
 
