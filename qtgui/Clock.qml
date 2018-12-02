@@ -4,7 +4,6 @@ import QtQuick.Controls 2.1
 
 Item{
 	id: currentTime
-	property var locale: Qt.locale("DE_de")
 	property int hours
 	property int minutes
 	property int seconds
@@ -13,25 +12,14 @@ Item{
 	property string timestring_lz;
 	property string datestring_lz;
 
-	function leadingZero(value){
-		var ret = ""
-		if (value < 10){
-			ret = "0" + value
-			return ret
-		} else {
-			ret = value
-		}
-		return ret
-	}
-
 	function timeChanged() {
-		var date = new Date;
-		seconds = date.getUTCSeconds()
+		var date = new Date();
+		seconds = date.getSeconds()
 		minutes=  date.getMinutes()
 		hours = date.getHours()
 		night = ( hours < 7 || hours > 19 );
-		datestring_lz = date.toLocaleDateString(locale, "ddd dd.MM.yyyy");
-		timestring_lz = date.toLocaleTimeString(locale, "HH:mm:ss");
+		datestring_lz = date.toDateString("ddd dd.MM.yyyy");
+		timestring_lz = date.toTimeString("HH:mm:ss");
 	}
 
 	Timer {

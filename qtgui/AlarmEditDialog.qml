@@ -28,17 +28,17 @@ Popup {
 
 		Tumbler{
 			id: timeTumbler
-			Layout.maximumHeight: 96
+			Layout.maximumHeight: 128
 			Layout.rowSpan: 2
 			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
 
 			TumblerColumn {
 				id: hoursTumbler
 				model: 24
-				width: 48
+				width: 64
 				delegate: Text {
     				text: styleData.value
-    				font.pointSize: 16;
+    				font.pointSize: 20;
 					font.bold: true;
 					horizontalAlignment: Text.AlignHCenter
     				opacity: 0.4 + Math.max(0, 1 - Math.abs(styleData.displacement)) * 0.6
@@ -47,10 +47,10 @@ Popup {
 			TumblerColumn {
 				id: minutesTumbler
 				model: 60
-				width: 48
+				width: 64
 				delegate: Text {
     				text: styleData.value
-    				font.pointSize: 16;
+    				font.pointSize: 20;
 					font.bold: true;
 					horizontalAlignment: Text.AlignHCenter
     				opacity: 0.4 + Math.max(0, 1 - Math.abs(styleData.displacement)) * 0.6
@@ -102,7 +102,6 @@ Popup {
 			textRole: "station_name";
 
 			onActivated: {
-				console.log("new station" + currentIndex);
 				currentAlarm.url = iradiolistmodel.get_station_url(currentIndex);
 			}
 		}
@@ -122,12 +121,13 @@ Popup {
 	}
 
 	onAboutToHide : {
-		var now = currentAlarm.time;
+		var now = new Date();
 		var h_idx =timeTumbler.currentIndexAt(0);
 		var m_idx = timeTumbler.currentIndexAt(1);
 		now.setHours(h_idx);
 		now.setMinutes(m_idx);
 		currentAlarm.time = now;
+		console.log("hr_idx: " + h_idx + " m_idx: " + m_idx + " = " + now);
 		alarmlistmodel.update_row(alarmlistmodel.currentIndex);
 	}
 }

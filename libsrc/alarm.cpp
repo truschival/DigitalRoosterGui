@@ -50,6 +50,7 @@ void Alarm::set_time(const QTime& timeofday) {
 QUrl Alarm::get_media_url() const {
     return media->get_url();
 }
+
 /*****************************************************************************/
 QString Alarm::get_period_string() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
@@ -65,6 +66,11 @@ QString Alarm::get_period_string() const {
     default:
         return QString(tr("ERROR"));
     }
+}
+/*****************************************************************************/
+const QTime& Alarm::get_time() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << alarm_time;
+    return alarm_time;
 }
 
 /*****************************************************************************/

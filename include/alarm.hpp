@@ -83,9 +83,7 @@ public:
      * Trigger time
      * @return time of day when alarm is due
      */
-    const QTime get_time() const {
-        return alarm_time;
-    }
+    const QTime& get_time() const;
     void set_time(const QTime& timeofday);
 
     /**
