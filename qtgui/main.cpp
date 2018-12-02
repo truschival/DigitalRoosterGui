@@ -103,6 +103,8 @@ int main(int argc, char* argv[]) {
     Weather weather(cm);
     PowerControl power;
     BrightnessControl brightness(cm);
+    /* restore display brightness */
+    brightness.restore_active_brightness();
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
