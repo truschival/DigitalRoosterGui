@@ -55,25 +55,32 @@ void AlarmDispatcher::check_alarms() {
         /* Check if today is the day */
         switch (alarm->get_period()) {
         case Alarm::Once:
-            emit alarm_triggered(alarm);
+            dispatch(alarm);
             /* disable the next time*/
             alarm->enable(false);
             break;
         case Alarm::Daily:
             /* always trigger */
-            emit alarm_triggered(alarm);
+            dispatch(alarm);
             break;
         case Alarm::Weekend:
             if (dow > Qt::Friday) {
-                emit alarm_triggered(alarm);
+                dispatch(alarm);
             }
             break;
         case Alarm::Workdays:
             if (dow < Qt::Saturday) {
-                emit alarm_triggered(alarm);
+                dispatch(alarm);
             }
         }
     }
+}
+
+/*****************************************************************************/
+void AlarmDispatcher::dispatch(std::shared_ptr<Alarm> alarm) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << alarm->get_id();
+    emit alarm_triggered(alarm);
+    emit alarm_triggered();
 }
 
 /*****************************************************************************/

@@ -124,10 +124,9 @@ Popup {
 		var now = new Date();
 		var h_idx =timeTumbler.currentIndexAt(0);
 		var m_idx = timeTumbler.currentIndexAt(1);
-		now.setHours(h_idx);
-		now.setMinutes(m_idx);
-		currentAlarm.time = now;
+		now.setHours(h_idx, m_idx, 0);
 		console.log("hr_idx: " + h_idx + " m_idx: " + m_idx + " = " + now);
+		currentAlarm.time = now;
 		alarmlistmodel.update_row(alarmlistmodel.currentIndex);
 	}
 }

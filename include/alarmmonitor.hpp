@@ -27,9 +27,14 @@ namespace DigitalRooster {
 class AlarmMonitor : public QObject {
     Q_OBJECT
 public:
-    AlarmMonitor(std::shared_ptr<MediaPlayer> player, QObject* parent = nullptr);
+    AlarmMonitor(
+        std::shared_ptr<MediaPlayer> player, QObject* parent = nullptr);
 
 public slots:
+    /**
+     * Monitor the trigged alarm if it has started in due time
+     * @param triggered alarm
+     */
     void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>);
 
 private:

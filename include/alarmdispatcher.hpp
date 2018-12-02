@@ -57,7 +57,15 @@ public slots:
     void check_alarms();
 
 signals:
+    /**
+     * Signal receivers interested specific alarm content
+     * @param triggered alarm
+     */
     void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>);
+    /**
+     * Signal generic receivers if any alarm is triggered
+     */
+    void alarm_triggered();
 
 private:
     /**
@@ -73,6 +81,12 @@ private:
      * available in configuration
      */
     std::chrono::seconds interval;
+
+    /**
+     * Convenience helper method
+     * @param alarm to dispatch
+     */
+    void dispatch(std::shared_ptr<DigitalRooster::Alarm>);
 };
 } // namespace DigitalRooster
 

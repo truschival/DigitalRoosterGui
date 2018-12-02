@@ -103,8 +103,20 @@ int main(int argc, char* argv[]) {
     Weather weather(cm);
     PowerControl power;
     BrightnessControl brightness(cm);
-    /* restore display brightness */
-    brightness.restore_active_brightness();
+    /* PowerControl standby sets brightness */
+    QObject::connect(&power, SIGNAL(going_in_standby()), &brightness,
+        SLOT(restore_standby_brightness()));
+    QObject::connect(&power, SIGNAL(becoming_active()), &brightness,
+        SLOT(restore_active_brightness()));
+    /* Powercontrol standby stops player */
+    QObject::connect(
+        &power, SIGNAL(going_in_standby()), playerproxy.get(), SLOT(stop()));
+    /* AlarmDispatcher sets Active Brightness */
+    QObject::connect(&alarmdispatcher, SIGNAL(alarm_triggered()), &brightness,
+        SLOT(restore_active_brightness()));
+
+    /* we start in standby */
+    power.standby();
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();

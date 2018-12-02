@@ -150,7 +150,7 @@ ApplicationWindow {
 			spacing: 4
 			IconButton {
 				id: poweroffBtn
-				text: "\uf425"
+				text: "\uf901"
 				Layout.minimumHeight: 58;
 				Layout.minimumWidth: 58;
 				Layout.preferredHeight: 58;
@@ -163,8 +163,22 @@ ApplicationWindow {
 			}
 
 			IconButton {
+				id: standbyBtn
+				text: "\uf903";
+				Layout.minimumHeight: 58;
+				Layout.minimumWidth: 58;
+				Layout.preferredHeight: 58;
+				Layout.preferredWidth: 58;
+				Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+				onClicked: {
+					console.log("standby button")
+					powerControl.toggle_power_state();
+				}
+			}
+			
+			IconButton {
 				id: rebootBtn
-				text: "\uf426";
+				text: "\uf900";
 				Layout.minimumHeight: 58;
 				Layout.minimumWidth: 58;
 				Layout.preferredHeight: 58;

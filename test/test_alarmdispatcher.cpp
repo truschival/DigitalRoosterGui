@@ -92,12 +92,16 @@ TEST_F(AlarmDispatcherFixture, dispatchSingleAlarm) {
             Return(QDateTime::fromString("2018-09-26T08:29:45", Qt::ISODate)));
 
     AlarmDispatcher a(cm);
-    QSignalSpy spy(
+    QSignalSpy spy1(
         &a, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
-    ASSERT_TRUE(spy.isValid());
+    ASSERT_TRUE(spy1.isValid());
+
+    QSignalSpy spy2(&a, SIGNAL(alarm_triggered()));
+    ASSERT_TRUE(spy2.isValid());
 
     a.check_alarms();
-    ASSERT_EQ(spy.count(), 1);
+    ASSERT_EQ(spy1.count(), 1);
+    ASSERT_EQ(spy2.count(), 1);
 }
 
 /*****************************************************************************/
