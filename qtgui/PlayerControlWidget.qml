@@ -8,7 +8,7 @@ import "Jsutil.js" as Util
 
 Rectangle {
     width: 300
-    height: 130
+    height: 170
     anchors.horizontalCenterOffset: 0
     visible: false
 	radius: 0
@@ -27,10 +27,10 @@ Rectangle {
 	GridLayout{
 		columns: 3;
 		rows: 3;
-		columnSpacing:3
-		rowSpacing:0
-		anchors.margins: 3
-		anchors.fill: parent
+		columnSpacing:3;
+		rowSpacing:2;
+		anchors.margins: 2;
+		anchors.fill: parent;
 		
 		Text{
 			id: currentMediaTitle
@@ -43,7 +43,6 @@ Rectangle {
 			Layout.columnSpan: 3;
 			Layout.fillWidth: true;
 			Layout.alignment: Qt.AlignCenter| Qt.AlignTop
-			Layout.bottomMargin: 3
 		}
 
 		IconButton {
@@ -54,7 +53,7 @@ Rectangle {
 			text: MdiFont.Icon.rewind
 			onClicked: {
 				interactiontimer.restart()
-				playerProxy.seek(-5000)
+				playerProxy.seek(-10000)
 			}
 		}
 
@@ -98,7 +97,7 @@ Rectangle {
 			text: MdiFont.Icon.fastForward
 			onClicked: {
 				interactiontimer.restart()
-				playerProxy.seek(5000)
+				playerProxy.seek(10000)
 			}
 		}
 		//Row 3
@@ -114,25 +113,23 @@ Rectangle {
 			Layout.fillWidth: true;
 			Layout.alignment: Qt.AlignCenter|Qt.AlignTop
 			Layout.topMargin: -15
+			Layout.bottomMargin: 3
 			enabled: playerProxy.seekable
-			
+
 			onValueChanged: {
 				interactiontimer.restart()
 			}
 			onMoved: {
 				playerProxy.set_position(value * playerProxy.duration)
 			}
-		}	
+		}
 		Text {
 			id: durationTotal
 			text: playerProxy.seekable? Util.display_time_ms(playerProxy.duration): "\u221E"
 			color: "white"
-			
 			Layout.alignment: Qt.AlignCenter|Qt.AlignTop
-			//visible: playerProxy.seekable
 		}
-		
-	}
+	}//Gridlayout
 
     /***********************************************************************/
     function setVisible(visible) {

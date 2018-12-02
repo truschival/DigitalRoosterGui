@@ -60,7 +60,6 @@ ApplicationWindow {
                 }
             }
 
-
 			IconButton {
                 id : volButton
                 text: "\uf4c3"
@@ -185,7 +184,7 @@ ApplicationWindow {
         width: parent.width*0.8
         height: 100
         anchors.horizontalCenterOffset: 0
-        anchors.bottomMargin: 0
+        anchors.bottomMargin: 15
         visible: false
         z: 1
         anchors.bottom: parent.bottom
