@@ -2,7 +2,7 @@
 # Top-level CMakeLists.txt
 ##
 
-cmake_minimum_required (VERSION 3.9)
+cmake_minimum_required (VERSION 3.8)
 SET(CMAKE_CXX_STANDARD 14)
 set(CMAKE_VERBOSE_MAKEFILE  OFF)
 set(CMAKE_COLOR_MAKEFILE ON)
@@ -14,15 +14,23 @@ list(APPEND CMAKE_MODULE_PATH  ${CMAKE_SOURCE_DIR}/CMakeModules/)
 
 #-------------------------------------------------------------------------------
 # Project Name
-project (
-    DigitalRooster
+IF(${CMAKE_VERSION} VERSION_LESS "3.9")
+  MESSAGE( STATUS "Running ${CMAKE_COMMAND} v${CMAKE_VERSION} < 3.9" )
+  PROJECT(DigitalRooster
+	LANGUAGES CXX C
+	)
+  SET(PROJECT_VERSION "0.5.2")
+  SET(PROJECT_DESCRIPTION  "A digital alarm clock and podcast player")
+ELSE()
+  MESSAGE( STATUS "Running ${CMAKE_COMMAND} v${CMAKE_VERSION}" )
+  PROJECT(DigitalRooster
 	VERSION 0.5.2
 	DESCRIPTION  "A digital alarm clock and podcast player"
 	LANGUAGES CXX C
 	)
+ENDIF()
 
 STRING(TIMESTAMP CMAKE_CONFIGURATION_TIME "%Y-%m-%d %H:%M:%S"  UTC)
-MESSAGE( STATUS "${CMAKE_COMMAND} ${CMAKE_VERSION}" )
 
 # Package-Config for components that CMake does not support directly
 # include(FindPkgConfig)
