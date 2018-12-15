@@ -3,7 +3,10 @@ MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
 SET(BINARY_NAME "${PROJECT_NAME}_gtest")
 
 #set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-find_package(Qt5 COMPONENTS Core Multimedia Test REQUIRED)
+
+# Extra QT5 components for tests
+find_package(Qt5 COMPONENTS Test REQUIRED)
+
 # Threading library for gtest
 # Use ${CMAKE_THREAD_LIBS_INIT} for the library
 find_package(Threads REQUIRED)

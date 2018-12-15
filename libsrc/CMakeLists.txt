@@ -20,11 +20,12 @@ SET(LIBRARY_VERSION ${PROJECT_VERSION})
 #SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 SET(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# QT5 Components used in library
 find_package(Qt5 COMPONENTS Core Multimedia Network REQUIRED)
 
-# --------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Add dependencies
-# --------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 SET(OTHER_LIBS "")
 IF(TARGET hwif)
@@ -60,7 +61,11 @@ SET(SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/logger.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/powercontrol.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/brightnesscontrol.cpp
-)
+	)
+
+#------------------------------
+# QT MOC, UIC RCC input
+#------------------------------
 
 # Moc any classes derived from QObject
 SET(MOC_SRC
@@ -125,9 +130,9 @@ target_link_libraries(
   )
 
 
-#-----
+#------------------------------
 # Install
-#-----
+#------------------------------
 MESSAGE(STATUS "** Generating Package Configurations **")
 
 include(CMakePackageConfigHelpers)
@@ -152,7 +157,7 @@ INSTALL(TARGETS ${LIBRARY_NAME}
   #INCLUDES DESTINATION ${INSTALL_INCLUDE_DIR}/${COMPONENT_PATH}
   INCLUDES DESTINATION ${INSTALL_INCLUDE_DIR}
   )
-  
+
 INSTALL(DIRECTORY
   ${PROJECT_INCLUDE_DIR}/
   COMPONENT DEVELOP

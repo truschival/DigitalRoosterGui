@@ -73,7 +73,7 @@ ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 # executable with thread support
 FIND_PACKAGE(Threads REQUIRED)
 FIND_PACKAGE(OpenSSL 1.0.2 REQUIRED)
-FIND_PACKAGE(Qt5 COMPONENTS Core Widgets Multimedia REQUIRED)
+FIND_PACKAGE(Qt5 COMPONENTS Core REQUIRED)
 MESSAGE(STATUS "Found Qt5 version: ${Qt5Core_VERSION_STRING}")
 
 # Instruct CMake to run moc automatically when needed.
