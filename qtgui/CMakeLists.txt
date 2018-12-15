@@ -6,10 +6,6 @@ MESSAGE(STATUS "Found Qt5 version: ${Qt5Widgets_VERSION_STRING}")
 
 #Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-# Instruct CMake to run moc automatically when needed.
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
 
 # --------------------------------------------------------------------------------
 # C++ Srcs
@@ -43,7 +39,14 @@ LIST(APPEND CPP_DEFS "AWESOME=1" )
 #------------------------------
 # QT magic
 #------------------------------
-qt5_wrap_ui(UI_HDRS
+SET(UI_HDRS
+  )
+
+SET(MOC_SRC
+  ${CMAKE_CURRENT_SOURCE_DIR}/podcastsourcemodel.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/podcastepisodemodel.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/iradiolistmodel.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/alarmlistmodel.hpp  
   )
 
 SET(QRC_SRC
@@ -55,7 +58,7 @@ SET(QRC_SRC
 # Binary
 #------------------------------
 # Executable (for target)
-add_executable(${BINARY_NAME}
+ADD_EXECUTABLE(${BINARY_NAME}
   ${SRCS}
   ${UI_HDRS}
   ${MOC_SRC}
