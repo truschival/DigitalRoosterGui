@@ -7,29 +7,34 @@ QtObject {
 	property int canvasHeight: 240;
 
 	property int toolbarWidth: 320;
-	property int toolbarHeight: 64;
+	property int toolbarHeight: 50;
 
 	property int contentWidth: 320;
 	property int contentHeight: canvasHeight-toolbarHeight;
-		
+
 	property font h1Font: Qt.font({
         weight: Font.DemiBold,
         pointSize: 20
     })
 
 	property font h2Font: Qt.font({
-        weight: Font.Normal,
+        weight: Font.DemiBold,
         pointSize: 16
     });
-	
+
 	property font h3Font: Qt.font({
         weight: Font.Normal,
         pointSize: 16
     });
-	
-	property font h4Font: Qt.font({
-        weight: Font.Normal,
-        pointSize: 14
+
+	property font listItemHeaderFont: Qt.font({
+        weight: Font.Bold,
+        pointSize: 16
+    });
+
+	property font tumblerFont: Qt.font({
+        weight: Font.Bold,
+        pointSize: 18
     });
 
 	property font labelFont: Qt.font({
@@ -37,16 +42,26 @@ QtObject {
         pointSize: 12
     });
 
+	property font flowText: Qt.font({
+        weight: Font.Normal,
+        pointSize: 12,
+    });
+
 	property font importantLabelFont: Qt.font({
         weight: Font.DemiBold,
         pointSize: 12
     });
-	
+
+	property font sliderValueFont: Qt.font({
+        weight: Font.DemiBold,
+        pointSize: 24
+    });
+
 	property QtObject buttons: QtObject{
-		property int w: 48;
-		property int h: 48;
-		property int pw: 58;
-		property int ph: 58;		
+		property int minW: 40;
+		property int minH: 40;
+		property int normalW: 48;
+		property int normalH: 48;
 	}
 
 	property QtObject drawer: QtObject{
@@ -65,6 +80,6 @@ QtObject {
 		property int slim: 2;
 		property int medium: 4;
 		property int wide: 6;
-		property int extrawide: 10;		
-	}	
+		property int extrawide: 10;
+	}
 }

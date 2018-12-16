@@ -6,40 +6,43 @@ import ruschi.PodcastEpisode 1.0
 import "Icon.js" as MdiFont
 import "Jsutil.js" as Util
 
-Rectangle {
-    width: 300
-    height: 170
-    anchors.horizontalCenterOffset: 0
-    visible: false
-	radius: 0
-    z: 1
+Popup {
+	closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+	background: Rectangle {
+        color: "#3F51B5"
+    }
 
-	color: "#3F51B5"
+	enter: Transition {
+		NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 ; duration: 300}
+	}
+	exit: Transition {
+		NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 ; duration: 400}
+	}
 
     Timer {
         id: interactiontimer
-        interval: 2500
+        interval: 5000
         running: true
         repeat: false
-        onTriggered: parent.setVisible(false)
+        onTriggered: playerControlWidget.close();
     }
 
 	GridLayout{
 		columns: 3;
 		rows: 3;
-		columnSpacing:3;
-		rowSpacing:2;
-		anchors.margins: 2;
+		columnSpacing: Style.itemSpacings.medium;
+		rowSpacing: Style.itemSpacings.dense;
+		anchors.margins: Style.itemMargins.slim;
+		anchors.bottomMargin: 2;
 		anchors.fill: parent;
-		
+
 		Text{
 			id: currentMediaTitle
 			text: "" ;
-			font.pointSize: 10;
-			font.bold: true;
+			font: Style.importantLabelFont;
 			color: "white";
 			elide: Text.ElideRight;
-			
+
 			Layout.columnSpan: 3;
 			Layout.fillWidth: true;
 			Layout.alignment: Qt.AlignCenter| Qt.AlignTop
@@ -48,9 +51,8 @@ Rectangle {
 		IconButton {
 			id: backwardBtn
 			Layout.alignment: Qt.AlignRight| Qt.AlignTop
-			Layout.fillWidth: true;
-
 			text: MdiFont.Icon.rewind
+
 			onClicked: {
 				interactiontimer.restart()
 				playerProxy.seek(-10000)
@@ -92,7 +94,6 @@ Rectangle {
 		IconButton {
 			id: forwardBtn
 			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
-			Layout.fillWidth: true;
 
 			text: MdiFont.Icon.fastForward
 			onClicked: {
@@ -104,37 +105,37 @@ Rectangle {
 		Text {
 			id: timeElapsed
 			text: Util.display_time_ms(playerProxy.position)
+			font: Style.labelFont;
 			Layout.alignment: Qt.AlignCenter|Qt.AlignTop
 			color: "white"
 		}
-		
+
 		Slider {
 			id: slider
 			Layout.fillWidth: true;
 			Layout.alignment: Qt.AlignCenter|Qt.AlignTop
-			Layout.topMargin: -15
-			Layout.bottomMargin: 3
+			Layout.topMargin: -10;
 			enabled: playerProxy.seekable
 
-			onValueChanged: {
-				interactiontimer.restart()
-			}
 			onMoved: {
 				playerProxy.set_position(value * playerProxy.duration)
+				interactiontimer.restart()
 			}
 		}
 		Text {
 			id: durationTotal
 			text: playerProxy.seekable? Util.display_time_ms(playerProxy.duration): "\u221E"
+			Layout.preferredWidth: timeElapsed.width
+			font: Style.labelFont;
 			color: "white"
 			Layout.alignment: Qt.AlignCenter|Qt.AlignTop
 		}
 	}//Gridlayout
 
     /***********************************************************************/
-    function setVisible(visible) {
-        interactiontimer.restart()
-        playerControlWidget.visible = visible
+    function show(visible) {
+ 		interactiontimer.start();
+		playerControlWidget.open();
     }
 
     function updatePosition(pos) {

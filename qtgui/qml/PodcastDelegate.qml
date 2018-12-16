@@ -5,8 +5,8 @@ import ruschi.PodcastEpisodeModel 1.0
 
 Rectangle{
 	id: podcastdelegate
-	width:  podcastlist.width;
-	height: 100;
+	width:  Style.contentWidth;
+	height: Style.contentHeight*0.4;
 	radius: 3;
 	border.width: 1;
 	color: podcastlist.currentItem == this ? "#2196F3" : "LightGrey" ;
@@ -14,28 +14,29 @@ Rectangle{
 	GridLayout{
 		columns: 3
 		rows: 2
-		columnSpacing: 3
-		rowSpacing:3
-		anchors.margins: 3
+		columnSpacing: Style.itemSpacings.medium;
+		rowSpacing:Style.itemSpacings.dense;
+		anchors.margins: Style.itemMargins.slim;
 		anchors.fill: parent
 
 		Image {
-			id: podcasticon
-			Layout.maximumWidth: 96
-			Layout.maximumHeight: 96
+			id: podcasticon;
+			Layout.maximumHeight : podcastdelegate.height-2*Style.itemMargins.slim
+			Layout.minimumHeight : podcastdelegate.height-2*Style.itemMargins.slim
+			// yes width is specified as height, gives the layout a hint while image is not loaded
+			Layout.maximumWidth : podcastdelegate.height-2*Style.itemMargins.slim
+			Layout.minimumWidth : podcastdelegate.height-2*Style.itemMargins.slim
+
 			Layout.rowSpan: 2
-			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
-			Layout.fillHeight: true;
+			Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter
 
 			fillMode: Image.PreserveAspectFit
 			source: logo_image
 		}
 
 		Text {
-			height: 28;
 			text: display_name ;
-			font.pointSize: 15;
-			font.bold: true;
+			font: Style.listItemHeaderFont;
 			elide: Text.ElideRight
 			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
 			Layout.fillWidth: true;
@@ -44,7 +45,7 @@ Rectangle{
 		Text {
 			text: episode_count ;
 			wrapMode: Text.WordWrap;
-			font.pointSize: 11;
+			font: Style.labelFont;
 			Layout.preferredWidth: (parent.with-podcasticon.width)*0.2
 			Layout.alignment: Qt.AlignRight | Qt.AlignTop
 		}
@@ -53,7 +54,8 @@ Rectangle{
 			text: description ;
 			elide: Text.ElideRight;
 			wrapMode:  Text.WordWrap;
-			font.pointSize: 10;
+			font: Style.flowText;
+			lineHeight : 0.8;
 			Layout.columnSpan: 2;
 			Layout.fillWidth: true;
 			Layout.maximumHeight: (parent.height-8)/2
@@ -87,5 +89,3 @@ Rectangle{
 	}
 
 }
-
-

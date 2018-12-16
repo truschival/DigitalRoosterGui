@@ -29,47 +29,39 @@ ApplicationWindow {
 
     header: ToolBar {
 		height: Style.toolbarHeight;
-		
+
         RowLayout {
-            spacing: Style.itemSpacings.dense;
             anchors.fill: parent
-            Layout.margins: Style.itemMargins.slim;
+            anchors.margins: Style.itemMargins.medium;
+            anchors.topMargin: Style.itemMargins.slim;
+
+            spacing: Style.itemSpacings.dense;
 
             IconButton {
                 text: MdiFont.Icon.menu
-				Layout.leftMargin: Style.itemMargins.medium;
-				Layout.preferredHeight: Style.buttons.ph;
-				Layout.preferredWidth: Style.buttons.pw
-
                 onClicked: {
                     drawer.open()
                 }
             }
             Label {
                 id: titleLabel
-                text: (stackView.depth > 1) ? currentTime.timestring_lz : qsTr("DigitalRooster");
+                text: (stackView.depth > 1) ? currentTime.timestring_lz_hh_mm : "";
                 font: Style.h1Font;
                 elide: Label.ElideRight
                 Layout.fillWidth: true
             }
-				
+
 			IconButton {
                 id : playerControlBtn
                 text: MdiFont.Icon.play
-				Layout.preferredHeight: Style.buttons.ph;
-				Layout.preferredWidth: Style.buttons.pw
-				
                 onClicked:{
-					playerControlWidget.setVisible(true)
+					playerControlWidget.show()
                 }
             }
 
 			IconButton {
                 id : volButton
                 text: "\uf4c3"
-				Layout.preferredHeight: Style.buttons.ph;
-				Layout.preferredWidth: Style.buttons.pw
-			
                 onClicked:{
 					volumePopUp.show();
 				}
@@ -77,9 +69,6 @@ ApplicationWindow {
             IconButton {
                 id : backButton
                 text: MdiFont.Icon.keyboardBackspace
-
-				Layout.preferredHeight: Style.buttons.ph;
-				Layout.preferredWidth: Style.buttons.pw
 
                 visible: (stackView.depth > 1)
                 onClicked:{
@@ -110,10 +99,8 @@ ApplicationWindow {
 
             focus: true;
             currentIndex: -1;
-		
+
             delegate: IconButton {
-                width:  Style.buttons.pw;
-				height: Style.buttons.ph;
                 text: model.title
                 highlighted: listView.currentIndex == index
 
@@ -152,10 +139,6 @@ ApplicationWindow {
 			IconButton {
 				id: poweroffBtn
 				text: "\uf901"
-				Layout.minimumHeight: Style.buttons.ph;
-				Layout.minimumWidth: Style.buttons.pw;
-				Layout.preferredHeight: Style.buttons.ph;
-				Layout.preferredWidth: Style.buttons.pw;
 				Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
 				onClicked: {
 					console.log("power off button")
@@ -166,10 +149,6 @@ ApplicationWindow {
 			IconButton {
 				id: standbyBtn
 				text: "\uf903";
-				Layout.minimumHeight: Style.buttons.ph;
-				Layout.minimumWidth: Style.buttons.pw;
-				Layout.preferredHeight: Style.buttons.ph;
-				Layout.preferredWidth: Style.buttons.pw;
 				Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
 				onClicked: {
 					console.log("standby button")
@@ -180,10 +159,6 @@ ApplicationWindow {
 			IconButton {
 				id: rebootBtn
 				text: "\uf900";
-				Layout.minimumHeight: Style.buttons.ph;
-				Layout.minimumWidth: Style.buttons.pw;
-				Layout.preferredHeight: Style.buttons.ph;
-				Layout.preferredWidth: Style.buttons.pw;
 				Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
 				onClicked: {
 					console.log("reboot button")
@@ -195,14 +170,9 @@ ApplicationWindow {
 
 	PlayerControlWidget{
 		id: playerControlWidget
-		anchors.horizontalCenter: parent.horizontalCenter
         width: parent.width*0.8;
-        height: parent.height*0.4;
-        anchors.horizontalCenterOffset: 0
-        anchors.bottomMargin: 15
-        visible: false
-        z: 1
-        anchors.bottom: parent.bottom
+		x: Math.round((applicationWindow.width - width) / 2)
+		y: Math.round((applicationWindow.height - height) *0.6)
 	}
 
 	VolumePopup{

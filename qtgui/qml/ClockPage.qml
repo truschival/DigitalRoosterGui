@@ -60,9 +60,9 @@ Page {
 				font: Style.h3Font;
 				horizontalAlignment: Text.AlignHCenter
 				anchors.topMargin:-2;
-				Layout.fillWidth: true
-				Layout.columnSpan: 2
-				Layout.alignment: Qt.AlignHCenter| Qt.AlignVCenter
+				Layout.fillWidth: true;
+				Layout.columnSpan: 2;
+				Layout.alignment: Qt.AlignHCenter| Qt.AlignTop
 			}
 		}
 

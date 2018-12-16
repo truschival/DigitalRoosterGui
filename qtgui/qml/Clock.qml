@@ -10,6 +10,7 @@ Item{
 
 	property bool night
 	property string timestring_lz;
+	property string timestring_lz_hh_mm;
 	property string datestring_lz;
 
 	function timeChanged() {
@@ -20,6 +21,7 @@ Item{
 		night = ( hours < 7 || hours > 19 );
 		datestring_lz = date.toDateString("ddd dd.MM.yyyy");
 		timestring_lz = date.toTimeString("HH:mm:ss");
+		timestring_lz_hh_mm = date.toTimeString("HH:mm");
 	}
 
 	Timer {

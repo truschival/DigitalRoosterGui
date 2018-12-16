@@ -8,39 +8,36 @@ import ruschi.PlayableItem 1.0
 Rectangle{
 	id: iradiodelegatearea
 	width: parent.width;
-    height: 60;
+    height: Style.contentHeight/5;
     radius: 3;
 	border.width: 1;
 	color: iradiolist.currentItem == this ? "#2196F3" :  "LightGrey" ;
 
 	RowLayout{
 		anchors.fill: parent
-		anchors.leftMargin: 10;
-		anchors.rightMargin: 10;
-		spacing: 10;
+		anchors.margins: Style.itemMargins.medium;
+		spacing: Style.itemSpacings.sparse
 		anchors.verticalCenter: parent.verticalCenter;
 
 		Text {
 			id:stationName
 			text: station_name;
 			Layout.preferredWidth: iradiodelegatearea.width
-
-			font.pointSize: 14;
-			font.bold: true;
 			elide: Text.ElideRight
+			font: Style.listItemHeaderFont;
 		}
 	}
 
 	MouseArea {
 		anchors.fill: parent
 		onClicked:{
-			playerControlWidget.setVisible(true)
+			playerControlWidget.show()
 		}
 		onPressAndHold:  {
 			iradiolist.currentIndex =index;
 			iradiolistmodel.send_to_player(index)
 			playerControlWidget.setCurrentMediaTitle(station_name)
-			playerControlWidget.setVisible(true)
+			playerControlWidget.show()
 		}
 	}
 }

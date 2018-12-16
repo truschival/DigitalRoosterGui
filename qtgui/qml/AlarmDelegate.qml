@@ -33,7 +33,7 @@ Rectangle{
 
 		Text {
 			id: periodicityString;
-			text:  periodstring;
+			text: periodstring;
        		Layout.fillWidth: true;
 			font: Style.labelFont;
 		}
@@ -49,7 +49,7 @@ Rectangle{
 			id: enaAlarm;
 
 			position: alarmEnabled;
-			text: alarmEnabled ? qsTr("enabled") : qsTr("disabled")
+			text: alarmEnabled ? qsTr("on") : qsTr("off")
 
 			onCheckedChanged:{
 				alarmlistmodel.set_enabled(index, position)
