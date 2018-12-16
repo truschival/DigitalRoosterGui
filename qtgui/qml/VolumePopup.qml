@@ -39,6 +39,7 @@ Popup {
 				// volume low
 				text: "\uf57f";
 			}
+
 			Slider {
 				id: volumeSlider
 				Layout.alignment: Qt.AlignVCenter

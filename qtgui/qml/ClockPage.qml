@@ -8,20 +8,20 @@ Page {
 
 	ColumnLayout{
 		anchors.fill: parent
-		anchors.leftMargin: 10;
-		anchors.rightMargin: 10;
-		spacing: 5;
+		anchors.leftMargin: Style.itemMargins.extrawide;
+		anchors.rightMargin:Style.itemMargins.extrawide;
+		spacing: Style.itemSpacings.sparse;
 
 		Text{
 			text: currentTime.timestring_lz
-			font.pointSize: 32
+			font: Style.h1Font;
 			color: "white"
 			Layout.alignment: Qt.AlignHCenter
 		}
 
 		Text{
 			text: currentTime.datestring_lz
-			font.pointSize: 22
+			font: Style.h2Font;
 			color: "white"
 			Layout.alignment: Qt.AlignHCenter
 		}
@@ -30,12 +30,13 @@ Page {
 			id: weatherLayout
 			columns: 2
 			rows: 2
-			rowSpacing: 0
-			columnSpacing:2
+			rowSpacing: 0;
+			columnSpacing: Style.itemSpacings.dense;
+			
 			Layout.alignment: Qt.AlignHCenter
 			Text{
 				text: weather.city + " " +  Math.round(weather.temperature*10)/10 + "\u00B0C";
-				font.pointSize: 18
+				font: Style.h3Font;
 				color: "white"
 				Layout.columnSpan: 1
 				Layout.alignment: Qt.AlignHCenter
@@ -56,8 +57,9 @@ Page {
 			Text{
 				text: weather.condition
 				color: "white"
-				font.pointSize: 16
+				font: Style.h3Font;
 				horizontalAlignment: Text.AlignHCenter
+				anchors.topMargin:-2;
 				Layout.fillWidth: true
 				Layout.columnSpan: 2
 				Layout.alignment: Qt.AlignHCenter| Qt.AlignVCenter

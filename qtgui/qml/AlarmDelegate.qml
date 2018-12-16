@@ -9,7 +9,7 @@ import "Jsutil.js" as Util
 Rectangle{
     id: alarmDelegate
 	width: parent.width;
-    height: 60;
+    height: Style.contentHeight/3;
     radius: 3;
 	border.width: 1;
 	color: alarmEnabled ? "#2196F3" :  "LightGrey" ;
@@ -27,37 +27,26 @@ Rectangle{
 
 	RowLayout{
 		anchors.fill: parent
-		anchors.leftMargin: 10;
-		anchors.rightMargin: 10;
-		anchors.topMargin:2
-		anchors.bottomMargin:2
-		spacing:2;
+		anchors.margins: Style.itemMargins.medium;
+		spacing: Style.itemSpacings.medium;
 		anchors.verticalCenter: parent.verticalCenter;
-
 
 		Text {
 			id: periodicityString;
 			text:  periodstring;
-       		Layout.fillWidth: true
-			Layout.minimumWidth: 100
-			Layout.preferredWidth: 120
-			font.pointSize: 12;
+       		Layout.fillWidth: true;
+			font: Style.labelFont;
 		}
 
 		Text {
 			id: alarmtime;
-			Layout.minimumWidth: 60
-			Layout.preferredWidth: 90
-			font.pointSize: 12;
-			font.bold: true;
+			font: Style.importantLabelFont;
 			text: Qt.formatTime(triggerTime, "hh:mm")
 			elide: Text.ElideLeft
 		}
 
 		Switch{
 			id: enaAlarm;
-			Layout.minimumWidth: 100
-			Layout.preferredWidth: 150
 
 			position: alarmEnabled;
 			text: alarmEnabled ? qsTr("enabled") : qsTr("disabled")
