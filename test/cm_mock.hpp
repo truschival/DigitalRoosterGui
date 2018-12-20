@@ -10,7 +10,6 @@
  *
  *****************************************************************************/
 
-
 #include <QTime>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -35,6 +34,7 @@ public:
 
     MOCK_CONST_METHOD0(do_get_brightness_sb, int());
     MOCK_CONST_METHOD0(do_get_brightness_act, int());
+    MOCK_CONST_METHOD0(do_get_volume, int());
     MOCK_METHOD1(set_active_brightness, void(int ab));
 
 

@@ -44,7 +44,6 @@ public:
     bool muted() const;
     int get_volume() const;
     void set_muted(bool muted);
-    void set_volume(int volume);
 
     bool seekable() const;
     Q_INVOKABLE void seek(qint64 incr);
@@ -59,7 +58,7 @@ public:
 public slots:
     void set_media(std::shared_ptr<DigitalRooster::PlayableItem> media);
     void set_playlist(QMediaPlaylist* playlist);
-
+    void set_volume(int volume);
     void pause();
     void play();
     void stop();

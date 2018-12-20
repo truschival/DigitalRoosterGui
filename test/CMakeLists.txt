@@ -27,6 +27,7 @@ SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test_weather.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_brightness.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_playableitem.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_volume_button.cpp
   )
 
 

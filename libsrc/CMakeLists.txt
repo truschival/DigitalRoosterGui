@@ -61,6 +61,7 @@ SET(SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/logger.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/powercontrol.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/brightnesscontrol.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/volume_button.cpp
 	)
 
 #------------------------------
@@ -82,6 +83,7 @@ SET(MOC_SRC
 	${PROJECT_INCLUDE_DIR}/weather.hpp
 	${PROJECT_INCLUDE_DIR}/powercontrol.hpp
 	${PROJECT_INCLUDE_DIR}/brightnesscontrol.hpp
+	${PROJECT_INCLUDE_DIR}/volume_button.hpp
 )
 
 #------------------------------
