@@ -23,12 +23,35 @@ using ::testing::AtLeast;
 /*****************************************************************************/
 TEST(VolumeButton, VolumeDefaultInitialized) {
     auto cm = std::make_shared<CmMock>();
-    VolumeButton dut(cm.get());
 	EXPECT_CALL(*(cm.get()), do_get_volume())
         .Times(1)
         .WillOnce(Return(25));
-  
+
+    VolumeButton dut(cm.get());
 	EXPECT_EQ(dut.get_volume(), 25);
  }
 
 /*****************************************************************************/
+ 
+TEST(VolumeButton, VolumeChangedTriggered) {
+     auto cm = std::make_shared<CmMock>();
+	 QString rotary_filename("rotary");
+     QString button_filename("event");
+     QFile rotary_file(rotary_filename);
+     QFile button_file(button_filename);
+     rotary_file.open(QFile::WriteOnly);
+     rotary_file.write("XXX");
+     button_file.open(QFile::WriteOnly);
+     button_file.write("XXX");
+
+	 EXPECT_CALL(*(cm.get()), do_get_volume()).Times(1).WillOnce(Return(25));
+
+     VolumeButton dut(cm.get(), rotary_filename, button_filename);
+     QSignalSpy spy(&dut, SIGNAL(volume_changed(int)));
+     rotary_file.write("XXX");
+     button_file.write("1");
+     EXPECT_EQ(spy.count(), 1);
+     EXPECT_EQ(dut.get_volume(), 25);
+ }
+
+ /*****************************************************************************/

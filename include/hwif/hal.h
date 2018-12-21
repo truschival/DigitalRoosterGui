@@ -18,6 +18,15 @@ extern "C" {
 #endif
 
 /**
+ * Simplified linux/input event to allow portable code
+ */
+struct ScrollEvent {
+    enum Direction { UP = 1, DOWN = 2 };
+    Direction dir;
+};
+
+
+/**
  * Hardware init
  * @return
  */
@@ -35,6 +44,11 @@ int system_poweroff();
  * @param brightness 0..100 %
  */
 int set_brightness(int brightness);
+
+/**
+ * Read scroll_event data from filedescriptor
+ */
+ScrollEvent get_scroll_event(int filedescriptor);
 
 #ifdef __cplusplus
 } //extern "C"

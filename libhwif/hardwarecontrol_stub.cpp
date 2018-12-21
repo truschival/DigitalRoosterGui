@@ -9,23 +9,33 @@
  * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
  * 			  SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
+#include "hwif/hal.h"
 
 int system_reboot() {
-   return 0;
+    return 0;
 }
 
 /*****************************************************************************/
 
-int system_poweroff(){
-	 return 0;
+int system_poweroff() {
+    return 0;
 }
 
 /*****************************************************************************/
-int set_brightness(int brightness){
-	return 0;
+int set_brightness(int brightness) {
+    return 0;
 }
 
 /*****************************************************************************/
-int setup_hardware(){
-	return 0;
+int setup_hardware() {
+    return 0;
 }
+
+/*****************************************************************************/
+ScrollEvent get_scroll_event(int filedescriptor) {
+	ScrollEvent evt;
+    evt.dir = ScrollEvent::UP;
+    return evt;
+}
+
+/*****************************************************************************/

@@ -38,7 +38,6 @@ public:
         QString rotary_encoder = QString("/dev/input/event0"),
         QString button = QString("/sys/class/gpio/gpio01"),
         QObject* parent = nullptr);
-
     /**
      * check if button is pressed
      * @return pressed/not pressed
@@ -98,9 +97,23 @@ private:
      */
     int volume = 0;
 
-    int read_rotary();
+    /**
+	 * Open the file and create a QSocketNotifier for it
+     */
+	std::unique_ptr<QSocketNotifier> open_and_watch(QFile& file);
 
-    int read_button();
+private slots:
+    /**
+     * read event(s) from rotary file handle
+	 * update volume
+     */
+	void read_rotary(int filehandle);
+
+	/**
+	 * read events from button file handle
+	 * update button_state
+	 */
+    void read_button(int filehandle);
 };
 } // namespace DigitalRooster
 #endif /* VOLUME_BUTTON_HPP */
