@@ -46,7 +46,7 @@ ApplicationWindow {
             Label {
                 id: titleLabel
                 text: (stackView.depth > 1) ? currentTime.timestring_lz_hh_mm : "";
-                font: Style.h1Font;
+                font: Style.font.title;
                 elide: Label.ElideRight
                 Layout.fillWidth: true
             }

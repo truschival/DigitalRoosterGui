@@ -16,27 +16,27 @@ Page {
 
 		Text{
 			text: "Revision: ";
-			font: Style.importantLabelFont;
+			font: Style.font.label;
 			color: "white"
 			Layout.alignment: Qt.AlignLeft | Qt.AlignTop
 		}
 		Text{
 			text: config.revision;
-			font: Style.labelFont;
+			font: Style.font.valueLabel;
 			color: "white"
 			Layout.alignment: Qt.AlignLeft | Qt.AlignTop
 		}
 
 		Text{
 			text: "Build: ";
-			font: Style.importantLabelFont;
+			font: Style.font.label;
 			color: "white"
 			Layout.alignment: Qt.AlignLeft | Qt.AlignTop
 		}
 		
 		Text{
 			text: config.buildtime;
-			font: Style.labelFont;
+			font: Style.font.valueLabel;
 			color: "white"
 			Layout.alignment: Qt.AlignLeft | Qt.AlignTop
 		}
@@ -54,14 +54,14 @@ Page {
 				
 				Text{
 					text: "Brightness";
-					font: Style.importantLabelFont;
+					font: Style.font.label;
 					color: "white"
 					Layout.columnSpan: 2
 				}
 
 				Text{
 					text: "Active:";
-					font: Style.importantLabelFont;
+					font: Style.font.label;
 					color: "white"
 					Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 				}
@@ -81,7 +81,7 @@ Page {
 
 				Text{
 					text: "Standby:";
-					font: Style.importantLabelFont;
+					font: Style.font.label;
 					color: "white"
 					Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 				}	

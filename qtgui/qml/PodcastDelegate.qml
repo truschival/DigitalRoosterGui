@@ -36,7 +36,7 @@ Rectangle{
 
 		Text {
 			text: display_name ;
-			font: Style.listItemHeaderFont;
+			font: Style.font.listItemHead;
 			elide: Text.ElideRight
 			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
 			Layout.fillWidth: true;
@@ -45,7 +45,7 @@ Rectangle{
 		Text {
 			text: episode_count ;
 			wrapMode: Text.WordWrap;
-			font: Style.labelFont;
+			font: Style.font.valueLabel;
 			Layout.preferredWidth: (parent.with-podcasticon.width)*0.2
 			Layout.alignment: Qt.AlignRight | Qt.AlignTop
 		}
@@ -54,7 +54,7 @@ Rectangle{
 			text: description ;
 			elide: Text.ElideRight;
 			wrapMode:  Text.WordWrap;
-			font: Style.flowText;
+			font: Style.font.flowText;
 			lineHeight : 0.8;
 			Layout.columnSpan: 2;
 			Layout.fillWidth: true;

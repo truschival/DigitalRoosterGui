@@ -13,15 +13,15 @@ Page {
 		spacing: Style.itemSpacings.sparse;
 
 		Text{
-			text: currentTime.timestring_lz
-			font: Style.h1Font;
+			text: currentTime.timestring_lz_hh_mm
+			font: Style.font.clock;
 			color: "white"
 			Layout.alignment: Qt.AlignHCenter
 		}
 
 		Text{
 			text: currentTime.datestring_lz
-			font: Style.h2Font;
+			font: Style.font.title;
 			color: "white"
 			Layout.alignment: Qt.AlignHCenter
 		}
@@ -36,7 +36,7 @@ Page {
 			Layout.alignment: Qt.AlignHCenter
 			Text{
 				text: weather.city + " " +  Math.round(weather.temperature*10)/10 + "\u00B0C";
-				font: Style.h3Font;
+				font: Style.font.subtitle;
 				color: "white"
 				Layout.columnSpan: 1
 				Layout.alignment: Qt.AlignHCenter
@@ -57,7 +57,7 @@ Page {
 			Text{
 				text: weather.condition
 				color: "white"
-				font: Style.h3Font;
+				font: Style.font.subtitle;
 				horizontalAlignment: Text.AlignHCenter
 				anchors.topMargin:-2;
 				Layout.fillWidth: true;

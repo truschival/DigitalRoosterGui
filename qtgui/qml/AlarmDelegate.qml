@@ -35,12 +35,12 @@ Rectangle{
 			id: periodicityString;
 			text: periodstring;
        		Layout.fillWidth: true;
-			font: Style.labelFont;
+			font: Style.font.valueLabel;
 		}
 
 		Text {
 			id: alarmtime;
-			font: Style.importantLabelFont;
+			font: Style.font.label;
 			text: Qt.formatTime(triggerTime, "hh:mm")
 			elide: Text.ElideLeft
 		}

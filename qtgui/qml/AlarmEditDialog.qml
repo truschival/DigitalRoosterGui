@@ -40,7 +40,7 @@ Popup {
 				width: 48;
 				delegate: Text {
 					text: styleData.value
-					font: Style.tumblerFont;
+					font: Style.font.tumbler;
 					horizontalAlignment: Text.AlignHCenter
     				opacity: 0.4 + Math.max(0, 1 - Math.abs(styleData.displacement)) * 0.6
 				}
@@ -51,7 +51,7 @@ Popup {
 				width:  48;
 				delegate: Text {
     				text: styleData.value
-					font: Style.tumblerFont;
+					font: Style.font.tumbler;
 					horizontalAlignment: Text.AlignHCenter
     				opacity: 0.4 + Math.max(0, 1 - Math.abs(styleData.displacement)) * 0.6
 				}

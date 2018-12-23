@@ -24,7 +24,7 @@ Rectangle{
 			text: station_name;
 			Layout.preferredWidth: iradiodelegatearea.width
 			elide: Text.ElideRight
-			font: Style.listItemHeaderFont;
+			font: Style.font.listItemHead;
 		}
 	}
 

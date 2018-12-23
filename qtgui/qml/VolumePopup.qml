@@ -30,7 +30,7 @@ Popup {
 
 		// Row 1
 		Label{
-			font: Style.sliderValueFont
+			font: Style.font.sliderValue
 			text: volumeSlider.value
 			Layout.alignment: Qt.AlignVCenter| Qt.AlignHCenter
 			Layout.columnSpan: 3

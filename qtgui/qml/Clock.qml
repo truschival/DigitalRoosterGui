@@ -2,6 +2,8 @@ import QtQuick 2.9
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.1
 
+import "Jsutil.js" as Util
+
 Item{
 	id: currentTime
 	property int hours
@@ -20,8 +22,10 @@ Item{
 		hours = date.getHours()
 		night = ( hours < 7 || hours > 19 );
 		datestring_lz = date.toDateString("ddd dd.MM.yyyy");
-		timestring_lz = date.toTimeString("HH:mm:ss");
-		timestring_lz_hh_mm = date.toTimeString("HH:mm");
+		timestring_lz_hh_mm = Util.add_leading_zero(hours) + ":"
+			+ Util.add_leading_zero(minutes) ;
+		timestring_lz = timestring_lz_hh_mm + ":"
+			+ Util.add_leading_zero(seconds)
 	}
 
 	Timer {

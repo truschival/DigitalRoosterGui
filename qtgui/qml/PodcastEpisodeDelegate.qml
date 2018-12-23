@@ -24,7 +24,7 @@ Rectangle{
 		Text {
 			id:episodeDN
 			text: title;
-			font: Style.listItemHeaderFont;
+			font: Style.font.listItemHead;
 			Layout.fillWidth: true
 			elide: Text.ElideRight
 			Layout.columnSpan: 2
@@ -42,7 +42,7 @@ Rectangle{
 		Text {
 			id:episodePubDate
 			text: pub_date;
-			font: Style.importantLabelFont;
+			font: Style.font.label;
 			elide: Text.ElideRight
 			Layout.alignment: Qt.Alignleft | Qt.AlignVCenter
 		}
@@ -50,7 +50,7 @@ Rectangle{
 		Text {
 			id: episodeDuration
 			text: duration+"h";
-			font: Style.importantLabelFont;
+			font: Style.font.label;
 			elide: Text.ElideRight
 			Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 		}
@@ -59,7 +59,7 @@ Rectangle{
 			id:episodeDescription
 			text: description ;
 			wrapMode: Text.WordWrap
-			font: Style.flowText;
+			font: Style.font.flowText;
 			lineHeight : 0.8;
 			elide: Text.ElideRight
 			Layout.preferredWidth: parent.width-16

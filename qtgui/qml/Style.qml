@@ -12,50 +12,53 @@ QtObject {
 	property int contentWidth: 320;
 	property int contentHeight: canvasHeight-toolbarHeight;
 
-	property font h1Font: Qt.font({
-        weight: Font.DemiBold,
-        pointSize: 20
-    })
 
-	property font h2Font: Qt.font({
-        weight: Font.DemiBold,
-        pointSize: 16
-    });
+	property QtObject font: QtObject{
+		property font clock: Qt.font({
+			weight: Font.Bold,
+			pointSize: 32
+		})
 
-	property font h3Font: Qt.font({
-        weight: Font.Normal,
-        pointSize: 16
-    });
+		property font title: Qt.font({
+			weight: Font.Bold,
+			pointSize: 20
+		});
 
-	property font listItemHeaderFont: Qt.font({
-        weight: Font.Bold,
-        pointSize: 16
-    });
+		property font subtitle: Qt.font({
+			weight: Font.DemiBold,
+			pointSize: 16
+		});
 
-	property font tumblerFont: Qt.font({
-        weight: Font.Bold,
-        pointSize: 18
-    });
+		property font listItemHead: Qt.font({
+			weight: Font.Bold,
+			pointSize: 16
+		});
 
-	property font labelFont: Qt.font({
-        weight: Font.Normal,
-        pointSize: 12
-    });
+		property font tumbler: Qt.font({
+			weight: Font.Bold,
+			pointSize: 18
+		});
 
-	property font flowText: Qt.font({
-        weight: Font.Normal,
-        pointSize: 12,
-    });
+		property font label: Qt.font({
+			weight: Font.DemiBold,
+			pointSize: 12
+		});
 
-	property font importantLabelFont: Qt.font({
-        weight: Font.DemiBold,
-        pointSize: 12
-    });
+		property font valueLabel: Qt.font({
+			weight: Font.Normal,
+			pointSize: 12
+		});
 
-	property font sliderValueFont: Qt.font({
-        weight: Font.DemiBold,
-        pointSize: 24
-    });
+		property font flowText: Qt.font({
+			weight: Font.Normal,
+			pointSize: 12,
+		});
+
+		property font sliderValue: Qt.font({
+			weight: Font.DemiBold,
+			pointSize: 24
+		});
+	}// font
 
 	property QtObject buttons: QtObject{
 		property int minW: 40;

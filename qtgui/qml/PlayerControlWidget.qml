@@ -39,7 +39,7 @@ Popup {
 		Text{
 			id: currentMediaTitle
 			text: "" ;
-			font: Style.importantLabelFont;
+			font: Style.font.label;
 			color: "white";
 			elide: Text.ElideRight;
 
@@ -105,7 +105,7 @@ Popup {
 		Text {
 			id: timeElapsed
 			text: Util.display_time_ms(playerProxy.position)
-			font: Style.labelFont;
+			font: Style.font.valueLabel;
 			Layout.alignment: Qt.AlignCenter|Qt.AlignTop
 			color: "white"
 		}
@@ -126,7 +126,7 @@ Popup {
 			id: durationTotal
 			text: playerProxy.seekable? Util.display_time_ms(playerProxy.duration): "\u221E"
 			Layout.preferredWidth: timeElapsed.width
-			font: Style.labelFont;
+			font: Style.font.valueLabel;
 			color: "white"
 			Layout.alignment: Qt.AlignCenter|Qt.AlignTop
 		}
