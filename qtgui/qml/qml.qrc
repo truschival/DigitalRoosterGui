@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
+        <file>qmldir</file>
         <file>main.qml</file>
         <file>PodcastDelegate.qml</file>
         <file>PodcastList.qml</file>
@@ -17,5 +18,6 @@
         <file>SettingsPage.qml</file>
         <file>VolumePopup.qml</file>
         <file>AlarmEditDialog.qml</file>
+        <file>Style.qml</file>
     </qresource>
 </RCC>

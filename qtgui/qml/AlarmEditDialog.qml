@@ -21,25 +21,26 @@ Popup {
 	}
 
     contentItem: GridLayout {
-		rowSpacing: 2;
-		columnSpacing: 6;
+		columnSpacing: Style.itemSpacings.medium;
+		rowSpacing: Style.itemSpacings.medium;
+		anchors.fill: parent;
+		anchors.margins: Style.itemMargins.slim;
 		rows: 3;
 		columns:2;
 
 		Tumbler{
 			id: timeTumbler
-			Layout.maximumHeight: 128
+			Layout.maximumHeight: 96
 			Layout.rowSpan: 2
 			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
 
 			TumblerColumn {
 				id: hoursTumbler
 				model: 24
-				width: 64
+				width: 48;
 				delegate: Text {
-    				text: styleData.value
-    				font.pointSize: 20;
-					font.bold: true;
+					text: styleData.value
+					font: Style.font.tumbler;
 					horizontalAlignment: Text.AlignHCenter
     				opacity: 0.4 + Math.max(0, 1 - Math.abs(styleData.displacement)) * 0.6
 				}
@@ -47,11 +48,10 @@ Popup {
 			TumblerColumn {
 				id: minutesTumbler
 				model: 60
-				width: 64
+				width:  48;
 				delegate: Text {
     				text: styleData.value
-    				font.pointSize: 20;
-					font.bold: true;
+					font: Style.font.tumbler;
 					horizontalAlignment: Text.AlignHCenter
     				opacity: 0.4 + Math.max(0, 1 - Math.abs(styleData.displacement)) * 0.6
 				}
@@ -61,10 +61,9 @@ Popup {
 
 		Switch{
 			id: enaAlarm;
-			Layout.minimumWidth: 120
 			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
 			position: currentAlarm.enabled
-			text: currentAlarm.enabled ? qsTr("enabled") : qsTr("disabled")
+			text: currentAlarm.enabled ? qsTr("on") : qsTr("off")
 
 			onCheckedChanged:{
 				currentAlarm.enabled= position;
@@ -73,8 +72,6 @@ Popup {
 
 		ComboBox {
 			id: period
-			Layout.minimumWidth: 120
-			Layout.preferredWidth: 160
 			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
 			model: ListModel {
 				id: model
@@ -93,11 +90,11 @@ Popup {
 
 		ComboBox {
 			id: stations
-			Layout.minimumWidth: 120
 			Layout.preferredWidth: parent.width
 			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
-
 			Layout.columnSpan: 2
+			Layout.bottomMargin: Style.itemMargins.slim;
+
 			model: iradiolistmodel
 			textRole: "station_name";
 

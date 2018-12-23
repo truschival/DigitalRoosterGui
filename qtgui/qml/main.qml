@@ -3,18 +3,20 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.1
 import QtMultimedia 5.9
 import ruschi.PodcastEpisode 1.0
+
+import "." // QTBUG-34418, singletons require explicit import to load qmldir file
 import "Icon.js" as MdiFont
 import "Jsutil.js" as Util
+
 
 ApplicationWindow {
     id: applicationWindow
     visible: true
-    width: 480
-    height: 320
-    property alias playerControlWidget: playerControlWidget
-    property string functionMode: "Clock"
+    width: Style.canvasWidth;
+    height: Style.canvasHeight;
 
-    title: qsTr("DigitalRooster")
+	property alias playerControlWidget: playerControlWidget
+    property string functionMode: "Clock"
 
     Clock{
         id: currentTime
@@ -26,25 +28,25 @@ ApplicationWindow {
 	}
 
     header: ToolBar {
+		height: Style.toolbarHeight;
+
         RowLayout {
-            spacing: 5
             anchors.fill: parent
-            Layout.margins: 2
+            anchors.margins: Style.itemMargins.medium;
+            anchors.topMargin: Style.itemMargins.slim;
+
+            spacing: Style.itemSpacings.dense;
 
             IconButton {
                 text: MdiFont.Icon.menu
-				Layout.leftMargin: 4
-				Layout.preferredHeight: 58;
-				Layout.preferredWidth: 58;
-
                 onClicked: {
                     drawer.open()
                 }
             }
             Label {
                 id: titleLabel
-                text: (stackView.depth > 1) ? currentTime.timestring_lz : qsTr("DigitalRooster");
-                font.pixelSize: 20
+                text: (stackView.depth > 1) ? currentTime.timestring_lz_hh_mm : "";
+                font: Style.font.title;
                 elide: Label.ElideRight
                 Layout.fillWidth: true
             }
@@ -52,22 +54,14 @@ ApplicationWindow {
 			IconButton {
                 id : playerControlBtn
                 text: MdiFont.Icon.play
-				Layout.preferredHeight: 58;
-				Layout.preferredWidth: 58;
-
                 onClicked:{
-					playerControlWidget.setVisible(true)
+					playerControlWidget.show()
                 }
             }
 
 			IconButton {
                 id : volButton
                 text: "\uf4c3"
-                Layout.preferredHeight: 58;
-				Layout.preferredWidth: 58;
-				Layout.leftMargin: 4
-				Layout.rightMargin: 4
-
                 onClicked:{
 					volumePopUp.show();
 				}
@@ -76,11 +70,7 @@ ApplicationWindow {
                 id : backButton
                 text: MdiFont.Icon.keyboardBackspace
 
-				Layout.preferredHeight: 58;
-				Layout.preferredWidth: 58;
-				Layout.rightMargin: 4
                 visible: (stackView.depth > 1)
-
                 onClicked:{
 					stackView.backNavigate()
                 }
@@ -95,24 +85,22 @@ ApplicationWindow {
 
     Drawer {
         id: drawer
-        width: 66
+        width: Style.drawer.w;
         height: applicationWindow.height
         interactive: true;
 		edge: Qt.LeftEdge;
-		dragMargin: 20;
 
         ListView {
             id: listView
 			anchors.fill: parent
-            focus: true
-            currentIndex: -1
-			spacing: 2
+			spacing: Style.itemSpacings.dense;
+			anchors.margins: Style.itemMargins.slim;
 			anchors.horizontalCenter: parent.horizontalCenter
-			anchors.margins: 4
+
+            focus: true;
+            currentIndex: -1;
 
             delegate: IconButton {
-                width: 58
-				height: 58
                 text: model.title
                 highlighted: listView.currentIndex == index
 
@@ -124,7 +112,7 @@ ApplicationWindow {
 					listView.currentIndex = index
                     drawer.close()
                     /* Special item: power off button */
-                    if(index === listView.count-1){
+                    if(index === listView.count -1 ){
                     	console.log("last item!")
                     	powerOffMenu.popup((applicationWindow.width-powerOffMenu.width)/2,
 										   (applicationWindow.height-powerOffMenu.height)/2)
@@ -147,14 +135,10 @@ ApplicationWindow {
 	Menu {
 		id: powerOffMenu
 		RowLayout {
-			spacing: 4
+			spacing: Style.itemSpacings.medium;
 			IconButton {
 				id: poweroffBtn
 				text: "\uf901"
-				Layout.minimumHeight: 58;
-				Layout.minimumWidth: 58;
-				Layout.preferredHeight: 58;
-				Layout.preferredWidth: 58;
 				Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
 				onClicked: {
 					console.log("power off button")
@@ -165,10 +149,6 @@ ApplicationWindow {
 			IconButton {
 				id: standbyBtn
 				text: "\uf903";
-				Layout.minimumHeight: 58;
-				Layout.minimumWidth: 58;
-				Layout.preferredHeight: 58;
-				Layout.preferredWidth: 58;
 				Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
 				onClicked: {
 					console.log("standby button")
@@ -179,10 +159,6 @@ ApplicationWindow {
 			IconButton {
 				id: rebootBtn
 				text: "\uf900";
-				Layout.minimumHeight: 58;
-				Layout.minimumWidth: 58;
-				Layout.preferredHeight: 58;
-				Layout.preferredWidth: 58;
 				Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
 				onClicked: {
 					console.log("reboot button")
@@ -194,14 +170,9 @@ ApplicationWindow {
 
 	PlayerControlWidget{
 		id: playerControlWidget
-		anchors.horizontalCenter: parent.horizontalCenter
-        width: parent.width*0.8
-        height: 100
-        anchors.horizontalCenterOffset: 0
-        anchors.bottomMargin: 15
-        visible: false
-        z: 1
-        anchors.bottom: parent.bottom
+        width: parent.width*0.85;
+		x: Math.round((applicationWindow.width - width) / 2)
+		y: Math.round((applicationWindow.height - height) *0.6)
 	}
 
 	VolumePopup{

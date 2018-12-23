@@ -23,8 +23,9 @@ ListView {
 
 	AlarmEditDialog{
 		id: alarmEditDlg;
+		width: Style.contentWidth*0.8;
 		x: Math.round((applicationWindow.width - width)/2)
-		y: Math.round((applicationWindow.height - height)/3)
+		bottomMargin:15;
 	}
     model: alarmlistmodel
 

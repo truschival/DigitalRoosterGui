@@ -45,7 +45,7 @@ SET(MOC_SRC
   )
 
 SET(QRC_SRC
-  qml.qrc
+  qml/qml.qrc
   externalRes/external.qrc
   )
 

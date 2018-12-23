@@ -14,6 +14,7 @@
 #include <QLoggingCategory>
 #include <QString>
 #include <QTime>
+#include <QDateTime>
 #include <QVector>
 #include <QXmlStreamReader>
 #include <memory>
@@ -180,6 +181,8 @@ void DigitalRooster::update_podcast(
                 }
             }
         }
+        podcastsource.set_last_updated(QDateTime::currentDateTime());
+
     } catch (std::invalid_argument& exc) {
         qCWarning(CLASS_LC)
             << " XML error in line:" << xml.lineNumber() << exc.what();

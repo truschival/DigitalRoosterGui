@@ -110,22 +110,22 @@ const QString KEY_ALARM_DAILY("daily");
 /**
  * Keyword for perdiodic refresh
  */
-const QString KEY_UPDATE_INTERVAL("UpdateInterval");
+const QString KEY_UPDATE_INTERVAL("updateInterval");
 
 /**
  * Keyword for alarms timeout
  */
-const QString KEY_ALARM_TIMEOUT("AlarmTimeout");
+const QString KEY_ALARM_TIMEOUT("alarmTimeout");
 
 /**
  * Keyword configuration Sleep timer duration
  */
-const QString KEY_SLEEP_TIMEOUT("SleepTimeout");
+const QString KEY_SLEEP_TIMEOUT("sleepTimeout");
 
 /**
  * Keyword to identify the creating project version of the config file
  */
-const QString KEY_VERSION("Version");
+const QString KEY_VERSION("version");
 
 /**
  * Weather retrieval configuration
@@ -135,7 +135,7 @@ const QString KEY_WEATHER("Weather");
 /**
  * Location ID for openweathermaps
  */
-const QString KEY_WEATHER_LOCATION_ID("LocationID");
+const QString KEY_WEATHER_LOCATION_ID("locationID");
 
 /**
  * API key to access openweathermaps

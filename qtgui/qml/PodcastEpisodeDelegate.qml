@@ -9,28 +9,25 @@ Rectangle{
 	height: 100;
 	radius: 3;
 	border.width: 1;
-	color: episodemodel.currentIndex == index ? "#2196F3" :  "LightGrey" ;
-	anchors.margins: 2
+	color: episodemodel.currentIndex == index ?
+		Style.colors.selected : Style.colors.unselected ;
+
+	anchors.margins: Style.itemMargins.slim;
 
 	GridLayout{
 		columns: 2
 		rows: 3
-		rowSpacing: 2
-		columnSpacing:2
+		rowSpacing: Style.itemSpacings.dense;
+		columnSpacing: Style.itemSpacings.dense;
 		anchors.fill: parent
-		anchors.margins: 2
+		anchors.margins: Style.itemMargins.slim;
 		clip: true
 
 		Text {
 			id:episodeDN
 			text: title;
-			font.pointSize: 14;
-			font.bold: true;
+			font: Style.font.listItemHead;
 			Layout.fillWidth: true
-			Layout.preferredWidth: parent.width-16
-			Layout.preferredHeight: parent.heigth*0.5
-			Layout.maximumWidth: parent.width-4
-			Layout.maximumHeight: parent.heigth*0.6
 			elide: Text.ElideRight
 			Layout.columnSpan: 2
 			Layout.alignment: Qt.AlignLeft | Qt.AlignTop
@@ -46,16 +43,16 @@ Rectangle{
 
 		Text {
 			id:episodePubDate
-			text: qsTr("Published")+": " + pub_date;
-			font.pointSize: 12;
+			text: pub_date;
+			font: Style.font.label;
 			elide: Text.ElideRight
 			Layout.alignment: Qt.Alignleft | Qt.AlignVCenter
 		}
 
 		Text {
-			id:episodeDuration
-			text: qsTr("Duration")+": "+ duration;
-			font.pointSize: 12;
+			id: episodeDuration
+			text: duration+"h";
+			font: Style.font.label;
 			elide: Text.ElideRight
 			Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 		}
@@ -64,7 +61,8 @@ Rectangle{
 			id:episodeDescription
 			text: description ;
 			wrapMode: Text.WordWrap
-			font.pointSize: 10
+			font: Style.font.flowText;
+			lineHeight : 0.8;
 			elide: Text.ElideRight
 			Layout.preferredWidth: parent.width-16
 			Layout.preferredHeight: parent.heigth*0.5
@@ -77,16 +75,13 @@ Rectangle{
 	MouseArea {
 		anchors.fill: parent
 		onClicked:{
-			playerControlWidget.setVisible(true)
+			playerControlWidget.show()
 		}
 		onPressAndHold:  {
 			episodemodel.currentIndex =index;
 			episodemodel.send_to_player(index)
 			playerControlWidget.setCurrentMediaTitle(title)
-			playerControlWidget.setVisible(true)
+			playerControlWidget.show()
 		}
 	}
-
 }
-
-

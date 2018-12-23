@@ -1,0 +1,3 @@
+// qmldir
+// https://wiki.qt.io/Qml_Styling
+singleton Style 1.0 Style.qml
