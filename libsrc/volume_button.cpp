@@ -34,15 +34,21 @@ DigitalRooster::VolumeButton::VolumeButton(
     try {
         rotary_notifier = open_and_watch(rotary_file);
     } catch (std::exception& exc) {
-        qCCritical(CLASS_LC) << " open file " << rotary_file << "failed!";
+        qCCritical(CLASS_LC) << " open file " << rotary_file << "failed! "
+                             << rotary_file.errorString();
     }
+    connect(rotary_notifier.get(), &QSocketNotifier::activated, this,
+        &VolumeButton::read_rotary);
 
     /* connect notifier and handler for push button */
     try {
         button_notifier = open_and_watch(button_file);
     } catch (std::exception& exc) {
-        qCCritical(CLASS_LC) << " open file " << rotary_file << "failed!";
+        qCCritical(CLASS_LC) << " open file " << button_file << "failed!"
+                             << button_file.errorString();
     }
+    connect(button_notifier.get(), &QSocketNotifier::activated, this,
+        &VolumeButton::read_button);
 }
 
 /*****************************************************************************/
@@ -74,7 +80,7 @@ void DigitalRooster::VolumeButton::read_rotary(int filehandle) {
     auto evt = get_scroll_event(filehandle);
     if (evt.dir == ScrollEvent::UP && volume <= 100) {
         volume += 1;
-	}
+    }
     if (evt.dir == ScrollEvent::DOWN && volume > 0) {
         volume -= 1;
     }

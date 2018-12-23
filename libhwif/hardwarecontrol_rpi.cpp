@@ -17,7 +17,9 @@
 #include <unistd.h>
 #include <wiringPi.h>
 
+#include "hwif/hal.h"
 
+extern "C" {
 static const int PWM_RANGE = 200; // WiringPi default = 1024
 static const int CLOCK_DIV = 4;
 
@@ -65,3 +67,11 @@ int setup_hardware() {
     pwmWrite(BRIGHTNESS_PWM_PIN, 100);
     return 0;
 };
+
+/*****************************************************************************/
+ScrollEvent get_scroll_event(int filedescriptor) {
+    ScrollEvent evt;
+    evt.dir = ScrollEvent::UP;
+    return evt;
+}
+}

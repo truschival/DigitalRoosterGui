@@ -40,6 +40,7 @@
 #include "podcastsourcemodel.hpp"
 #include "powercontrol.hpp"
 #include "timeprovider.hpp"
+#include "volume_button.hpp"
 #include "weather.hpp"
 
 using namespace DigitalRooster;
@@ -114,6 +115,10 @@ int main(int argc, char* argv[]) {
     /* AlarmDispatcher sets Active Brightness */
     QObject::connect(&alarmdispatcher, SIGNAL(alarm_triggered()), &brightness,
         SLOT(restore_active_brightness()));
+
+    /* Rotary encoder interface */
+    VolumeButton volbtn(cm.get(), QString("/dev/input/event0"),
+        QString("/sys/class/gpio/gpio22/value"));
 
     /* we start in standby */
     power.standby();
