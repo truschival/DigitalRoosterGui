@@ -13,10 +13,17 @@ QtObject {
 	property int contentHeight: canvasHeight-toolbarHeight;
 
 
+	property QtObject colors: QtObject{
+		property  color selected :  "#2196F3";
+		property color unselected: "lightgray";
+		property color disabled: "gainsboro";
+		property color enabled: "#2196F3";
+	}
+
 	property QtObject font: QtObject{
 		property font clock: Qt.font({
 			weight: Font.Bold,
-			pointSize: 32
+			pointSize: 56
 		})
 
 		property font title: Qt.font({
@@ -41,12 +48,17 @@ QtObject {
 
 		property font label: Qt.font({
 			weight: Font.DemiBold,
-			pointSize: 12
+			pointSize: 14
+		});
+
+		property font boldLabel: Qt.font({
+			weight: Font.Bold,
+			pointSize: 14
 		});
 
 		property font valueLabel: Qt.font({
 			weight: Font.Normal,
-			pointSize: 12
+			pointSize: 14
 		});
 
 		property font flowText: Qt.font({

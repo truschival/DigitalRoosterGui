@@ -19,12 +19,12 @@ Page {
 			Layout.alignment: Qt.AlignHCenter
 		}
 
-		Text{
-			text: currentTime.datestring_lz
-			font: Style.font.title;
-			color: "white"
-			Layout.alignment: Qt.AlignHCenter
-		}
+		/* Text{ */
+		/* 	text: currentTime.datestring_lz */
+		/* 	font: Style.font.subtitle; */
+		/* 	color: "white" */
+		/* 	Layout.alignment: Qt.AlignHCenter */
+		/* } */
 
 		GridLayout{
 			id: weatherLayout
@@ -44,26 +44,26 @@ Page {
 
 			Image {
 				id: cloudicon
-				Layout.maximumWidth: 64
-				Layout.maximumHeight: 64
-				Layout.preferredWidth: 48
-				Layout.preferredHeight: 48
+				Layout.maximumWidth: 96
+				Layout.maximumHeight: 96
+				Layout.preferredWidth: 64
+				Layout.preferredHeight: 64
 				Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter
 				Layout.fillHeight: true;
 
 				fillMode: Image.PreserveAspectFit
 				source: weather.weatherIcon;
 			}
-			Text{
-				text: weather.condition
-				color: "white"
-				font: Style.font.subtitle;
-				horizontalAlignment: Text.AlignHCenter
-				anchors.topMargin:-2;
-				Layout.fillWidth: true;
-				Layout.columnSpan: 2;
-				Layout.alignment: Qt.AlignHCenter| Qt.AlignTop
-			}
+			/* Text{ */
+			/* 	text: weather.condition */
+			/* 	color: "white" */
+			/* 	font: Style.font.subtitle; */
+			/* 	horizontalAlignment: Text.AlignHCenter */
+			/* 	anchors.topMargin:-2; */
+			/* 	Layout.fillWidth: true; */
+			/* 	Layout.columnSpan: 2; */
+			/* 	Layout.alignment: Qt.AlignHCenter| Qt.AlignTop */
+			/* } */
 		}
 
 	}

@@ -170,7 +170,7 @@ ApplicationWindow {
 
 	PlayerControlWidget{
 		id: playerControlWidget
-        width: parent.width*0.8;
+        width: parent.width*0.85;
 		x: Math.round((applicationWindow.width - width) / 2)
 		y: Math.round((applicationWindow.height - height) *0.6)
 	}

@@ -12,7 +12,8 @@ Rectangle{
     height: Style.contentHeight/3;
     radius: 3;
 	border.width: 1;
-	color: alarmEnabled ? "#2196F3" :  "LightGrey" ;
+	color: alarmEnabled ?
+		Style.colors.enabled : Style.colors.disabled;
 
 	MouseArea {
 		anchors.fill: parent
@@ -20,29 +21,29 @@ Rectangle{
 			alarmlistmodel.currentIndex =index;
 			console.log("Alarm pressed : "+index);
 			alarmEditDlg.index = index;
-			alarmEditDlg.currentAlarm = alarmlistmodel.get_alarm(alarmlistmodel.currentIndex)
+			alarmEditDlg.currentAlarm = alarmlistmodel.get_alarm(
+				alarmlistmodel.currentIndex)
 			alarmEditDlg.open();
 		}
 	}
 
 	RowLayout{
 		anchors.fill: parent
-		anchors.margins: Style.itemMargins.medium;
+		anchors.margins: Style.itemMargins.slim;
 		spacing: Style.itemSpacings.medium;
-		anchors.verticalCenter: parent.verticalCenter;
 
 		Text {
 			id: periodicityString;
 			text: periodstring;
        		Layout.fillWidth: true;
-			font: Style.font.valueLabel;
+			font: Style.font.label;
 		}
 
 		Text {
 			id: alarmtime;
-			font: Style.font.label;
+			font: Style.font.boldLabel;
+			Layout.alignment: Qt.AlignRight | Qt.AlignVCenter;
 			text: Qt.formatTime(triggerTime, "hh:mm")
-			elide: Text.ElideLeft
 		}
 
 		Switch{

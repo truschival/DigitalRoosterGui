@@ -9,8 +9,10 @@ Rectangle{
 	height: 100;
 	radius: 3;
 	border.width: 1;
-	color: episodemodel.currentIndex == index ? "#2196F3" :  "LightGrey" ;
-	anchors.margins: 2
+	color: episodemodel.currentIndex == index ?
+		Style.colors.selected : Style.colors.unselected ;
+
+	anchors.margins: Style.itemMargins.slim;
 
 	GridLayout{
 		columns: 2
