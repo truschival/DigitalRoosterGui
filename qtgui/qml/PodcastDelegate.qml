@@ -24,15 +24,15 @@ Rectangle{
 			id: podcasticon;
 			Layout.maximumHeight : podcastdelegate.height-
 				2*Style.itemMargins.slim;
-			Layout.minimumHeight : podcastdelegate.height-
+			Layout.maximumWidth :  podcastdelegate.height-
 				2*Style.itemMargins.slim;
 			// yes width is specified as height,
 			// gives the layout a hint while image is not loaded
-			Layout.maximumWidth : podcastdelegate.height-
+			Layout.minimumWidth :  0.9*podcastdelegate.height-
 				2*Style.itemMargins.slim;
-			Layout.minimumWidth : podcastdelegate.height-
+			Layout.minimumHeight : 0.9*podcastdelegate.height-
 				2*Style.itemMargins.slim;
-
+			
 			Layout.rowSpan: 2
 			Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter
 
@@ -41,15 +41,15 @@ Rectangle{
 		}
 
 		Text {
-			text: display_name ;
+			text: display_name;
 			font: Style.font.listItemHead;
-			elide: Text.ElideRight
+			elide: Text.ElideRight;
 			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
 			Layout.fillWidth: true;
 		}
 
 		Text {
-			text: episode_count ;
+			text: episode_count;
 			wrapMode: Text.WordWrap;
 			font: Style.font.valueLabel;
 			Layout.preferredWidth: (parent.with-podcasticon.width)*0.2

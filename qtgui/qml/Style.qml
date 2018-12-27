@@ -7,7 +7,7 @@ QtObject {
 	property int canvasHeight: 240;
 
 	property int toolbarWidth: 320;
-	property int toolbarHeight: 50;
+	property int toolbarHeight: 46;
 
 	property int contentWidth: 320;
 	property int contentHeight: canvasHeight-toolbarHeight;
@@ -21,68 +21,86 @@ QtObject {
 	}
 
 	property QtObject font: QtObject{
-		property font clock: Qt.font({
-			weight: Font.Bold,
-			pointSize: 56
-		})
-
+	
 		property font title: Qt.font({
 			weight: Font.Bold,
-			pointSize: 20
+			pointSize: 16
 		});
 
 		property font subtitle: Qt.font({
+			family: "DejaVu Sans Condensed",	
 			weight: Font.DemiBold,
-			pointSize: 16
+			pointSize: 12
 		});
 
 		property font listItemHead: Qt.font({
+			family: "DejaVu Sans Condensed",
+			weight: Font.Bold,
+			letterSpacing:-1,
+			pointSize: 12
+		});
+		
+		property font label: Qt.font({
+			family: "DejaVu Sans Condensed",
+			weight: Font.DemiBold,
+			letterSpacing:-1,
+			pointSize: 10
+		});
+
+		property font boldLabel: Qt.font({
+			family: "DejaVu Sans Condensed",	
+			weight: Font.Bold,
+			letterSpacing:-1,
+			pointSize: 10
+		});
+
+		property font valueLabel: Qt.font({
+			family: "DejaVu Sans Condensed",
+			weight: Font.Normal,
+			letterSpacing:-1,
+			pointSize: 10
+		});
+
+		property font flowText: Qt.font({
+			family: "DejaVu Sans Condensed",			
+			weight: Font.Normal,
+			letterSpacing:-1,
+			pointSize: 10,
+		});
+
+		// -- elements
+		property font clock: Qt.font({
+			weight: Font.Bold,
+			pointSize: 42
+		})
+		
+		property font tumbler: Qt.font({
 			weight: Font.Bold,
 			pointSize: 16
 		});
 
-		property font tumbler: Qt.font({
-			weight: Font.Bold,
-			pointSize: 18
-		});
-
-		property font label: Qt.font({
+		property font button: Qt.font({
+			family: "Material Design Icons",
 			weight: Font.DemiBold,
-			pointSize: 14
-		});
-
-		property font boldLabel: Qt.font({
-			weight: Font.Bold,
-			pointSize: 14
-		});
-
-		property font valueLabel: Qt.font({
-			weight: Font.Normal,
-			pointSize: 14
-		});
-
-		property font flowText: Qt.font({
-			weight: Font.Normal,
-			pointSize: 12,
+			pointSize: 18
 		});
 
 		property font sliderValue: Qt.font({
 			weight: Font.DemiBold,
-			pointSize: 24
+			pointSize: 16
 		});
 	}// font
 
 	property QtObject buttons: QtObject{
-		property int minW: 40;
-		property int minH: 40;
-		property int normalW: 48;
-		property int normalH: 48;
+		property int minW: 42;
+		property int minH: 42;
+		property int normalW: 44;
+		property int normalH: 44;
 	}
 
 	property QtObject drawer: QtObject{
-		property int w: 64;
-		property int h: 64;
-		property int dragmargin: 20;
+		property int w: 48;
+		property int h: 48;
 	}
 
 	property QtObject itemSpacings: QtObject{

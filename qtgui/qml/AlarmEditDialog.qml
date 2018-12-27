@@ -30,14 +30,14 @@ Popup {
 
 		Tumbler{
 			id: timeTumbler
-			Layout.maximumHeight: 96
+			Layout.maximumHeight: 100
 			Layout.rowSpan: 2
 			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
 
 			TumblerColumn {
 				id: hoursTumbler
 				model: 24
-				width: 48;
+				width: 46;
 				delegate: Text {
 					text: styleData.value
 					font: Style.font.tumbler;
@@ -48,7 +48,7 @@ Popup {
 			TumblerColumn {
 				id: minutesTumbler
 				model: 60
-				width:  48;
+				width:  46;
 				delegate: Text {
     				text: styleData.value
 					font: Style.font.tumbler;

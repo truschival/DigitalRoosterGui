@@ -88,15 +88,17 @@ ApplicationWindow {
         width: Style.drawer.w;
         height: applicationWindow.height
         interactive: true;
+		margins: Style.itemMargins.slim;
 		edge: Qt.LeftEdge;
 
-        ListView {
+		ListView {
             id: listView
 			anchors.fill: parent
 			spacing: Style.itemSpacings.dense;
 			anchors.margins: Style.itemMargins.slim;
 			anchors.horizontalCenter: parent.horizontalCenter
-
+			anchors.verticalCenter: parent.verticalCenter
+			
             focus: true;
             currentIndex: -1;
 
@@ -105,7 +107,8 @@ ApplicationWindow {
                 highlighted: listView.currentIndex == index
 
                 onClicked: {
-					console.log("Current "+ listView.currentIndex + " index: "+index + " depth:"+ stackView.depth)
+					console.log("Current "+ listView.currentIndex +
+								" index: "+index + " depth:"+ stackView.depth)
 					if( stackView.depth > 1){
 						stackView.pop(null)
 					}
