@@ -18,20 +18,18 @@
 #include <wiringPi.h>
 
 #include "hwif/hal.h"
-
 extern "C" {
-static const int PWM_RANGE = 200; // WiringPi default = 1024
-static const int CLOCK_DIV = 4;
-
+static const int PWM_RANGE = 512; // 2 to 4095 (1024 default)
+static const int CLOCK_DIV = 64;  // 1 to 4096
 static const int BRIGHTNESS_PWM_PIN = 23;
 /**
- * Brightness 0-100% between 48 and 200 for hardware PWM
- *
- * hwpwm = 48+brightness[%] * (200-48)/100[%]
+ * Brightness 0-100% between 1 and 256 for hardware PWM
+ * hwpwm = 1+brightness[%] * (256-1)/100[%]
  */
-static const int BRIGHTNESS_VAL_OFFSET_0 = 48;
-static const double BRIGHTNESS_SLOPE = (200.0 - 48.0) / 100.0;
-
+static const double BRIGHTNESS_VAL_OFFSET_0 = 1;
+static const double BRIGHTNESS_VAL_MAX = 256;
+static const double BRIGHTNESS_SLOPE =
+    (BRIGHTNESS_VAL_MAX - BRIGHTNESS_VAL_OFFSET_0) / 100.0;
 
 /*****************************************************************************/
 int system_reboot() {
@@ -61,7 +59,7 @@ int set_brightness(int brightness) {
 int setup_hardware() {
     wiringPiSetup();
     pinMode(BRIGHTNESS_PWM_PIN, PWM_OUTPUT);
-    pwmSetMode(PWM_MODE_MS);
+    pwmSetMode(PWM_MODE_BAL);
     pwmSetClock(CLOCK_DIV);
     pwmSetRange(PWM_RANGE);
     pwmWrite(BRIGHTNESS_PWM_PIN, 100);
