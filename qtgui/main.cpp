@@ -91,6 +91,7 @@ int main(int argc, char* argv[]) {
     auto cm = std::make_shared<ConfigurationManager>();
     cm->update_configuration();
     auto playerproxy = std::make_shared<MediaPlayerProxy>();
+    playerproxy->set_volume(cm->get_volume());
 
     AlarmDispatcher alarmdispatcher(cm);
     AlarmMonitor wd(playerproxy);
@@ -125,6 +126,8 @@ int main(int argc, char* argv[]) {
         SLOT(change_volume(int)));
     /* we start in standby */
     power.standby();
+    QObject::connect(playerproxy.get(), SIGNAL(volume_changed(int)), cm.get(),
+        SLOT(set_volume(int)));
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
