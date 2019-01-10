@@ -23,6 +23,9 @@ extern "C" {
 struct ScrollEvent {
     enum Direction { UP = 1, DOWN = 2 };
     Direction dir;
+    int code;
+    int value;
+    int type;
 };
 
 
@@ -50,8 +53,16 @@ int set_brightness(int brightness);
  */
 ScrollEvent get_scroll_event(int filedescriptor);
 
+/**
+ * Read value of push-button (rotary switch)
+ * @param filehandle
+ * @return 0/1
+ */
+int get_pushbutton_value(int filedescriptor);
+
+
 #ifdef __cplusplus
-} //extern "C"
+} // extern "C"
 #endif
 
 

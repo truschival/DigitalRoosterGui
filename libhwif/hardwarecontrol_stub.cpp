@@ -33,9 +33,13 @@ int setup_hardware() {
 
 /*****************************************************************************/
 ScrollEvent get_scroll_event(int filedescriptor) {
-	ScrollEvent evt;
+    ScrollEvent evt;
     evt.dir = ScrollEvent::UP;
     return evt;
 }
 
+/*****************************************************************************/
+int get_pushbutton_value(int filedescriptor) {
+    return 0;
+}
 /*****************************************************************************/

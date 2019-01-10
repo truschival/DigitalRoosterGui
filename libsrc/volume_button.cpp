@@ -47,6 +47,7 @@ DigitalRooster::VolumeButton::VolumeButton(
         qCCritical(CLASS_LC) << " open file " << button_file << "failed!"
                              << button_file.errorString();
     }
+
     connect(button_notifier.get(), &QSocketNotifier::activated, this,
         &VolumeButton::read_button);
 }
@@ -56,7 +57,7 @@ std::unique_ptr<QSocketNotifier> DigitalRooster::VolumeButton::open_and_watch(
     QFile& file) {
     if (file.open(QFile::ReadOnly)) {
         auto notifier = std::make_unique<QSocketNotifier>(
-            file.handle(), QSocketNotifier::Read);
+            file.handle(), QSocketNotifier::Exception);
         notifier->setEnabled(true);
         return notifier;
     } else {
@@ -78,10 +79,10 @@ VolumeButton::~VolumeButton() {
 void DigitalRooster::VolumeButton::read_rotary(int filehandle) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto evt = get_scroll_event(filehandle);
-    if (evt.dir == ScrollEvent::UP && volume <= 100) {
+    if (evt.value > 0 && volume <= 100) {
         volume += 1;
     }
-    if (evt.dir == ScrollEvent::DOWN && volume > 0) {
+    if (evt.value < 0 && volume > 0) {
         volume -= 1;
     }
     /* signal even if it didn't change -> inform subscribers about event */
@@ -90,9 +91,19 @@ void DigitalRooster::VolumeButton::read_rotary(int filehandle) {
 
 /*****************************************************************************/
 void DigitalRooster::VolumeButton::read_button(int filehandle) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-
-    emit button_pressed();
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << filehandle;
+    button_notifier->setEnabled(false);
+    auto status = get_pushbutton_value(filehandle);
+    if (status > 0 && !button_state) {
+        qCDebug(CLASS_LC) << "button_pressed";
+        emit button_pressed();
+    }
+    if (status == 0 && button_state) {
+        qCDebug(CLASS_LC) << "button_released";
+        emit button_released();
+    }
+    button_state = status > 0;
+    button_notifier->setEnabled(true);
 }
 
 /*****************************************************************************/

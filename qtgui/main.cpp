@@ -117,8 +117,10 @@ int main(int argc, char* argv[]) {
         SLOT(restore_active_brightness()));
 
     /* Rotary encoder interface */
-    VolumeButton volbtn(cm.get(), QString("/dev/input/event0"),
+    VolumeButton volbtn(cm.get(), QString("/dev/input/event1"),
         QString("/sys/class/gpio/gpio22/value"));
+    QObject::connect(
+        &volbtn, SIGNAL(button_released()), &power, SLOT(toggle_power_state()));
 
     /* we start in standby */
     power.standby();

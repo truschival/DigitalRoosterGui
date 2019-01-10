@@ -10,12 +10,20 @@
  * 			  SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
+#include <linux/input-event-codes.h>
+#include <linux/input.h>
 #include <linux/reboot.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/reboot.h>
 #include <unistd.h>
 #include <wiringPi.h>
+
+#include <QLoggingCategory>
+
+#include <unistd.h>
+
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HAL");
 
 #include "hwif/hal.h"
 extern "C" {
@@ -68,8 +76,40 @@ int setup_hardware() {
 
 /*****************************************************************************/
 ScrollEvent get_scroll_event(int filedescriptor) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     ScrollEvent evt;
+    struct input_event evt_raw;
+
+    auto s = ::read(filedescriptor, &evt_raw, sizeof(evt_raw));
+    if (s < 0) {
+        qCCritical(CLASS_LC) << "ERROR ";
+    }
+
+    if (s > 0) {
+        evt.code = evt_raw.code;
+        evt.value = evt_raw.value;
+        evt.type = evt_raw.type;
+        qCDebug(CLASS_LC) << "T:" << evt.type << "V:" << evt.value
+                          << "C:" << evt.code;
+    }
+
     evt.dir = ScrollEvent::UP;
     return evt;
+}
+
+/*****************************************************************************/
+int get_pushbutton_value(int filedescriptor) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    char value = 0;
+    lseek(filedescriptor, 0, SEEK_SET);
+    auto s = ::read(filedescriptor, &value, sizeof(char));
+    if (s < 0) {
+        qCCritical(CLASS_LC) << "push_button read error";
+    }
+    if (s > 0) {
+        qCDebug(CLASS_LC) << "push_button:" << value;
+        return atoi(&value);
+    }
+    return value;
 }
 }
