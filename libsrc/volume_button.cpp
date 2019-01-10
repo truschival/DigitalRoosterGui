@@ -25,8 +25,7 @@ DigitalRooster::VolumeButton::VolumeButton(
     DigitalRooster::ConfigurationManager* cm, QString rotary_encoder,
     QString button, QObject* parent)
     : rotary_file(rotary_encoder)
-    , button_file(button)
-    , volume(cm->get_volume()) {
+    , button_file(button) {
 
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
@@ -42,7 +41,9 @@ DigitalRooster::VolumeButton::VolumeButton(
 
     /* connect notifier and handler for push button */
     try {
-        button_notifier = open_and_watch(button_file);
+        // Trigger on edge, not data available to read
+        button_notifier =
+            open_and_watch(button_file, QSocketNotifier::Exception);
     } catch (std::exception& exc) {
         qCCritical(CLASS_LC) << " open file " << button_file << "failed!"
                              << button_file.errorString();
@@ -54,10 +55,9 @@ DigitalRooster::VolumeButton::VolumeButton(
 
 /*****************************************************************************/
 std::unique_ptr<QSocketNotifier> DigitalRooster::VolumeButton::open_and_watch(
-    QFile& file) {
+    QFile& file, QSocketNotifier::Type type) {
     if (file.open(QFile::ReadOnly)) {
-        auto notifier = std::make_unique<QSocketNotifier>(
-            file.handle(), QSocketNotifier::Exception);
+        auto notifier = std::make_unique<QSocketNotifier>(file.handle(), type);
         notifier->setEnabled(true);
         return notifier;
     } else {
@@ -79,14 +79,13 @@ VolumeButton::~VolumeButton() {
 void DigitalRooster::VolumeButton::read_rotary(int filehandle) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto evt = get_scroll_event(filehandle);
-    if (evt.value > 0 && volume <= 100) {
-        volume += 1;
+    // only react on -1 or 1 events
+    if (evt.value < 0) {
+        emit volume_changed(-1);
     }
-    if (evt.value < 0 && volume > 0) {
-        volume -= 1;
+    if (evt.value > 0) {
+        emit volume_changed(1);
     }
-    /* signal even if it didn't change -> inform subscribers about event */
-    emit volume_changed(volume);
 }
 
 /*****************************************************************************/
@@ -104,12 +103,6 @@ void DigitalRooster::VolumeButton::read_button(int filehandle) {
     }
     button_state = status > 0;
     button_notifier->setEnabled(true);
-}
-
-/*****************************************************************************/
-int DigitalRooster::VolumeButton::get_volume() {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return volume;
 }
 
 /*****************************************************************************/

@@ -9,16 +9,16 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
-#include <QDebug>
 #include "mediaplayer.hpp"
+#include <QDebug>
 #include <QLoggingCategory>
 
 using namespace DigitalRooster;
 
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.MediaPlayer")
 
-/*****************************************************************************/
-bool MediaPlayer::muted() const {
+    /*****************************************************************************/
+    bool MediaPlayer::muted() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return is_muted();
 }
@@ -39,6 +39,12 @@ void MediaPlayer::set_muted(bool muted) {
 void MediaPlayer::set_volume(int volume) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return do_set_volume(volume);
+}
+
+/*****************************************************************************/
+void MediaPlayer::change_volume(int increment) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    return do_increment_volume(increment);
 }
 
 /*****************************************************************************/
@@ -105,18 +111,18 @@ void MediaPlayer::set_playlist(QMediaPlaylist* playlist) {
 /*****************************************************************************/
 void MediaPlayer::pause() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-	return do_pause();
+    return do_pause();
 }
 
 /*****************************************************************************/
 void MediaPlayer::play() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-	return do_play();
+    return do_play();
 }
 
 /*****************************************************************************/
 void MediaPlayer::stop() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-	return do_stop();
+    return do_stop();
 }
 /*****************************************************************************/

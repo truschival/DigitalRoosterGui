@@ -10,6 +10,7 @@
  * 			  SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
+#include <QLoggingCategory>
 #include <linux/input-event-codes.h>
 #include <linux/input.h>
 #include <linux/reboot.h>
@@ -19,13 +20,10 @@
 #include <unistd.h>
 #include <wiringPi.h>
 
-#include <QLoggingCategory>
-
-#include <unistd.h>
+#include "hwif/hal.h"
 
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HAL");
 
-#include "hwif/hal.h"
 extern "C" {
 static const int PWM_RANGE = 512; // 2 to 4095 (1024 default)
 static const int CLOCK_DIV = 64;  // 1 to 4096
@@ -92,8 +90,6 @@ ScrollEvent get_scroll_event(int filedescriptor) {
         qCDebug(CLASS_LC) << "T:" << evt.type << "V:" << evt.value
                           << "C:" << evt.code;
     }
-
-    evt.dir = ScrollEvent::UP;
     return evt;
 }
 

@@ -49,6 +49,7 @@ private:
     virtual void do_set_position(qint64 position) override;
     virtual void do_set_muted(bool muted) override;
     virtual void do_set_volume(int volume) override;
+    virtual void do_increment_volume(int increment) override;
     virtual void do_seek(qint64 incr) override;
     virtual void do_pause() override;
     virtual void do_play() override;

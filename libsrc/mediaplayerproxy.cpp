@@ -182,8 +182,32 @@ void MediaPlayerProxy::do_set_volume(int volume) {
     auto linearVolume = QAudio::convertVolume(volume / qreal(100.0),
         QAudio::LogarithmicVolumeScale, QAudio::LinearVolumeScale);
 
-    backend->setVolume(qRound(linearVolume * 100));
+    backend->setVolume(qRound(linearVolume * 100.0));
 }
+
+/*****************************************************************************/
+void MediaPlayerProxy::do_increment_volume(int increment) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << increment;
+    if (increment == 0 || abs(increment) > 50) {
+        return;
+    }
+    auto current_volume = get_volume();
+    qCDebug(CLASS_LC) << " current volume" << current_volume;
+
+    if (increment > 0 && current_volume < 99) {
+        set_volume(current_volume + increment);
+        if (current_volume == get_volume()) {
+            do_increment_volume(increment + 1);
+        }
+    }
+    if (increment < 0 && current_volume > 0) {
+        set_volume(current_volume + increment);
+        if (current_volume == get_volume()) {
+            do_increment_volume(increment - 1);
+        }
+    }
+}
+
 /*****************************************************************************/
 void MediaPlayerProxy::do_pause() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;

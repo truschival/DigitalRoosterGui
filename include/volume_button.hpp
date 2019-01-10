@@ -35,19 +35,14 @@ public:
      * push button GPIO
      */
     VolumeButton(DigitalRooster::ConfigurationManager* cm,
-        QString rotary_encoder = QString("/dev/input/event0"),
-        QString button = QString("/sys/class/gpio/gpio01"),
+        QString rotary_encoder = QString("/dev/input/event1"),
+        QString button = QString("/sys/class/gpio/gpio22"),
         QObject* parent = nullptr);
     /**
      * check if button is pressed
      * @return pressed/not pressed
      */
     bool get_button_state();
-    /**
-     * read current volume
-     * @return volume [0...100%]
-     */
-    int get_volume();
 
     /**
      * disable copy-constructor and copy assignment
@@ -69,7 +64,7 @@ public:
 public slots:
 
 signals:
-    void volume_changed(int absvolume);
+    void volume_changed(int increment);
     void button_pressed();
     void button_released();
 
@@ -89,30 +84,28 @@ private:
     /**
      * cached button state
      */
-    bool button_state;
+    bool button_state = true;
 
     /**
-     * volume, incremented, decremented on each rotary event
-     * value between 0..100
+     * Open the file and create a QSocketNotifier for it
+     * @param file file to open and monitor
+     * @param type event type to trigger QSocketNotifier::activate
+     * @return
      */
-    int volume = 0;
-
-    /**
-	 * Open the file and create a QSocketNotifier for it
-     */
-	std::unique_ptr<QSocketNotifier> open_and_watch(QFile& file);
+    std::unique_ptr<QSocketNotifier> open_and_watch(
+        QFile& file, QSocketNotifier::Type type = QSocketNotifier::Read);
 
 private slots:
     /**
      * read event(s) from rotary file handle
-	 * update volume
+     * update volume
      */
-	void read_rotary(int filehandle);
+    void read_rotary(int filehandle);
 
-	/**
-	 * read events from button file handle
-	 * update button_state
-	 */
+    /**
+     * read events from button file handle
+     * update button_state
+     */
     void read_button(int filehandle);
 };
 } // namespace DigitalRooster

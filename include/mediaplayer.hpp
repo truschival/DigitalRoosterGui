@@ -59,6 +59,7 @@ public slots:
     void set_media(std::shared_ptr<DigitalRooster::PlayableItem> media);
     void set_playlist(QMediaPlaylist* playlist);
     void set_volume(int volume);
+    void change_volume(int increment);
     void pause();
     void play();
     void stop();
@@ -94,6 +95,7 @@ private:
     virtual void do_set_position(qint64 position) = 0;
     virtual void do_set_muted(bool muted) = 0;
     virtual void do_set_volume(int volume) = 0;
+    virtual void do_increment_volume(int increment) = 0;
     virtual void do_seek(qint64 incr) = 0;
     virtual void do_pause() = 0;
     virtual void do_play() = 0;

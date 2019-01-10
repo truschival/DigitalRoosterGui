@@ -121,7 +121,8 @@ int main(int argc, char* argv[]) {
         QString("/sys/class/gpio/gpio22/value"));
     QObject::connect(
         &volbtn, SIGNAL(button_released()), &power, SLOT(toggle_power_state()));
-
+    QObject::connect(&volbtn, SIGNAL(volume_changed(int)), playerproxy.get(),
+        SLOT(change_volume(int)));
     /* we start in standby */
     power.standby();
 
