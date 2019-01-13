@@ -59,17 +59,10 @@ ApplicationWindow {
                 }
             }
 
-	    IconButton {
-                id : volButton
-                text: "\uf4c3"
-                onClicked:{
-	    	    volumePopUp.show();
-	    	}
-            }
             IconButton {
                 id : backButton
                 text: MdiFont.Icon.keyboardBackspace
-
+		Layout.rightMargin: Style.itemMargins.wide;
                 visible: (stackView.depth > 1)
                 onClicked:{
 		    stackView.backNavigate()

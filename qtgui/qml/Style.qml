@@ -21,14 +21,14 @@ QtObject {
 	}
 
 	property QtObject font: QtObject{
-	
+
 		property font title: Qt.font({
 			weight: Font.Bold,
 			pointSize: 16
 		});
 
 		property font subtitle: Qt.font({
-			family: "DejaVu Sans Condensed",	
+			family: "DejaVu Sans Condensed",
 			weight: Font.DemiBold,
 			pointSize: 12
 		});
@@ -39,7 +39,7 @@ QtObject {
 			letterSpacing:-1,
 			pointSize: 12
 		});
-		
+
 		property font label: Qt.font({
 			family: "DejaVu Sans Condensed",
 			weight: Font.DemiBold,
@@ -48,7 +48,7 @@ QtObject {
 		});
 
 		property font boldLabel: Qt.font({
-			family: "DejaVu Sans Condensed",	
+			family: "DejaVu Sans Condensed",
 			weight: Font.Bold,
 			letterSpacing:-1,
 			pointSize: 10
@@ -62,7 +62,7 @@ QtObject {
 		});
 
 		property font flowText: Qt.font({
-			family: "DejaVu Sans Condensed",			
+			family: "DejaVu Sans Condensed",
 			weight: Font.Normal,
 			letterSpacing:-1,
 			pointSize: 10,
@@ -73,7 +73,7 @@ QtObject {
 			weight: Font.Bold,
 			pointSize: 42
 		})
-		
+
 		property font tumbler: Qt.font({
 			weight: Font.Bold,
 			pointSize: 16
