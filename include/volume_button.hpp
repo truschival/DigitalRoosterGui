@@ -62,6 +62,7 @@ public:
     virtual ~VolumeButton();
 
 public slots:
+    void monitor_rotary_button(bool active);
 
 signals:
     void volume_changed(int increment);

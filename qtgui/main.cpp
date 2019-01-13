@@ -113,9 +113,9 @@ int main(int argc, char* argv[]) {
     /* Powercontrol standby stops player */
     QObject::connect(
         &power, SIGNAL(going_in_standby()), playerproxy.get(), SLOT(stop()));
-    /* AlarmDispatcher sets Active Brightness */
-    QObject::connect(&alarmdispatcher, SIGNAL(alarm_triggered()), &brightness,
-        SLOT(restore_active_brightness()));
+    /* AlarmDispatcher sets activates system */
+    QObject::connect(
+        &alarmdispatcher, SIGNAL(alarm_triggered()), &power, SLOT(activate()));
 
     /* Rotary encoder interface */
     VolumeButton volbtn(cm.get(), QString("/dev/input/event1"),
@@ -124,10 +124,14 @@ int main(int argc, char* argv[]) {
         &volbtn, SIGNAL(button_released()), &power, SLOT(toggle_power_state()));
     QObject::connect(&volbtn, SIGNAL(volume_changed(int)), playerproxy.get(),
         SLOT(change_volume(int)));
-    /* we start in standby */
-    power.standby();
+    /* Standby deactivates Volume button events */
+    QObject::connect(&power, SIGNAL(active(bool)), &volbtn,
+        SLOT(monitor_rotary_button(bool)));
     QObject::connect(playerproxy.get(), SIGNAL(volume_changed(int)), cm.get(),
         SLOT(set_volume(int)));
+
+    /* we start in standby */
+    power.standby();
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
@@ -140,6 +144,7 @@ int main(int argc, char* argv[]) {
     ctxt->setContextProperty("config", cm.get());
     ctxt->setContextProperty("powerControl", &power);
     ctxt->setContextProperty("brightnessControl", &brightness);
+    ctxt->setContextProperty("volumeButton", &volbtn);
 
     view.load(QUrl("qrc:/main.qml"));
 
