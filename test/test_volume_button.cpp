@@ -21,15 +21,6 @@ using namespace ::testing;
 using ::testing::AtLeast;
 
 /*****************************************************************************/
-TEST(VolumeButton, VolumeDefaultInitialized) {
-    auto cm = std::make_shared<CmMock>();
-    EXPECT_CALL(*(cm.get()), do_get_volume()).Times(1).WillOnce(Return(25));
-
-    VolumeButton dut(cm.get());
-    EXPECT_EQ(dut.get_volume(), 25);
-}
-
-/*****************************************************************************/
 
 TEST(VolumeButton, VolumeChangedTriggered) {
     auto cm = std::make_shared<CmMock>();

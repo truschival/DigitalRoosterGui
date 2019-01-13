@@ -39,6 +39,11 @@ ScrollEvent get_scroll_event(int filedescriptor) {
 }
 
 /*****************************************************************************/
+int setup_gpio_pushbutton(int gpio) {
+    return 0;
+}
+
+/*****************************************************************************/
 int get_pushbutton_value(int filedescriptor) {
     return 0;
 }

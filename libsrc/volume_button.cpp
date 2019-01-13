@@ -91,6 +91,12 @@ void DigitalRooster::VolumeButton::read_rotary(int filehandle) {
 /*****************************************************************************/
 void DigitalRooster::VolumeButton::read_button(int filehandle) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << filehandle;
+	/* 
+	 * TODO: maybe we don't even need to read the actual value. Triggered 
+	 * on edges Could be enough.
+	 */
+
+	// disable during read, otherwise QSocketNotifier is triggered again
     button_notifier->setEnabled(false);
     auto status = get_pushbutton_value(filehandle);
     if (status > 0 && !button_state) {

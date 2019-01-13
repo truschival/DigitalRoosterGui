@@ -69,8 +69,31 @@ int setup_hardware() {
     pwmSetClock(CLOCK_DIV);
     pwmSetRange(PWM_RANGE);
     pwmWrite(BRIGHTNESS_PWM_PIN, 100);
+
     return 0;
 };
+
+/*****************************************************************************/
+int setup_gpio_pushbutton(int gpio) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    int err = 0;
+    FILE* fp;
+    if ((fp = fopen("/sys/class/gpio/export", "w")) == NULL)
+        return -1;
+    rewind(fp);
+    fprintf(fp, "%d", gpio);
+    fclose(fp);
+    
+	char gpio_path[128];
+    snprintf(
+        gpio_path, sizeof(gpio_path), "/sys/class/gpio/gpio%d/direction", gpio);
+	// TODO;
+	if ((fp = fopen(gpio_path, "w")) == NULL)
+        return -1;
+
+	return err;
+}
+
 
 /*****************************************************************************/
 ScrollEvent get_scroll_event(int filedescriptor) {
