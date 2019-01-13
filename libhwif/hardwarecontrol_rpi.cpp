@@ -11,14 +11,17 @@
  *****************************************************************************/
 
 #include <QLoggingCategory>
+#include <fcntl.h>
 #include <linux/input-event-codes.h>
 #include <linux/input.h>
 #include <linux/reboot.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/reboot.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <wiringPi.h>
+
 
 #include "hwif/hal.h"
 
@@ -36,6 +39,9 @@ static const double BRIGHTNESS_VAL_OFFSET_0 = 1;
 static const double BRIGHTNESS_VAL_MAX = 256;
 static const double BRIGHTNESS_SLOPE =
     (BRIGHTNESS_VAL_MAX - BRIGHTNESS_VAL_OFFSET_0) / 100.0;
+
+static int push_button_filehandle = 0;
+static int rotary_button_filehandle = 0;
 
 /*****************************************************************************/
 int system_reboot() {
@@ -70,8 +76,24 @@ int setup_hardware() {
     pwmSetRange(PWM_RANGE);
     pwmWrite(BRIGHTNESS_PWM_PIN, 100);
 
+    push_button_filehandle = open("/sys/class/gpio/gpio22/value", O_RDONLY);
+    rotary_button_filehandle = open("/dev/input/event1", O_RDONLY);
+
     return 0;
 };
+
+
+/*****************************************************************************/
+
+int get_push_button_handle() {
+    return push_button_filehandle;
+}
+
+/*****************************************************************************/
+
+int get_rotary_button_handle() {
+    return rotary_button_filehandle;
+}
 
 /*****************************************************************************/
 int setup_gpio_pushbutton(int gpio) {
@@ -83,15 +105,15 @@ int setup_gpio_pushbutton(int gpio) {
     rewind(fp);
     fprintf(fp, "%d", gpio);
     fclose(fp);
-    
-	char gpio_path[128];
+
+    char gpio_path[128];
     snprintf(
         gpio_path, sizeof(gpio_path), "/sys/class/gpio/gpio%d/direction", gpio);
-	// TODO;
-	if ((fp = fopen(gpio_path, "w")) == NULL)
+    // TODO;
+    if ((fp = fopen(gpio_path, "w")) == NULL)
         return -1;
 
-	return err;
+    return err;
 }
 
 

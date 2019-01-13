@@ -21,10 +21,7 @@ extern "C" {
  * Simplified linux/input event to allow portable code
  */
 struct ScrollEvent {
-    enum Direction {
-        DOWN = -1,
-		UP = 1
-    };
+    enum Direction { DOWN = -1, UP = 1 };
     Direction dir;
     int code;
     int value;
@@ -41,9 +38,15 @@ int setup_hardware();
 
 /**
  * Setup GPIO pin for push_button
- * @param gpio number for button
+ * @return filehandle for pushbutton
  */
-int setup_gpio_pushbutton(int gpio);
+int get_push_button_handle();
+
+/**
+ * Setup rotary button file event interface
+ * @return filehandle for event file
+ */
+int get_rotary_button_handle();
 
 /**
  * Power management functions

@@ -22,57 +22,27 @@ using namespace DigitalRooster;
 
 /*****************************************************************************/
 DigitalRooster::VolumeButton::VolumeButton(
-    DigitalRooster::ConfigurationManager* cm, QString rotary_encoder,
-    QString button, QObject* parent)
-    : rotary_file(rotary_encoder)
-    , button_file(button) {
-
+    DigitalRooster::ConfigurationManager* cm, QObject* parent) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     /* connect notifier and handler for  rotary encoder */
-    try {
-        rotary_notifier = open_and_watch(rotary_file);
-    } catch (std::exception& exc) {
-        qCCritical(CLASS_LC) << " open file " << rotary_file << "failed! "
-                             << rotary_file.errorString();
-    }
+    rotary_notifier = std::make_unique<QSocketNotifier>(
+        get_rotary_button_handle(), QSocketNotifier::Read);
+
     connect(rotary_notifier.get(), &QSocketNotifier::activated, this,
         &VolumeButton::read_rotary);
 
     /* connect notifier and handler for push button */
-    try {
-        // Trigger on edge, not data available to read
-        button_notifier =
-            open_and_watch(button_file, QSocketNotifier::Exception);
-    } catch (std::exception& exc) {
-        qCCritical(CLASS_LC) << " open file " << button_file << "failed!"
-                             << button_file.errorString();
-    }
+    button_notifier = std::make_unique<QSocketNotifier>(
+        get_push_button_handle(), QSocketNotifier::Exception);
 
     connect(button_notifier.get(), &QSocketNotifier::activated, this,
         &VolumeButton::read_button);
 }
 
 /*****************************************************************************/
-std::unique_ptr<QSocketNotifier> DigitalRooster::VolumeButton::open_and_watch(
-    QFile& file, QSocketNotifier::Type type) {
-    if (file.open(QFile::ReadOnly)) {
-        auto notifier = std::make_unique<QSocketNotifier>(file.handle(), type);
-        notifier->setEnabled(true);
-        return notifier;
-    } else {
-        throw std::runtime_error(file.errorString().toStdString());
-    }
-}
-
-/*****************************************************************************/
 VolumeButton::~VolumeButton() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (rotary_file.isOpen())
-        rotary_file.close();
-
-    if (button_file.isOpen())
-        button_file.close();
 }
 
 /*****************************************************************************/

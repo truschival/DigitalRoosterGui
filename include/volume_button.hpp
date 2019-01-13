@@ -34,10 +34,8 @@ public:
      * Construct with path to event interface for rotary encoder and
      * push button GPIO
      */
-    VolumeButton(DigitalRooster::ConfigurationManager* cm,
-        QString rotary_encoder = QString("/dev/input/event1"),
-        QString button = QString("/sys/class/gpio/gpio22"),
-        QObject* parent = nullptr);
+    VolumeButton(
+        DigitalRooster::ConfigurationManager* cm, QObject* parent = nullptr);
     /**
      * check if button is pressed
      * @return pressed/not pressed
@@ -70,8 +68,6 @@ signals:
     void button_released();
 
 private:
-    QFile rotary_file;
-    QFile button_file;
     /**
      * monitors changes on rotary encoder
      */
@@ -86,15 +82,6 @@ private:
      * cached button state
      */
     bool button_state = true;
-
-    /**
-     * Open the file and create a QSocketNotifier for it
-     * @param file file to open and monitor
-     * @param type event type to trigger QSocketNotifier::activate
-     * @return
-     */
-    std::unique_ptr<QSocketNotifier> open_and_watch(
-        QFile& file, QSocketNotifier::Type type = QSocketNotifier::Read);
 
 private slots:
     /**

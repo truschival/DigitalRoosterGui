@@ -118,8 +118,7 @@ int main(int argc, char* argv[]) {
         &alarmdispatcher, SIGNAL(alarm_triggered()), &power, SLOT(activate()));
 
     /* Rotary encoder interface */
-    VolumeButton volbtn(cm.get(), QString("/dev/input/event1"),
-        QString("/sys/class/gpio/gpio22/value"));
+    VolumeButton volbtn(cm.get());
     QObject::connect(
         &volbtn, SIGNAL(button_released()), &power, SLOT(toggle_power_state()));
     QObject::connect(&volbtn, SIGNAL(volume_changed(int)), playerproxy.get(),
