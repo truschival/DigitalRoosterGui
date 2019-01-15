@@ -204,6 +204,6 @@ ApplicationWindow {
     Component.onCompleted: {
 	console.log("main.qml completed")
 	powerControl.going_in_standby.connect(stackView.reset)
-	volumeButton.volume_changed.connect(volumePopUp.show)
+	volumeButton.volume_incremented.connect(volumePopUp.show)
     }
 } // application window
