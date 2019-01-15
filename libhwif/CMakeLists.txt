@@ -16,6 +16,9 @@ set(targets_export_name "${COMPONENT_NAME}Targets")
 # Interface/binary version
 SET(LIBRARY_VERSION ${PROJECT_VERSION})
 
+# QT5 Components used in library
+find_package(Qt5 COMPONENTS Core)
+
 #------------------------------
 # add compile definitions
 #------------------------------
@@ -68,11 +71,17 @@ TARGET_COMPILE_OPTIONS(${LIBRARY_NAME} PRIVATE
   $<$<COMPILE_LANGUAGE:C>:${CUSTOM_C_FLAGS}>
   )
 
+target_link_libraries(
+	${LIBRARY_NAME}
+	PRIVATE
+  	Qt5::Core
+	)
+
 if(NOT ${SYSTEM_TARGET_NAME} STREQUAL "Host" )
 	target_link_libraries(
-	  ${LIBRARY_NAME}
-	  PUBLIC
-	  ${WIRING_LIB}
+		${LIBRARY_NAME}
+		PUBLIC
+	  	${WIRING_LIB}
 	  )
 endif()
 

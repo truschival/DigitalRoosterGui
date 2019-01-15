@@ -10,14 +10,23 @@
  * 			  SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
+#include <QLoggingCategory>
+#include <fcntl.h>
+#include <linux/input-event-codes.h>
+#include <linux/input.h>
 #include <linux/reboot.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/reboot.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <wiringPi.h>
 
+
 #include "hwif/hal.h"
+
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HAL");
+
 extern "C" {
 static const int PWM_RANGE = 512; // 2 to 4095 (1024 default)
 static const int CLOCK_DIV = 64;  // 1 to 4096
@@ -30,6 +39,9 @@ static const double BRIGHTNESS_VAL_OFFSET_0 = 1;
 static const double BRIGHTNESS_VAL_MAX = 256;
 static const double BRIGHTNESS_SLOPE =
     (BRIGHTNESS_VAL_MAX - BRIGHTNESS_VAL_OFFSET_0) / 100.0;
+
+static int push_button_filehandle = 0;
+static int rotary_button_filehandle = 0;
 
 /*****************************************************************************/
 int system_reboot() {
@@ -63,13 +75,82 @@ int setup_hardware() {
     pwmSetClock(CLOCK_DIV);
     pwmSetRange(PWM_RANGE);
     pwmWrite(BRIGHTNESS_PWM_PIN, 100);
+
+    push_button_filehandle = open("/sys/class/gpio/gpio22/value", O_RDONLY);
+    rotary_button_filehandle = open("/dev/input/event1", O_RDONLY);
+
     return 0;
 };
 
+
+/*****************************************************************************/
+
+int get_push_button_handle() {
+    return push_button_filehandle;
+}
+
+/*****************************************************************************/
+
+int get_rotary_button_handle() {
+    return rotary_button_filehandle;
+}
+
+/*****************************************************************************/
+int setup_gpio_pushbutton(int gpio) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    int err = 0;
+    FILE* fp;
+    if ((fp = fopen("/sys/class/gpio/export", "w")) == NULL)
+        return -1;
+    rewind(fp);
+    fprintf(fp, "%d", gpio);
+    fclose(fp);
+
+    char gpio_path[128];
+    snprintf(
+        gpio_path, sizeof(gpio_path), "/sys/class/gpio/gpio%d/direction", gpio);
+    // TODO;
+    if ((fp = fopen(gpio_path, "w")) == NULL)
+        return -1;
+
+    return err;
+}
+
+
 /*****************************************************************************/
 ScrollEvent get_scroll_event(int filedescriptor) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     ScrollEvent evt;
-    evt.dir = ScrollEvent::UP;
+    struct input_event evt_raw;
+
+    auto s = ::read(filedescriptor, &evt_raw, sizeof(evt_raw));
+    if (s < 0) {
+        qCCritical(CLASS_LC) << "ERROR ";
+    }
+
+    if (s > 0) {
+        evt.code = evt_raw.code;
+        evt.value = evt_raw.value;
+        evt.type = evt_raw.type;
+        qCDebug(CLASS_LC) << "T:" << evt.type << "V:" << evt.value
+                          << "C:" << evt.code;
+    }
     return evt;
+}
+
+/*****************************************************************************/
+int get_pushbutton_value(int filedescriptor) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    char value = 0;
+    lseek(filedescriptor, 0, SEEK_SET);
+    auto s = ::read(filedescriptor, &value, sizeof(char));
+    if (s < 0) {
+        qCCritical(CLASS_LC) << "push_button read error";
+    }
+    if (s > 0) {
+        qCDebug(CLASS_LC) << "push_button:" << value;
+        return atoi(&value);
+    }
+    return value;
 }
 }

@@ -32,10 +32,31 @@ int setup_hardware() {
 }
 
 /*****************************************************************************/
+
+int get_push_button_handle() {
+    return 0;
+}
+
+/*****************************************************************************/
+
+int get_rotary_button_handle() {
+    return 0;
+}
+
+/*****************************************************************************/
 ScrollEvent get_scroll_event(int filedescriptor) {
-	ScrollEvent evt;
+    ScrollEvent evt;
     evt.dir = ScrollEvent::UP;
     return evt;
 }
 
+/*****************************************************************************/
+int setup_gpio_pushbutton(int gpio) {
+    return 0;
+}
+
+/*****************************************************************************/
+int get_pushbutton_value(int filedescriptor) {
+    return 0;
+}
 /*****************************************************************************/

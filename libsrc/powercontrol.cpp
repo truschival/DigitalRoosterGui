@@ -38,9 +38,11 @@ void PowerControl::toggle_power_state() {
     if (state == Active) {
         state = Standby;
         emit going_in_standby();
+        emit active(false);
     } else {
         state = Active;
         emit becoming_active();
+        emit active(true);
     }
     emit power_state_changed(state);
 }
@@ -53,6 +55,7 @@ void PowerControl::standby() {
         emit power_state_changed(state);
     }
     emit going_in_standby();
+    emit active(false);
 }
 
 /*****************************************************************************/
@@ -63,5 +66,6 @@ void PowerControl::activate() {
         emit power_state_changed(state);
     }
     emit becoming_active();
+    emit active(true);
 }
 /*****************************************************************************/

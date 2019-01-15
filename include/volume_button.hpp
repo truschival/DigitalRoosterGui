@@ -20,8 +20,6 @@
 #include <memory>
 
 namespace DigitalRooster {
-class ConfigurationManager;
-
 /**
  * Abstracts access to rotary button event interfaces and notifies updated
  * absolute volume
@@ -34,20 +32,12 @@ public:
      * Construct with path to event interface for rotary encoder and
      * push button GPIO
      */
-    VolumeButton(DigitalRooster::ConfigurationManager* cm,
-        QString rotary_encoder = QString("/dev/input/event0"),
-        QString button = QString("/sys/class/gpio/gpio01"),
-        QObject* parent = nullptr);
+    VolumeButton(QObject* parent = nullptr);
     /**
      * check if button is pressed
      * @return pressed/not pressed
      */
     bool get_button_state();
-    /**
-     * read current volume
-     * @return volume [0...100%]
-     */
-    int get_volume();
 
     /**
      * disable copy-constructor and copy assignment
@@ -67,15 +57,17 @@ public:
     virtual ~VolumeButton();
 
 public slots:
+    void monitor_rotary_button(bool active);
 
 signals:
-    void volume_changed(int absvolume);
+    /**
+	 * volume was incremented/decremented by increment 
+	 */
+    void volume_incremented(int increment);
     void button_pressed();
     void button_released();
 
 private:
-    QFile rotary_file;
-    QFile button_file;
     /**
      * monitors changes on rotary encoder
      */
@@ -89,30 +81,19 @@ private:
     /**
      * cached button state
      */
-    bool button_state;
-
-    /**
-     * volume, incremented, decremented on each rotary event
-     * value between 0..100
-     */
-    int volume = 0;
-
-    /**
-	 * Open the file and create a QSocketNotifier for it
-     */
-	std::unique_ptr<QSocketNotifier> open_and_watch(QFile& file);
+    bool button_state = true;
 
 private slots:
     /**
      * read event(s) from rotary file handle
-	 * update volume
+     * update volume
      */
-	void read_rotary(int filehandle);
+    void read_rotary(int filehandle);
 
-	/**
-	 * read events from button file handle
-	 * update button_state
-	 */
+    /**
+     * read events from button file handle
+     * update button_state
+     */
     void read_button(int filehandle);
 };
 } // namespace DigitalRooster

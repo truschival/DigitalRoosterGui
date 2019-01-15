@@ -21,84 +21,70 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.VolumeButton");
 using namespace DigitalRooster;
 
 /*****************************************************************************/
-DigitalRooster::VolumeButton::VolumeButton(
-    DigitalRooster::ConfigurationManager* cm, QString rotary_encoder,
-    QString button, QObject* parent)
-    : rotary_file(rotary_encoder)
-    , button_file(button)
-    , volume(cm->get_volume()) {
-
+DigitalRooster::VolumeButton::VolumeButton(QObject* parent)
+	{
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     /* connect notifier and handler for  rotary encoder */
-    try {
-        rotary_notifier = open_and_watch(rotary_file);
-    } catch (std::exception& exc) {
-        qCCritical(CLASS_LC) << " open file " << rotary_file << "failed! "
-                             << rotary_file.errorString();
-    }
+    rotary_notifier = std::make_unique<QSocketNotifier>(
+        get_rotary_button_handle(), QSocketNotifier::Read);
+
     connect(rotary_notifier.get(), &QSocketNotifier::activated, this,
         &VolumeButton::read_rotary);
 
     /* connect notifier and handler for push button */
-    try {
-        button_notifier = open_and_watch(button_file);
-    } catch (std::exception& exc) {
-        qCCritical(CLASS_LC) << " open file " << button_file << "failed!"
-                             << button_file.errorString();
-    }
+    button_notifier = std::make_unique<QSocketNotifier>(
+        get_push_button_handle(), QSocketNotifier::Exception);
+
     connect(button_notifier.get(), &QSocketNotifier::activated, this,
         &VolumeButton::read_button);
 }
 
 /*****************************************************************************/
-std::unique_ptr<QSocketNotifier> DigitalRooster::VolumeButton::open_and_watch(
-    QFile& file) {
-    if (file.open(QFile::ReadOnly)) {
-        auto notifier = std::make_unique<QSocketNotifier>(
-            file.handle(), QSocketNotifier::Read);
-        notifier->setEnabled(true);
-        return notifier;
-    } else {
-        throw std::runtime_error(file.errorString().toStdString());
-    }
-}
-
-/*****************************************************************************/
 VolumeButton::~VolumeButton() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (rotary_file.isOpen())
-        rotary_file.close();
-
-    if (button_file.isOpen())
-        button_file.close();
 }
 
 /*****************************************************************************/
 void DigitalRooster::VolumeButton::read_rotary(int filehandle) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto evt = get_scroll_event(filehandle);
-    if (evt.dir == ScrollEvent::UP && volume <= 100) {
-        volume += 1;
+    // only react on -1 or 1 events
+    if (evt.value < 0) {
+        emit volume_incremented(-1);
     }
-    if (evt.dir == ScrollEvent::DOWN && volume > 0) {
-        volume -= 1;
+    if (evt.value > 0) {
+        emit volume_incremented(1);
     }
-    /* signal even if it didn't change -> inform subscribers about event */
-    emit volume_changed(volume);
+}
+
+/*****************************************************************************/
+void DigitalRooster::VolumeButton::monitor_rotary_button(bool active) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    rotary_notifier->setEnabled(active);
 }
 
 /*****************************************************************************/
 void DigitalRooster::VolumeButton::read_button(int filehandle) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    /*
+     * TODO: maybe we don't even need to read the actual value. Triggered
+     * on edges Could be enough.
+     */
 
-    emit button_pressed();
-}
-
-/*****************************************************************************/
-int DigitalRooster::VolumeButton::get_volume() {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return volume;
+    // disable during read, otherwise QSocketNotifier is triggered again
+    button_notifier->setEnabled(false);
+    auto status = get_pushbutton_value(filehandle);
+    if (status > 0 && !button_state) {
+        qCDebug(CLASS_LC) << "button_pressed";
+        emit button_pressed();
+    }
+    if (status == 0 && button_state) {
+        qCDebug(CLASS_LC) << "button_released";
+        emit button_released();
+    }
+    button_state = status > 0;
+    button_notifier->setEnabled(true);
 }
 
 /*****************************************************************************/

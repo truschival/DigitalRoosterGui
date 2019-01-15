@@ -88,8 +88,8 @@ public:
     }
 
     /**
-     * User set and stored volume (form config file)
-     * @return volume
+     * current linear volume
+     * @return volume 0..100
      */
     int get_volume() const {
         return do_get_volume();
@@ -246,7 +246,7 @@ private:
     std::chrono::minutes sleeptimeout;
 
     /**
-     * User set and stored volume (form config file)
+     * Linear Volume in percent (stored in config file)
      */
     int volume;
 

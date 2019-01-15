@@ -48,6 +48,7 @@ signals:
     void power_state_changed(PowerControl::PowerState);
     void becoming_active();
     void going_in_standby();
+    void active(bool);
 
 private:
     /** Default state in standby */

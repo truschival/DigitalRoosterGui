@@ -10,8 +10,8 @@
  *
  *****************************************************************************/
 #include "gmock/gmock.h"
-#include "gtest/gtest.h"
 #include "mediaplayer.hpp"
+#include "gtest/gtest.h"
 
 class PlayerMock : public DigitalRooster::MediaPlayer {
 public:
@@ -39,8 +39,9 @@ public:
     MOCK_METHOD1(do_set_muted, void(bool muted));
     MOCK_METHOD1(do_set_volume, void(int volume));
     MOCK_METHOD1(do_seek, void(qint64 position));
+    MOCK_METHOD1(do_increment_volume, void(int increment));
 
-    void emitError(QMediaPlayer::Error err){
-    	emit error(err);
+    void emitError(QMediaPlayer::Error err) {
+        emit error(err);
     }
 };
