@@ -14,6 +14,7 @@
 #include <QLoggingCategory>
 #include <QString>
 #include <QTime>
+#include <QDateTime>
 #include <QVector>
 #include <QXmlStreamReader>
 #include <memory>
@@ -64,7 +65,7 @@ void parse_episodes(PodcastSource& podcastsource, QXmlStreamReader& xml) {
             if (xml.namespaceUri() == "") {
                 if (xml.name() == "title") {
                     xml.readNext();
-                    ep->set_display_name(xml.text().toString());
+                    ep->set_title(xml.text().toString());
                 } else if (xml.name() == "description") {
                     xml.readNext();
                     ep->set_description(xml.text().toString());
@@ -83,6 +84,10 @@ void parse_episodes(PodcastSource& podcastsource, QXmlStreamReader& xml) {
                     auto time = tryParse(xml.text().toString());
                     ep->set_duration(QTime(0, 0).secsTo(time) * 1000);
                 }
+                if (xml.name() == "author") {
+                    xml.readNext();
+                    ep->set_publisher(xml.text().toString());
+                }
             }
         }
 
@@ -90,7 +95,8 @@ void parse_episodes(PodcastSource& podcastsource, QXmlStreamReader& xml) {
             throw std::invalid_argument(xml.errorString().toStdString());
         }
     }
-    /* We want at least a display name and a media_url */
+    /* We want at least a display name(title with or without publisher) and a
+     * media_url */
     if (ep->get_display_name().isEmpty()) {
         qWarning(CLASS_LC) << "Found channel with empty title: "
                            << xml.lineNumber();
@@ -175,6 +181,8 @@ void DigitalRooster::update_podcast(
                 }
             }
         }
+        podcastsource.set_last_updated(QDateTime::currentDateTime());
+
     } catch (std::invalid_argument& exc) {
         qCWarning(CLASS_LC)
             << " XML error in line:" << xml.lineNumber() << exc.what();

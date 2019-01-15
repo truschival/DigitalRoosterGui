@@ -10,6 +10,5 @@ import QtQuick.Controls 2.0
 import "Icon.js" as MdiFont
 
 Text {
-    font.pointSize: 24
-    font.family: "Material Design Icons"
+	font: Style.font.button;
 }

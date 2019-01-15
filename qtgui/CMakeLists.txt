@@ -1,30 +1,15 @@
 MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
 SET(BINARY_NAME "DigitalRoosterGui")
 
-find_package(Qt5 COMPONENTS Core Widgets Multimedia Qml Quick REQUIRED)
-MESSAGE(STATUS "Found Qt5 version: ${Qt5Widgets_VERSION_STRING}")
+# Gui has extra QT dependencies: QML and QTquick
+find_package(Qt5 COMPONENTS Qml Quick REQUIRED)
 
 #Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
-# Instruct CMake to run moc automatically when needed.
-set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
-set(CMAKE_AUTORCC ON)
 
-# --------------------------------------------------------------------------------
-# C++ Srcs
-# --------------------------------------------------------------------------------
-SET(SRCS
-  ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/podcastsourcemodel.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/podcastepisodemodel.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/iradiolistmodel.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/alarmlistmodel.cpp
-)
-
-# --------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # App Depends on library
-# --------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 SET(PROJECT_CORE_LIB "")
 if(TARGET digitalrooster)
@@ -34,34 +19,52 @@ else()
 endif()
 LIST(APPEND PROJECT_CORE_LIB digitalrooster)
 
+
+#-------------------------------------------------------------------------------
+# C++ Srcs
+#-------------------------------------------------------------------------------
+SET(SRCS
+  ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/podcastsourcemodel.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/podcastepisodemodel.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/iradiolistmodel.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/alarmlistmodel.cpp
+)
+
+#------------------------------
+# QT MOC, UIC RCC input 
+#------------------------------
+SET(UI_HDRS
+  )
+
+SET(MOC_SRC
+  ${CMAKE_CURRENT_SOURCE_DIR}/podcastsourcemodel.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/podcastepisodemodel.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/iradiolistmodel.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/alarmlistmodel.hpp  
+  )
+
+SET(QRC_SRC
+  qml/qml.qrc
+  externalRes/external.qrc
+  )
+
 #------------------------------
 # add compile definitions
 #------------------------------
 SET(CPP_DEFS "")
-LIST(APPEND CPP_DEFS "AWESOME=1" )
-
-#------------------------------
-# QT magic
-#------------------------------
-qt5_wrap_ui(UI_HDRS
-  )
-
-SET(QRC_SRC
-  qml.qrc
-  externalRes/external.qrc
-  )
+LIST(APPEND CPP_DEFS "" )
 
 #------------------------------
 # Binary
 #------------------------------
 # Executable (for target)
-add_executable(${BINARY_NAME}
+ADD_EXECUTABLE(${BINARY_NAME}
   ${SRCS}
   ${UI_HDRS}
   ${MOC_SRC}
   ${QRC_SRC}
   )
-
 
 SET_TARGET_PROPERTIES(
   ${BINARY_NAME}

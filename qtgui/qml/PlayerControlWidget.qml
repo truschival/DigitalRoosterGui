@@ -6,55 +6,61 @@ import ruschi.PodcastEpisode 1.0
 import "Icon.js" as MdiFont
 import "Jsutil.js" as Util
 
-Rectangle {
-    width: 300
-    height: 130
-    anchors.horizontalCenterOffset: 0
-    visible: false
-	radius: 0
-    z: 1
+Popup {
+	closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
+	background: Rectangle {
+        color: "#3F51B5"
+    }
 
-	color: "#3F51B5"
+	enter: Transition {
+		NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 ; duration: 300}
+	}
+	exit: Transition {
+		NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 ; duration: 400}
+	}
 
     Timer {
         id: interactiontimer
-        interval: 2500
+        interval: 5000
         running: true
         repeat: false
-        onTriggered: parent.setVisible(false)
+        onTriggered: playerControlWidget.close();
     }
 
 	GridLayout{
 		columns: 3;
 		rows: 3;
-		columnSpacing:3
-		rowSpacing:0
-		anchors.margins: 3
-		anchors.fill: parent
-		
+		columnSpacing: Style.itemSpacings.medium;
+		rowSpacing: Style.itemSpacings.dense;
+		anchors.margins: 0;
+		Layout.topMargin: 0;
+		anchors.bottomMargin: 12;
+		anchors.fill: parent;
+
 		Text{
 			id: currentMediaTitle
 			text: "" ;
-			font.pointSize: 10;
-			font.bold: true;
+			font: Style.font.label;
 			color: "white";
 			elide: Text.ElideRight;
-			
+
+			Layout.topMargin: 0;
 			Layout.columnSpan: 3;
 			Layout.fillWidth: true;
 			Layout.alignment: Qt.AlignCenter| Qt.AlignTop
-			Layout.bottomMargin: 3
 		}
 
 		IconButton {
 			id: backwardBtn
 			Layout.alignment: Qt.AlignRight| Qt.AlignTop
-			Layout.fillWidth: true;
+			Layout.minimumWidth: parent.width/3 - 20;
+			Layout.preferredWidth: parent.width/3 ;
 
 			text: MdiFont.Icon.rewind
+
 			onClicked: {
 				interactiontimer.restart()
-				playerProxy.seek(-5000)
+				playerProxy.seek(-10000)
 			}
 		}
 
@@ -93,51 +99,58 @@ Rectangle {
 		IconButton {
 			id: forwardBtn
 			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
-			Layout.fillWidth: true;
+			Layout.minimumWidth: parent.width/3 - 20;
+			Layout.preferredWidth: parent.width/3 ;
 
 			text: MdiFont.Icon.fastForward
 			onClicked: {
 				interactiontimer.restart()
-				playerProxy.seek(5000)
+				playerProxy.seek(10000)
 			}
 		}
 		//Row 3
-		Text {
-			id: timeElapsed
-			text: Util.display_time_ms(playerProxy.position)
-			Layout.alignment: Qt.AlignCenter|Qt.AlignTop
-			color: "white"
-		}
-		
-		Slider {
-			id: slider
+		RowLayout{
+			Layout.columnSpan: 3;
 			Layout.fillWidth: true;
-			Layout.alignment: Qt.AlignCenter|Qt.AlignTop
-			Layout.topMargin: -15
-			enabled: playerProxy.seekable
-			
-			onValueChanged: {
-				interactiontimer.restart()
+			Layout.alignment: Qt.AlignCenter| Qt.AlignTop
+			Layout.bottomMargin: 10;
+			Layout.topMargin: Style.itemMargins.slim;
+
+			Text {
+				id: timeElapsed
+				text: Util.display_time_ms(playerProxy.position)
+				font: Style.font.valueLabel;
+				Layout.alignment: Qt.AlignRight | Qt.AlignTop
+				color: "white"
 			}
-			onMoved: {
-				playerProxy.set_position(value * playerProxy.duration)
+
+			Slider {
+				id: slider
+				Layout.fillWidth: true;
+				Layout.alignment: Qt.AlignHCenter|Qt.AlignTop
+				Layout.topMargin: -10;
+				enabled: playerProxy.seekable
+
+				onMoved: {
+					playerProxy.set_position(value * playerProxy.duration)
+					interactiontimer.restart()
+				}
 			}
-		}	
-		Text {
-			id: durationTotal
-			text: playerProxy.seekable? Util.display_time_ms(playerProxy.duration): "\u221E"
-			color: "white"
-			
-			Layout.alignment: Qt.AlignCenter|Qt.AlignTop
-			//visible: playerProxy.seekable
-		}
-		
-	}
+			Text {
+				id: durationTotal
+				text: playerProxy.seekable? Util.display_time_ms(playerProxy.duration): "\u221E"
+				Layout.preferredWidth: timeElapsed.width
+				font: Style.font.valueLabel;
+				color: "white"
+				Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+			}
+		}// RowLayout Row 3
+	}//Gridlayout
 
     /***********************************************************************/
-    function setVisible(visible) {
-        interactiontimer.restart()
-        playerControlWidget.visible = visible
+    function show(visible) {
+ 		interactiontimer.start();
+		playerControlWidget.open();
     }
 
     function updatePosition(pos) {

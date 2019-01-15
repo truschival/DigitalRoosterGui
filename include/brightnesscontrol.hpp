@@ -15,6 +15,9 @@
 
 #include <QObject>
 #include <memory>
+
+#include "powercontrol.hpp"
+
 namespace DigitalRooster {
 
 class ConfigurationManager;
@@ -39,29 +42,29 @@ public:
      * @return brightness
      */
     int get_brightness();
-   
-	/**
+
+    /**
      * Linear brightness [0...100%] to
      * logarithmic (perceived) brightness
      * @param lb linear brightness
-     * @return logarithmic brightness as int [0..100] 
+     * @return logarithmic brightness as int [0..100]
      */
     int lin2log(int lb);
 
 public slots:
     /**
-     * Change the brightness to new value and store it as 
+     * Change the brightness to new value and store it as
      * active brightness value
      * @param brightness 0..100 (linear)
      */
     void set_brightness(int brightness);
 
-	/**
+    /**
      * Set brightness to poweron brightness
      */
     void restore_active_brightness();
 
-	/**
+    /**
      * Set brightness to sleep brightness
      */
     void restore_standby_brightness();
@@ -78,13 +81,12 @@ private:
      * Central configuration and data handler
      */
     std::shared_ptr<ConfigurationManager> cm;
-	
-	/**
-	 * Current brightness setting (linear)
-	 */
-	int linear_brightness;
+
+    /**
+     * Current brightness setting (linear)
+     */
+    int linear_brightness;
 };
 
 } // namespace DigitalRooster
 #endif /* _BRIGHTNESSCONTROL_HPP_ */
-

@@ -16,6 +16,9 @@ set(targets_export_name "${COMPONENT_NAME}Targets")
 # Interface/binary version
 SET(LIBRARY_VERSION ${PROJECT_VERSION})
 
+# QT5 Components used in library
+find_package(Qt5 COMPONENTS Core)
+
 #------------------------------
 # add compile definitions
 #------------------------------
@@ -28,14 +31,14 @@ LIST(APPEND CPP_DEFS SYSTEM_TARGET_NAME=${SYSTEM_TARGET_NAME} )
 
 if(${SYSTEM_TARGET_NAME} STREQUAL "RPi" )
 	MESSAGE(STATUS "adding raspberry pi specific flags")
-	set(SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_rpi.c )
+	set(SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_rpi.cpp )
 	find_library(WIRING_LIB 
 		wiringPi
 		DOC "Wiring Pi library"
 	)
 	MESSAGE(STATUS "Found library  ${WIRING_LIB-VERSION} : ${WIRING_LIB} ")
 else()
-	set(SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_stub.c )
+	set(SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_stub.cpp )
 endif()
 
 #------------------------------
@@ -68,11 +71,17 @@ TARGET_COMPILE_OPTIONS(${LIBRARY_NAME} PRIVATE
   $<$<COMPILE_LANGUAGE:C>:${CUSTOM_C_FLAGS}>
   )
 
+target_link_libraries(
+	${LIBRARY_NAME}
+	PRIVATE
+  	Qt5::Core
+	)
+
 if(NOT ${SYSTEM_TARGET_NAME} STREQUAL "Host" )
 	target_link_libraries(
-	  ${LIBRARY_NAME}
-	  PUBLIC
-	  ${WIRING_LIB}
+		${LIBRARY_NAME}
+		PUBLIC
+	  	${WIRING_LIB}
 	  )
 endif()
 

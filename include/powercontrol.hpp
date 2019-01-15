@@ -23,9 +23,36 @@ namespace DigitalRooster {
 class PowerControl : public QObject {
     Q_OBJECT
 public:
+    /**
+     * PowerState
+     */
+    enum PowerState {
+        Active, //!< running
+        Standby //!< standby
+    };
+    Q_ENUM(PowerState)
+
     PowerControl() = default;
     Q_INVOKABLE void power_off();
     Q_INVOKABLE void reboot();
+
+    PowerControl::PowerState get_power_state() {
+        return state;
+    }
+
+public slots:
+    Q_INVOKABLE void toggle_power_state();
+    Q_INVOKABLE void activate();
+    Q_INVOKABLE void standby();
+signals:
+    void power_state_changed(PowerControl::PowerState);
+    void becoming_active();
+    void going_in_standby();
+    void active(bool);
+
+private:
+    /** Default state in standby */
+    PowerState state = Standby;
 };
 
 }; // namespace DigitalRooster

@@ -5,7 +5,7 @@
 DigitalRooster
 ===================
 
-Internet radio and podcast player and alarmclock.
+Internet radio, podcast player and alarmclock. Intended to run on embedded linux with a small touch display. Microsoft Windows and GNU/Linux systems are also supported.
 
 ----
 # License
@@ -47,7 +47,7 @@ Slightly useless configurations
 - `-DSETTINGS_FILE_PATH=...` Where to find configuration file
 
 
-### Native build Linux or Windows
+### Native build for GNU/Linux and Windows
 
 DigitalRooster requires OpenSSL and QT5.10 to run. For the build a C++14
 Compiler, cmake-3.9 are required.
@@ -157,8 +157,7 @@ configure and build DigitalRooster.
 
 ### Podcast, Streams and Alarms
 
-Digitalrooster runs from any directory and generates on the first start, or if
-no configuration is found a default configuration.
+Digitalrooster runs from any directory and generates on the first start a default configuration is generated if no config is found.
 
 The configuration path is derived from
 [QStandardPaths::ConfigLocation](http://doc.qt.io/qt-5/qstandardpaths.html)
@@ -166,7 +165,110 @@ i.e.:
 - On Linux :  `~/.config/DigitalRooster/digitalrooster.json` 
 - On Windows:  `%LOCALAPPDATA%/DigitalRooster/digitalrooster.json`
 
-### Logging
+#### Global configuration and common properties of objects:
+-  `id` of the objects is auto generated if not present.
+-  `name` is updated according to infromation form RSS (for podcasts) or shoutcast information for radio streams (if available)
+-  `AlarmTimeout` time in minutes an alarm should play until it is automatically stopped.
+-  `SleepTimeout` is not yet implemented.
+-  `brightnessActive` is the display background when active (0-100%)
+-  `brightnessStandby` is the display background in standby mode (0-100%)
+-  `volume` is the default volume
+-  `Version` project version for this config file (upgrades and backward compatibility not yet implemented)
+-  `SleepTimeout` time in minutes after which standby is activated (not yet implemented)
+
+#### Alarm objects:
+`Alarms` is an array of alarm objects.
+- `id` unique identifier - auto generated if not present
+- `enabled` enabled/disables triggering of alarm
+- `uri` stream uri to play for this alarm
+- `time` Time of day when to trigger the alarm
+- `period` frequency when to trigger alarm. Possible values are `workdays`, `weekend`, `daily`
+- `volume` volume to set for playing alarm
+
+If an alarm is triggered and the stream source is unavailable or has errors a fallback sound will be played. 
+
+#### Podcast Source objects:
+`Podcasts` is an array containing individual RSS sources for podcasts. The only mandatory property is `uri` others are optional:
+- `id` unique identifier - auto generated if not present
+- `name` human readable identifier, updated according to RSS XML
+- `uri` RSS uri
+
+#### Internet Stream objects:
+`InternetRadio` is an array containing individual stream source configurations. The only mandatory property is `uri` others are optional:
+- `id` unique identifier - auto generated if not present
+- `name` human readable identifier, updated according to shoutcast information when played (if available)
+- `uri` stream uri
+
+#### Weather:
+The `Weather` object configures the displayed weather information form [openweathermap.org](https://api.openweathermap.org)
+- `LocationID` identifier for the geographic location, see [http://bulk.openweathermap.org/sample/city.list.json.gz](http://bulk.openweathermap.org/sample/city.list.json.gz) e.g. Esslingen: `"LocationID" = "2928751"` or Porto Alegre: `"LocationID" = "3452925"`
+- `API-Key` access token to the openweather api
+
+#### Example configuration file
+```
+{
+    "AlarmTimeout": 15,
+    "Alarms": [
+        {
+            "enabled": true,
+            "id": "{43eac57e-2c63-45f6-9748-b18e7d7a8666}",
+            "period": "workdays",
+            "time": "17:58",
+            "uri": "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3",
+            "volume": 30
+        },
+        {
+            "enabled": true,
+            "id": "{455c0cb6-291f-4326-ba97-cd0e0d5adbf6}",
+            "period": "weekend",
+            "time": "18:04",
+            "uri": "http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk",
+            "volume": 30
+        }
+    ],
+    "InternetRadio": [
+        {
+            "id": "{a258d2f2-f36e-4620-9e1f-9d5f7875a747}",
+            "name": "Deutschlandfunk Nova",
+            "uri": "http://st03.dlf.de/dlf/03/104/ogg/stream.ogg"
+        },
+        {
+            "id": "{de2c79da-c250-4c78-a2db-5db398c0cbd9}",
+            "name": "Radio FM4",
+            "uri": "https://fm4shoutcast.sf.apa.at"
+        },
+        {
+            "id": "{0bad5cdd-4b4f-411b-929c-be9d634ba76a}",
+            "name": "BBC Service",
+            "uri": "http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk"
+        }
+    ],
+    "Podcasts": [
+        {
+            "id": "{b10f3ffc-51cb-4935-ae89-39a8dfb01ddd}",
+            "name": "Alternativlos",
+            "uri": "https://alternativlos.org/alternativlos.rss"
+        },
+        {
+            "id": "{e153f4b9-13a1-4313-a6f2-ed97cdce88a4}",
+            "name": "Arms Control Wonk",
+            "uri": "http://armscontrolwonk.libsyn.com/rss"
+        }
+    ],
+    "SleepTimeout": 60,
+    "Version": "0.5.2",
+    "Weather": {
+        "API-Key": "xxx",
+        "LocationID": "2928751"
+    },
+    "brightnessActive": 60,
+    "brightnessStandby": 15,
+    "volume": 30
+}
+
+```
+
+### Logging configuration
 
 Digitalrooster supports dynamic logging configuration using
 [QLoggingCategory](http://doc.qt.io/qt-5/qloggingcategory.html) i.e.:
@@ -179,14 +281,16 @@ The runtime log file is created in
 - On Windows: `%LOCALAPPDATA%/Temp/Digitalrooster.log`
 
 
-#### Example configuration 
-All debug messages except for HttpClient and AlarmMonitor are disabled
+#### Logging example configuration 
+
+All debug messages except for `HttpClient` and `AlarmMonitor` are disabled
+
 ```
 [Rules]
 *.debug=false
-DigitalRooster.*.debug=true
 DigitalRooster.AlarmMonitor.debug=true
 DigitalRooster.HttpClient.debug=true
 ```
+
 
 

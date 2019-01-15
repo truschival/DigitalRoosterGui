@@ -45,13 +45,42 @@ AlarmDispatcher::AlarmDispatcher(
 void AlarmDispatcher::check_alarms() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto now = wallclock->now();
+    auto dow = now.date().dayOfWeek();
     for (const auto& alarm : cm->get_alarms()) {
-        auto delta = seconds(now.secsTo(alarm->get_next_trigger()));
-        if (alarm->is_enabled() && delta <= interval) {
-            // qDebug() << "Dispatching Alarm";
-            emit alarm_triggered(alarm);
+        /* only check period if enabled and due within the interval */
+        if (!alarm->is_enabled() ||
+            std::abs(now.time().secsTo(alarm->get_time())) > interval.count())
+            continue;
+
+        /* Check if today is the day */
+        switch (alarm->get_period()) {
+        case Alarm::Once:
+            dispatch(alarm);
+            /* disable the next time*/
+            alarm->enable(false);
+            break;
+        case Alarm::Daily:
+            /* always trigger */
+            dispatch(alarm);
+            break;
+        case Alarm::Weekend:
+            if (dow > Qt::Friday) {
+                dispatch(alarm);
+            }
+            break;
+        case Alarm::Workdays:
+            if (dow < Qt::Saturday) {
+                dispatch(alarm);
+            }
         }
     }
+}
+
+/*****************************************************************************/
+void AlarmDispatcher::dispatch(std::shared_ptr<Alarm> alarm) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << alarm->get_id();
+    emit alarm_triggered(alarm);
+    emit alarm_triggered();
 }
 
 /*****************************************************************************/

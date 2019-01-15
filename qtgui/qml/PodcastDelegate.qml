@@ -5,46 +5,53 @@ import ruschi.PodcastEpisodeModel 1.0
 
 Rectangle{
 	id: podcastdelegate
-	width:  podcastlist.width;
-	height: 100;
+	width:  Style.contentWidth;
+	height: Style.contentHeight*0.45;
 	radius: 3;
 	border.width: 1;
-	color: podcastlist.currentItem == this ? "#2196F3" : "LightGrey" ;
+	color: podcastlist.currentItem == this ?
+		Style.colors.selected : Style.colors.unselected ;
 
 	GridLayout{
+		anchors.margins: Style.itemMargins.slim;
+		anchors.fill: parent
 		columns: 3
 		rows: 2
-		columnSpacing: 3
-		rowSpacing:3
-		anchors.margins: 3
-		anchors.fill: parent
+		columnSpacing: Style.itemSpacings.medium;
+		rowSpacing:Style.itemSpacings.dense;
 
 		Image {
-			id: podcasticon
-			Layout.maximumWidth: 96
-			Layout.maximumHeight: 96
+			id: podcasticon;
+			Layout.maximumHeight : podcastdelegate.height-
+				2*Style.itemMargins.slim;
+			Layout.maximumWidth :  podcastdelegate.height-
+				2*Style.itemMargins.slim;
+			// yes width is specified as height,
+			// gives the layout a hint while image is not loaded
+			Layout.minimumWidth :  0.9*podcastdelegate.height-
+				2*Style.itemMargins.slim;
+			Layout.minimumHeight : 0.9*podcastdelegate.height-
+				2*Style.itemMargins.slim;
+			
 			Layout.rowSpan: 2
-			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
-			Layout.fillHeight: true;
+			Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter
 
 			fillMode: Image.PreserveAspectFit
 			source: logo_image
 		}
 
 		Text {
-			height: 28;
-			text: display_name ;
-			font.pointSize: 15;
-			font.bold: true;
-			elide: Text.ElideRight
+			text: display_name;
+			font: Style.font.listItemHead;
+			elide: Text.ElideRight;
 			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
 			Layout.fillWidth: true;
 		}
 
 		Text {
-			text: episode_count ;
+			text: episode_count;
 			wrapMode: Text.WordWrap;
-			font.pointSize: 11;
+			font: Style.font.valueLabel;
 			Layout.preferredWidth: (parent.with-podcasticon.width)*0.2
 			Layout.alignment: Qt.AlignRight | Qt.AlignTop
 		}
@@ -53,10 +60,12 @@ Rectangle{
 			text: description ;
 			elide: Text.ElideRight;
 			wrapMode:  Text.WordWrap;
-			font.pointSize: 10;
+			font: Style.font.flowText;
+			lineHeight : 0.8;
+			Layout.topMargin: 0;
 			Layout.columnSpan: 2;
 			Layout.fillWidth: true;
-			Layout.maximumHeight: (parent.height-8)/2
+			Layout.maximumHeight: parent.height/2
 			Layout.alignment: Qt.AlignLeft| Qt.AlignTop
 		}
 	}
@@ -87,5 +96,3 @@ Rectangle{
 	}
 
 }
-
-

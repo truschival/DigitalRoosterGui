@@ -91,13 +91,33 @@ TEST_F(PlayerFixture, setMuted) {
 TEST_F(PlayerFixture, setVolume) {
     QSignalSpy spy(&dut, SIGNAL(volume_changed(int)));
     ASSERT_TRUE(spy.isValid());
-
-    dut.set_media(podcast);
-    dut.play();
     dut.set_volume(23);
     ASSERT_EQ(spy.count(), 1);
-    ASSERT_LE(
-        std::abs(dut.get_volume() - 23LL), 1); // account for rounding errors
+    ASSERT_EQ(dut.get_volume(), 23);
+}
+
+/*****************************************************************************/
+TEST_F(PlayerFixture, setVolumeInvalid) {
+    QSignalSpy spy(&dut, SIGNAL(volume_changed(int)));
+    ASSERT_TRUE(spy.isValid());
+ 
+    dut.set_volume(-1); // invalid
+    dut.set_volume(100);
+
+    ASSERT_EQ(spy.count(), 1); // only 1 set calls is valid and should emit 
+    ASSERT_EQ(dut.get_volume(), 100);
+}
+
+/*****************************************************************************/
+TEST_F(PlayerFixture, incrementVolume) {
+    QSignalSpy spy(&dut, SIGNAL(volume_changed(int)));
+    ASSERT_TRUE(spy.isValid());
+    dut.set_volume(23);
+    dut.increment_volume(1);
+    ASSERT_EQ(spy.count(), 2);
+    ASSERT_EQ(dut.get_volume(), 24); // incremented by 1
+    dut.increment_volume(-2);
+    ASSERT_EQ(dut.get_volume(), 22); // incremented by 2
 }
 
 /*****************************************************************************/

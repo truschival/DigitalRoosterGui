@@ -3,14 +3,17 @@ MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
 SET(BINARY_NAME "${PROJECT_NAME}_gtest")
 
 #set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-find_package(Qt5 COMPONENTS Core Multimedia Test REQUIRED)
+
+# Extra QT5 components for tests
+find_package(Qt5 COMPONENTS Test REQUIRED)
+
 # Threading library for gtest
 # Use ${CMAKE_THREAD_LIBS_INIT} for the library
 find_package(Threads REQUIRED)
 
-# --------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # Unit test sources, TestDoubles, Mocks etc.
-# --------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_settings.cpp
@@ -23,16 +26,14 @@ SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test_alarmmonitor.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_weather.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_brightness.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_playableitem.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_volume_button.cpp
   )
 
-# Moc any classes derived from QObject
-qt5_wrap_cpp(MOC_SRC
 
-)
-
-# --------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 # Add libraries to test here
-# --------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
 
 SET(DUT_LIBS "")
 IF(TARGET digitalrooster)
@@ -48,12 +49,12 @@ LIST(APPEND DUT_LIBS digitalrooster)
 SET(CPP_DEFS "")
 LIST(APPEND CPP_DEFS "")
 
-# --------------------------------------------------------------------------------
-if(NOT BUILD_GTEST_FROM_SRC)
+#-------------------------------------------------------------------------------
+IF(NOT BUILD_GTEST_FROM_SRC)
   # Use prebuilt google_test
   find_package(GTest REQUIRED)
 
-else(NOT BUILD_GTEST_FROM_SRC)
+ELSE(NOT BUILD_GTEST_FROM_SRC)
   include(ExternalProject)
 
   #--------------------------------------------------------------------------
@@ -122,7 +123,6 @@ else(NOT BUILD_GTEST_FROM_SRC)
    	IMPORTED_LOCATION_DEBUG  "${GTEST_MAINLIB}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
  	INTERFACE_INCLUDE_DIRECTORIES      "${GTEST_INCLUDES}"
   	IMPORTED_LINK_INTERFACE_LIBRARIES  GTest)
-
   
   add_library(GMock IMPORTED STATIC GLOBAL)
   set_target_properties(GMock PROPERTIES
@@ -152,31 +152,39 @@ endif(NOT BUILD_GTEST_FROM_SRC)
 SET(RSS_FILE_GOOD "alternativlos.rss")
 SET(RSS_FILE_BAD "alternativlos_bad.rss")
 SET(RSS_FILE_MALFORMAT "alternativlos_malformatted.rss")
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_GOOD}"		
-		"${CMAKE_BINARY_DIR}/${RSS_FILE_GOOD}" COPYONLY)
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_BAD}"		
-		"${CMAKE_BINARY_DIR}/${RSS_FILE_BAD}" COPYONLY)
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_MALFORMAT}"	
-  "${CMAKE_BINARY_DIR}/${RSS_FILE_MALFORMAT}" COPYONLY)
+CONFIGURE_FILE(
+  "${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_GOOD}"
+  "${CMAKE_BINARY_DIR}/${RSS_FILE_GOOD}"
+  COPYONLY)
+CONFIGURE_FILE(
+  "${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_BAD}"
+  "${CMAKE_BINARY_DIR}/${RSS_FILE_BAD}"
+  COPYONLY)
+CONFIGURE_FILE(
+  "${CMAKE_CURRENT_SOURCE_DIR}/${RSS_FILE_MALFORMAT}"
+  "${CMAKE_BINARY_DIR}/${RSS_FILE_MALFORMAT}"
+  COPYONLY)
 
 SET(AUDIO_TEST_FILE "testaudio.mp3")
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${AUDIO_TEST_FILE}"	
-  "${CMAKE_BINARY_DIR}/${AUDIO_TEST_FILE}" COPYONLY)
+CONFIGURE_FILE(
+  "${CMAKE_CURRENT_SOURCE_DIR}/${AUDIO_TEST_FILE}"	
+  "${CMAKE_BINARY_DIR}/${AUDIO_TEST_FILE}"
+  COPYONLY)
   
 SET(WEATHER_TEST_FILE "sample_weather.json")
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${WEATHER_TEST_FILE}"	
-  "${CMAKE_BINARY_DIR}/${WEATHER_TEST_FILE}" COPYONLY)
+CONFIGURE_FILE(
+  "${CMAKE_CURRENT_SOURCE_DIR}/${WEATHER_TEST_FILE}"	
+  "${CMAKE_BINARY_DIR}/${WEATHER_TEST_FILE}"
+  COPYONLY)
   
-
 #------------------------------
 # Binary
 #------------------------------
 
 # UnitTests Executable (for target)
-add_executable(${BINARY_NAME}
+add_executable(
+  ${BINARY_NAME}
   ${TEST_HARNESS_SRCS}
-  ${UI_HDRS}
-  ${MOC_SRC}
   )
 
 SET_TARGET_PROPERTIES(
@@ -220,12 +228,14 @@ IF(TEST_COVERAGE)
 ENDIF(TEST_COVERAGE) 
 
 # Call the testBinary with junit-xml output
-add_test(junitout
+ADD_TEST(junitout
   "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${BINARY_NAME}"
   --gtest_output=xml:gtestresults.xml
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR} )
 
-if(INSTALL_UNIT_TEST_ON_TARGET)
-  INSTALL(TARGETS  ${TEST_BINARY_NAME} RUNTIME
-	DESTINATION ${TARGET_EXE_INSTALL_DIR} )
-endif(INSTALL_UNIT_TEST_ON_TARGET)
+IF(INSTALL_UNIT_TEST_ON_TARGET)
+  INSTALL(TARGETS
+	${TEST_BINARY_NAME}
+	RUNTIME	DESTINATION ${TARGET_EXE_INSTALL_DIR}
+	)
+ENDIF(INSTALL_UNIT_TEST_ON_TARGET)

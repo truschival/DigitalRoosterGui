@@ -9,10 +9,11 @@ import "Jsutil.js" as Util
 Rectangle{
     id: alarmDelegate
 	width: parent.width;
-    height: 60;
+    height: Style.contentHeight/3;
     radius: 3;
 	border.width: 1;
-	color: alarmEnabled ? "#2196F3" :  "LightGrey" ;
+	color: alarmEnabled ?
+		Style.colors.enabled : Style.colors.disabled;
 
 	MouseArea {
 		anchors.fill: parent
@@ -20,47 +21,36 @@ Rectangle{
 			alarmlistmodel.currentIndex =index;
 			console.log("Alarm pressed : "+index);
 			alarmEditDlg.index = index;
-			alarmEditDlg.currentAlarm = alarmlistmodel.get_alarm(alarmlistmodel.currentIndex)
+			alarmEditDlg.currentAlarm = alarmlistmodel.get_alarm(
+				alarmlistmodel.currentIndex)
 			alarmEditDlg.open();
 		}
 	}
 
 	RowLayout{
 		anchors.fill: parent
-		anchors.leftMargin: 10;
-		anchors.rightMargin: 10;
-		anchors.topMargin:2
-		anchors.bottomMargin:2
-		spacing:2;
-		anchors.verticalCenter: parent.verticalCenter;
-
+		anchors.margins: Style.itemMargins.slim;
+		spacing: Style.itemSpacings.medium;
 
 		Text {
 			id: periodicityString;
-			text:  periodstring;
-       		Layout.fillWidth: true
-			Layout.minimumWidth: 100
-			Layout.preferredWidth: 120
-			font.pointSize: 12;
+			text: periodstring;
+       		Layout.fillWidth: true;
+			font: Style.font.label;
 		}
 
 		Text {
 			id: alarmtime;
-			Layout.minimumWidth: 60
-			Layout.preferredWidth: 90
-			font.pointSize: 12;
-			font.bold: true;
+			font: Style.font.boldLabel;
+			Layout.alignment: Qt.AlignRight | Qt.AlignVCenter;
 			text: Qt.formatTime(triggerTime, "hh:mm")
-			elide: Text.ElideLeft
 		}
 
 		Switch{
 			id: enaAlarm;
-			Layout.minimumWidth: 100
-			Layout.preferredWidth: 150
 
 			position: alarmEnabled;
-			text: alarmEnabled ? qsTr("enabled") : qsTr("disabled")
+			text: alarmEnabled ? qsTr("on") : qsTr("off")
 
 			onCheckedChanged:{
 				alarmlistmodel.set_enabled(index, position)

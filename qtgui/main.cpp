@@ -40,6 +40,7 @@
 #include "podcastsourcemodel.hpp"
 #include "powercontrol.hpp"
 #include "timeprovider.hpp"
+#include "volume_button.hpp"
 #include "weather.hpp"
 
 using namespace DigitalRooster;
@@ -90,6 +91,7 @@ int main(int argc, char* argv[]) {
     auto cm = std::make_shared<ConfigurationManager>();
     cm->update_configuration();
     auto playerproxy = std::make_shared<MediaPlayerProxy>();
+    playerproxy->set_volume(cm->get_volume());
 
     AlarmDispatcher alarmdispatcher(cm);
     AlarmMonitor wd(playerproxy);
@@ -103,6 +105,32 @@ int main(int argc, char* argv[]) {
     Weather weather(cm);
     PowerControl power;
     BrightnessControl brightness(cm);
+    /* PowerControl standby sets brightness */
+    QObject::connect(&power, SIGNAL(going_in_standby()), &brightness,
+        SLOT(restore_standby_brightness()));
+    QObject::connect(&power, SIGNAL(becoming_active()), &brightness,
+        SLOT(restore_active_brightness()));
+    /* Powercontrol standby stops player */
+    QObject::connect(
+        &power, SIGNAL(going_in_standby()), playerproxy.get(), SLOT(stop()));
+    /* AlarmDispatcher sets activates system */
+    QObject::connect(
+        &alarmdispatcher, SIGNAL(alarm_triggered()), &power, SLOT(activate()));
+
+    /* Rotary encoder interface */
+    VolumeButton volbtn(cm.get());
+    QObject::connect(
+        &volbtn, SIGNAL(button_released()), &power, SLOT(toggle_power_state()));
+    QObject::connect(&volbtn, SIGNAL(volume_incremented(int)),
+        playerproxy.get(), SLOT(increment_volume(int)));
+    /* Standby deactivates Volume button events */
+    QObject::connect(&power, SIGNAL(active(bool)), &volbtn,
+        SLOT(monitor_rotary_button(bool)));
+    QObject::connect(playerproxy.get(), SIGNAL(volume_changed(int)), cm.get(),
+        SLOT(set_volume(int)));
+
+    /* we start in standby */
+    power.standby();
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
@@ -115,6 +143,7 @@ int main(int argc, char* argv[]) {
     ctxt->setContextProperty("config", cm.get());
     ctxt->setContextProperty("powerControl", &power);
     ctxt->setContextProperty("brightnessControl", &brightness);
+    ctxt->setContextProperty("volumeButton", &volbtn);
 
     view.load(QUrl("qrc:/main.qml"));
 

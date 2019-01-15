@@ -18,6 +18,7 @@
 #include <QObject>
 #include <QString>
 #include <QUrl>
+#include <QUuid>
 
 namespace DigitalRooster {
 /**
@@ -25,101 +26,148 @@ namespace DigitalRooster {
  */
 class PlayableItem : public QObject {
     Q_OBJECT
-    Q_PROPERTY(QString display_name READ get_display_name WRITE set_display_name)
+    Q_PROPERTY(
+        QString display_name READ get_display_name NOTIFY display_name_changed)
+    Q_PROPERTY(QString title READ get_title WRITE set_title NOTIFY
+            display_name_changed)
+    Q_PROPERTY(QString publisher READ get_publisher WRITE set_publisher NOTIFY
+            display_name_changed)
     Q_PROPERTY(QUrl url READ get_url WRITE set_url)
-	Q_PROPERTY(int position READ get_position WRITE set_position)
-	Q_PROPERTY(int duration READ get_duration WRITE set_duration)
+    Q_PROPERTY(QUuid id READ get_id)
+    Q_PROPERTY(int position READ get_position WRITE set_position)
+    Q_PROPERTY(int duration READ get_duration WRITE set_duration NOTIFY
+            duration_changed)
 public:
     /**
      * Default Constructor
      */
-    PlayableItem() = default;
+    explicit PlayableItem(const QUuid& uid = QUuid::createUuid());
 
     /**
      * Convenience Constructor
      * @param name display_name
      * @param url media_url
      */
-    PlayableItem(const QString& name, const QUrl& url)
-        : display_name(name)
-        , media_url(url){};
+    PlayableItem(const QString& name, const QUrl& url,
+        const QUuid& uid = QUuid::createUuid());
 
-    const QString& get_display_name() const{
-        return display_name;
+    /**
+     * Information on title, publisher ,etc.
+     * @return  display_name
+     */
+    QString get_display_name() const {
+        return do_get_display_name();
     };
 
+    // void set_display_name(const QString& name);
+
+    /**
+     * Stream source URI
+     * @return media uri
+     */
     const QUrl& get_url() const {
         return media_url;
     };
 
-    void set_display_name(const QString& name) {
-        display_name = name;
+    void set_url(const QUrl& url);
+
+    /**
+     * last stored position
+     */
+    qint64 get_position() const {
+        return position;
     };
+    /**
+     * update position of already listened content
+     * @param newVal current position in stream
+     */
+    void set_position(qint64 newVal);
 
-
-    void set_url(const QUrl& url) {
-        media_url = url;
+    /**
+     * Title for Playable item
+     * @return title
+     */
+    QString get_title() const {
+        return title;
     };
+    void set_title(const QString& title);
 
-	/**
-	* last stored position
-	*/
-	qint64 get_position() const {
-		return position;
-	};
-	/**
-	* update position of already listened content
-	* @param newVal current position in stream
-	*/
-	void set_position(qint64 newVal) {
-		if (newVal <= duration && newVal >= 0) {
-			position = newVal;
-		}
-	};
+    /**
+     * Publisher/Radio station of this playable item
+     * @return publisher
+     */
+    QString get_publisher() const {
+        return publisher;
+    };
+    void set_publisher(const QString& publisher);
 
+    /**
+     * unique id for this Item
+     * @return
+     */
+    QUuid get_id() const {
+        return id;
+    }
 
-	/**
-	* Total length of media in ms
-	* @return
-	*/
-	qint64 get_duration() {
-		return duration;
-	}
+    /**
+     * Total length of media in ms
+     * @return
+     */
+    qint64 get_duration() const {
+        return duration;
+    }
 
-	/**
-	* Update length in ms only used for display purpose
-	* @param len >= 0
-	*/
-	void set_duration(qint64 len) {
-		if (len >= 0)
-			duration = len;
-	}
+    /**
+     * Update length in ms only used for display purpose
+     * @param len >= 0
+     */
+    void set_duration(qint64 len);
+
+signals:
+    void display_name_changed(const QString& info);
+    void duration_changed(qint64 duration);
 
 private:
-    /** human readable name*/
+    /**
+     * 'unique' id for this alarm
+     */
+    const QUuid id;
+
+    /** initial human assigned display name*/
     QString display_name;
+
+    /** Title */
+    QString title;
+
+    /** publisher/author/station name */
+    QString publisher;
 
     /** Media URL */
     QUrl media_url;
 
-	/**
-	* Current Position in stream
-	*/
-	qint64 position = 0;
+    /**
+     * Current Position in stream
+     */
+    qint64 position = 0;
 
-	/**
-	* Total length in ms
-	*/
-	qint64 duration = 0;
+    /**
+     * Total length in ms
+     */
+    qint64 duration = 0;
+
+    /**
+     * Human information dynamically build
+     * @return
+     */
+    virtual QString do_get_display_name() const;
 };
 
 /**
  * PodcastEpisode = item of RSS feed
  */
 class PodcastEpisode : public PlayableItem {
-	Q_OBJECT
-	Q_PROPERTY(QString author READ get_author)
-	Q_PROPERTY(QString description READ get_description)
+    Q_OBJECT
+    Q_PROPERTY(QString description READ get_description)
 public:
     PodcastEpisode() = default;
 
@@ -134,15 +182,7 @@ public:
           };
     virtual ~PodcastEpisode() = default;
 
-    void set_author(const QString& newAuthor) {
-        author = newAuthor;
-    };
-
-    const QString& get_author() const{
-        return author;
-    }
-
-    const QString& get_description() const{
+    const QString& get_description() const {
         return description;
     }
 
@@ -150,7 +190,7 @@ public:
         description = desc;
     };
 
-    QString get_guid() const{
+    QString get_guid() const {
         if (guid.isEmpty()) {
             return get_url().toString();
         }
@@ -172,15 +212,11 @@ public:
 
 private:
     /**
-     * Author of the episode
-     */
-    QString author;
-    /**
      * Synopsis of this episode
      */
     QString description;
     /**
-     * Global Unique ID of item
+     * Global Unique ID of podcast, assigned by publisher in RSS
      */
     QString guid;
     /**
@@ -188,5 +224,5 @@ private:
      */
     QDateTime publication_date;
 };
-};
+};     // namespace DigitalRooster
 #endif // _PLAYABLEITEM_HPP_

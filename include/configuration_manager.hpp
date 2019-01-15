@@ -88,8 +88,8 @@ public:
     }
 
     /**
-     * User set and stored volume (form config file)
-     * @return volume
+     * current linear volume
+     * @return volume 0..100
      */
     int get_volume() const {
         return do_get_volume();
@@ -168,7 +168,7 @@ public:
      * @param id of alarm
      * @return 0 if alarm was deleted, -1 otherwise
      */
-    Q_INVOKABLE int delete_alarm(qint64 id);
+    int delete_alarm(const QUuid& id);
 
 public slots:
     /**
@@ -246,7 +246,7 @@ private:
     std::chrono::minutes sleeptimeout;
 
     /**
-     * User set and stored volume (form config file)
+     * Linear Volume in percent (stored in config file)
      */
     int volume;
 

@@ -14,9 +14,11 @@
 #define _PODCASTSOURCE_HPP_
 
 #include <QDate>
+#include <QDateTime>
 #include <QObject>
 #include <QString>
 #include <QVector>
+#include <QUuid>
 #include <chrono>
 #include <limits>
 #include <memory>
@@ -38,8 +40,10 @@ public:
     /**
      * Preconfigured Podcast Source
      * @param url Feed URL
+     * @param uid unique id for this podcast
      */
-    explicit PodcastSource(const QUrl& url);
+    explicit PodcastSource(
+        const QUrl& url, QUuid uid = QUuid::createUuid());
 
     /**
      * Give the Podcast source a (new) update task
@@ -174,6 +178,14 @@ public:
      */
     QVector<QString> get_episodes_names();
 
+    /**
+     * unique id for this Podcast RSS source
+     * @return
+     */
+    QUuid get_id() const {
+        return id;
+    }
+
 signals:
     /**
      * The episodes list or any other member has been updated
@@ -184,9 +196,14 @@ signals:
 
     void descriptionChanged();
 
-	void episodesChanged();
+    void episodesChanged();
 
 private:
+    /**
+     * unique id for this Podcast RSS source
+     */
+    const QUuid id;
+
     /**
      * URL for rss feed of this podcast channel
      */

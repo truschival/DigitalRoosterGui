@@ -16,6 +16,7 @@
 #include <QDateTime>
 #include <QObject>
 #include <QUrl>
+#include <QUuid>
 #include <chrono>
 #include <memory>
 
@@ -29,7 +30,7 @@ class TimeProvider;
 class Alarm : public QObject {
     Q_OBJECT
     Q_PROPERTY(bool enabled READ is_enabled WRITE enable NOTIFY enabled_changed)
-    Q_PROPERTY(qint64 id READ get_id)
+    Q_PROPERTY(QUuid id READ get_id)
     Q_PROPERTY(QTime time READ get_time WRITE set_time NOTIFY time_changed)
     Q_PROPERTY(QString periodicity READ get_period_string NOTIFY period_changed)
     Q_PROPERTY(DigitalRooster::Alarm::Period period_id READ get_period WRITE
@@ -59,67 +60,30 @@ public:
      */
     Alarm(const QUrl& media, const QTime& timepoint,
         Alarm::Period period = Alarm::Daily, bool enabled = true,
-        QObject* parent = nullptr);
-
-    /**
-     * Construct an alarm for given time and date
-     * @param media what to play
-     * @param timepoint particular time & date
-     * @param period periodicity
-     * @param enabled activated/deactivated
-     * @param parent obligatory QObject parent
-     */
-    Alarm(const QUrl& media, const QDateTime& timepoint,
-        Alarm::Period period = Alarm::Once, bool enabled = true,
-        QObject* parent = nullptr);
-
+        const QUuid& uid = QUuid::createUuid(), QObject* parent = nullptr);
 
     /**
      * Need Default constructor to register with QML
      */
     Alarm()
-        : id(QDateTime::currentMSecsSinceEpoch())
+        : id(QUuid::createUuid())
         , media(nullptr)
         , period(Alarm::Daily)
         , enabled(true){};
 
     /**
-     * 'unique' id for alarm
+     * unique id for alarm
      * @return
      */
-    qint64 get_id() const {
+    QUuid get_id() const {
         return id;
     }
-    void set_id(qint64 id) {
-        this->id = id;
-    }
-
-    /**
-     * next trigger instant when the alarm is to be triggered
-     * @return
-     */
-    const QDateTime& get_next_trigger();
-
-    /**
-     * set time of day when the alarm should occur
-     * @param timeofday 00:00 to 23:59
-     * @param period periodicity
-     */
-    void set_trigger(const QTime& timeofday, Alarm::Period period);
-
-    /**
-     * Set the alarm to trigger once at given timeinsance
-     * @param timeinstance when to trigger alarm
-     */
-    void set_trigger(const QDateTime& timeinstance);
 
     /**
      * Trigger time
      * @return time of day when alarm is due
      */
-    const QTime get_time() const {
-        return trigger_instant.time();
-    }
+    const QTime& get_time() const;
     void set_time(const QTime& timeofday);
 
     /**
@@ -141,7 +105,6 @@ public:
      */
     void set_period(Alarm::Period period) {
         this->period = period;
-        update_trigger();
         emit period_changed(period);
         emit period_changed(get_period_string());
     };
@@ -198,7 +161,7 @@ public:
      * update media form QML
      * @param url new media url
      */
-    void update_media_url(QUrl url);
+    void update_media_url(const QUrl& url);
     QUrl get_media_url() const;
 
 public slots:
@@ -232,7 +195,7 @@ private:
     /**
      * 'unique' id for this alarm
      */
-    std::atomic<qint64> id;
+    const QUuid id;
 
     /**
      * What to play when alarm triggers
@@ -245,10 +208,9 @@ private:
     Alarm::Period period;
 
     /**
-     * Time point when this alarm will trigger
-     * The date part of is ignored except for period "Once"
+     * Time of day when Alarm is due
      */
-    QDateTime trigger_instant;
+    QTime alarm_time;
 
     /**
      * Will it trigger?
@@ -263,10 +225,6 @@ private:
      * Default volume for alarm
      */
     int volume = 40;
-    /**
-     * Calculate the upcoming timepoint when the alarm should trigger
-     */
-    void update_trigger();
 };
 
 /**
