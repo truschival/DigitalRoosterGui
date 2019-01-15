@@ -42,7 +42,7 @@ void MediaPlayer::set_volume(int volume) {
 }
 
 /*****************************************************************************/
-void MediaPlayer::change_volume(int increment) {
+void MediaPlayer::increment_volume(int increment) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return do_increment_volume(increment);
 }

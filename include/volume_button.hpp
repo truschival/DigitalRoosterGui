@@ -20,8 +20,6 @@
 #include <memory>
 
 namespace DigitalRooster {
-class ConfigurationManager;
-
 /**
  * Abstracts access to rotary button event interfaces and notifies updated
  * absolute volume
@@ -34,8 +32,7 @@ public:
      * Construct with path to event interface for rotary encoder and
      * push button GPIO
      */
-    VolumeButton(
-        DigitalRooster::ConfigurationManager* cm, QObject* parent = nullptr);
+    VolumeButton(QObject* parent = nullptr);
     /**
      * check if button is pressed
      * @return pressed/not pressed
@@ -63,7 +60,10 @@ public slots:
     void monitor_rotary_button(bool active);
 
 signals:
-    void volume_changed(int increment);
+    /**
+	 * volume was incremented/decremented by increment 
+	 */
+    void volume_incremented(int increment);
     void button_pressed();
     void button_released();
 

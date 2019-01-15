@@ -21,8 +21,8 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.VolumeButton");
 using namespace DigitalRooster;
 
 /*****************************************************************************/
-DigitalRooster::VolumeButton::VolumeButton(
-    DigitalRooster::ConfigurationManager* cm, QObject* parent) {
+DigitalRooster::VolumeButton::VolumeButton(QObject* parent)
+	{
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     /* connect notifier and handler for  rotary encoder */
@@ -51,10 +51,10 @@ void DigitalRooster::VolumeButton::read_rotary(int filehandle) {
     auto evt = get_scroll_event(filehandle);
     // only react on -1 or 1 events
     if (evt.value < 0) {
-        emit volume_changed(-1);
+        emit volume_incremented(-1);
     }
     if (evt.value > 0) {
-        emit volume_changed(1);
+        emit volume_incremented(1);
     }
 }
 

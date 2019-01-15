@@ -13,10 +13,11 @@
 #ifndef _MEDIAPLAYERPROXY_HPP_
 #define _MEDIAPLAYERPROXY_HPP_
 
-#include "mediaplayer.hpp"
 #include <QMediaPlayer>
 #include <QObject>
 #include <memory>
+
+#include "mediaplayer.hpp"
 
 namespace DigitalRooster {
 class PlayableItem;
@@ -56,9 +57,11 @@ private:
     virtual void do_stop() override;
 
     /**
-     * Initial player volume
+     * Linear volume 0..100%
+     * Initialized because increment/decrement has to work with some value
      */
-    const int initial_volume = 30;
+    int linear_volume = 0;
+
     /**
      * The actual player implementation
      */

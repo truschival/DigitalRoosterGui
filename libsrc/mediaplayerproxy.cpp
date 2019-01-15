@@ -27,7 +27,6 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.MediaPlayerProxy");
 MediaPlayerProxy::MediaPlayerProxy()
     : backend(std::make_unique<QMediaPlayer>()) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    backend->setVolume(initial_volume);
     QObject::connect(backend.get(), &QMediaPlayer::mediaChanged,
         [=](const QMediaContent& media) { emit media_changed(media); });
 
@@ -46,9 +45,6 @@ MediaPlayerProxy::MediaPlayerProxy()
             qCWarning(CLASS_LC) << "Player Error" << err;
             emit error(err);
         });
-
-    QObject::connect(backend.get(), &QMediaPlayer::volumeChanged,
-        [=](int volume) { emit volume_changed(volume); });
 
     QObject::connect(backend.get(), &QMediaPlayer::mutedChanged,
         [=](bool muted) { emit muted_changed(muted); });
@@ -138,11 +134,7 @@ bool MediaPlayerProxy::is_muted() const {
 /*****************************************************************************/
 int MediaPlayerProxy::do_get_volume() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-
-    auto linearVolume = QAudio::convertVolume(backend->volume() / 100.0f,
-        QAudio::LinearVolumeScale, QAudio::LogarithmicVolumeScale);
-
-    return qRound(linearVolume * 100);
+    return linear_volume;
 }
 
 /*****************************************************************************/
@@ -178,34 +170,24 @@ QMediaPlayer::State MediaPlayerProxy::do_playback_state() const {
 /*****************************************************************************/
 void MediaPlayerProxy::do_set_volume(int volume) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << volume;
+    if (volume < 0 || volume > 100) {
+        qCWarning(CLASS_LC) << "invalid volume (must be 0..100%)";
+        return;
+	}
+    linear_volume = volume;
+    emit volume_changed(volume);
 
-    auto linearVolume = QAudio::convertVolume(volume / qreal(100.0),
+	/* backend works with logarithmic volume */
+    auto adjusted_volume = QAudio::convertVolume(volume / qreal(100.0),
         QAudio::LogarithmicVolumeScale, QAudio::LinearVolumeScale);
-
-    backend->setVolume(qRound(linearVolume * 100.0));
+    backend->setVolume(qRound(adjusted_volume * 100.0));
 }
 
 /*****************************************************************************/
 void MediaPlayerProxy::do_increment_volume(int increment) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << increment;
-    if (increment == 0 || abs(increment) > 50) {
-        return;
-    }
-    auto current_volume = get_volume();
-    qCDebug(CLASS_LC) << " current volume" << current_volume;
-
-    if (increment > 0 && current_volume < 99) {
-        set_volume(current_volume + increment);
-        if (current_volume == get_volume()) {
-            do_increment_volume(increment + 1);
-        }
-    }
-    if (increment < 0 && current_volume > 0) {
-        set_volume(current_volume + increment);
-        if (current_volume == get_volume()) {
-            do_increment_volume(increment - 1);
-        }
-    }
+    qCDebug(CLASS_LC) << " current volume" << linear_volume;
+	set_volume(linear_volume + increment);
 }
 
 /*****************************************************************************/

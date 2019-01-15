@@ -121,8 +121,8 @@ int main(int argc, char* argv[]) {
     VolumeButton volbtn(cm.get());
     QObject::connect(
         &volbtn, SIGNAL(button_released()), &power, SLOT(toggle_power_state()));
-    QObject::connect(&volbtn, SIGNAL(volume_changed(int)), playerproxy.get(),
-        SLOT(change_volume(int)));
+    QObject::connect(&volbtn, SIGNAL(volume_incremented(int)),
+        playerproxy.get(), SLOT(increment_volume(int)));
     /* Standby deactivates Volume button events */
     QObject::connect(&power, SIGNAL(active(bool)), &volbtn,
         SLOT(monitor_rotary_button(bool)));
