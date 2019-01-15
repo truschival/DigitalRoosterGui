@@ -24,7 +24,7 @@ IF(${CMAKE_VERSION} VERSION_LESS "3.9")
 ELSE()
   MESSAGE( STATUS "Running ${CMAKE_COMMAND} v${CMAKE_VERSION}" )
   PROJECT(DigitalRooster
-	VERSION 0.5.2
+	VERSION 0.6.0
 	DESCRIPTION  "A digital alarm clock and podcast player"
 	LANGUAGES CXX C
 	)
