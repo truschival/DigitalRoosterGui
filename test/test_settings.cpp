@@ -28,8 +28,7 @@ using namespace DigitalRooster;
 class SettingsFixture : public virtual ::testing::Test {
 public:
     SettingsFixture()
-        : filename(TEST_FILE_PATH + "/" + CONFIG_JSON_FILE_NAME)
-        , cm(TEST_FILE_PATH) {
+        : filename(TEST_FILE_PATH + "/" + CONFIG_JSON_FILE_NAME) {
     }
 
     ~SettingsFixture() {
@@ -45,7 +44,9 @@ public:
         tf.open(QIODevice::ReadWrite | QIODevice::Text);
         tf.write(doc.toJson());
         tf.close();
-        cm.update_configuration();
+
+        cm = std::make_unique<ConfigurationManager>(TEST_FILE_PATH);
+        cm->update_configuration();
     }
 
     void TearDown() {
@@ -56,7 +57,7 @@ public:
 protected:
     QString filename;
     QJsonObject appconfig;
-    ConfigurationManager cm;
+    std::unique_ptr<ConfigurationManager> cm;
 
     void add_internet_radio(QJsonObject& root) {
         QJsonArray radiosources;
@@ -148,29 +149,29 @@ protected:
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, read_radio_streams_two_streams) {
-    auto& v = cm.get_stream_sources();
+    auto& v = cm->get_stream_sources();
     ASSERT_EQ(2, v.size());
 }
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, addRadioStation_no_write) {
-    cm.add_radio_station(
+    cm->add_radio_station(
         std::make_shared<PlayableItem>("foo", QUrl("http://bar.baz")));
-    cm.add_radio_station(
+    cm->add_radio_station(
         std::make_shared<PlayableItem>("ref", QUrl("http://gmx.net")));
-    auto& v = cm.get_stream_sources();
+    auto& v = cm->get_stream_sources();
     ASSERT_EQ(4, v.size());
 }
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, addRadioStation_write) {
     {
-        cm.add_radio_station(
+        cm->add_radio_station(
             std::make_shared<PlayableItem>("foo", QUrl("http://bar.baz")));
-        cm.add_radio_station(
+        cm->add_radio_station(
             std::make_shared<PlayableItem>("ref", QUrl("http://gmx.net")));
         /* should write file in destructor */
-        cm.store_current_config();
+        cm->store_current_config();
     }
     ConfigurationManager control(TEST_FILE_PATH);
     control.update_configuration();
@@ -183,13 +184,14 @@ TEST_F(SettingsFixture, addRadioStation_write) {
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, read_2podcasts) {
-    auto& v = cm.get_podcast_sources();
+    auto& v = cm->get_podcast_sources();
     ASSERT_EQ(2, v.size());
 }
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, read_PodcastUri) {
-    auto& v = cm.get_podcast_sources();
+    auto& v = cm->get_podcast_sources();
+    ASSERT_EQ(2, v.size());
     ASSERT_EQ(v[0]->get_url(),
         QString("https://alternativlos.org/alternativlos.rss"));
     ASSERT_EQ(v[1]->get_url(),
@@ -199,7 +201,7 @@ TEST_F(SettingsFixture, read_PodcastUri) {
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, podcastSource_incomplete) {
-    auto& v = cm.get_podcast_sources();
+    auto& v = cm->get_podcast_sources();
     ASSERT_EQ(v[0]->get_url(),
         QString("https://alternativlos.org/alternativlos.rss"));
     ASSERT_EQ(v[1]->get_description(), QString(""));
@@ -216,15 +218,16 @@ TEST(StringToPeriodEnum, mapping_good) {
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, alarm_count) {
-    auto& v = cm.get_alarms();
+    auto& v = cm->get_alarms();
     ASSERT_EQ(v.size(), 5);
 }
 /*****************************************************************************/
 TEST_F(SettingsFixture, alarm_id) {
-    auto& v = cm.get_alarms();
+    auto& v = cm->get_alarms();
     auto res = std::find_if(
         v.begin(), v.end(), [&](const std::shared_ptr<Alarm>& item) {
-            return item->get_id() == QUuid("12eb4390-6abf-4626-be48-f11fe20f45cf");
+            return item->get_id() ==
+                QUuid("12eb4390-6abf-4626-be48-f11fe20f45cf");
         });
     ASSERT_NE(res, v.end());
     ASSERT_EQ((*res)->get_period(), Alarm::Workdays);
@@ -232,10 +235,11 @@ TEST_F(SettingsFixture, alarm_id) {
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, podcastid) {
-    auto& v = cm.get_podcast_sources();
+    auto& v = cm->get_podcast_sources();
     auto res = std::find_if(
         v.begin(), v.end(), [&](const std::shared_ptr<PodcastSource>& item) {
-            return item->get_id() == QUuid("a754affb-fd4b-4825-9eba-32b64fd7d50c");
+            return item->get_id() ==
+                QUuid("a754affb-fd4b-4825-9eba-32b64fd7d50c");
         });
     ASSERT_NE(res, v.end());
     ASSERT_EQ((*res)->get_url(),
@@ -244,10 +248,11 @@ TEST_F(SettingsFixture, podcastid) {
 }
 /*****************************************************************************/
 TEST_F(SettingsFixture, streamsourceid) {
-    auto& v = cm.get_stream_sources();
+    auto& v = cm->get_stream_sources();
     auto res = std::find_if(
         v.begin(), v.end(), [&](const std::shared_ptr<PlayableItem>& item) {
-            return item->get_id() == QUuid("c98a9c37-f990-47eb-ab73-21daf48d43c0");
+            return item->get_id() ==
+                QUuid("c98a9c37-f990-47eb-ab73-21daf48d43c0");
         });
     ASSERT_NE(res, v.end());
     ASSERT_EQ((*res)->get_url(), QString("http://swr2.de"));
@@ -256,30 +261,30 @@ TEST_F(SettingsFixture, streamsourceid) {
 /*****************************************************************************/
 TEST_F(SettingsFixture, addAlarm) {
     auto al = std::make_shared<Alarm>();
-    auto size_before = cm.get_alarms().size();
-    cm.add_alarm(al);
-    ASSERT_EQ(cm.get_alarms().size(), size_before + 1);
+    auto size_before = cm->get_alarms().size();
+    cm->add_alarm(al);
+    ASSERT_EQ(cm->get_alarms().size(), size_before + 1);
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, deleteAlarm) {
     auto al = std::make_shared<Alarm>();
     auto id = al->get_id();
-    auto size_before = cm.get_alarms().size();
-    cm.add_alarm(al);
-    cm.delete_alarm(id);
-    ASSERT_EQ(cm.get_alarms().size(), size_before);
+    auto size_before = cm->get_alarms().size();
+    cm->add_alarm(al);
+    cm->delete_alarm(id);
+    ASSERT_EQ(cm->get_alarms().size(), size_before);
 }
 /*****************************************************************************/
 TEST_F(SettingsFixture, deleteAlarmNonExist) {
-    auto size_before = cm.get_alarms().size();
-    ASSERT_EQ(cm.delete_alarm(QUuid("XXX")), -1);
-    ASSERT_EQ(cm.get_alarms().size(), size_before);
+    auto size_before = cm->get_alarms().size();
+    ASSERT_EQ(cm->delete_alarm(QUuid("XXX")), -1);
+    ASSERT_EQ(cm->get_alarms().size(), size_before);
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, alarm_daily) {
-    auto& v = cm.get_alarms();
+    auto& v = cm->get_alarms();
     ASSERT_EQ(v[0]->get_period(), Alarm::Daily);
     ASSERT_EQ(v[0]->get_time(), QTime::fromString("10:00", "hh:mm"));
     ASSERT_TRUE(v[0]->is_enabled());
@@ -287,7 +292,7 @@ TEST_F(SettingsFixture, alarm_daily) {
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, alarm_workdays) {
-    auto& v = cm.get_alarms();
+    auto& v = cm->get_alarms();
 
     ASSERT_EQ(v[1]->get_period(), Alarm::Workdays);
     ASSERT_EQ(v[1]->get_time(), QTime::fromString("07:00", "hh:mm"));
@@ -296,7 +301,7 @@ TEST_F(SettingsFixture, alarm_workdays) {
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, alarm_weekends) {
-    auto& v = cm.get_alarms();
+    auto& v = cm->get_alarms();
     ASSERT_EQ(v[2]->get_period(), Alarm::Weekend);
     ASSERT_EQ(v[2]->get_time(), QTime::fromString("09:00", "hh:mm"));
     ASSERT_FALSE(v[2]->is_enabled());
@@ -304,7 +309,7 @@ TEST_F(SettingsFixture, alarm_weekends) {
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, alarm_once) {
-    auto& v = cm.get_alarms();
+    auto& v = cm->get_alarms();
     ASSERT_EQ(v[3]->get_period(), Alarm::Once);
     ASSERT_EQ(v[3]->get_time(), QTime::fromString("13:00", "hh:mm"));
     ASSERT_TRUE(v[3]->is_enabled());
@@ -312,7 +317,7 @@ TEST_F(SettingsFixture, alarm_once) {
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, alarm_once_default) {
-    auto& v = cm.get_alarms();
+    auto& v = cm->get_alarms();
     // Alarm 5 has an unknown peridicity string "Manchmal" it should default to
     // Daily
     ASSERT_EQ(v[4]->get_period(), Alarm::Daily);
@@ -320,12 +325,12 @@ TEST_F(SettingsFixture, alarm_once_default) {
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, emitConfigChanged) {
-    auto number_of_alarms = cm.get_alarms().size();
-    QSignalSpy spy(&cm, SIGNAL(configuration_changed()));
+    auto number_of_alarms = cm->get_alarms().size();
+    QSignalSpy spy(cm.get(), SIGNAL(configuration_changed()));
     ASSERT_TRUE(spy.isValid());
-    cm.update_configuration();
+    cm->update_configuration();
     ASSERT_EQ(spy.count(), 1);
-    ASSERT_EQ(cm.get_alarms().size(), number_of_alarms);
+    ASSERT_EQ(cm->get_alarms().size(), number_of_alarms);
 }
 
 /*****************************************************************************/
@@ -357,13 +362,13 @@ TEST(ConfigManager, CreateDefaultConfig) {
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, GetweatherConfigApiToken) {
-    auto cfg = cm.get_weather_config();
+    auto cfg = cm->get_weather_config();
     ASSERT_EQ(cfg.apikey, QString("d77bd1ca2fd77ce4e1cdcdd5f8b7206c"));
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, GetweatherConfigCityId) {
-    auto cfg = cm.get_weather_config();
+    auto cfg = cm->get_weather_config();
     ASSERT_EQ(cfg.cityid, QString("3452925"));
 }
 

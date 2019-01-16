@@ -133,6 +133,12 @@ void ConfigurationManager::read_radio_streams_from_file(
         stream_sources.push_back(
             std::make_shared<PlayableItem>(name, url, uid));
     }
+    /* Sort alphabetically */
+    std::sort(stream_sources.begin(), stream_sources.end(),
+        [](const std::shared_ptr<PlayableItem>& lhs,
+            const std::shared_ptr<PlayableItem>& rhs) {
+            return lhs->get_display_name() < rhs->get_display_name();
+        });
     qCDebug(CLASS_LC) << "read" << stream_sources.size() << "streams";
 }
 
@@ -153,6 +159,8 @@ void ConfigurationManager::read_podcasts_from_file(
         auto uid = QUuid::fromString(
             jo[KEY_ID].toString(QUuid::createUuid().toString()));
         auto ps = std::make_shared<PodcastSource>(url, uid);
+        auto title = jo[KEY_NAME].toString();
+        ps->set_title(title);
         ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
         ps->set_update_interval(
             std::chrono::seconds(jo[KEY_UPDATE_INTERVAL].toInt(3600)));
@@ -163,6 +171,11 @@ void ConfigurationManager::read_podcasts_from_file(
 
         podcast_sources.push_back(ps);
     }
+    std::sort(podcast_sources.begin(), podcast_sources.end(),
+        [](const std::shared_ptr<PodcastSource>& lhs,
+            const std::shared_ptr<PodcastSource>& rhs) {
+            return lhs->get_title() < rhs->get_title();
+        });
     qCDebug(CLASS_LC) << "read" << podcast_sources.size() << "podcasts";
 }
 
@@ -389,28 +402,42 @@ void ConfigurationManager::create_default_configuration() {
         QTime::fromString("06:30", "hh:mm"), Alarm::Workdays);
     alarms.push_back(alm);
 
-    auto acw = std::make_shared<DigitalRooster::PodcastSource>(
-        QUrl("http://armscontrolwonk.libsyn.com/rss"));
-    podcast_sources.push_back(acw);
-    auto mdwap = std::make_shared<DigitalRooster::PodcastSource>(
-        QUrl("https://rss.acast.com/mydadwroteaporno"));
-    podcast_sources.push_back(mdwap);
+    /* Podcasts */
+    podcast_sources.push_back(std::make_shared<PodcastSource>(
+        QUrl("http://armscontrolwonk.libsyn.com/rss")));
 
-    auto alternativlos = std::make_shared<DigitalRooster::PodcastSource>(
-        QUrl("https://alternativlos.org/alternativlos.rss"));
-    podcast_sources.push_back(alternativlos);
-    auto weralive = std::make_shared<DigitalRooster::PodcastSource>(
-        QUrl("http://www.podcastone.com/podcast?categoryID2=1225"));
-    podcast_sources.push_back(weralive);
+    podcast_sources.push_back(std::make_shared<PodcastSource>(
+        QUrl("https://rss.acast.com/mydadwroteaporno")));
 
-    auto dradio =
-        std::make_shared<DigitalRooster::PlayableItem>("Deutschlandfunk (Ogg)",
-            QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"));
-    stream_sources.push_back(dradio);
-    auto dradio_nova =
-        std::make_shared<DigitalRooster::PlayableItem>("Deutschlandfunk Nova",
-            QUrl("http://st03.dlf.de/dlf/03/104/ogg/stream.ogg"));
-    stream_sources.push_back(dradio_nova);
+    podcast_sources.push_back(std::make_shared<PodcastSource>(
+        QUrl("https://alternativlos.org/alternativlos.rss")));
+
+    podcast_sources.push_back(std::make_shared<PodcastSource>(
+        QUrl("http://www.podcastone.com/podcast?categoryID2=1225")));
+
+    /* Radio Streams */
+    stream_sources.push_back(std::make_shared<PlayableItem>("Deutschlandfunk",
+        QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg")));
+
+    stream_sources.push_back(
+        std::make_shared<PlayableItem>("Deutschlandfunk Nova",
+            QUrl("http://st03.dlf.de/dlf/03/104/ogg/stream.ogg")));
+
+    stream_sources.push_back(std::make_shared<PlayableItem>("SWR2",
+        QUrl("http://swr-swr2-live.cast.addradio.de/swr/swr2/live/mp3/256/"
+             "stream.mp3")));
+
+    stream_sources.push_back(std::make_shared<PlayableItem>(
+        "FM4", QUrl("https://fm4shoutcast.sf.apa.at")));
+
+    stream_sources.push_back(
+        std::make_shared<PlayableItem>("BBC World Service News",
+            QUrl("http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-einws")));
+
+    stream_sources.push_back(std::make_shared<PlayableItem>("BBC World Service",
+        QUrl("http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk")));
+
+
     store_current_config();
 }
 
