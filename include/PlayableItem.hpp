@@ -59,8 +59,6 @@ public:
         return do_get_display_name();
     };
 
-    // void set_display_name(const QString& name);
-
     /**
      * Stream source URI
      * @return media uri

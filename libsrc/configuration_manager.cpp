@@ -133,6 +133,12 @@ void ConfigurationManager::read_radio_streams_from_file(
         stream_sources.push_back(
             std::make_shared<PlayableItem>(name, url, uid));
     }
+    /* Sort alphabetically */
+    std::sort(stream_sources.begin(), stream_sources.end(),
+        [](const std::shared_ptr<PlayableItem>& lhs,
+            const std::shared_ptr<PlayableItem>& rhs) {
+            return lhs->get_display_name() < rhs->get_display_name();
+        });
     qCDebug(CLASS_LC) << "read" << stream_sources.size() << "streams";
 }
 
@@ -153,6 +159,8 @@ void ConfigurationManager::read_podcasts_from_file(
         auto uid = QUuid::fromString(
             jo[KEY_ID].toString(QUuid::createUuid().toString()));
         auto ps = std::make_shared<PodcastSource>(url, uid);
+        auto title = jo[KEY_NAME].toString();
+        ps->set_title(title);
         ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
         ps->set_update_interval(
             std::chrono::seconds(jo[KEY_UPDATE_INTERVAL].toInt(3600)));
@@ -163,6 +171,11 @@ void ConfigurationManager::read_podcasts_from_file(
 
         podcast_sources.push_back(ps);
     }
+    std::sort(podcast_sources.begin(), podcast_sources.end(),
+        [](const std::shared_ptr<PodcastSource>& lhs,
+            const std::shared_ptr<PodcastSource>& rhs) {
+            return lhs->get_title() < rhs->get_title();
+        });
     qCDebug(CLASS_LC) << "read" << podcast_sources.size() << "podcasts";
 }
 
