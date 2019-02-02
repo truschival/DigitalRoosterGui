@@ -10,7 +10,10 @@
  * 			  SPDX-License-Identifier: GPL-3.0-or-later
  *************************************************************************************/
 #include <QByteArray>
+#include <QDebug>
 #include <QHash>
+#include <QLoggingCategory>
+
 
 #include "PodcastSource.hpp"
 #include "configuration_manager.hpp"
@@ -19,6 +22,9 @@
 #include "podcastsourcemodel.hpp"
 
 using namespace DigitalRooster;
+
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.PodcastSourceModel");
+
 /*************************************************************************************/
 
 PodcastSourceModel::PodcastSourceModel(
@@ -27,10 +33,11 @@ PodcastSourceModel::PodcastSourceModel(
     : QAbstractListModel(parent)
     , cm(confman)
     , mpp(pp) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto v = cm->get_podcast_sources();
     for (auto ps : v) {
-        connect(ps.get(), SIGNAL(titleChanged()), this,
-            SLOT(newDataAvailable()));
+        connect(
+            ps.get(), SIGNAL(titleChanged()), this, SLOT(newDataAvailable()));
     }
 }
 /*************************************************************************************/
@@ -47,18 +54,20 @@ QHash<int, QByteArray> PodcastSourceModel::roleNames() const {
 /*************************************************************************************/
 
 int PodcastSourceModel::rowCount(const QModelIndex& /*parent */) const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return cm->get_podcast_sources().size();
 }
 
 /*************************************************************************************/
 
 void PodcastSourceModel::newDataAvailable() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     emit dataChanged(createIndex(0, 0), createIndex(rowCount() - 1, 0));
 }
 
 /*******************************************************************************/
 PodcastEpisodeModel* PodcastSourceModel::get_episodes(int index) {
-    // qDebug() << __FUNCTION__ << " index: " << index;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     auto v = cm->get_podcast_sources();
     if (index < 0 || index >= v.size())
@@ -69,6 +78,7 @@ PodcastEpisodeModel* PodcastSourceModel::get_episodes(int index) {
 /*************************************************************************************/
 
 QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto v = cm->get_podcast_sources();
     if (index.row() < 0 || index.row() >= v.size())
         return QVariant();
@@ -88,4 +98,16 @@ QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
         return ps->get_image_uri();
     }
     return QVariant();
+}
+
+/*************************************************************************************/
+
+void PodcastSourceModel::refresh(int index) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto v = cm->get_podcast_sources();
+    if (index < 0 || index >= v.size()) {
+        qCCritical(CLASS_LC) << "index out of range " << index;
+        return;
+    }
+    v[index]->refresh();
 }
