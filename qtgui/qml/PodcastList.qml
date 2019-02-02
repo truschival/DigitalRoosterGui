@@ -4,7 +4,7 @@ import QtQuick.Controls 2.1
 
 
 ListView {
-    id:podcastlist
+    id: podcastlist
 	property string objectName : "PodcastList"
     width: stackView.width
     height: stackView.height
