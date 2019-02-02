@@ -34,8 +34,8 @@ public:
 
     /**
      * Set the PodcastSourceAutoupdating
-     * will restart the timer if interval is less than current update_interval
-     * @param interval
+     * will restart the timer
+     * @param interval in seconds
      */
     void set_update_interval(std::chrono::seconds interval);
 

@@ -198,7 +198,7 @@ void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
             period = json_string_to_alarm_period(
                 json_alarm[KEY_ALARM_PERIOD].toString(KEY_ALARM_DAILY));
         } catch (std::invalid_argument& exc) {
-            qCWarning(CLASS_LC) << "invalid periodicity entry!";
+            qCWarning(CLASS_LC) << "invalid periodicity entry! " << exc.what();
         }
 
         auto enabled = json_alarm[KEY_ENABLED].toBool(true);

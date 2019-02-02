@@ -124,12 +124,23 @@ public:
 signals:
     void display_name_changed(const QString& info);
     void duration_changed(qint64 duration);
+    void position_updated(qint64 newpos);
+    /**
+     * Any information changed
+     */
+    void data_changed();
 
 private:
     /**
-     * 'unique' id for this alarm
+     * 'unique' id for this object, info managed by configuration_manager
      */
     const QUuid id;
+
+    /**
+     * minimum delta to notify subscribers about poition changes
+     * in ms
+     */
+    const qint64 notify_interval = 10000; // default 10s
 
     /** initial human assigned display name*/
     QString display_name;
@@ -165,7 +176,8 @@ private:
  */
 class PodcastEpisode : public PlayableItem {
     Q_OBJECT
-    Q_PROPERTY(QString description READ get_description)
+    Q_PROPERTY(
+        QString description READ get_description NOTIFY description_changed)
 public:
     PodcastEpisode() = default;
 
@@ -174,39 +186,35 @@ public:
      * @param name
      * @param url
      */
-    PodcastEpisode(const QString& name, const QUrl& url)
-        : PlayableItem(name, url){
+    PodcastEpisode(const QString& name, const QUrl& url);
 
-          };
     virtual ~PodcastEpisode() = default;
 
-    const QString& get_description() const {
-        return description;
-    }
+    /**
+     * Human readable description written by Episode publisher assinged during
+     * RSS parsing
+     * @param desc description
+     */
+    void set_description(const QString& desc);
+    const QString& get_description() const;
 
-    void set_description(const QString& desc) {
-        description = desc;
-    };
+    /**
+     * Podcast publisher assinged unique ID can be URL or UUID formatted string
+     * @param uid new unique ID
+     */
+    void set_guid(const QString& uid);
+    QString get_guid() const;
 
-    QString get_guid() const {
-        if (guid.isEmpty()) {
-            return get_url().toString();
-        }
-        return guid;
-    }
+    /**
+     * Publication date of podcast episode
+     * @param date date&time
+     */
+    void set_publication_date(const QDateTime& date);
+    const QDateTime& get_publication_date() const;
 
-    void set_guid(const QString& uid) {
-        guid = uid;
-    };
-
-    const QDateTime& get_publication_date() const {
-        return publication_date;
-    }
-
-    void set_publication_date(const QDateTime& date) {
-        if (date.isValid())
-            publication_date = date;
-    };
+signals:
+    void description_changed(const QString& desc);
+    void publication_date_changed(const QDateTime& datetime);
 
 private:
     /**
@@ -215,6 +223,7 @@ private:
     QString description;
     /**
      * Global Unique ID of podcast, assigned by publisher in RSS
+     * Do not confuse with PlayableItem.id
      */
     QString guid;
     /**

@@ -24,7 +24,7 @@
 namespace DigitalRooster {
 
 /**
- * INI configuration Key for Sources
+ * configuration Key for Sources Array
  */
 const QString KEY_GROUP_SOURCES("Sources");
 
@@ -34,12 +34,17 @@ const QString KEY_GROUP_SOURCES("Sources");
 const QString KEY_GROUP_IRADIO_SOURCES("InternetRadio");
 
 /**
- * Podcast feeds
+ * Podcast feeds Object keyword
  */
 const QString KEY_GROUP_PODCAST_SOURCES("Podcasts");
 
 /**
- * Alarm Array in JSON file
+ * key for array of individual Podcast Episode objects
+ */
+const QString KEY_EPISODES("Episodes");
+
+/**
+ * Alarm Array Object keyword in JSON file
  */
 const QString KEY_GROUP_ALARMS("Alarms");
 
@@ -49,37 +54,37 @@ const QString KEY_GROUP_ALARMS("Alarms");
 const QString KEY_VOLUME("volume");
 
 /**
- * keyword for backlight brightness (active mode)
+ * property keyword for backlight brightness (active mode)
  */
 const QString KEY_BRIGHTNESS_ACT("brightnessActive");
 
 /**
- * keyword for backlight brightness (standby mode)
+ * property keyword for backlight brightness (standby mode)
  */
 const QString KEY_BRIGHTNESS_SB("brightnessStandby");
 
 /**
- * Keyword for all ids
+ *  property keyword for all ids
  */
 const QString KEY_ID("id");
 
 /**
- * Key for all URIs
+ *  property key for all URIs
  */
 const QString KEY_URI("uri");
 
 /**
- * Key for all nice names
+ * property key for all nice names
  */
 const QString KEY_NAME("name");
 
 /**
- * Key boolean enabled true/false
+ * property key boolean enabled true/false
  */
 const QString KEY_ENABLED("enabled");
 
 /**
- * Keyword for alarms on weekends
+ *  property keyword for alarms on weekends
  */
 const QString KEY_TIME("time");
 /**
@@ -88,52 +93,52 @@ const QString KEY_TIME("time");
 const QString KEY_ALARM_PERIOD("period");
 
 /**
- * Keyword for alarms on weekends
+ *  property value for alarms on weekends
  */
 const QString KEY_ALARM_WEEKEND("weekend");
 
 /**
- * Keyword for alarms once
+ *  property value for alarms once
  */
 const QString KEY_ALARM_ONCE("once");
 
 /**
- * Keyword for alarms workdays
+ * property value for alarms workdays
  */
 const QString KEY_ALARM_WORKDAYS("workdays");
 
 /**
- * Keyword for alarms daily
+ * property value for alarms daily
  */
 const QString KEY_ALARM_DAILY("daily");
 
 /**
- * Keyword for perdiodic refresh
+ * property keyword for perdiodic refresh
  */
 const QString KEY_UPDATE_INTERVAL("updateInterval");
 
 /**
- * Keyword for alarms timeout
+ * property keyword for alarms timeout
  */
 const QString KEY_ALARM_TIMEOUT("alarmTimeout");
 
 /**
- * Keyword configuration Sleep timer duration
+ * property keyword configuration Sleep timer duration
  */
 const QString KEY_SLEEP_TIMEOUT("sleepTimeout");
 
 /**
- * Keyword to identify the creating project version of the config file
+ * property keyword to identify the creating project version of the config file
  */
 const QString KEY_VERSION("version");
 
 /**
- * Weather retrieval configuration
+ * Weather Object keyword retrieval configuration
  */
 const QString KEY_WEATHER("Weather");
 
 /**
- * Location ID for openweathermaps
+ * property keyword Location ID for openweathermaps property
  */
 const QString KEY_WEATHER_LOCATION_ID("locationID");
 
@@ -142,6 +147,40 @@ const QString KEY_WEATHER_LOCATION_ID("locationID");
  */
 const QString KEY_WEATHER_API_KEY("API-Key");
 
+/**
+ * key for any free text description property
+ */
+const QString KEY_DESCRIPTION("description");
+
+/**
+ * key for any file path+name property
+ */
+const QString KEY_FILE_PATH("path");
+
+/**
+ * key for any image path property
+ */
+const QString KEY_IMAGE_PATH("image");
+
+/**
+ * key for numeric position property
+ */
+const QString KEY_POSITION("position");
+
+/**
+ * key for numeric duration property
+ */
+const QString KEY_DURATION("duration");
+
+/**
+ * key for numeric duration property
+ */
+const QString KEY_TITLE("title");
+
+/**
+ * key for timestamp property
+ */
+const QString KEY_TIMESSTAMP("timestamp");
 
 /**
  * Directory for all downloaded RSS Files
