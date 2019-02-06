@@ -15,6 +15,7 @@
 
 #include <QDate>
 #include <QDateTime>
+#include <QMap>
 #include <QObject>
 #include <QString>
 #include <QUuid>
@@ -66,14 +67,14 @@ public:
     /**
      * Description of the Channel (mandatory by RSS2.0 spec)
      */
-    const QString& get_description() const {
+    virtual const QString& get_description() const {
         return description;
     }
 
     /**
      * When was this podcast source last scanned for new items
      */
-    const QDateTime& get_last_updated() const {
+    virtual const QDateTime& get_last_updated() const {
         return last_updated;
     };
 
@@ -94,14 +95,14 @@ public:
      * Website of RSS feed channel (not the rss xml URI but additional
      * information)
      */
-    const QUrl& get_link() const {
+    virtual const QUrl& get_link() const {
         return link;
     }
 
     /**
      * Logo Image of podcast
      */
-    const QUrl& get_image_uri() const {
+    virtual const QUrl& get_image_uri() const {
         return image_uri;
     }
     void set_image_uri(const QUrl& uri);
@@ -117,7 +118,7 @@ public:
      * title element of RSS channel
      * @return \ref title
      */
-    const QString& get_title() const {
+    virtual const QString& get_title() const {
         return title;
     }
 
@@ -141,7 +142,7 @@ public:
      * URL for rss feed of this podcast
      * @return \ref rss_feed_uri
      */
-    const QUrl& get_url() const {
+    virtual const QUrl& get_url() const {
         return rss_feed_uri;
     }
 
@@ -263,7 +264,7 @@ private:
     QString description;
 
     /**
-     * Map of episodes
+     * Container for Episodes of this podcast
      */
     QVector<std::shared_ptr<PodcastEpisode>> episodes;
 
