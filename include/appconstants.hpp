@@ -180,7 +180,7 @@ const QString KEY_TITLE("title");
 /**
  * key for timestamp property
  */
-const QString KEY_TIMESSTAMP("timestamp");
+const QString KEY_TIMESTAMP("timestamp");
 
 /**
  * Directory for all downloaded RSS Files
