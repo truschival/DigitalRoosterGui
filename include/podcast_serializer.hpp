@@ -68,6 +68,20 @@ public:
     std::shared_ptr<PodcastEpisode> parse_episode_from_json(
         const QJsonObject& ep_obj);
 
+    /**
+     * Create a JSON Object representation of a PodcastEpisode
+     * @param epidode
+     * @return JSON Object representation
+     */
+    QJsonObject json_from_episode(const PodcastEpisode* episode);
+
+    /**
+     * Create a JSON Object representation of a PodcastSource
+     * @param ps the PodcastSource to serialize
+     * @return JSON Object representation
+     */
+    QJsonObject json_from_podcast_source(const PodcastSource* ps);
+
 private:
     /**
      * Implementation of parse_episode_from_json
