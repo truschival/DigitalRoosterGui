@@ -54,6 +54,7 @@ void PodcastSource::add_episode(std::shared_ptr<PodcastEpisode> newep) {
             SLOT(episode_info_changed()));
     }
 }
+
 /*****************************************************************************/
 void PodcastSource::set_update_interval(std::chrono::seconds interval) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
@@ -62,8 +63,8 @@ void PodcastSource::set_update_interval(std::chrono::seconds interval) {
         updater->set_update_interval(interval);
     }
 }
-/*****************************************************************************/
 
+/*****************************************************************************/
 void PodcastSource::set_description(QString newVal) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     description = newVal;
@@ -148,6 +149,12 @@ void DigitalRooster::PodcastSource::restore() {
 /*****************************************************************************/
 void DigitalRooster::PodcastSource::store() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    PodcastSerializer serializer;
+    try {
+        serializer.store_to_file(this);
+    } catch (std::exception& exc) {
+        qCWarning(CLASS_LC) << "store failed" << exc.what();
+    }
 }
 
 /*****************************************************************************/
