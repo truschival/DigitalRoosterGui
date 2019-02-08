@@ -50,7 +50,7 @@ void PodcastSource::add_episode(std::shared_ptr<PodcastEpisode> newep) {
         writeTimer.start(); // start delayed write
         emit episodes_count_changed(episodes.size());
         /* get notified if any data changes */
-        connect(ep.get(), SIGNAL(data_changed()), this,
+        connect(newep.get(), SIGNAL(data_changed()), this,
             SLOT(episode_info_changed()));
     }
 }
@@ -113,7 +113,8 @@ QString PodcastSource::get_cache_file_impl() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QString res(
         QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-    return res + QDir::separator() + get_id().toString();
+    res = res + QDir::separator() + get_id().toString();
+	return res;
 }
 
 /*****************************************************************************/

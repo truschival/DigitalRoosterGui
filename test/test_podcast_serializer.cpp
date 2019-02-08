@@ -44,8 +44,6 @@ public:
     MOCK_CONST_METHOD0(get_image_uri, const QUrl&());
     MOCK_CONST_METHOD0(get_last_updated, const QDateTime&());
 
-    MOCK_CONST_METHOD1(
-        get_episode_by_id_impl, std::shared_ptr<PodcastEpisode>(QString));
 
     const QString& get_title_nonmock() const {
         return PodcastSource::get_title();
@@ -61,17 +59,17 @@ public:
         DigitalRooster::wallclock =
             std::static_pointer_cast<TimeProvider, MockClock>(mc);
 
-        episode1_json[KEY_URI] = QString("http://episode1.uri/file1.mp3");
-        episode1_json[KEY_NAME] = QString("episode1_name");
-        episode1_json[KEY_DURATION] = 5000;
-        episode1_json[KEY_POSITION] = 0;
-        episode1_json[KEY_ID] = QString("Episode1Guid");
+        episode1_json[KEY_URI] = episode1_url.toString();
+        episode1_json[KEY_TITLE] = episode1_title;
+        episode1_json[KEY_DURATION] = episode1_duration;
+        episode1_json[KEY_POSITION] = episode1_position;
+        episode1_json[KEY_ID] = episode1_guid;
 
-        episode2_json[KEY_URI] = QString("http://episode2.uri/file2.mp3");
-        episode2_json[KEY_NAME] = QString("episode2_name");
-        episode2_json[KEY_DURATION] = 4000;
-        episode2_json[KEY_POSITION] = 500;
-        episode2_json[KEY_ID] = QString("Episode2Guid");
+        episode2_json[KEY_URI] = episode2_url.toString();
+        episode2_json[KEY_TITLE] = episode2_title;
+        episode2_json[KEY_DURATION] = episode2_duration;
+        episode2_json[KEY_POSITION] = episode2_position;
+        episode2_json[KEY_ID] = episode2_guid;
     };
 
     // Restore original TimeProvider for other tests
@@ -81,7 +79,7 @@ public:
 
 protected:
     std::shared_ptr<MockClock> mc;
-
+		
     QString expected_desc = QString("ExpectedDescription");
     QString expected_title = QString("ExpectedTitle");
     QUrl expected_url = QUrl("http://expected.url");
@@ -89,13 +87,18 @@ protected:
     QDateTime expected_timestamp =
         QDateTime::fromString("2018-09-26T08:29:45", Qt::ISODate);
 
-    QString episode_name = QString("AnEpisodeName");
-    QUrl episode_url = QUrl("http://episode.url.com/somefile.mp4");
+    QUrl episode1_url = QString("http://episode1.uri/file1.mp3");
+    QUrl episode2_url = QString("http://episode2.uri/file2.mp3");
     QString episode_guid = QString("Some-really-long-guid");
-    int episode_duration = 2000;
-    int episode_position = 1000;
-
-    QJsonObject episode1_json;
+    int episode1_duration = 2000;
+    int episode1_position = 1000;
+    int episode2_duration = 5000;
+    int episode2_position = 0000;
+    QString episode1_title = QString("episode1_title");
+    QString episode2_title = QString("episode2_title");
+    QString episode1_guid = QString("Episode1Guid");
+    QString episode2_guid = QString("Episode2Guid");
+	QJsonObject episode1_json;
     QJsonObject episode2_json;
 };
 
@@ -139,17 +142,17 @@ TEST_F(SerializerFixture, PodcastSourceSerialization) {
 /******************************************************************************/
 TEST_F(SerializerFixture, PodcastEpisodeSerialization) {
     PodcastSerializer dut;
-    PodcastEpisode episode(episode_name, episode_url);
-    episode.set_duration(episode_duration); // duration before position
-    episode.set_position(episode_position); // can't set position if duration=0
-    episode.set_guid(episode_guid);
+    PodcastEpisode episode(episode1_title, episode1_url);
+    episode.set_duration(episode1_duration); // duration before position
+    episode.set_position(episode1_position); // can't set position if duration=0
+    episode.set_guid(episode1_guid);
 
     auto json_obj = dut.json_from_episode(&episode);
-    ASSERT_EQ(json_obj[KEY_NAME].toString(), episode_name);
-    ASSERT_EQ(json_obj[KEY_URI].toString(), episode_url.toString());
-    ASSERT_EQ(json_obj[KEY_POSITION].toInt(), episode_position);
-    ASSERT_EQ(json_obj[KEY_DURATION].toInt(), episode_duration);
-    ASSERT_EQ(json_obj[KEY_ID].toString(), episode_guid);
+    ASSERT_EQ(json_obj[KEY_NAME].toString(), episode1_title);
+    ASSERT_EQ(json_obj[KEY_URI].toString(), episode1_url.toString());
+    ASSERT_EQ(json_obj[KEY_POSITION].toInt(), episode1_position);
+    ASSERT_EQ(json_obj[KEY_DURATION].toInt(), episode1_duration);
+    ASSERT_EQ(json_obj[KEY_ID].toString(), episode1_guid);
 }
 
 /******************************************************************************/
@@ -214,6 +217,34 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_Add2Episodes) {
 
     dut.parse_podcast_source_from_json(json_ps, &psmock);
     ASSERT_EQ(psmock.get_episode_count(), 2);
+    ASSERT_EQ(psmock.get_episode_by_id(episode1_guid)->get_title(),
+        episode1_title);
+    ASSERT_EQ(psmock.get_episode_by_id(episode1_guid)->get_position(),
+        episode1_position);
+}
+
+/******************************************************************************/
+TEST_F(SerializerFixture, PodcastSourceFromJson_UpdateEpisodePosition) {
+    PodcastSerializer dut;
+    PodcastSourceMock psmock;
+    QDateTime invalid_date;
+
+    EXPECT_CALL(psmock, get_last_updated())
+        .Times(AtLeast(1))
+        .WillRepeatedly(ReturnRef(invalid_date));
+
+    QJsonObject json_ps;
+    json_ps[KEY_TITLE] = expected_title;
+    json_ps[KEY_TIMESTAMP] = expected_timestamp.toString();
+    QJsonArray episodes_array;
+    episodes_array.append(episode1_json);
+    episode1_json[KEY_POSITION] = 130;
+    episodes_array.append(episode1_json);
+    json_ps[KEY_EPISODES] = episodes_array;
+
+    dut.parse_podcast_source_from_json(json_ps, &psmock);
+    ASSERT_EQ(psmock.get_episode_count(), 1);
+    ASSERT_EQ(psmock.get_episode_by_id(episode1_guid)->get_position(), 130);
 }
 
 /******************************************************************************/

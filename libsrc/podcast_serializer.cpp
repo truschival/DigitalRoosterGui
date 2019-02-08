@@ -135,12 +135,17 @@ QJsonObject PodcastSerializer::json_from_episode(
     const PodcastEpisode* episode) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject ep_obj;
-    ep_obj[KEY_NAME] = episode->get_display_name();
+
+    ep_obj[KEY_TITLE] = episode->get_title();
     ep_obj[KEY_URI] = episode->get_url().toString();
     ep_obj[KEY_DURATION] = episode->get_duration();
     ep_obj[KEY_POSITION] = episode->get_position();
     ep_obj[KEY_ID] = episode->get_guid();
-    return ep_obj;
+    
+	ep_obj[KEY_PUBLISHED] = episode->get_publication_date().toString();
+    ep_obj[KEY_DESCRIPTION] = episode->get_description();
+    ep_obj[KEY_PUBLISHER] = episode->get_publisher();
+	return ep_obj;
 }
 
 /*****************************************************************************/
@@ -161,19 +166,21 @@ std::shared_ptr<PodcastEpisode> PodcastSerializer::parse_episode_json_impl(
     const QJsonObject& ep_obj) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
-    auto display_name = ep_obj[KEY_NAME].toString();
+    auto title = ep_obj[KEY_TITLE].toString();
     auto media_url = QUrl(ep_obj[KEY_URI].toString());
-    auto ep = std::make_shared<PodcastEpisode>(display_name, media_url);
-    auto duration = ep_obj[KEY_DURATION].toInt(0);
+    auto ep = std::make_shared<PodcastEpisode>(title, media_url);
+    
+	auto duration = ep_obj[KEY_DURATION].toInt(1);
     ep->set_duration(duration);
     auto position = ep_obj[KEY_POSITION].toInt(0);
     ep->set_position(position);
 
+    ep->set_publication_date(
+        QDateTime::fromString(ep_obj[KEY_PUBLISHED].toString()));
+    ep->set_publisher(ep_obj[KEY_PUBLISHER].toString());
+    ep->set_description(ep_obj[KEY_DESCRIPTION].toString());
     /* pubisher assinged id, can be url format hence a string not a QUuid */
-    auto publisher_guid = ep_obj[KEY_ID].toString();
-    if (!publisher_guid.isEmpty()) {
-        ep->set_guid(publisher_guid);
-    }
+    ep->set_guid(ep_obj[KEY_ID].toString());
     return ep;
 }
 

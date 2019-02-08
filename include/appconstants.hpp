@@ -153,6 +153,16 @@ const QString KEY_WEATHER_API_KEY("API-Key");
 const QString KEY_DESCRIPTION("description");
 
 /**
+ * key for author/publisher property
+ */
+const QString KEY_PUBLISHER("publisher");
+
+/**
+ * key for publication date property
+ */
+const QString KEY_PUBLISHED("publication_date");
+
+/**
  * key for any file path+name property
  */
 const QString KEY_FILE_PATH("path");
