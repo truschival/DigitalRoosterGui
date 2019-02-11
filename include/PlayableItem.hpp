@@ -136,12 +136,6 @@ private:
      */
     const QUuid id;
 
-    /**
-     * minimum delta to notify subscribers about poition changes
-     * in ms
-     */
-    const qint64 notify_interval = 10000; // default 10s
-
     /** initial human assigned display name*/
     QString display_name;
 

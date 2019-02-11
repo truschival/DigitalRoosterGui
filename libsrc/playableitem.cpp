@@ -38,12 +38,9 @@ void PlayableItem::set_position(qint64 newVal) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     if (newVal <= duration && newVal >= 0) {
-        // Only notify if we have a significant delta
-        if (std::abs(newVal - duration) > notify_interval) {
-            emit position_updated(newVal);
-            emit data_changed();
-        }
         position = newVal;
+        emit position_updated(newVal);
+        emit data_changed();
     }
 };
 

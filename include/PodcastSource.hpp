@@ -221,7 +221,7 @@ public slots:
     void restore();
 
     /**
-     * Properties of an episode e.g. position, title etc. has changed and a
+     * Properties of an episode e.g. title etc. has changed and a
      * delayed store should be triggered.
      */
     void episode_info_changed();
