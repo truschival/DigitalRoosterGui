@@ -161,9 +161,9 @@ void ConfigurationManager::read_podcasts_from_file(
         auto ps = std::make_shared<PodcastSource>(url, uid);
         auto title = jo[KEY_NAME].toString();
         ps->set_title(title);
-        ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
         ps->set_update_interval(
             std::chrono::seconds(jo[KEY_UPDATE_INTERVAL].toInt(3600)));
+        ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
 
         // Get notifications if name etc. changes
         connect(ps.get(), &PodcastSource::dataChanged, this,

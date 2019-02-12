@@ -64,10 +64,12 @@ void PodcastSerializer::read_from_file(
             make_error_code(std::errc::no_such_file_or_directory),
             file.errorString().toStdString());
     }
-    auto json_doc = QJsonDocument::fromBinaryData(file.readAll());
+    auto json_doc = QJsonDocument::fromJson(file.readAll());
     QJsonObject tl_obj = json_doc.object();
     if (!tl_obj.isEmpty()) {
         parse_podcast_source_from_json(tl_obj, ps);
+    } else {
+        qCWarning(CLASS_LC) << "empty json document read from" << file_path;
     }
 }
 
@@ -141,11 +143,11 @@ QJsonObject PodcastSerializer::json_from_episode(
     ep_obj[KEY_DURATION] = episode->get_duration();
     ep_obj[KEY_POSITION] = episode->get_position();
     ep_obj[KEY_ID] = episode->get_guid();
-    
-	ep_obj[KEY_PUBLISHED] = episode->get_publication_date().toString();
+
+    ep_obj[KEY_PUBLISHED] = episode->get_publication_date().toString();
     ep_obj[KEY_DESCRIPTION] = episode->get_description();
     ep_obj[KEY_PUBLISHER] = episode->get_publisher();
-	return ep_obj;
+    return ep_obj;
 }
 
 /*****************************************************************************/
@@ -169,8 +171,8 @@ std::shared_ptr<PodcastEpisode> PodcastSerializer::parse_episode_json_impl(
     auto title = ep_obj[KEY_TITLE].toString();
     auto media_url = QUrl(ep_obj[KEY_URI].toString());
     auto ep = std::make_shared<PodcastEpisode>(title, media_url);
-    
-	auto duration = ep_obj[KEY_DURATION].toInt(1);
+    ep->set_title(title);
+    auto duration = ep_obj[KEY_DURATION].toInt(1);
     ep->set_duration(duration);
     auto position = ep_obj[KEY_POSITION].toInt(0);
     ep->set_position(position);
