@@ -21,6 +21,7 @@
 #include <QUuid>
 
 namespace DigitalRooster {
+
 /**
  * Interface of Playable Item : self contained information to play
  */
@@ -44,7 +45,8 @@ public:
     /**
      * Convenience Constructor
      * @param name display_name
-     * @param url media_url
+     * @param url  media_url
+	 * @param uid  (optional) unique id
      */
     PlayableItem(const QString& name, const QUrl& url,
         const QUuid& uid = QUuid::createUuid());
@@ -74,7 +76,7 @@ public:
         return position;
     };
     /**
-     * update \ref position - emits \ref position_changed(qint64)
+     * update \ref position - emits \ref position_updated
      * @param newVal current position in stream
      */
     virtual void set_position(qint64 newVal);
@@ -106,9 +108,19 @@ public:
     }
 
 signals:
-    void display_name_changed(const QString& info);
-    void position_updated(qint64 newpos);
     /**
+	 * Human readable identifier changed (title, name, publisher etc)
+	 * \param info new \ref display_name
+	 */
+    void display_name_changed(const QString& info);
+
+	/**
+	 * Position has changed
+	 * \param newpos updated position
+     */
+    void position_updated(qint64 newpos);
+
+	/**
      * Any information changed
      */
     void data_changed();
@@ -131,20 +143,19 @@ private:
     /** Media URL */
     QUrl media_url;
 
-    /**
-     * Current Position in stream
-     */
+    /** Current position in stream */
     qint64 position = 0;
 
     /**
-     * Human information dynamically build
-     * @return
+     * Create human information dynamically from combination of
+	 * \ref title, \ref publisher \ref display_name ....
+     * @return string representation
      */
     virtual QString do_get_display_name() const;
 };
 
 /**
- * PodcastEpisode = item of RSS feed
+ * PodcastEpisode = item of a RSS feed
  */
 class PodcastEpisode : public PlayableItem {
     Q_OBJECT
@@ -189,7 +200,7 @@ public:
 
     /**
      * update \ref position
-     *   emits \ref position_changed(qint64)
+     *   emits \ref position_updated
      *   emits \ref listened_changed(bool)
      * @param newVal current position in stream
      */

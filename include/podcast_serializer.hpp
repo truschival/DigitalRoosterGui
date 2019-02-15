@@ -21,6 +21,10 @@
 namespace DigitalRooster {
 class PodcastSource;
 
+/**
+ * Serialization/Deserialization of PodcastSources and PodcastEpisodes
+ * from filesystem
+ */
 class PodcastSerializer : QObject {
     Q_OBJECT
 public:
@@ -41,7 +45,7 @@ public:
     /**
      * restore configuration of podcastsource form filesystem
      * @param ps podcastsource to restore
-     * @param filename file to read
+     * @param file_path file to read
      */
     void read_from_file(PodcastSource* ps, const QString& file_path);
 
@@ -69,8 +73,8 @@ public:
         const QJsonObject& ep_obj);
 
     /**
-     * Create a JSON Object representation of a PodcastEpisode
-     * @param epidode
+     * Create a JSON Object representation of a \ref PodcastEpisode
+     * @param episode PodcastEpisode to serialize
      * @return JSON Object representation
      */
     QJsonObject json_from_episode(const PodcastEpisode* episode);

@@ -23,9 +23,10 @@
 
 
 namespace DigitalRooster {
-
 class PodcastSource;
-
+/**
+ * Cyclic polling of RSS urls of PodcastSource for updates
+ */
 class UpdateTask : public QObject {
     Q_OBJECT
 public:

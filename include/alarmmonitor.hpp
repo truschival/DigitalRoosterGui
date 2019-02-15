@@ -24,6 +24,10 @@
 
 namespace DigitalRooster {
 
+/**
+ * Supervision of alarm behavior. Makes sure I wake up even if the original
+ * media stream of the alarm is unavailable.
+ */
 class AlarmMonitor : public QObject {
     Q_OBJECT
 public:
@@ -33,9 +37,9 @@ public:
 public slots:
     /**
      * Monitor the trigged alarm if it has started in due time
-     * @param triggered alarm
+     * @param  alarm to monitor
      */
-    void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>);
+    void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm> alarm);
 
 private:
     /**

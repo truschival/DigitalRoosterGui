@@ -56,6 +56,7 @@ public:
      * @param timepoint time of day - any time of day
      * @param period periodicity
      * @param enabled activated/deactivated
+	 * @param uid (optional) unique id
      * @param parent obligatory QObject parent
      */
     Alarm(const QUrl& media, const QTime& timepoint,

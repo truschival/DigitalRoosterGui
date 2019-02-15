@@ -59,14 +59,14 @@ public slots:
     void set_media(std::shared_ptr<DigitalRooster::PlayableItem> media);
     void set_playlist(QMediaPlaylist* playlist);
     /**
-	 * Set linear volume value to 
-	 * @param value 0..100%
-	 */
+     * Set linear volume value to
+     * @param volume 0..100%
+     */
     void set_volume(int volume);
     /**
-	 * increment/decrement linear volume by increment percent
-	 * @param increment percentage to change volume
-	 */
+     * increment/decrement linear volume by increment percent
+     * @param increment percentage to change volume
+     */
     void increment_volume(int increment);
 
     void pause();
@@ -77,9 +77,9 @@ signals:
     void duration_changed(qint64 duration);
     void media_changed(const QMediaContent& media);
     /**
-	 * volume has changed
-	 * @param volume linear volume value 0..100 %
-	 */
+     * volume has changed
+     * @param volume linear volume value 0..100 %
+     */
     void volume_changed(int volume);
 
     void muted_changed(bool muted);

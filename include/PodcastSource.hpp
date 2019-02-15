@@ -311,14 +311,14 @@ private:
     virtual QString get_cache_file_impl() const;
 
     /**
-     * implementation of \ref get_episode_by_id(const QString&)
+     * implementation of \ref get_episode_by_id
      * @param id episode id (can be UUID or URL format)
      * @return the episode or nullptr
      */
     virtual std::shared_ptr<PodcastEpisode> get_episode_by_id_impl(
         const QString& id) const;
     /**
-     * implementation of \ref get_episods()
+     * implementation of \ref get_episodes
      * @return \ref episodes
      */
     virtual const QVector<std::shared_ptr<PodcastEpisode>>&
