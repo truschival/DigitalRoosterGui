@@ -148,7 +148,7 @@ TEST_F(SerializerFixture, PodcastEpisodeSerialization) {
     episode.set_guid(episode1_guid);
 
     auto json_obj = dut.json_from_episode(&episode);
-    ASSERT_EQ(json_obj[KEY_NAME].toString(), episode1_title);
+    ASSERT_EQ(json_obj[KEY_TITLE].toString(), episode1_title);
     ASSERT_EQ(json_obj[KEY_URI].toString(), episode1_url.toString());
     ASSERT_EQ(json_obj[KEY_POSITION].toInt(), episode1_position);
     ASSERT_EQ(json_obj[KEY_DURATION].toInt(), episode1_duration);
