@@ -35,8 +35,6 @@ class PlayableItem : public QObject {
     Q_PROPERTY(QUrl url READ get_url WRITE set_url)
     Q_PROPERTY(QUuid id READ get_id)
     Q_PROPERTY(int position READ get_position WRITE set_position)
-    Q_PROPERTY(int duration READ get_duration WRITE set_duration NOTIFY
-            duration_changed)
 public:
     /**
      * Default Constructor
@@ -76,10 +74,10 @@ public:
         return position;
     };
     /**
-     * update position of already listened content
+     * update \ref position - emits \ref position_changed(qint64)
      * @param newVal current position in stream
      */
-    void set_position(qint64 newVal);
+    virtual void set_position(qint64 newVal);
 
     /**
      * Title for Playable item
@@ -107,23 +105,8 @@ public:
         return id;
     }
 
-    /**
-     * Total length of media in ms
-     * @return
-     */
-    qint64 get_duration() const {
-        return duration;
-    }
-
-    /**
-     * Update length in ms only used for display purpose
-     * @param len >= 0
-     */
-    void set_duration(qint64 len);
-
 signals:
     void display_name_changed(const QString& info);
-    void duration_changed(qint64 duration);
     void position_updated(qint64 newpos);
     /**
      * Any information changed
@@ -154,11 +137,6 @@ private:
     qint64 position = 0;
 
     /**
-     * Total length in ms
-     */
-    qint64 duration = 0;
-
-    /**
      * Human information dynamically build
      * @return
      */
@@ -172,15 +150,18 @@ class PodcastEpisode : public PlayableItem {
     Q_OBJECT
     Q_PROPERTY(
         QString description READ get_description NOTIFY description_changed)
+    Q_PROPERTY(bool listened READ already_listened NOTIFY listened_changed)
+    Q_PROPERTY(int duration READ get_duration WRITE set_duration NOTIFY
+            duration_changed)
 public:
     PodcastEpisode() = default;
 
     /**
      * Convenience constructor
-     * @param name
+     * @param title
      * @param url
      */
-    PodcastEpisode(const QString& name, const QUrl& url);
+    PodcastEpisode(const QString& title, const QUrl& url);
 
     virtual ~PodcastEpisode() = default;
 
@@ -206,24 +187,72 @@ public:
     void set_publication_date(const QDateTime& date);
     const QDateTime& get_publication_date() const;
 
+    /**
+     * update \ref position
+     *   emits \ref position_changed(qint64)
+     *   emits \ref listened_changed(bool)
+     * @param newVal current position in stream
+     */
+    virtual void set_position(qint64 newVal) override;
+
+    /**
+     * Check if podcast episode is considered listened
+     */
+    bool already_listened() const;
+
+    /**
+     * Total length of media in ms
+     * @return
+     */
+    qint64 get_duration() const {
+        return duration;
+    }
+
+    /**
+     * Update length in ms only used for display purpose
+     * @param len >= 0
+     */
+    void set_duration(qint64 len);
 signals:
     void description_changed(const QString& desc);
+
     void publication_date_changed(const QDateTime& datetime);
+
+    /**
+     * duration has been updated - does this happen?
+     */
+    void duration_changed(qint64 duration);
+    /**
+     * The podcast episoded is considered listend/new
+     */
+    void listened_changed(bool listened);
 
 private:
     /**
      * Synopsis of this episode
      */
     QString description;
+
     /**
      * Global Unique ID of podcast, assigned by publisher in RSS
      * Do not confuse with PlayableItem.id
      */
     QString guid;
+
     /**
      * Release date of episode (item)
      */
     QDateTime publication_date;
+
+    /**
+     * Total duration in ms
+     */
+    qint64 duration = 0;
+
+    /**
+     * local flag to check if listened status changed
+     */
+    bool listened = false;
 };
 };     // namespace DigitalRooster
 #endif // _PLAYABLEITEM_HPP_
