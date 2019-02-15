@@ -47,6 +47,7 @@ QHash<int, QByteArray> PodcastEpisodeModel::roleNames() const {
     roles[CurrentPositionRole] = "current_position";
     roles[DescriptionRole] = "description";
     roles[DateRole] = "pub_date";
+    roles[ListenedRole] = "listened";
     return roles;
 }
 /*****************************************************************************/
@@ -97,15 +98,17 @@ QVariant PodcastEpisodeModel::data(const QModelIndex& index, int role) const {
     case DisplayNameRole:
         return QVariant(ep->get_display_name());
     case TitleRole:
-    	return QVariant(ep->get_title());
+        return QVariant(ep->get_title());
     case PublisherRole:
-    	return QVariant(ep->get_publisher());
+        return QVariant(ep->get_publisher());
     case DurationRole:
         return QVariant(duration.toString("hh:mm:ss"));
     case CurrentPositionRole:
         return QVariant(ep->get_position());
     case DescriptionRole:
         return QVariant(ep->get_description());
+    case ListenedRole:
+        return QVariant(ep->already_listened());
     case DateRole:
         auto date = ep->get_publication_date();
         if (date.isValid()) {

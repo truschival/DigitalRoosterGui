@@ -32,7 +32,7 @@ Rectangle{
 				2*Style.itemMargins.slim;
 			Layout.minimumHeight : 0.9*podcastdelegate.height-
 				2*Style.itemMargins.slim;
-			
+
 			Layout.rowSpan: 2
 			Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter
 
@@ -74,6 +74,8 @@ Rectangle{
 	MouseArea {
 		id: mouseArea
 		anchors.fill: parent
+
+		/* Simple click (or press for what it's worth) shows the episodes */
 		onClicked:  {
 			podcastlist.currentIndex =index;
 
@@ -92,6 +94,12 @@ Rectangle{
 										 podcastlist.model.get_episodes(index),
 										 "episodemodel" : podcastlist.model.get_episodes(index)});
 			stackView.push(pel);
+		}
+
+		/* Long click refreshes for now, could show a menu for refresh or ...? */
+		onPressAndHold:  {
+			console.log("pressed")
+			podcastlist.model.refresh(index);
 		}
 	}
 

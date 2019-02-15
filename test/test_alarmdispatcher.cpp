@@ -22,19 +22,12 @@
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
 #include "cm_mock.hpp"
-// Mock Wallclock to test weekends & workdays
-#include "timeprovider.hpp"
+#include "mock_clock.hpp"
 
 using namespace DigitalRooster;
 using namespace ::testing;
 using ::testing::AtLeast;
 
-/*****************************************************************************/
-
-class MockClock : public DigitalRooster::TimeProvider {
-public:
-    MOCK_METHOD0(get_time, QDateTime());
-};
 /*****************************************************************************/
 
 // Fixture to inject fake clock as the global clock

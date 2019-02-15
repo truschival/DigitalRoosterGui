@@ -23,9 +23,10 @@
 
 
 namespace DigitalRooster {
-
 class PodcastSource;
-
+/**
+ * Cyclic polling of RSS urls of PodcastSource for updates
+ */
 class UpdateTask : public QObject {
     Q_OBJECT
 public:
@@ -34,8 +35,8 @@ public:
 
     /**
      * Set the PodcastSourceAutoupdating
-     * will restart the timer if interval is less than current update_interval
-     * @param interval
+     * will restart the timer
+     * @param interval in seconds
      */
     void set_update_interval(std::chrono::seconds interval);
 

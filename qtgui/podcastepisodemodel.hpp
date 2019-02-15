@@ -45,7 +45,8 @@ public:
         DurationRole,
         CurrentPositionRole,
         DescriptionRole,
-        DateRole
+        DateRole,
+        ListenedRole
     };
 
     int rowCount(const QModelIndex& parent = QModelIndex()) const;

@@ -1,0 +1,22 @@
+{
+	"name": "foo",
+	"description": "some fancy description",
+	"image": "/foo/bar/baz.jpg",
+	"timestamp": 3,
+	"Episodes": [
+		{
+			"id": "xx-yyy",
+			"duration": 3582395,
+			"position": 2314,
+			"title": "The First Episode",
+			"uri": "http://foo.bar.baz"
+		},
+		{
+			"id": "ZZ-XX-ABV",
+			"duration": 3582222,
+			"position": 999,
+			"title": "Second episode",
+			"uri": "http://second_url.baz"
+		}
+	]
+}

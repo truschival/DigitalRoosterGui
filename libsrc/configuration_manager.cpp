@@ -161,9 +161,9 @@ void ConfigurationManager::read_podcasts_from_file(
         auto ps = std::make_shared<PodcastSource>(url, uid);
         auto title = jo[KEY_NAME].toString();
         ps->set_title(title);
-        ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
         ps->set_update_interval(
             std::chrono::seconds(jo[KEY_UPDATE_INTERVAL].toInt(3600)));
+        ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
 
         // Get notifications if name etc. changes
         connect(ps.get(), &PodcastSource::dataChanged, this,
@@ -198,7 +198,7 @@ void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
             period = json_string_to_alarm_period(
                 json_alarm[KEY_ALARM_PERIOD].toString(KEY_ALARM_DAILY));
         } catch (std::invalid_argument& exc) {
-            qCWarning(CLASS_LC) << "invalid periodicity entry!";
+            qCWarning(CLASS_LC) << "invalid periodicity entry! " << exc.what();
         }
 
         auto enabled = json_alarm[KEY_ENABLED].toBool(true);

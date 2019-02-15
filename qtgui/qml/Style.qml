@@ -40,6 +40,13 @@ QtObject {
 			pointSize: 12
 		});
 
+		property font listItemHeadListened: Qt.font({
+			family: "DejaVu Sans Condensed",
+			weight: Font.Normal,
+			letterSpacing:-1,
+			pointSize: 12
+		});
+
 		property font label: Qt.font({
 			family: "DejaVu Sans Condensed",
 			weight: Font.DemiBold,

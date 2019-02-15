@@ -28,6 +28,7 @@ Rectangle{
 		onClicked:{
 			playerControlWidget.show()
 		}
+
 		onPressAndHold:  {
 			iradiolist.currentIndex =index;
 			iradiolistmodel.send_to_player(index)

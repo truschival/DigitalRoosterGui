@@ -26,19 +26,12 @@ Rectangle{
 		Text {
 			id:episodeDN
 			text: title;
-			font: Style.font.listItemHead;
+			font: listened ? 
+				Style.font.listItemHeadListened : Style.font.listItemHead;
 			Layout.fillWidth: true
 			elide: Text.ElideRight
 			Layout.columnSpan: 2
 			Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-
-			/* NumberAnimation on x { */
-			/* 	from: episodeDN.x+episodeDN.width */
-			/* 	to: episodeDN.x */
-			/* 	loops: Animation.Infinite */
-			/* 	duration: 8000 */
-			/* 	running: true; */
-			/* } */
 		}
 
 		Text {

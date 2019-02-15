@@ -18,25 +18,27 @@
 #include <memory>
 
 namespace DigitalRooster {
-
+/**
+ * Simple wrapper class around QDateTime to allow a fake wallclock during test
+ */
 class TimeProvider {
 public:
     /**
      * Get current time and date
-     * Public Non-Virtual Interface -> private virtual function
+     * Public Non-Virtual Interface \ref get_time
      * @return current Date and time
      */
-    QDateTime now()  { 
+    QDateTime now() {
         return get_time();
     };
 
-	virtual ~TimeProvider() = default;
+    virtual ~TimeProvider() = default;
 
 private:
     /**
      * Implementation can be mocked
      */
-    virtual QDateTime get_time()  { 
+    virtual QDateTime get_time() {
         return QDateTime::currentDateTime();
     }
 };
