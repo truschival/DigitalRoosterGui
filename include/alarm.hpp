@@ -56,7 +56,7 @@ public:
      * @param timepoint time of day - any time of day
      * @param period periodicity
      * @param enabled activated/deactivated
-	 * @param uid (optional) unique id
+     * @param uid (optional) unique id
      * @param parent obligatory QObject parent
      */
     Alarm(const QUrl& media, const QTime& timepoint,
@@ -103,12 +103,9 @@ public:
 
     /**
      * Change periodicity
+     * @param period occurence period
      */
-    void set_period(Alarm::Period period) {
-        this->period = period;
-        emit period_changed(period);
-        emit period_changed(get_period_string());
-    };
+    void set_period(Alarm::Period period);
 
     /**
      * Volume for this Alarm

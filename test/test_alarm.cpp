@@ -88,10 +88,30 @@ TEST(Alarm, defaultTimeout) {
         QTime::currentTime().addSecs(-3600));
     ASSERT_EQ(al.get_timeout().count(), DEFAULT_ALARM_TIMEOUT.count());
 }
+
 /*****************************************************************************/
 TEST(Alarm, updatedTimeout) {
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
         QTime::currentTime().addSecs(-3600));
     al.set_timeout(std::chrono::minutes(5));
     ASSERT_EQ(al.get_timeout().count(), 5);
+}
+
+
+/*****************************************************************************/
+TEST(Alarm, periodChangeEmits) {
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
+        QTime::currentTime().addSecs(600));
+
+    QSignalSpy spy_period_string(&al, SIGNAL(period_changed(QString)));
+    ASSERT_TRUE(spy_period_string.isValid());
+    QSignalSpy spy_period_enum(&al, SIGNAL(period_changed(Alarm::Period)));
+    ASSERT_TRUE(spy_period_enum.isValid());
+
+    al.set_period(Alarm::Daily);
+    ASSERT_EQ(spy_period_string.count(), 1);
+    ASSERT_EQ(spy_period_enum.count(), 1);
+
+    QList<QVariant> arguments = spy_period_string.takeFirst();
+    ASSERT_EQ(arguments.at(0).toString(), QString("daily"));
 }

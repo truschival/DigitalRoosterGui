@@ -67,6 +67,15 @@ QString Alarm::get_period_string() const {
         return QString(tr("ERROR"));
     }
 }
+
+/*****************************************************************************/
+void Alarm::set_period(Alarm::Period period) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    this->period = period;
+    emit period_changed(period);
+    emit period_changed(get_period_string());
+}
+
 /*****************************************************************************/
 const QTime& Alarm::get_time() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << alarm_time;
