@@ -34,9 +34,7 @@ using ::testing::Invoke;
 class PodcastSourceMock : public DigitalRooster::PodcastSource {
 public:
     PodcastSourceMock()
-        : PodcastSource(){
-
-          };
+        : PodcastSource(){};
 
     MOCK_CONST_METHOD0(get_cache_file_impl, QString());
     MOCK_CONST_METHOD0(get_description, const QString&());
@@ -44,10 +42,19 @@ public:
     MOCK_CONST_METHOD0(get_image_uri, const QUrl&());
     MOCK_CONST_METHOD0(get_last_updated, const QDateTime&());
 
-
     const QString& get_title_nonmock() const {
         return PodcastSource::get_title();
     };
+};
+
+/******************************************************************************/
+class PodcastSourceMock_episodes : public PodcastSourceMock {
+public:
+    PodcastSourceMock_episodes()
+        : PodcastSourceMock(){};
+
+    MOCK_CONST_METHOD0(
+        get_episodes_impl, const QVector<std::shared_ptr<PodcastEpisode>>&());
 };
 
 /******************************************************************************/
@@ -139,6 +146,7 @@ TEST_F(SerializerFixture, PodcastSourceSerialization) {
         json_obj[KEY_IMAGE_PATH].toString(), expected_image_url.toString());
     ASSERT_EQ(json_obj[KEY_TITLE].toString(), expected_title);
 }
+
 /******************************************************************************/
 TEST_F(SerializerFixture, PodcastEpisodeSerialization) {
     PodcastSerializer dut;
@@ -346,6 +354,55 @@ TEST(PodcastSerializer, ReadFromFile) {
     ASSERT_TRUE(ep);
     ASSERT_EQ(ep->get_position(), 999);
     ASSERT_EQ(ep->get_duration(), 3582222);
+}
+
+/******************************************************************************/
+TEST_F(SerializerFixture, FullRoundTrip) {
+    PodcastSerializer dut;
+    PodcastSourceMock_episodes psmock;
+    QString test_file_name("FullRoundTrip_test_file.json");
+    QVector<std::shared_ptr<PodcastEpisode>> ep_vec;
+    for (int i = 0; i < 3; i++) {
+        auto e = std::make_shared<PodcastEpisode>();
+        e->set_duration(1 + i * 1000);
+        e->set_position(i);
+        e->set_title(QString("Title_%1").arg(i));
+        e->set_description(QString("Description_%1").arg(i));
+        e->set_guid(QString("http://episode_url/%1").arg(i));
+        ep_vec.push_back(e);
+    }
+
+    EXPECT_CALL(psmock, get_cache_file_impl())
+        .WillRepeatedly(Return(test_file_name));
+    EXPECT_CALL(psmock, get_description())
+        .Times(1)
+        .WillOnce(ReturnRef(expected_desc));
+    EXPECT_CALL(psmock, get_title())
+        .Times(1)
+        .WillOnce(ReturnRef(expected_title));
+    EXPECT_CALL(psmock, get_image_uri())
+        .Times(1)
+        .WillOnce(ReturnRef(expected_image_url));
+    EXPECT_CALL(psmock, get_episodes_impl())
+        .Times(1)
+        .WillOnce(ReturnRef(ep_vec));
+
+    /* Emulated passing of time */
+    EXPECT_CALL(*(mc.get()), get_time())
+        .WillOnce(Return(expected_timestamp))
+        .WillRepeatedly(Return(expected_timestamp.addSecs(3)));
+
+    dut.store_to_file(&psmock);
+
+    PodcastSource ps;
+    dut.read_from_file(&ps, test_file_name);
+
+    ASSERT_EQ(ps.get_title(), expected_title);
+    ASSERT_EQ(ps.get_description(), expected_desc);
+    ASSERT_EQ(ps.get_episode_count(), 3);
+    ASSERT_EQ(
+        ps.get_episode_by_id(QString("http://episode_url/1"))->get_title(),
+        QString("Title_1"));
 }
 
 /******************************************************************************/
