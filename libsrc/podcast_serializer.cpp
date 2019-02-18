@@ -70,6 +70,7 @@ void PodcastSerializer::read_from_file(
         parse_podcast_source_from_json(tl_obj, ps);
     } else {
         qCWarning(CLASS_LC) << "empty json document read from" << file_path;
+        throw PodcastSourceJSonCorrupted("Document empty!");
     }
 }
 
@@ -92,7 +93,7 @@ void PodcastSerializer::parse_podcast_source_from_json(
     if (!timestamp.isValid()) {
         qCCritical(CLASS_LC)
             << "no valid timestamp in file - will not restore data";
-        return;
+        throw PodcastSourceJSonCorrupted("invalid timestamp");
     }
     if (ps->get_last_updated().isValid() &&
         ps->get_last_updated() > timestamp) {
@@ -108,6 +109,8 @@ void PodcastSerializer::parse_podcast_source_from_json(
     }
     auto episodes_json_array = tl_obj[KEY_EPISODES].toArray();
     if (episodes_json_array.isEmpty()) {
+        qCWarning(CLASS_LC)
+            << "JSON for PodcastSource does not contain episodes";
         return;
     }
     /*
@@ -115,7 +118,7 @@ void PodcastSerializer::parse_podcast_source_from_json(
      * episode positions
      */
     for (const auto& ep : episodes_json_array) {
-        auto ep_ptr = parse_episode_json_impl(ep.toObject());
+        auto ep_ptr = parse_episode_from_json(ep.toObject());
         auto existing_ep = ps->get_episode_by_id(ep_ptr->get_guid());
         if (existing_ep) { // found -> update position
             existing_ep->set_position(ep_ptr->get_position());

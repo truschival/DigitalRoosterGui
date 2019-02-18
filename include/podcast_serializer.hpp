@@ -18,6 +18,8 @@
 #include <QJsonObject>
 #include <QObject>
 
+#include <exception>
+
 namespace DigitalRooster {
 class PodcastSource;
 
@@ -95,5 +97,18 @@ private:
     std::shared_ptr<PodcastEpisode> parse_episode_json_impl(
         const QJsonObject& ep_obj);
 };
+
+/**
+ * Exception thrown if serialized podcast source is corrupted,
+ */
+class PodcastSourceJSonCorrupted : public std::runtime_error {
+public:
+    PodcastSourceJSonCorrupted(const char* what)
+        : std::runtime_error(what){};
+
+    PodcastSourceJSonCorrupted(const std::string& what)
+        : std::runtime_error(what){};
+};
+
 } // namespace DigitalRooster
 #endif // _PODCASTSERIALIZER_HPP_

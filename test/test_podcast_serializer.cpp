@@ -79,7 +79,7 @@ public:
 
 protected:
     std::shared_ptr<MockClock> mc;
-		
+
     QString expected_desc = QString("ExpectedDescription");
     QString expected_title = QString("ExpectedTitle");
     QUrl expected_url = QUrl("http://expected.url");
@@ -98,7 +98,7 @@ protected:
     QString episode2_title = QString("episode2_title");
     QString episode1_guid = QString("Episode1Guid");
     QString episode2_guid = QString("Episode2Guid");
-	QJsonObject episode1_json;
+    QJsonObject episode1_json;
     QJsonObject episode2_json;
 };
 
@@ -217,8 +217,8 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_Add2Episodes) {
 
     dut.parse_podcast_source_from_json(json_ps, &psmock);
     ASSERT_EQ(psmock.get_episode_count(), 2);
-    ASSERT_EQ(psmock.get_episode_by_id(episode1_guid)->get_title(),
-        episode1_title);
+    ASSERT_EQ(
+        psmock.get_episode_by_id(episode1_guid)->get_title(), episode1_title);
     ASSERT_EQ(psmock.get_episode_by_id(episode1_guid)->get_position(),
         episode1_position);
 }
@@ -245,6 +245,107 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_UpdateEpisodePosition) {
     dut.parse_podcast_source_from_json(json_ps, &psmock);
     ASSERT_EQ(psmock.get_episode_count(), 1);
     ASSERT_EQ(psmock.get_episode_by_id(episode1_guid)->get_position(), 130);
+}
+
+/******************************************************************************/
+TEST(PodcastSerializer, ReadFromFileInvalidTimestamp) {
+    PodcastSerializer dut;
+    PodcastSourceMock psmock;
+    QString test_file_name("some_test_file.json");
+    /* create file to read */
+    QFile test_file(test_file_name);
+    test_file.open(QIODevice::ReadWrite | QIODevice::Text);
+    QTextStream stream(&test_file);
+    stream << "{ \n"
+              " \"title\": \"foo\", \n"
+              " \"timestamp\": 3, \n" /*note: invalid timestamp*/
+              " \"Episodes\": [ \n"
+              "   { \n"
+              "     \"id\": \"xx-yyy\", \n"
+              "     \"duration\": 3582395,\n"
+              "     \"position\": 2314, \n"
+              "     \"title\": \"The First Episode\", \n"
+              "     \"uri\": \"http://foo.bar.baz\" \n"
+              "   } \n"
+              " ] \n"
+              "} \n";
+    test_file.close();
+
+    EXPECT_CALL(psmock, get_cache_file_impl())
+        .Times(1)
+        .WillOnce(Return(test_file_name));
+    ASSERT_THROW(dut.read_from_file(&psmock),
+        DigitalRooster::PodcastSourceJSonCorrupted);
+}
+
+/******************************************************************************/
+TEST(PodcastSerializer, ReadFromFileDocumentEmpty) {
+    PodcastSerializer dut;
+    PodcastSourceMock psmock;
+    QString test_file_name("some_test_file.json");
+    /* create file to read */
+    QFile test_file(test_file_name);
+    test_file.open(QIODevice::ReadWrite | QIODevice::Text);
+    QTextStream stream(&test_file);
+    stream << "{}\n";
+    test_file.close();
+
+    EXPECT_CALL(psmock, get_cache_file_impl())
+        .WillRepeatedly(Return(test_file_name));
+
+    ASSERT_THROW(dut.read_from_file(&psmock),
+        DigitalRooster::PodcastSourceJSonCorrupted);
+
+    try {
+        dut.read_from_file(&psmock);
+    } catch (PodcastSourceJSonCorrupted& exc) {
+        EXPECT_STREQ(exc.what(), "Document empty!");
+    }
+}
+
+/******************************************************************************/
+TEST(PodcastSerializer, ReadFromFile) {
+    PodcastSerializer dut;
+    QString test_file_name("some_test_file.json");
+    /* create file to read */
+    QFile test_file(test_file_name);
+    test_file.open(QIODevice::ReadWrite | QIODevice::Text);
+    QTextStream stream(&test_file);
+    stream << "{ \n"
+              " \"title\": \"foo\", \n"
+              " \"description\": \"some fancy description\", \n"
+              " \"image\": \"/foo/bar/baz.jpg\",\n"
+              " \"timestamp\": \"Fr Feb 15 14:21:57 2019\", \n"
+              " \"Episodes\": [ \n"
+              "   { \n"
+              "     \"id\": \"xx-yyy\", \n"
+              "     \"duration\": 3582395,\n"
+              "     \"position\": 2314, \n"
+              "     \"title\": \"The First Episode\", \n"
+              "     \"uri\": \"http://foo.bar.baz\" \n"
+              "   }, \n"
+              "   { \n"
+              "     \"id\": \"ZZ-XX-ABV\", \n"
+              "     \"duration\": 3582222, \n"
+              "     \"position\": 999, \n"
+              "     \"title\": \"Second episode\", \n"
+              "     \"uri\": \"http://second_url.baz\" \n"
+              "   } \n"
+              " ] \n"
+              "} \n";
+    test_file.close();
+
+    PodcastSource ps;
+    dut.read_from_file(&ps, test_file_name);
+
+    ASSERT_EQ(ps.get_description(), QString("some fancy description"));
+    ASSERT_EQ(ps.get_title(), QString("foo"));
+    ASSERT_EQ(ps.get_image_uri(), QUrl("/foo/bar/baz.jpg"));
+    ASSERT_EQ(ps.get_episode_count(), 2);
+    auto ep = ps.get_episode_by_id("ZZ-XX-ABV");
+    ASSERT_TRUE(ep);
+    ASSERT_EQ(ep->get_position(), 999);
+    ASSERT_EQ(ep->get_duration(), 3582222);
 }
 
 /******************************************************************************/
