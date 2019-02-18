@@ -23,49 +23,49 @@ Rectangle{
 		anchors.margins: Style.itemMargins.slim;
 		clip: true
 
-		Text {
-			id:episodeDN
-			text: title;
-			font: listened ? 
-				Style.font.listItemHeadListened : Style.font.listItemHead;
-			Layout.fillWidth: true
-			elide: Text.ElideRight
-			Layout.columnSpan: 2
-			Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-		}
+	    Text {
+		id:episodeDN
+		text: title;
+		font: listened ? 
+		    Style.font.listItemHeadListened : Style.font.listItemHead;
+		Layout.fillWidth: true
+		elide: Text.ElideRight
+		Layout.columnSpan: 2
+		Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+	    }
 
-		Text {
-			id:episodePubDate
-			text: pub_date;
-			font: Style.font.label;
-			elide: Text.ElideRight
-			Layout.alignment: Qt.Alignleft | Qt.AlignVCenter
-		}
+	    Text {
+		id:episodePubDate
+		text: pub_date;
+		font: listened ?  Style.font.valueLabel : Style.font.label;
+ 		elide: Text.ElideRight
+		Layout.alignment: Qt.Alignleft | Qt.AlignVCenter
+	    }
 
-		Text {
-			id: episodeDuration
-			text: duration+"h";
-			font: Style.font.label;
-			elide: Text.ElideRight
-			Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-		}
+	    Text {
+		id: episodeDuration
+		text: duration+"h";
+		font: listened ?  Style.font.valueLabel : Style.font.label;
+		elide: Text.ElideRight
+		Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+	    }
 
-		Text {
-			id:episodeDescription
-			text: description ;
-			wrapMode: Text.WordWrap
-			font: Style.font.flowText;
-			lineHeight : 0.8;
-			elide: Text.ElideRight
-			Layout.preferredWidth: parent.width-16
-			Layout.preferredHeight: parent.heigth*0.5
-			Layout.maximumWidth: parent.width-4
-			Layout.maximumHeight: parent.heigth*0.6
-			Layout.columnSpan: 2
-			Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-		}
+	    Text {
+		id:episodeDescription
+		text: description ;
+		wrapMode: Text.WordWrap
+		font: Style.font.flowText;
+		lineHeight : 0.8;
+		elide: Text.ElideRight
+		Layout.preferredWidth: parent.width-16
+		Layout.preferredHeight: parent.heigth*0.5
+		Layout.maximumWidth: parent.width-4
+		Layout.maximumHeight: parent.heigth*0.6
+		Layout.columnSpan: 2
+		Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+	    }
 	}
-	MouseArea {
+    MouseArea {
 		anchors.fill: parent
 		onClicked:{
 			playerControlWidget.show()

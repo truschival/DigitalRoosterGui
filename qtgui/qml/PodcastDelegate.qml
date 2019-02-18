@@ -71,36 +71,38 @@ Rectangle{
 	}
 
 
-	MouseArea {
-		id: mouseArea
-		anchors.fill: parent
+    MouseArea {
+	id: mouseArea
+	anchors.fill: parent
 
-		/* Simple click (or press for what it's worth) shows the episodes */
-		onClicked:  {
-			podcastlist.currentIndex =index;
+	/* Simple click (or press for what it's worth) shows the episodes */
+	onClicked:  {
+	    podcastlist.currentIndex =index;
 
-			var comp = Qt.createComponent("qrc:/PodcastEpisodeList.qml")
-			if(comp === null){
-				console.log("cannot create new PodcastEpisodeList");
-				return;
-			}
-			if( comp.status !== Component.Ready ){
-				if( comp.status === Component.Error )
-					console.log("Error:"+ comp.errorString() );
-			}
+	    var comp = Qt.createComponent("qrc:/PodcastEpisodeList.qml")
+	    if(comp === null){
+		console.log("cannot create new PodcastEpisodeList");
+		return;
+	    }
+	    if( comp.status !== Component.Ready ){
+		if( comp.status === Component.Error )
+		    console.log("Error:"+ comp.errorString() );
+	    }
 
-			var pel = comp.createObject(stackView,
-										{"model":
-										 podcastlist.model.get_episodes(index),
-										 "episodemodel" : podcastlist.model.get_episodes(index)});
-			stackView.push(pel);
-		}
-
-		/* Long click refreshes for now, could show a menu for refresh or ...? */
-		onPressAndHold:  {
-			console.log("pressed")
-			podcastlist.model.refresh(index);
-		}
+	    var pel = comp.createObject(stackView,
+					{"model":
+					 podcastlist.model.get_episodes(index),
+					 "episodemodel" : podcastlist.model.get_episodes(index)});
+	    stackView.push(pel);
 	}
+
+	/* Long click refreshes for now, could show a menu for refresh or ...? */
+	onPressAndHold:  {
+	    console.log("pressed")
+	    // podcastlist.model.refresh(index);
+	    podcastControl.popup((applicationWindow.width-powerOffMenu.width)/2,
+				 (applicationWindow.height-powerOffMenu.height)/2)
+	}
+    }
 
 }
