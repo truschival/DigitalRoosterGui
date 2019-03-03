@@ -475,6 +475,20 @@ QString ConfigurationManager::check_and_create_config() {
 }
 
 /*****************************************************************************/
+PodcastSource* ConfigurationManager::get_podcast_source_by_index(
+    int index) const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    return podcast_sources.at(index).get();
+}
+/*****************************************************************************/
+
+void ConfigurationManager::remove_podcast_source_by_index(int index) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    podcast_sources.remove(index);
+    writeTimer.start(); // start delayed write
+}
+
+/*****************************************************************************/
 int ConfigurationManager::delete_alarm(const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto old_end = alarms.end();

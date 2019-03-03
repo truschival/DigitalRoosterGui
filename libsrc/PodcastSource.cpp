@@ -40,18 +40,21 @@ PodcastSource::PodcastSource(const QUrl& url, QUuid uid)
 void PodcastSource::add_episode(std::shared_ptr<PodcastEpisode> newep) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (episodes.size() >= max_episodes) {
-        qInfo(CLASS_LC) << "max episodes reached: " << max_episodes;
+        qInfo(CLASS_LC) << " > max episodes reached: " << max_episodes;
         return;
     }
     auto ep = get_episode_by_id(newep->get_guid());
     /* add if not found */
     if (!ep) {
+        qCDebug(CLASS_LC) << " > new Episode :" << newep->get_guid();
         episodes.push_back(newep);
-        writeTimer.start(); // start delayed write
-        emit episodes_count_changed(episodes.size());
         /* get notified if any data changes */
         connect(newep.get(), SIGNAL(data_changed()), this,
             SLOT(episode_info_changed()));
+        writeTimer.start(); // start delayed write
+        emit episodes_count_changed(episodes.size());
+    } else {
+        qCDebug(CLASS_LC) << " > " << newep->get_guid() << "already in list";
     }
 }
 
@@ -114,7 +117,7 @@ QString PodcastSource::get_cache_file_impl() const {
     QString res(
         QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
     res = res + QDir::separator() + get_id().toString();
-	return res;
+    return res;
 }
 
 /*****************************************************************************/
@@ -165,6 +168,17 @@ void PodcastSource::refresh() {
 }
 
 /*****************************************************************************/
+void PodcastSource::purge() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    QFile cache_file(get_cache_file_name());
+    if (!cache_file.remove()) {
+        qCDebug(CLASS_LC) << " removing cache_file failed "
+                          << cache_file.errorString();
+    }
+    episodes.clear();
+}
+
+/*****************************************************************************/
 void PodcastSource::episode_info_changed() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     writeTimer.start(); // start delayed write
@@ -187,7 +201,7 @@ std::shared_ptr<PodcastEpisode> PodcastSource::get_episode_by_id_impl(
         });
 
     if (ep == episodes.end()) {
-        qCDebug(CLASS_LC) << " episode with id:" << id << "not in vector";
+        qCDebug(CLASS_LC) << id << "not in vector";
         return std::shared_ptr<PodcastEpisode>();
     }
     return *ep;

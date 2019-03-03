@@ -126,6 +126,21 @@ public:
     }
 
     /**
+     * Get a single podcast source identified by index
+     * @throws 	 std::out_of_range if not found
+     * @param index in vector
+     * @return PodastSource
+     */
+    PodcastSource* get_podcast_source_by_index(int index) const;
+
+    /**
+     * Removes a podcast source entry form list
+     * @throws 	 std::out_of_range if not found
+     * @param index in vector
+     */
+    void remove_podcast_source_by_index(int index);
+
+    /**
      * get all radio stream sources
      */
     const QVector<std::shared_ptr<Alarm>>& get_alarms() {
