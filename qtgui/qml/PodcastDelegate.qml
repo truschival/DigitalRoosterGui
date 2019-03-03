@@ -4,17 +4,17 @@ import QtQuick.Controls 2.2
 import ruschi.PodcastEpisodeModel 1.0
 
 Rectangle{
-	id: podcastdelegate
-	width:  Style.contentWidth;
-	height: Style.contentHeight*0.45;
-	radius: 3;
-	border.width: 1;
-	color: podcastlist.currentItem == this ?
-		Style.colors.selected : Style.colors.unselected ;
+    id: podcastdelegate
+    width:  Style.contentWidth;
+    height: Style.contentHeight*0.45;
+    radius: 3;
+    border.width: 1;
+    color: podcastlist.currentItem == this ?
+	Style.colors.selected : Style.colors.unselected ;
 
-	GridLayout{
-		anchors.margins: Style.itemMargins.slim;
-		anchors.fill: parent
+    GridLayout{
+	anchors.margins: Style.itemMargins.slim;
+	anchors.fill: parent
 		columns: 3
 		rows: 2
 		columnSpacing: Style.itemSpacings.medium;
@@ -96,12 +96,11 @@ Rectangle{
 	    stackView.push(pel);
 	}
 
-	/* Long click refreshes for now, could show a menu for refresh or ...? */
 	onPressAndHold:  {
-	    console.log("pressed")
-	    // podcastlist.model.refresh(index);
-	    podcastControl.popup((applicationWindow.width-powerOffMenu.width)/2,
-				 (applicationWindow.height-powerOffMenu.height)/2)
+	    podcastlist.currentIndex = index;
+	    console.log("Podcast pressed: " + index)
+	    podcastControl.popup((applicationWindow.width- podcastControl.width)/2,
+				 (applicationWindow.height- podcastControl.height)/2)
 	}
     }
 

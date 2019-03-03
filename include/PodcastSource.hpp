@@ -211,6 +211,11 @@ public slots:
     void refresh();
 
     /**
+     * purges local cache, removes all episodes and updates from internet
+     */
+    void purge();
+
+    /**
      * save in memory inforamtion to cache file
      */
     void store();

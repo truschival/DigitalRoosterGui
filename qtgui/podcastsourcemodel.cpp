@@ -101,13 +101,33 @@ QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
 }
 
 /*************************************************************************************/
-
 void PodcastSourceModel::refresh(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto v = cm->get_podcast_sources();
-    if (index < 0 || index >= v.size()) {
+    try {
+        cm->get_podcast_source_by_index(index)->refresh();
+    } catch (std::out_of_range&) {
         qCCritical(CLASS_LC) << "index out of range " << index;
-        return;
     }
-    v[index]->refresh();
+}
+
+/*************************************************************************************/
+void PodcastSourceModel::purge(int index) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    try {
+        cm->get_podcast_source_by_index(index)->purge();
+    } catch (std::out_of_range&) {
+        qCCritical(CLASS_LC) << "index out of range " << index;
+    }
+}
+
+/*************************************************************************************/
+void PodcastSourceModel::remove(int index) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    beginRemoveRows(QModelIndex(), index, index);
+    try {
+        cm->remove_podcast_source_by_index(index);
+    } catch (std::out_of_range&) {
+        qCCritical(CLASS_LC) << "index out of range " << index;
+    }
+    endRemoveRows();
 }

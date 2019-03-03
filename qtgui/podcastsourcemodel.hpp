@@ -46,6 +46,8 @@ public:
     Q_INVOKABLE PodcastEpisodeModel* get_episodes(int index);
 
     Q_INVOKABLE void refresh(int index);
+    Q_INVOKABLE void purge(int index);
+    Q_INVOKABLE void remove(int index);
 
 public slots:
     void newDataAvailable();

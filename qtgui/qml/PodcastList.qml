@@ -20,22 +20,39 @@ ListView {
     delegate: PodcastDelegate{
         id: podcastdelegate
     }
-
     model: podcastmodel
-    onCurrentItemChanged: console.log(currentItem.display_name + ' selected')
 
-
+    /**
+     * Popup to update/delete Podcast
+     */
     Menu {
 	id: podcastControl
+
+	focus: true
+	closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+	enter: Transition {
+	    NumberAnimation { property: "opacity";
+			      from: 0.0; to: 1.0 ; duration: 300}
+	}
+	exit: Transition {
+	    NumberAnimation { property: "opacity";
+			      from: 1.0; to: 0.0 ; duration: 400}
+	}
+
 	RowLayout {
 	    spacing: Style.itemSpacings.medium;
+	    
 	    IconButton {
 		id: refreshBtn
 		text: "\uf450"
 		Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+		Layout.preferredHeight: podcastDeleteBtn.height;
+		Layout.preferredWidth: podcastDeleteBtn.width;
+
 		onClicked: {
-		    console.log("refresh")
-		    podcastlist.model.refresh(index);
+		    console.log("refresh "+podcastlist.currentIndex)
+		    podcastlist.model.refresh(podcastlist.currentIndex);
 		}
 	    }
 
@@ -43,15 +60,20 @@ ListView {
 		id: updateBtn; 
 		text: "\uf6af";
 		Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+		Layout.preferredHeight: podcastDeleteBtn.height;
+		Layout.preferredWidth: podcastDeleteBtn.width;
+
 		onClicked: {
-		    console.log("update")
-		    //podcastlist.model.update();
+		    console.log("purge & update"+ podcastlist.currentIndex)
+		    podcastlist.model.purge(podcastlist.currentIndex);
+    		    podcastlist.model.refresh(podcastlist.currentIndex);
 		}
 	    }
 
 	    DelayButton{
+		id: podcastDeleteBtn;
 		delay:1000;
-
+		
 		contentItem: Text{
 		    text: "\ufa79"
 		    color: "white"
@@ -61,8 +83,10 @@ ListView {
 		}
 
 		onActivated:{
-		    console.log("Deleting idx: " + index)
-		 }
+		    console.log("Deleting idx: "  + podcastlist.currentIndex) 
+		    podcastlist.model.remove(podcastlist.currentIndex);
+		    podcastControl.close()
+		}
 	    }
 	}
     }
