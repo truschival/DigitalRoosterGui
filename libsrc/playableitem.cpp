@@ -86,7 +86,8 @@ QString PlayableItem::do_get_display_name() const {
 
 /***********************************************************************/
 PodcastEpisode::PodcastEpisode(const QString& title, const QUrl& url)
-    : PlayableItem(title, url) {
+    : PlayableItem(title, url)
+    , publication_date(QDateTime::currentDateTime()) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     set_title(title);
 }
@@ -170,4 +171,31 @@ void PodcastEpisode::set_publication_date(const QDateTime& date) {
     emit publication_date_changed(date);
     emit data_changed();
 }
+
+/***********************************************************************/
+bool PodcastEpisode::operator<(const PodcastEpisode& rhs) const {
+    return this->publication_date < rhs.get_publication_date();
+}
+
+/***********************************************************************/
+bool PodcastEpisode::operator<=(const PodcastEpisode& rhs) const {
+    return this->publication_date <= rhs.get_publication_date();
+}
+
+/***********************************************************************/
+bool PodcastEpisode::operator>(const PodcastEpisode& rhs) const {
+    return this->publication_date > rhs.get_publication_date();
+}
+
+/***********************************************************************/
+bool PodcastEpisode::operator>=(const PodcastEpisode& rhs) const {
+    return this->publication_date >= rhs.get_publication_date();
+}
+
+/***********************************************************************/
+bool PodcastEpisode::operator==(const PodcastEpisode& rhs) const {
+    // equality by guid!
+    return this->get_guid() == rhs.get_guid();
+}
+
 /***********************************************************************/

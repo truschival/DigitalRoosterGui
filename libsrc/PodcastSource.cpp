@@ -47,7 +47,15 @@ void PodcastSource::add_episode(std::shared_ptr<PodcastEpisode> newep) {
     /* add if not found */
     if (!ep) {
         qCDebug(CLASS_LC) << " > new Episode :" << newep->get_guid();
-        episodes.push_back(newep);
+        // insert sorted by publication date
+        auto iterator =
+            std::lower_bound(episodes.begin(), episodes.end(), newep,
+                [](const std::shared_ptr<PodcastEpisode>& lhs,
+                    const std::shared_ptr<PodcastEpisode>& rhs) {
+                    return lhs->get_publication_date() >
+                        rhs->get_publication_date();
+                });
+        episodes.insert(iterator, newep);
         /* get notified if any data changes */
         connect(newep.get(), SIGNAL(data_changed()), this,
             SLOT(episode_info_changed()));
