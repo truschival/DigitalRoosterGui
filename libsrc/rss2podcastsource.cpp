@@ -10,11 +10,11 @@
  *
  *****************************************************************************/
 
+#include <QDateTime>
 #include <QFile>
 #include <QLoggingCategory>
 #include <QString>
 #include <QTime>
-#include <QDateTime>
 #include <QVector>
 #include <QXmlStreamReader>
 #include <memory>
@@ -76,6 +76,9 @@ void parse_episodes(PodcastSource& podcastsource, QXmlStreamReader& xml) {
                     xml.readNext();
                     ep->set_publication_date(QDateTime::fromString(
                         xml.text().toString(), Qt::DateFormat::RFC2822Date));
+                } else if (xml.name() == "guid") {
+                    xml.readNext();
+                    ep->set_guid(xml.text().toString());
                 }
             } else if (xml.namespaceUri() ==
                 "http://www.itunes.com/dtds/podcast-1.0.dtd") {

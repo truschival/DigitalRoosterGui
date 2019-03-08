@@ -46,7 +46,7 @@ public:
      * Convenience Constructor
      * @param name display_name
      * @param url  media_url
-	 * @param uid  (optional) unique id
+     * @param uid  (optional) unique id
      */
     PlayableItem(const QString& name, const QUrl& url,
         const QUuid& uid = QUuid::createUuid());
@@ -109,18 +109,18 @@ public:
 
 signals:
     /**
-	 * Human readable identifier changed (title, name, publisher etc)
-	 * \param info new \ref display_name
-	 */
+     * Human readable identifier changed (title, name, publisher etc)
+     * \param info new \ref display_name
+     */
     void display_name_changed(const QString& info);
 
-	/**
-	 * Position has changed
-	 * \param newpos updated position
+    /**
+     * Position has changed
+     * \param newpos updated position
      */
     void position_updated(qint64 newpos);
 
-	/**
+    /**
      * Any information changed
      */
     void data_changed();
@@ -148,7 +148,7 @@ private:
 
     /**
      * Create human information dynamically from combination of
-	 * \ref title, \ref publisher \ref display_name ....
+     * \ref title, \ref publisher \ref display_name ....
      * @return string representation
      */
     virtual QString do_get_display_name() const;
@@ -224,6 +224,19 @@ public:
      * @param len >= 0
      */
     void set_duration(qint64 len);
+
+    /**
+     * Comparison operators to allow for sorting by publication date
+     */
+    bool operator<(const PodcastEpisode& rhs) const;
+    bool operator<=(const PodcastEpisode& rhs) const;
+    bool operator>(const PodcastEpisode& rhs) const;
+    bool operator>=(const PodcastEpisode& rhs) const;
+    /**
+     * Compare for equality by GUID
+     */
+    bool operator==(const PodcastEpisode& rhs) const;
+
 signals:
     void description_changed(const QString& desc);
 
