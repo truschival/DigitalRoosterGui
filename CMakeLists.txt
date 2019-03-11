@@ -237,7 +237,10 @@ endif(DOXYGEN_FOUND)
 # Sub-dirs to build each with its own CMakelists.txt
 #-------------------------------------------------------------------------------
 
-# Library source
+# control interface for wpa_supplicant - only for Linux / Unix
+if (UNIX)
+add_subdirectory(${PROJECT_SOURCE_DIR}/wpa_ctrl/) 
+endif (UNIX)
 add_subdirectory(${PROJECT_SOURCE_DIR}/libhwif/)
 add_subdirectory(${PROJECT_SOURCE_DIR}/libsrc/) #libsrc depends on libhwif
 
