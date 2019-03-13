@@ -35,6 +35,16 @@ ELSE()
 ENDIF()
 LIST(APPEND OTHER_LIBS hwif)
 
+IF(UNIX)
+	# target wpa_ctrl only exist ifdef UNIX
+	IF(TARGET wpa_ctrl)
+		add_library(${PROJECT_NAME}::wpa_ctrl ALIAS wpa_ctrl)
+	ELSE()
+		find_package(${PROJECT_NAME} COMPONENTS wpa_ctrl CONFIG REQUIRED)
+	ENDIF()
+	LIST(APPEND OTHER_LIBS wpa_ctrl)
+ENDIF(UNIX)
+
 #------------------------------
 # add compile definitions
 #------------------------------
@@ -63,6 +73,7 @@ SET(SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/brightnesscontrol.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/volume_button.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/podcast_serializer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/wifi_control.cpp
 	)
 
 #------------------------------
@@ -86,6 +97,7 @@ SET(MOC_SRC
 	${PROJECT_INCLUDE_DIR}/brightnesscontrol.hpp
 	${PROJECT_INCLUDE_DIR}/volume_button.hpp
 	${PROJECT_INCLUDE_DIR}/podcast_serializer.hpp
+	${PROJECT_INCLUDE_DIR}/wifi_control.hpp
 )
 
 #------------------------------

@@ -54,6 +54,8 @@ SET(SYSTEM_TARGET_NAME "Host"
   CACHE STRING "Target: {Host|Rpi}")
 SET(SETTINGS_FILE_NAME "digitalrooster.json"
   CACHE STRING "application configuration file name")
+SET(WIFI_INTERFACE "/var/run/wpa_supplicant/wlp2s0"
+  CACHE STRING "wpa_supplicant interface contrl socket path")
 SET(SETTINGS_PATH  "${CMAKE_CURRENT_BINARY_DIR}/settings"
   CACHE PATH "application configuration path")
 SET(GENERATED_DIR  "${CMAKE_BINARY_DIR}/generated" CACHE INTERNAL "" )

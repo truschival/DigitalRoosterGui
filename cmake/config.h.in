@@ -4,7 +4,7 @@
  *
  *************************************************************************************/
  #ifndef _CONFIG_H_
- #define  _CONFIG_H_
+ #define _CONFIG_H_
  
  /**
   * Date Time string when CMake was run
@@ -56,5 +56,12 @@
  #ifndef CMAKE_BUILD_DIR
  #define CMAKE_BUILD_DIR  @CMAKE_BINARY_DIR@
  #endif
+
+/**
+ * Wifi Interface on target
+ */
+#ifndef WIFI_INTERFACE_PATH
+#define WIFI_INTERFACE_PATH @WIFI_INTERFACE@
+#endif
 
  #endif /* _CONFIG_H_ */
