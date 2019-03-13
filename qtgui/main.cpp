@@ -42,6 +42,7 @@
 #include "timeprovider.hpp"
 #include "volume_button.hpp"
 #include "weather.hpp"
+#include "wifi_control.hpp"
 
 using namespace DigitalRooster;
 
@@ -104,6 +105,10 @@ int main(int argc, char* argv[]) {
     IRadioListModel iradiolistmodel(cm, playerproxy);
     AlarmListModel alarmlistmodel(cm);
     Weather weather(cm);
+#ifdef __linux__
+    WifiControl& wifictrl = WifiControl::get_instance(cm.get());
+    wifictrl.get_scan_result();
+#endif
     PowerControl power;
     BrightnessControl brightness(cm);
     /* PowerControl standby sets brightness */
