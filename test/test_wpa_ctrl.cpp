@@ -10,9 +10,6 @@
  *
  *****************************************************************************/
 
-
-#include "wpa_ctrl/wpa_ctrl.h"
-#include "gtest/gtest.h"
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
@@ -21,6 +18,11 @@
 #include <iostream>
 #include <string>
 #include <thread>
+
+
+#include "wpa_ctrl/wpa_ctrl.h"
+#include "gtest/gtest.h"
+
 
 using namespace std::chrono;
 

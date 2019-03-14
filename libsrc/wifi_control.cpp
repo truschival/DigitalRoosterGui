@@ -12,6 +12,7 @@
 
 #include <QLoggingCategory>
 #include <QString>
+#include <exception>
 
 #include "appconstants.hpp"
 #include "configuration_manager.hpp"
@@ -21,7 +22,6 @@
 using namespace DigitalRooster;
 
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.WifiControl");
-
 
 /****************************************************************************/
 
@@ -34,7 +34,6 @@ void DigitalRooster::wpa_msg_cb(char* buf, size_t len) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << buf;
     WifiControl::get_instance().wpa_notification(buf, len);
 }
-
 
 /****************************************************************************/
 WifiControl& WifiControl::get_instance(ConfigurationManager* cm) {
@@ -99,20 +98,33 @@ void WifiControl::start_scan() {
 
 /****************************************************************************/
 WifiNetwork DigitalRooster::line_to_network(const QStringRef& line) {
-    QVector<QStringRef> list = line.split("\t");
-    WifiNetwork nw{list[4].toString(), list[0].toString()};
-    return nw;
+	qCDebug(CLASS_LC) << Q_FUNC_INFO;
+	QVector<QStringRef> list = line.split("\t");
+
+    if (line.size() > 3) {
+        WifiNetwork nw{
+            list[4].toString(), list[0].toString(), list[2].toInt(0), false};
+        return nw;
+    } else {
+        throw std::runtime_error("cannot parse line");
+    }
 }
 
 /****************************************************************************/
 QVector<WifiNetwork> DigitalRooster::parse_scanresult(
-    char* buffer, size_t len) {
+    const char* buffer, size_t len) {
     QString results(buffer);
     auto lines = results.splitRef("\n");
     QVector<WifiNetwork> cont;
     // skip first line which is header of table
     for (int i = 1; i < lines.length(); i++) {
-        cont.push_back(line_to_network(lines[i]));
+    	try{
+    		cont.push_back(line_to_network(lines[i]));
+    	} catch (std::exception & e){
+    		qCCritical(CLASS_LC) << e.what();
+    		qCDebug(CLASS_LC) << " > " << lines[i];
+    	}
+
     }
     return cont;
 }

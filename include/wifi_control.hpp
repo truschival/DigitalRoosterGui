@@ -132,7 +132,7 @@ WifiNetwork line_to_network(const QStringRef& line);
  * @param buffer result
  * @param len buffer length
  */
-QVector<WifiNetwork> parse_scanresult(char* buffer, size_t len);
+QVector<WifiNetwork> parse_scanresult(const char* buffer, size_t len);
 
 
 /**
@@ -140,8 +140,8 @@ QVector<WifiNetwork> parse_scanresult(char* buffer, size_t len);
  */
 class WifiNetwork {
 public:
-    QString bssid;
     QString name;
+	QString bssid;
     int signal_strength;
     bool wps_available;
 };
