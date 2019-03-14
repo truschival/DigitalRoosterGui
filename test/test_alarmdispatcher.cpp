@@ -200,7 +200,7 @@ TEST_F(AlarmDispatcherFixture, DispatchAlarmsWithSlightOffset) {
     ASSERT_TRUE(spy.isValid());
     a.check_alarms();
     a.check_alarms();
-    ASSERT_EQ(spy.count(), 2);
+    ASSERT_EQ(spy.count(), 1); // past alarm should not be played
 }
 /*****************************************************************************/
 TEST_F(AlarmDispatcherFixture, Workdays_Friday) {
@@ -336,7 +336,7 @@ TEST_F(AlarmDispatcherFixture, Workdays_Sunday) {
 TEST_F(AlarmDispatcherFixture, dispatch2DueAlarms) {
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
-        QTime::fromString("08:29:40", "hh:mm:ss"), Alarm::Once);
+        QTime::fromString("08:29:48", "hh:mm:ss"), Alarm::Once);
     cm->alarms.push_back(alm);
     auto alm2 = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
