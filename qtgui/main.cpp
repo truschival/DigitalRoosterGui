@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
         &alarmdispatcher, SIGNAL(alarm_triggered()), &power, SLOT(activate()));
     /* Alarm Monitor alarm timeouts deactivates the system */
     QObject::connect(
-        &alarmmonitor, SLOT(alarm_timeout_occurred), &power, SLOT(standby));
+        &alarmmonitor, SIGNAL(alarm_timeout_occurred()), &power, SLOT(standby()));
     /* Rotary encoder interface */
     VolumeButton volbtn(cm.get());
     QObject::connect(
