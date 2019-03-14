@@ -112,4 +112,5 @@ void AlarmMonitor::start_playing() {
 void AlarmMonitor::stop_running_alarm() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     mpp->stop();
+    emit alarm_timeout_occurred();
 }

@@ -41,6 +41,13 @@ public slots:
      */
     void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm> alarm);
 
+signals:
+    /**
+     * Alarm has been playing for more than configured timeout
+	 * player has been stopped.
+     */
+    void alarm_timeout_occurred();
+
 private:
     /**
      * PlayerBackend that receives the Alarms
@@ -82,6 +89,9 @@ private:
      * has expired
      */
 private slots:
+    /**
+	 * stops player and emits \ref alarm_timeout_occurred
+	 */
     void stop_running_alarm();
 
     /**

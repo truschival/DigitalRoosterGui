@@ -94,9 +94,10 @@ int main(int argc, char* argv[]) {
     playerproxy->set_volume(cm->get_volume());
 
     AlarmDispatcher alarmdispatcher(cm);
-    AlarmMonitor wd(playerproxy);
+    AlarmMonitor alarmmonitor(playerproxy);
     QObject::connect(&alarmdispatcher,
-        SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)), &wd,
+        SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)),
+        &alarmmonitor,
         SLOT(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
 
     PodcastSourceModel psmodel(cm, playerproxy);
@@ -116,7 +117,9 @@ int main(int argc, char* argv[]) {
     /* AlarmDispatcher sets activates system */
     QObject::connect(
         &alarmdispatcher, SIGNAL(alarm_triggered()), &power, SLOT(activate()));
-
+    /* Alarm Monitor alarm timeouts deactivates the system */
+    QObject::connect(
+        &alarmmonitor, SLOT(alarm_timeout_occurred), &power, SLOT(standby));
     /* Rotary encoder interface */
     VolumeButton volbtn(cm.get());
     QObject::connect(
