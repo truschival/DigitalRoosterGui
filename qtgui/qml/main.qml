@@ -23,12 +23,12 @@ ApplicationWindow {
     }
 
     FontLoader {
-	id: materialdesignIconsFont;
-	source: "materialdesignicons-webfont.ttf"
+        id: materialdesignIconsFont;
+        source: "materialdesignicons-webfont.ttf"
     }
 
     header: ToolBar {
-	height: Style.toolbarHeight;
+        height: Style.toolbarHeight;
 
         RowLayout {
             anchors.fill: parent
@@ -51,21 +51,21 @@ ApplicationWindow {
                 Layout.fillWidth: true
             }
 
-	    IconButton {
+            IconButton {
                 id : playerControlBtn
                 text: MdiFont.Icon.play
                 onClicked:{
-		    playerControlWidget.show()
+                    playerControlWidget.show()
                 }
             }
 
             IconButton {
                 id : backButton
                 text: MdiFont.Icon.keyboardBackspace
-		Layout.rightMargin: Style.itemMargins.wide;
+                Layout.rightMargin: Style.itemMargins.wide;
                 visible: (stackView.depth > 1)
                 onClicked:{
-		    stackView.backNavigate()
+                    stackView.backNavigate()
                 }
 
                 Shortcut {
@@ -81,16 +81,16 @@ ApplicationWindow {
         width: Style.drawer.w;
         height: applicationWindow.height
         interactive: true;
-	margins: Style.itemMargins.slim;
-	edge: Qt.LeftEdge;
+        margins: Style.itemMargins.slim;
+        edge: Qt.LeftEdge;
 
-	ListView {
+        ListView {
             id: listView
-	    anchors.fill: parent
-	    spacing: Style.itemSpacings.dense;
-	    anchors.margins: Style.itemMargins.slim;
-	    anchors.horizontalCenter: parent.horizontalCenter
-	    anchors.verticalCenter: parent.verticalCenter
+            anchors.fill: parent
+            spacing: Style.itemSpacings.dense;
+            anchors.margins: Style.itemMargins.slim;
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
 
             focus: true;
             currentIndex: -1;
@@ -100,81 +100,88 @@ ApplicationWindow {
                 highlighted: listView.currentIndex == index
 
                 onClicked: {
-		    console.log("Current "+ listView.currentIndex +
-				" index: "+index + " depth:"+ stackView.depth)
-		    if( stackView.depth > 1){
-			stackView.pop(null)
-		    }
-		    listView.currentIndex = index
+                    console.log("Current "+ listView.currentIndex +
+                                " index: "+index + " depth:"+ stackView.depth)
+                    if( stackView.depth > 1){
+                        stackView.pop(null)
+                    }
+                    listView.currentIndex = index
                     drawer.close()
                     /* Special item: power off button */
                     if(index === listView.count -1 ){
-                    	console.log("last item!")
-                    	powerOffMenu.popup((applicationWindow.width-powerOffMenu.width)/2,
-					   (applicationWindow.height-powerOffMenu.height)/2)
-                    	return; // nothing to do
+                        console.log("last item!")
+                        powerOffMenu.popup((applicationWindow.width-powerOffMenu.width)/2,
+                                           (applicationWindow.height-powerOffMenu.height)/2 - Style.itemMargins.extrawide)
+                        return; // nothing to do
                     }
-		    stackView.push(model.source)
+                    stackView.push(model.source)
                 }
             }
 
             model: ListModel {
                 ListElement { title: "\uf223"; source: "qrc:/PodcastList.qml"; objectName:"PodcastList"; }
-		ListElement { title: "\uf43B"; source: "qrc:/IRadioList.qml"; objectName:"InternetRadio"; }
-		ListElement { title: "\uf020"; source: "qrc:/AlarmList.qml"; objectName:"AlarmList"; }
-		ListElement { title: "\uf62e"; source: "qrc:/SettingsPage.qml"; objectName:"Settings"; }
-		ListElement { title: "\uf425"; source: ""; objectName:"PowerOff"; }
+                ListElement { title: "\uf43B"; source: "qrc:/IRadioList.qml"; objectName:"InternetRadio"; }
+                ListElement { title: "\uf020"; source: "qrc:/AlarmList.qml"; objectName:"AlarmList"; }
+                ListElement { title: "\uf62e"; source: "qrc:/SettingsPage.qml"; objectName:"Settings"; }
+                ListElement { title: "\uf425"; source: ""; objectName:"PowerOff"; }
             }
         }
     }
 
     Menu {
-	id: powerOffMenu
-	RowLayout {
-	    spacing: Style.itemSpacings.medium;
-	    IconButton {
-		id: poweroffBtn
-		text: "\uf901"
-		Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-		onClicked: {
-		    console.log("power off button")
-		    powerControl.power_off();
-		}
-	    }
+        id: powerOffMenu
+        GridLayout {
+            rows: 2;
+            columns: 2;
+            rowSpacing: Style.itemSpacings.medium;
+            columnSpacing: Style.itemSpacings.medium;
 
-	    IconButton {
-		id: standbyBtn
-		text: "\uf903";
-		Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-		onClicked: {
-		    console.log("standby button")
-		    powerControl.toggle_power_state();
-		}
-	    }
+            IconButton {
+                id: poweroffBtn
+                text: "\uf901"
+                Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+                onClicked: {
+                    console.log("power off button")
+                    powerControl.power_off();
+                }
+            }
+            Text{
+                text: "shutdown";
+                font: Style.font.boldLabel;
+                color: "white"
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+            }
 
-	    IconButton {
-		id: rebootBtn
-		text: "\uf900";
-		Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-		onClicked: {
-		    console.log("reboot button")
-		    powerControl.reboot();
-		}
-	    }
-	}
+
+            IconButton {
+                id: rebootBtn
+                text: "\uf900";
+                Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+                onClicked: {
+                    console.log("reboot button")
+                    powerControl.reboot();
+                }
+            }
+            Text{
+                text: "reboot";
+                font: Style.font.boldLabel;
+                color: "white"
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+            }
+        }
     }
 
     PlayerControlWidget{
-	id: playerControlWidget
+        id: playerControlWidget
         width: parent.width*0.85;
-	x: Math.round((applicationWindow.width - width) / 2)
-	y: Math.round((applicationWindow.height - height) *0.6)
+        x: Math.round((applicationWindow.width - width) / 2)
+        y: Math.round((applicationWindow.height - height) *0.6)
     }
 
     VolumePopup{
-	id: volumePopUp
-	x: Math.round((applicationWindow.width - width) / 2)
-	y: Math.round((applicationWindow.height - height) / 2)
+        id: volumePopUp
+        x: Math.round((applicationWindow.width - width) / 2)
+        y: Math.round((applicationWindow.height - height) / 2)
     }
 
     StackView {
@@ -185,25 +192,25 @@ ApplicationWindow {
             property string objectName : "InitialPage"
         }
 
-	function backNavigate(){
-	    if (stackView.depth > 1){
-		stackView.pop()
-	    } else{
-		stackView.currentIndex = -1;
-	    }
-	}
+        function backNavigate(){
+            if (stackView.depth > 1){
+                stackView.pop()
+            } else{
+                stackView.currentIndex = -1;
+            }
+        }
 
-	function reset(){
-	    while(stackView.depth >1){
-		stackView.pop(null);
-	    }
-	}
+        function reset(){
+            while(stackView.depth >1){
+                stackView.pop(null);
+            }
+        }
     }
 
     /**** global connections ****/
     Component.onCompleted: {
-	console.log("main.qml completed")
-	powerControl.going_in_standby.connect(stackView.reset)
-	volumeButton.volume_incremented.connect(volumePopUp.show)
+        console.log("main.qml completed")
+        powerControl.going_in_standby.connect(stackView.reset)
+        volumeButton.volume_incremented.connect(volumePopUp.show)
     }
 } // application window
