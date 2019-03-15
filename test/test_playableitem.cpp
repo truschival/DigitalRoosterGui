@@ -56,6 +56,7 @@ TEST(PlayableItem, EmptyTitleButPublisher) {
     pi.set_publisher(publisher);
     ASSERT_EQ(pi.get_display_name(),publisher);
 }
+
 /*****************************************************************************/
 TEST(PlayableItem, TitleAndPublisher) {
 	PlayableItem pi("Foo", QUrl("http://www.heise.de"));
@@ -66,3 +67,17 @@ TEST(PlayableItem, TitleAndPublisher) {
     pi.set_title(title);
     ASSERT_EQ(pi.get_display_name(),publisher+": "+title);
 }
+
+/*****************************************************************************/
+TEST(PlayableItem, ListenedChanged) {
+	PodcastEpisode episode("Foo", QUrl("http://www.heise.de"));
+	episode.set_duration(1000);
+	QSignalSpy spy(&episode,SIGNAL(listened_changed(bool)));
+	ASSERT_TRUE(spy.isValid());
+	episode.set_position(900);
+	spy.wait();
+	ASSERT_EQ(spy.count(),1);
+    ASSERT_TRUE(episode.already_listened());
+}
+
+
