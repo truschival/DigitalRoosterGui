@@ -173,29 +173,3 @@ void PodcastEpisode::set_publication_date(const QDateTime& date) {
 }
 
 /***********************************************************************/
-bool PodcastEpisode::operator<(const PodcastEpisode& rhs) const {
-    return this->publication_date < rhs.get_publication_date();
-}
-
-/***********************************************************************/
-bool PodcastEpisode::operator<=(const PodcastEpisode& rhs) const {
-    return this->publication_date <= rhs.get_publication_date();
-}
-
-/***********************************************************************/
-bool PodcastEpisode::operator>(const PodcastEpisode& rhs) const {
-    return this->publication_date > rhs.get_publication_date();
-}
-
-/***********************************************************************/
-bool PodcastEpisode::operator>=(const PodcastEpisode& rhs) const {
-    return this->publication_date >= rhs.get_publication_date();
-}
-
-/***********************************************************************/
-bool PodcastEpisode::operator==(const PodcastEpisode& rhs) const {
-    // equality by guid!
-    return this->get_guid() == rhs.get_guid();
-}
-
-/***********************************************************************/

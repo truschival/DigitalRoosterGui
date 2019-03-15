@@ -225,18 +225,6 @@ public:
      */
     void set_duration(qint64 len);
 
-    /**
-     * Comparison operators to allow for sorting by publication date
-     */
-    bool operator<(const PodcastEpisode& rhs) const;
-    bool operator<=(const PodcastEpisode& rhs) const;
-    bool operator>(const PodcastEpisode& rhs) const;
-    bool operator>=(const PodcastEpisode& rhs) const;
-    /**
-     * Compare for equality by GUID
-     */
-    bool operator==(const PodcastEpisode& rhs) const;
-
 signals:
     void description_changed(const QString& desc);
 
