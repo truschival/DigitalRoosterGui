@@ -159,7 +159,7 @@ public:
      * @return default alarm timeout
      */
     std::chrono::minutes get_alarm_timeout() const {
-        return alarmtimeout;
+        return global_alarmtimeout;
     }
     /**
      * Read full configuration file path
@@ -253,7 +253,7 @@ private:
     /**
      * Duration for alarm to stop automatically
      */
-    std::chrono::minutes alarmtimeout;
+    std::chrono::minutes global_alarmtimeout;
 
     /**
      * Stop playback automatically (globally)
@@ -316,12 +316,12 @@ private:
     /**
      * read file and return content as string
      */
-    virtual QString getJsonFromFile(const QString& path);
+    virtual QString get_json_from_file(const QString& path);
 
     /**
      * interpret json string
      */
-    virtual void parseJson(const QByteArray& json);
+    virtual void parse_json(const QByteArray& json);
 
     /**
      * Fills the vector stream_sources with entries form settings file

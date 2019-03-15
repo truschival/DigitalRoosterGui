@@ -30,7 +30,7 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
 
 /*****************************************************************************/
 ConfigurationManager::ConfigurationManager(const QString& configdir)
-    : alarmtimeout(DEFAULT_ALARM_TIMEOUT)
+    : global_alarmtimeout(DEFAULT_ALARM_TIMEOUT)
     , sleeptimeout(DEFAULT_SLEEP_TIMEOUT)
     , volume(DEFAULT_VOLUME)
     , brightness_sb(DEFAULT_BRIGHTNESS)
@@ -57,13 +57,13 @@ void ConfigurationManager::refresh_configuration() {
     alarms.clear();
     podcast_sources.clear();
     stream_sources.clear();
-    auto content = getJsonFromFile(get_configuration_path());
-    parseJson(content.toUtf8());
+    auto content = get_json_from_file(get_configuration_path());
+    parse_json(content.toUtf8());
     emit configuration_changed();
 }
 
 /*****************************************************************************/
-QString ConfigurationManager::getJsonFromFile(const QString& path) {
+QString ConfigurationManager::get_json_from_file(const QString& path) {
     QString content;
     QFile file(path);
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
@@ -82,17 +82,18 @@ QString ConfigurationManager::getJsonFromFile(const QString& path) {
 }
 
 /*****************************************************************************/
-void ConfigurationManager::parseJson(const QByteArray& json) {
+void ConfigurationManager::parse_json(const QByteArray& json) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonDocument doc = QJsonDocument::fromJson(json);
     QJsonObject appconfig = doc.object();
     /* get application config */
     auto at = appconfig[DigitalRooster::KEY_ALARM_TIMEOUT];
     if (!at.isUndefined()) {
-        alarmtimeout =
+        global_alarmtimeout =
             std::chrono::minutes(at.toInt(DEFAULT_ALARM_TIMEOUT.count()));
     } else {
-        alarmtimeout = std::chrono::minutes(DEFAULT_ALARM_TIMEOUT.count());
+        global_alarmtimeout =
+            std::chrono::minutes(DEFAULT_ALARM_TIMEOUT.count());
     }
     auto bright_act = appconfig[KEY_BRIGHTNESS_ACT];
     if (!bright_act.isUndefined()) {
@@ -218,7 +219,7 @@ void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
         alarm->set_volume(volume);
         /* if no specific alarm timeout is given take application default */
         auto timeout =
-            json_alarm[KEY_ALARM_TIMEOUT].toInt(alarmtimeout.count());
+            json_alarm[KEY_ALARM_TIMEOUT].toInt(global_alarmtimeout.count());
         alarm->set_timeout(std::chrono::minutes(timeout));
 
         connect(alarm.get(), SIGNAL(dataChanged()), this, SLOT(dataChanged()));
@@ -353,7 +354,8 @@ void ConfigurationManager::store_current_config() {
     appconfig[KEY_WEATHER] = json_weather;
 
     /* global application configuration */
-    appconfig[KEY_ALARM_TIMEOUT] = static_cast<qint64>(alarmtimeout.count());
+    appconfig[KEY_ALARM_TIMEOUT] =
+        static_cast<qint64>(global_alarmtimeout.count());
     appconfig[KEY_SLEEP_TIMEOUT] = static_cast<qint64>(sleeptimeout.count());
     appconfig[KEY_VOLUME] = volume;
     appconfig[KEY_BRIGHTNESS_SB] = brightness_sb;

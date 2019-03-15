@@ -181,25 +181,29 @@ TEST_F(SettingsFixture, addRadioStation_write) {
     auto stream = v[2];
     ASSERT_EQ(stream->get_display_name(), QString("foo"));
 }
-/*****************************************************************************/
 
+/*****************************************************************************/
 TEST_F(SettingsFixture, read_2podcasts) {
     auto& v = cm->get_podcast_sources();
     ASSERT_EQ(2, v.size());
 }
-/*****************************************************************************/
 
-TEST_F(SettingsFixture, read_PodcastUri) {
+/*****************************************************************************/
+TEST_F(SettingsFixture, deletePodcastById) {
     auto& v = cm->get_podcast_sources();
     ASSERT_EQ(2, v.size());
-    ASSERT_EQ(v[0]->get_url(),
-        QString("https://alternativlos.org/alternativlos.rss"));
-    ASSERT_EQ(v[1]->get_url(),
-        QString("http://www.deutschlandfunk.de/"
-                "podcast-essay-und-diskurs.1185.de.podcast.xml"));
+    cm->remove_podcast_source_by_index(0);
+    ASSERT_EQ(cm->get_podcast_sources().size(), 1);
 }
-/*****************************************************************************/
 
+/*****************************************************************************/
+TEST_F(SettingsFixture, read_PodcastUri) {
+    auto ps = cm->get_podcast_source_by_index(0);
+    ASSERT_EQ(
+        ps->get_url(), QString("https://alternativlos.org/alternativlos.rss"));
+}
+
+/*****************************************************************************/
 TEST_F(SettingsFixture, podcastSource_incomplete) {
     auto& v = cm->get_podcast_sources();
     ASSERT_EQ(v[0]->get_url(),
@@ -207,8 +211,8 @@ TEST_F(SettingsFixture, podcastSource_incomplete) {
     ASSERT_EQ(v[1]->get_description(), QString(""));
     ASSERT_EQ(v[1]->get_episodes_names().size(), 0);
 }
-/*****************************************************************************/
 
+/*****************************************************************************/
 TEST(StringToPeriodEnum, mapping_good) {
     ASSERT_EQ(Alarm::Once, json_string_to_alarm_period(KEY_ALARM_ONCE));
     ASSERT_EQ(Alarm::Daily, json_string_to_alarm_period(KEY_ALARM_DAILY));
@@ -221,6 +225,7 @@ TEST_F(SettingsFixture, alarm_count) {
     auto& v = cm->get_alarms();
     ASSERT_EQ(v.size(), 5);
 }
+
 /*****************************************************************************/
 TEST_F(SettingsFixture, alarm_id) {
     auto& v = cm->get_alarms();
@@ -246,6 +251,7 @@ TEST_F(SettingsFixture, podcastid) {
         QString("http://www.deutschlandfunk.de/"
                 "podcast-essay-und-diskurs.1185.de.podcast.xml"));
 }
+
 /*****************************************************************************/
 TEST_F(SettingsFixture, streamsourceid) {
     auto& v = cm->get_stream_sources();
@@ -275,6 +281,7 @@ TEST_F(SettingsFixture, deleteAlarm) {
     cm->delete_alarm(id);
     ASSERT_EQ(cm->get_alarms().size(), size_before);
 }
+
 /*****************************************************************************/
 TEST_F(SettingsFixture, deleteAlarmNonExist) {
     auto size_before = cm->get_alarms().size();
@@ -289,8 +296,8 @@ TEST_F(SettingsFixture, alarm_daily) {
     ASSERT_EQ(v[0]->get_time(), QTime::fromString("10:00", "hh:mm"));
     ASSERT_TRUE(v[0]->is_enabled());
 }
-/*****************************************************************************/
 
+/*****************************************************************************/
 TEST_F(SettingsFixture, alarm_workdays) {
     auto& v = cm->get_alarms();
 
@@ -298,32 +305,32 @@ TEST_F(SettingsFixture, alarm_workdays) {
     ASSERT_EQ(v[1]->get_time(), QTime::fromString("07:00", "hh:mm"));
     ASSERT_TRUE(v[1]->is_enabled());
 }
-/*****************************************************************************/
 
+/*****************************************************************************/
 TEST_F(SettingsFixture, alarm_weekends) {
     auto& v = cm->get_alarms();
     ASSERT_EQ(v[2]->get_period(), Alarm::Weekend);
     ASSERT_EQ(v[2]->get_time(), QTime::fromString("09:00", "hh:mm"));
     ASSERT_FALSE(v[2]->is_enabled());
 }
-/*****************************************************************************/
 
+/*****************************************************************************/
 TEST_F(SettingsFixture, alarm_once) {
     auto& v = cm->get_alarms();
     ASSERT_EQ(v[3]->get_period(), Alarm::Once);
     ASSERT_EQ(v[3]->get_time(), QTime::fromString("13:00", "hh:mm"));
     ASSERT_TRUE(v[3]->is_enabled());
 }
-/*****************************************************************************/
 
+/*****************************************************************************/
 TEST_F(SettingsFixture, alarm_once_default) {
     auto& v = cm->get_alarms();
     // Alarm 5 has an unknown peridicity string "Manchmal" it should default to
     // Daily
     ASSERT_EQ(v[4]->get_period(), Alarm::Daily);
 }
-/*****************************************************************************/
 
+/*****************************************************************************/
 TEST_F(SettingsFixture, emitConfigChanged) {
     auto number_of_alarms = cm->get_alarms().size();
     QSignalSpy spy(cm.get(), SIGNAL(configuration_changed()));
@@ -344,8 +351,8 @@ TEST(ConfigManager, CreateDefaultConfigDir) {
     cm.update_configuration();
     ASSERT_TRUE(config_dir.exists());
 }
-/*****************************************************************************/
 
+/*****************************************************************************/
 TEST(ConfigManager, CreateDefaultConfig) {
     auto config_path =
         QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
