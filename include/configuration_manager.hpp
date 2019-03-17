@@ -166,7 +166,7 @@ public:
      * Path to wpa_supplicant control socket
      * @return "/var/wpa_supplicant/wlan0"
      */
-    QString get_wpa_socket_name() const;
+    virtual QString get_wpa_socket_name() const;
 
     /**
      * Read full configuration file path

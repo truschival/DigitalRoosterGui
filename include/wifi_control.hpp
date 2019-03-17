@@ -17,8 +17,11 @@
 #include <QString>
 #include <QStringRef>
 #include <QVector>
-#include <memory>
+#include <QSocketNotifier>
 
+#include <memory>
+#include <thread>
+#include <mutex>
 
 #include "wpa_ctrl/wpa_ctrl.h"
 
@@ -52,7 +55,7 @@ public:
      * @param cm configuration manager (to get WIFI interface)
      * @return
      */
-    static WifiControl& get_instance(ConfigurationManager* cm = nullptr);
+    static WifiControl* get_instance(ConfigurationManager* cm = nullptr);
     /**
      * Trigger Push Button Configuration (PBC) authentication
      * with given network
@@ -78,6 +81,10 @@ public:
 
 public slots:
     void start_scan();
+    /**
+     * data on control channel available
+     */
+    void ctrl_event(int fd);
 
 signals:
     /**
@@ -106,16 +113,43 @@ private:
     struct wpa_ctrl* ctrl;
 
     /**
+     * Buffer to hold reply of command
+     */
+    char reply[2048];
+    size_t reply_size;
+
+    /**
+     * Mutex to protect concurrent access to wpa_ctrl and buffers
+     * reply or reply_size
+     */
+    mutable std::mutex wpa_mtx;
+
+    /**
      * Path to management socket e.g. /var/lib/wpa_supplicant/wlan0
      */
     QString wpa_supplicant_sock_path;
 
     /**
-     * Parse wpa layer notifications
-     * @param buffer notification string
-     * @param len size of buffer
+     * Notifier for watching asynchornous events from wpa_ctrl socket
      */
-    void wpa_notification(char* buffer, size_t len);
+    std::unique_ptr<QSocketNotifier> ctrl_notifier;
+
+    /**
+     * Send read scan_results from wpa_ctrl
+     */
+    void read_scan_results();
+
+    /**
+     * Issue a command, modifies reply and reply_size
+     * @param cmd wpa_supplicant command
+     */
+    void request_wrapper(const QString & cmd);
+
+    /**
+     * Interpret event string from wpa_socket monitor
+     * @param e_string event string
+     */
+    void parse_event(const QString& e_string);
 };
 
 
@@ -144,6 +178,7 @@ public:
 	QString bssid;
     int signal_strength;
     bool wps_available;
+    bool connected;
 };
 
 } // namespace DigitalRooster

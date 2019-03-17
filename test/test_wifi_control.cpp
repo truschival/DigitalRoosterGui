@@ -15,12 +15,16 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <QSignalSpy>
+#include <QString>
 
 #include "wifi_control.hpp"
 #include "gtest/gtest.h"
 #include "cm_mock.hpp"
 
 using namespace DigitalRooster;
+using namespace ::testing;
+using ::testing::AtLeast;
 
 /* clang-format off */
 const char* scan_result =
@@ -38,6 +42,7 @@ const char* scan_result =
 		"5c:dc:96:c1:dc:b5	2462	-78	[ESS]	Telekom_FON\n"
 		"c8:0c:c8:29:f7:c6	2462	-83	[ESS]	Telekom_FON\n";
 /* clang-format on */
+/*****************************************************************************/
 
 TEST(WifiControl, parseBuffer){
 	auto networks = parse_scanresult(scan_result,sizeof(scan_result));
@@ -46,3 +51,22 @@ TEST(WifiControl, parseBuffer){
 	ASSERT_EQ(networks[0].signal_strength, -60);
 	ASSERT_EQ(networks[0].bssid, QString("34:31:c4:e1:d3:97"));
 }
+
+/*****************************************************************************/
+TEST(WifiControl, startScan){
+	CmMock cm;
+    EXPECT_CALL(cm, get_wpa_socket_name())
+        .Times(1)
+        .WillRepeatedly(Return(QString("/var/run/wpa_supplicant/wlp2s0")));
+
+	auto dut =  WifiControl::get_instance(&cm);
+	QSignalSpy spy(dut,SIGNAL(scan_finished()));
+	ASSERT_TRUE(spy.isValid());
+	dut->start_scan();
+	spy.wait(2000);
+	ASSERT_EQ(spy.count(),1);
+}
+
+/*****************************************************************************/
+
+
