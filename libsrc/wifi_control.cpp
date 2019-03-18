@@ -73,11 +73,15 @@ WifiControl::~WifiControl() {
     }
 }
 /****************************************************************************/
-void WifiControl::wps_pbc_auth(WifiNetwork& network) {
+void WifiControl::wps_pbc_auth(const WifiNetwork& network) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     std::lock_guard<std::mutex> lock(wpa_mtx);
-    QString cmd("WPA_PBC ");
-    request_wrapper(cmd+network.bssid);
+    QString cmd("WPS_PBC ");
+    try {
+        request_wrapper(cmd + network.bssid);
+    } catch (std::exception& exc) {
+        qCCritical(CLASS_LC) << exc.what();
+    }
 }
 
 /****************************************************************************/
@@ -127,7 +131,7 @@ void WifiControl::ctrl_event(int fd){
 
 /****************************************************************************/
 void WifiControl::request_wrapper(const QString& cmd) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << cmd;
     assert(ctrl);
     size_t buf_size = sizeof(reply);
     auto res = wpa_ctrl_request(

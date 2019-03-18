@@ -15,6 +15,7 @@ Rectangle{
         onPressAndHold:  {
             wifilistmodel.currentIndex =index;
             console.log("Wifi pressed : "+index);
+            wifilistmodel.wps_connect(index);
         }
     }
     RowLayout{
@@ -22,20 +23,39 @@ Rectangle{
         anchors.margins: Style.itemMargins.medium;
         spacing: Style.itemSpacings.medium;
 
+        IconLabel {
+            text: icon_for_signal(signal);
+            Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+        }
+
         Text {
             id: network_name;
             text: name;
             font: Style.font.label;
             elide: Text.ElideRight;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter;
-        }
-
-        Text {
-            id: signal_strength;
-            font: Style.font.boldLabel;
-            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter;
-            text: signal;
+            Layout.maximumWidth: parent.width*0.8;
         }
     }
 
+    function icon_for_signal(sig){
+        console.log("icon_for_signal " + sig);
+        if (sig < -90){
+
+            console.log("sig gone " + sig);
+            return "\uf92e"
+        } else if  (sig < -80){
+
+            console.log("sig fair " + sig);
+            return "\uf91e";
+        }  else if  (sig < -70){
+
+            console.log("sig medium " + sig);
+            return "\uf921";
+        } else if  (sig < -60){
+            console.log("sig good " + sig);
+            return "\uf924";
+        }
+        return "\uf927"; // full
+    }
 }

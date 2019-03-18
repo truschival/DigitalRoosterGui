@@ -56,7 +56,7 @@ QVariant WifiListModel::data(const QModelIndex& index, int role) const {
     WifiControl* instance = WifiControl::get_instance();
 
     auto scan_results = instance->get_scan_result();
-    qCDebug(CLASS_LC) << "size: " << scan_results.size();
+
     if (scan_results.size() <= 0) {
         return QVariant();
     }
@@ -65,7 +65,7 @@ QVariant WifiListModel::data(const QModelIndex& index, int role) const {
         return QVariant();
 
     auto network = scan_results.at(index.row());
-     qCDebug(CLASS_LC) << "name: " << network.name << network.signal_strength;
+
     switch (role) {
     case BssidRole:
         return QVariant(network.bssid);
@@ -86,5 +86,13 @@ QVariant WifiListModel::data(const QModelIndex& index, int role) const {
 /*****************************************************************************/
 void WifiListModel::wps_connect(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    WifiControl* instance = WifiControl::get_instance();
+    auto scan_results = instance->get_scan_result();
+    if (index < 0 || index >= scan_results.size()){
+    	qCCritical(CLASS_LC) << " index out of bounds";
+    	return;
+    }
+    instance->wps_pbc_auth(scan_results.at(index));
 }
+
 /******************************************************************************/

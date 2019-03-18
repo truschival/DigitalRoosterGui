@@ -56,12 +56,13 @@ public:
      * @return
      */
     static WifiControl* get_instance(ConfigurationManager* cm = nullptr);
+
     /**
      * Trigger Push Button Configuration (PBC) authentication
      * with given network
      * @param network
      */
-    Q_INVOKABLE void wps_pbc_auth(WifiNetwork& network);
+    void wps_pbc_auth(const WifiNetwork& network);
 
     /**
      * Read the last scan result
