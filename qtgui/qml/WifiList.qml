@@ -9,8 +9,6 @@ ListView {
     maximumFlickVelocity: 1500
     flickDeceleration: 1800
     snapMode: ListView.SnapOneItem
-    contentWidth: stackView.width
-    focus: true
 
     delegate: WifiNetworkDelegate{
         id: wifidelegate

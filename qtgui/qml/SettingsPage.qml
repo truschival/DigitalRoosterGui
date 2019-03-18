@@ -49,7 +49,7 @@ Page {
                 console.log("change brightness")
                 brightnessMenu.popup((applicationWindow.width- brightnessMenu.width)/2,
                                      (applicationWindow.height- brightnessMenu.height)/2
-				     - Style.itemMargins.extrawide)
+                                     - Style.itemMargins.extrawide)
             }
         }
         Text{
@@ -65,9 +65,9 @@ Page {
             Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
             onClicked: {
                 console.log("change wifi")
-		wifiMenu.popup((applicationWindow.width- wifiMenu.width)/2,
+                wifiMenu.popup((applicationWindow.width- wifiMenu.width)/2,
                                (applicationWindow.height- wifiMenu.height)/2
-			       - Style.itemMargins.extrawide);
+                               - Style.itemMargins.extrawide);
             }
         }
         Text{
@@ -79,13 +79,15 @@ Page {
     }// GridLayout
 
     BrightnessMenu{
-	id: brightnessMenu;
-	title: "Brightness";
+        id: brightnessMenu;
+        title: "Brightness";
     }
 
     WifiMenu{
-	id: wifiMenu;
-	title: "Wifi";
+        id: wifiMenu;
+        title: "Wifi";
+        height: applicationWindow.height*0.8;
+        width: applicationWindow.width*0.7;
     }
     
 }

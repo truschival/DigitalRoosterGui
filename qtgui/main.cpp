@@ -21,10 +21,10 @@
 #include <QLoggingCategory>
 #include <QQmlApplicationEngine>
 #include <QtQuick>
-
+// STD C++
 #include <memory>
 #include <iostream>
-
+// Local classes
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
 #include "alarmlistmodel.hpp"
@@ -147,6 +147,7 @@ int main(int argc, char* argv[]) {
 
 #ifdef __linux__
     WifiControl* wifictrl = WifiControl::get_instance(cm.get());
+    wifictrl->start_scan();
     ctxt->setContextProperty("wifictrl", wifictrl);
     ctxt->setContextProperty("wifilistmodel", &wifilistmodel);
 #endif

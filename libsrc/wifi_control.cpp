@@ -140,6 +140,7 @@ void WifiControl::request_wrapper(const QString& cmd) {
 /****************************************************************************/
 void WifiControl::read_scan_results() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    assert(ctrl);
     std::lock_guard<std::mutex> lock(wpa_mtx);
     try{
     	request_wrapper("SCAN_RESULTS");
@@ -152,6 +153,7 @@ void WifiControl::read_scan_results() {
 /****************************************************************************/
 void WifiControl::start_scan() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    assert(ctrl);
     std::lock_guard<std::mutex> lock(wpa_mtx);
     try{
     	request_wrapper("SCAN");

@@ -11,12 +11,12 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  ******************************************************************************/
 #include <QByteArray>
-#include <QLoggingCategory>
 #include <QHash>
+#include <QLoggingCategory>
 #include <QQmlEngine>
 
-#include "wifilistmodel.hpp"
 #include "wifi_control.hpp"
+#include "wifilistmodel.hpp"
 
 using namespace DigitalRooster;
 
@@ -44,26 +44,28 @@ QHash<int, QByteArray> WifiListModel::roleNames() const {
 /******************************************************************************/
 
 int WifiListModel::rowCount(const QModelIndex& /*parent */) const {
-	qCDebug(CLASS_LC) << Q_FUNC_INFO;
-	WifiControl* instance = WifiControl::get_instance();
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    WifiControl* instance = WifiControl::get_instance();
 
-	return instance->get_scan_result().size();
+    return instance->get_scan_result().size();
 }
 
 /******************************************************************************/
 QVariant WifiListModel::data(const QModelIndex& index, int role) const {
-	qCDebug(CLASS_LC) << Q_FUNC_INFO;
-	WifiControl* instance = WifiControl::get_instance();
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    WifiControl* instance = WifiControl::get_instance();
 
-	auto scan_results = instance->get_scan_result();
-	if (scan_results.size() <= 0){
-		return QVariant();
-	}
+    auto scan_results = instance->get_scan_result();
+    qCDebug(CLASS_LC) << "size: " << scan_results.size();
+    if (scan_results.size() <= 0) {
+        return QVariant();
+    }
+
     if (index.row() < 0 || index.row() >= scan_results.size())
         return QVariant();
 
     auto network = scan_results.at(index.row());
-
+     qCDebug(CLASS_LC) << "name: " << network.name << network.signal_strength;
     switch (role) {
     case BssidRole:
         return QVariant(network.bssid);
@@ -74,7 +76,7 @@ QVariant WifiListModel::data(const QModelIndex& index, int role) const {
     case SignalStrengthRole:
         return QVariant(network.signal_strength);
     case ConnectedRole:
-    	return QVariant(network.connected);
+        return QVariant(network.connected);
     }
 
     return QVariant();
