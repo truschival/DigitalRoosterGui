@@ -22,8 +22,8 @@
 #include <QQmlApplicationEngine>
 #include <QtQuick>
 // STD C++
-#include <memory>
 #include <iostream>
+#include <memory>
 // Local classes
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
@@ -147,9 +147,10 @@ int main(int argc, char* argv[]) {
 
 #ifdef __linux__
     WifiControl* wifictrl = WifiControl::get_instance(cm.get());
-    wifictrl->start_scan();
     ctxt->setContextProperty("wifictrl", wifictrl);
     ctxt->setContextProperty("wifilistmodel", &wifilistmodel);
+    QObject::connect(wifictrl, &WifiControl::networks_found, &wifilistmodel,
+        &WifiListModel::update_scan_results);
 #endif
 
     ctxt->setContextProperty("podcastmodel", &psmodel);

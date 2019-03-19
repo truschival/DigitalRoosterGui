@@ -45,18 +45,12 @@ QHash<int, QByteArray> WifiListModel::roleNames() const {
 
 int WifiListModel::rowCount(const QModelIndex& /*parent */) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    WifiControl* instance = WifiControl::get_instance();
-
-    return instance->get_scan_result().size();
+    return scan_results.size();
 }
 
 /******************************************************************************/
 QVariant WifiListModel::data(const QModelIndex& index, int role) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    WifiControl* instance = WifiControl::get_instance();
-
-    auto scan_results = instance->get_scan_result();
-
     if (scan_results.size() <= 0) {
         return QVariant();
     }
@@ -78,7 +72,6 @@ QVariant WifiListModel::data(const QModelIndex& index, int role) const {
     case ConnectedRole:
         return QVariant(network.connected);
     }
-
     return QVariant();
 }
 
@@ -86,13 +79,19 @@ QVariant WifiListModel::data(const QModelIndex& index, int role) const {
 /*****************************************************************************/
 void WifiListModel::wps_connect(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    WifiControl* instance = WifiControl::get_instance();
-    auto scan_results = instance->get_scan_result();
-    if (index < 0 || index >= scan_results.size()){
-    	qCCritical(CLASS_LC) << " index out of bounds";
-    	return;
+    if (index < 0 || index >= scan_results.size()) {
+        qCCritical(CLASS_LC) << " index out of bounds";
+        return;
     }
-    instance->wps_pbc_auth(scan_results.at(index));
+    WifiControl::get_instance()->wps_pbc_auth(scan_results.at(index));
+}
+
+/******************************************************************************/
+void WifiListModel::update_scan_results(const QVector<WifiNetwork>& results) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    beginResetModel();
+    scan_results = results;
+    endResetModel();
 }
 
 /******************************************************************************/

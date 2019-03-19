@@ -4,15 +4,18 @@ import QtQuick.Controls 2.2
 
 ListView {
     antialiasing: true
-    highlightRangeMode: ListView.ApplyRange
     boundsBehavior: Flickable.StopAtBounds
     maximumFlickVelocity: 1500
-    flickDeceleration: 1800
-    snapMode: ListView.SnapOneItem
+    flickDeceleration: 1500
+    //snapMode: ListView.SnapOneItem
 
     delegate: WifiNetworkDelegate{
         id: wifidelegate
     }
+    move: Transition {
+        NumberAnimation { properties: "x,y"; duration: 1000 }
+    }
+    highlight: Rectangle { color: "lightsteelblue"; radius: 5 }
 
     model: wifilistmodel;
 }

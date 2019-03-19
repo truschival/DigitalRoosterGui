@@ -14,6 +14,9 @@
 
 #include <QAbstractListModel>
 #include <QObject>
+#include <QVector>
+
+#include "wifi_control.hpp"
 
 namespace DigitalRooster {
 /**
@@ -33,6 +36,13 @@ public:
     };
 
     virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
+
+    /**
+     * Returns data for role and index
+     * @param index current index
+     * @param role
+     * @return Info as QVariant
+     */
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
     /**
@@ -41,8 +51,21 @@ public:
      */
     Q_INVOKABLE void wps_connect(int index);
 
+public slots:
+    /**
+     * Clears current scan_results and replaces the list with
+     * @param results
+     */
+    void update_scan_results(const QVector<WifiNetwork>& results);
+
 protected:
     QHash<int, QByteArray> roleNames() const;
+
+private:
+    /**
+     * The listmodel holds a copy of last scan results
+     */
+    QVector<WifiNetwork> scan_results;
 };
 } // namespace DigitalRooster
 

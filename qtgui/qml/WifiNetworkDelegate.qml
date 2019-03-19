@@ -18,6 +18,7 @@ Rectangle{
             wifilistmodel.wps_connect(index);
         }
     }
+    
     RowLayout{
         anchors.fill: parent
         anchors.margins: Style.itemMargins.medium;
@@ -39,21 +40,13 @@ Rectangle{
     }
 
     function icon_for_signal(sig){
-        console.log("icon_for_signal " + sig);
         if (sig < -90){
-
-            console.log("sig gone " + sig);
             return "\uf92e"
         } else if  (sig < -80){
-
-            console.log("sig fair " + sig);
             return "\uf91e";
         }  else if  (sig < -70){
-
-            console.log("sig medium " + sig);
             return "\uf921";
         } else if  (sig < -60){
-            console.log("sig good " + sig);
             return "\uf924";
         }
         return "\uf927"; // full

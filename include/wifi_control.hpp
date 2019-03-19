@@ -14,14 +14,14 @@
 #define _WIFI_CONTROL_HPP_
 
 #include <QObject>
+#include <QSocketNotifier>
 #include <QString>
 #include <QStringRef>
 #include <QVector>
-#include <QSocketNotifier>
 
 #include <memory>
-#include <thread>
 #include <mutex>
+#include <thread>
 
 #include "wpa_ctrl/wpa_ctrl.h"
 
@@ -47,9 +47,24 @@ class WifiNetwork;
  */
 class WifiControl : public QObject {
     Q_OBJECT;
+    Q_ENUMS(ScanStatus)
+    Q_PROPERTY(
+        ScanStatus scan_status READ get_scan_status NOTIFY scan_status_changed)
+
     friend void DigitalRooster::wpa_msg_cb(char* buf, size_t len);
 
 public:
+    /**
+     * Component state during scanning
+     */
+    enum ScanStatus {
+        Idle,       //!< Never started a scan
+        Scanning,   //!< currently scanning
+        ScanFailed, //!< scan failed
+        ScanOk      //!< Scan o.k. probably with results
+    };
+
+
     /**
      * Singleton Creator method
      * @param cm configuration manager (to get WIFI interface)
@@ -63,6 +78,12 @@ public:
      * @param network
      */
     void wps_pbc_auth(const WifiNetwork& network);
+
+    /**
+     * Get current scan status
+     * @return
+     */
+    ScanStatus get_scan_status() const;
 
     /**
      * Read the last scan result
@@ -80,8 +101,12 @@ public:
      */
     void connect_wpa_control_socket();
 
+    /**
+     * Trigger a scan
+     */
+    Q_INVOKABLE void start_scan();
+
 public slots:
-    void start_scan();
     /**
      * data on control channel available
      */
@@ -96,6 +121,10 @@ signals:
      * Scan was successful and result is available
      */
     void scan_finished();
+    /**
+     * Status changed
+     */
+    void scan_status_changed(ScanStatus status);
 
 private:
     /**
@@ -112,6 +141,11 @@ private:
      * Handle for lower layer wpa_ctrl
      */
     struct wpa_ctrl* ctrl;
+
+    /**
+     * Current scan status
+     */
+    ScanStatus scan_stat;
 
     /**
      * Buffer to hold reply of command
@@ -144,13 +178,19 @@ private:
      * Issue a command, modifies reply and reply_size
      * @param cmd wpa_supplicant command
      */
-    void request_wrapper(const QString & cmd);
+    void request_wrapper(const QString& cmd);
 
     /**
      * Interpret event string from wpa_socket monitor
      * @param e_string event string
      */
     void parse_event(const QString& e_string);
+
+    /**
+     * Set scan_stat and emit signal
+     * @param stat new status
+     */
+    void set_scan_status(ScanStatus stat);
 };
 
 
@@ -176,7 +216,7 @@ QVector<WifiNetwork> parse_scanresult(const char* buffer, size_t len);
 class WifiNetwork {
 public:
     QString name;
-	QString bssid;
+    QString bssid;
     int signal_strength;
     bool wps_available;
     bool connected;

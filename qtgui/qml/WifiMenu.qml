@@ -18,19 +18,33 @@ Menu {
             from: 1.0; to: 0.0 ; duration: 400}
     }
 
-    ColumnLayout{
+    GridLayout{
         width: wifiMenu.width;
         height: wifiMenu.height;
-        anchors.leftMargin: Style.itemMargins.wide;
-        anchors.rightMargin: Style.itemMargins.wide;
-        spacing: 1;
+        anchors.leftMargin: Style.itemMargins.slim;
+        anchors.rightMargin: Style.itemMargins.slim;
+        anchors.topMargin: Style.itemMargins.slim;
 		clip: true;
-		
+		rows:3;
+		columns:2;
+
+		IconButton{
+		  text: "\uf453";
+		  Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter;
+		  Layout.leftMargin: Style.itemMargins.wide;
+		  onPressed : {
+		      console.log("scan");
+		      wifictrl.start_scan();
+		  }
+		}
+
         Text{
-            text: "Press network for WPS PBC";
+            id: wifictrlStatus;
+            text: "Press for WPS PBC authentication";
             font: Style.font.label;
-            color: "white"
-            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            color: "white";
+            Layout.rightMargin: Style.itemMargins.wide;
+            Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter;
         }
 
         WifiList{
@@ -38,7 +52,7 @@ Menu {
             Layout.fillWidth: true;
             Layout.margins: Style.itemMargins.wide;
             Layout.minimumHeight: parent.height*0.8;
-            
+            Layout.columnSpan: 2;
         }
     }// ColumnLayout
 }// Wifi Menu
