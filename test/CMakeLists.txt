@@ -1,4 +1,4 @@
-MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
+	MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
 
 SET(BINARY_NAME "${PROJECT_NAME}_gtest")
 
@@ -186,12 +186,12 @@ SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_serializer.cpp
   )  
   
-IF(UNIX)
+IF(HAS_WPA_SUPPLICANT)
 	LIST(APPEND TEST_HARNESS_SRCS
 		${CMAKE_CURRENT_SOURCE_DIR}/test_wpa_ctrl.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/test_wifi_control.cpp
 	)
-ENDIF(UNIX) 
+ENDIF() 
   
 #------------------------------
 # Binary

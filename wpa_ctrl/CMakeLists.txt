@@ -4,14 +4,14 @@ MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
 SET(LIBRARY_NAME wpa_ctrl)
 
 #Since the "standard" cmake template works with component name set it
-set(COMPONENT_NAME "wpa_ctrl")
+SET(COMPONENT_NAME "wpa_ctrl")
 
 #includes etc. in folder
 SET(COMPONENT_PATH ${LIBRARY_NAME})
 
-set(version_config "${GENERATED_DIR}/${COMPONENT_NAME}ConfigVersion.cmake")
-set(component_config "${GENERATED_DIR}/${COMPONENT_NAME}Config.cmake")
-set(targets_export_name "${COMPONENT_NAME}Targets")
+SET(version_config "${GENERATED_DIR}/${COMPONENT_NAME}ConfigVersion.cmake")
+SET(component_config "${GENERATED_DIR}/${COMPONENT_NAME}Config.cmake")
+SET(targets_export_name "${COMPONENT_NAME}Targets")
 
 # Interface/binary version
 SET(LIBRARY_VERSION ${PROJECT_VERSION})
@@ -19,33 +19,41 @@ SET(LIBRARY_VERSION ${PROJECT_VERSION})
 #------------------------------
 # add compile definitions
 #------------------------------
-SET(CPP_DEFS "")
-LIST(APPEND CPP_DEFS 
-	CONFIG_CTRL_IFACE=1 
-	CONFIG_CTRL_IFACE_UNIX=1
-	)
+SET(CPP_DEFS "CONFIG_CTRL_IFACE=1")
+
+if(UNIX)
+  LIST(APPEND CPP_DEFS
+    CONFIG_CTRL_IFACE_UNIX=1)
+endif (UNIX)
+
 #------------------------------
 # normal sources
 #------------------------------
-set(SRCS 
-	${CMAKE_CURRENT_SOURCE_DIR}/wpa_ctrl.c 
-)
+set(SRCS  "")
+
+if(HAS_WPA_SUPPLICANT)
+  LIST(APPEND SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/wpa_ctrl.c)
+else()
+  LIST(APPEND SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/wpa_ctrl_stub.c)
+endif()
 
 #------------------------------
 # Output a library
 #------------------------------
-ADD_LIBRARY(${LIBRARY_NAME} STATIC 
-	${SRCS} 
-	)
+ADD_LIBRARY(${LIBRARY_NAME}
+  STATIC
+  ${SRCS}
+  )
 
-SET_TARGET_PROPERTIES(
-  ${LIBRARY_NAME} PROPERTIES
+SET_TARGET_PROPERTIES(${LIBRARY_NAME}
+  PROPERTIES
   VERSION ${LIBRARY_VERSION}
   SOVERSION ${LIBRARY_VERSION}
   )
 
-TARGET_INCLUDE_DIRECTORIES(
-  ${LIBRARY_NAME}
+TARGET_INCLUDE_DIRECTORIES(${LIBRARY_NAME}
   PRIVATE
   $<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>/wpa_ctrl
   PUBLIC
@@ -53,14 +61,14 @@ TARGET_INCLUDE_DIRECTORIES(
   )
 
 TARGET_COMPILE_DEFINITIONS(${LIBRARY_NAME}
-  PUBLIC ${CPP_DEFS} 
+  PUBLIC ${CPP_DEFS}
   )
 
-TARGET_COMPILE_OPTIONS(${LIBRARY_NAME} PRIVATE
+TARGET_COMPILE_OPTIONS(${LIBRARY_NAME}
+  PRIVATE
   $<$<COMPILE_LANGUAGE:CXX>:${CUSTOM_CXX_FLAGS}>
   $<$<COMPILE_LANGUAGE:C>:${CUSTOM_C_FLAGS}>
   )
-
 
 #-----
 # Install
@@ -94,7 +102,7 @@ INSTALL(DIRECTORY
   ${PROJECT_INCLUDE_DIR}/${COMPONENT_PATH}
   COMPONENT DEVELOP
   DESTINATION ${INSTALL_INCLUDE_DIR}
-)
+  )
 
 INSTALL(
   EXPORT ${targets_export_name}
@@ -108,4 +116,3 @@ INSTALL(
   COMPONENT DEVELOP
   DESTINATION "${INSTALL_CMAKE_DIR}/${COMPONENT_NAME}"
   )
-

@@ -11,18 +11,16 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/socket.h>
 #include <sys/types.h>
-#include <sys/un.h>
 #include <time.h>
-#include <unistd.h>
-
+#include "wpa_ctrl/wpa_ctrl.h"
 
 #ifdef CONFIG_CTRL_IFACE
 
 #ifdef CONFIG_CTRL_IFACE_UNIX
 #include <fcntl.h>
 #include <net/if.h>
+#include <sys/socket.h>
 #include <sys/un.h>
 #include <unistd.h>
 #endif /* CONFIG_CTRL_IFACE_UNIX */
@@ -42,7 +40,6 @@
 #include <net/if.h>
 #endif /* CONFIG_CTRL_IFACE_UDP_IPV6 */
 
-#include <wpa_ctrl/wpa_ctrl.h>
 #define os_malloc(size) malloc(size)
 #define os_memset(s, c, n) memset(s, c, n)
 #define os_free(ptr) free(ptr)

@@ -98,6 +98,7 @@ const QVector<WifiNetwork>& WifiControl::get_scan_result() {
     return scan_results;
 }
 
+/****************************************************************************/
 void WifiControl::set_scan_status(ScanStatus stat) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     scan_stat = stat;

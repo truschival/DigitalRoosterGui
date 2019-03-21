@@ -34,7 +34,6 @@ STRING(TIMESTAMP CMAKE_CONFIGURATION_TIME "%Y-%m-%d %H:%M:%S"  UTC)
 
 # Package-Config for components that CMake does not support directly
 # include(FindPkgConfig)
-
 if(POLICY CMP0071)
 # POLICY since CMake 3.10 (https://cmake.org/cmake/help/git-stage/policy/CMP0071.html)
 	cmake_policy(SET CMP0071 NEW)
@@ -49,6 +48,13 @@ option(PROFILE "Build with Profiling" Off)
 option(TEST_COVERAGE "Test Coverage" Off)
 option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" On)
 option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." Off)
+
+# most likely we have wpa_supplicant on Unix,linux etc.
+if(UNIX)
+option(HAS_WPA_SUPPLICANT "Target has wpa_supplicant" On)
+else(UNIX)
+option(HAS_WPA_SUPPLICANT "Target has wpa_supplicant" Off)
+endif(UNIX)
 
 SET(SYSTEM_TARGET_NAME "Host"
   CACHE STRING "Target: {Host|Rpi}")
@@ -111,6 +117,7 @@ MESSAGE(STATUS "Build UnitTests:\t ${BUILD_TESTS} ")
 MESSAGE(STATUS "Build GoogleTest:\t ${BUILD_GTEST_FROM_SRC} ")
 MESSAGE(STATUS "Test coverage:\t ${TEST_COVERAGE} ")
 MESSAGE(STATUS "Profiling:\t\t ${PROFILE} ")
+MESSAGE(STATUS "Wpa supplicant:\t ${HAS_WPA_SUPPLICANT} ")
 MESSAGE(STATUS "Revision:\t\t ${GIT_DESCRIBE_REV} ")
 MESSAGE(STATUS "System:\t\t ${SYSTEM_TARGET_NAME} ")
 MESSAGE(STATUS "------------------------------ " )
@@ -126,6 +133,7 @@ SET(PROJECT_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.h.in"
   "${GENERATED_DIR}/config.h"
+  ESCAPE_QUOTES
   @ONLY
   NEWLINE_STYLE UNIX
   )
@@ -240,9 +248,9 @@ endif(DOXYGEN_FOUND)
 #-------------------------------------------------------------------------------
 
 # control interface for wpa_supplicant - only for Linux / Unix
-if (UNIX)
-add_subdirectory(${PROJECT_SOURCE_DIR}/wpa_ctrl/) 
-endif (UNIX)
+# if (UNIX)
+add_subdirectory(${PROJECT_SOURCE_DIR}/wpa_ctrl/)
+# endif (UNIX)
 add_subdirectory(${PROJECT_SOURCE_DIR}/libhwif/)
 add_subdirectory(${PROJECT_SOURCE_DIR}/libsrc/) #libsrc depends on libhwif
 

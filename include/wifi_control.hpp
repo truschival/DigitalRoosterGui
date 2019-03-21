@@ -63,7 +63,7 @@ public:
         ScanFailed, //!< scan failed
         ScanOk      //!< Scan o.k. probably with results
     };
-
+    Q_ENUM(ScanStatus);
 
     /**
      * Singleton Creator method
@@ -117,10 +117,7 @@ signals:
      * Scan was successful and result is available
      */
     void networks_found(const QVector<WifiNetwork>& network);
-    /**
-     * Scan was successful and result is available
-     */
-    void scan_finished();
+
     /**
      * Status changed
      */
