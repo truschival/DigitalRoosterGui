@@ -60,11 +60,18 @@ TEST(WifiControl, startScan){
         .WillRepeatedly(Return(QString("/var/run/wpa_supplicant/wlp2s0")));
 
 	auto dut =  WifiControl::get_instance(&cm);
-	QSignalSpy spy(dut,SIGNAL(scan_finished()));
+
+	QSignalSpy spy(dut, &WifiControl::scan_status_changed);
 	ASSERT_TRUE(spy.isValid());
 	dut->start_scan();
-	spy.wait(2000);
-	ASSERT_EQ(spy.count(),1);
+	spy.wait(300);
+	spy.wait(3000);
+	ASSERT_EQ(spy.count(),2);
+
+	QList<QVariant> arguments = spy.takeFirst();
+    EXPECT_EQ(arguments.at(0).toInt(), 1);
+	arguments = spy.takeFirst();
+	EXPECT_EQ(arguments.at(0).toInt(), WifiControl::ScanOk);
 }
 
 /*****************************************************************************/

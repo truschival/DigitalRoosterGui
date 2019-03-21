@@ -42,15 +42,6 @@ void msg_cb(char* msg, size_t msg_len) {
               << std::endl;
 }
 
-/**
- * int wpa_ctrl_request 	( 	struct wpa_ctrl *  	ctrl,
-        const char *  	cmd,
-        size_t  	cmd_len,
-        char *  	reply,
-        size_t *  	reply_len,
-        void(*)(char *msg, size_t len)  	msg_cb
- */
-
 TEST(WPA, cmdPingAccepted) {
     auto ctrl_conn = wpa_ctrl_open(ctrl_iface_dir);
     char buf[2048] = {};
@@ -61,55 +52,5 @@ TEST(WPA, cmdPingAccepted) {
     ASSERT_EQ(res, 0);
     std::this_thread::sleep_for(100ms);
     ASSERT_STREQ(buf, "PONG\n");
-    wpa_ctrl_close(ctrl_conn);
-}
-
-
-TEST(WPA, cmdListAPs) {
-    char buf[4096] = {};
-    size_t buf_len = sizeof(buf) - 1;
-    size_t orig_buf_len = sizeof(buf) - 1;
-
-
-    auto ctrl_conn = wpa_ctrl_open(ctrl_iface_dir);
-    ASSERT_TRUE(ctrl_conn);
-    int res = wpa_ctrl_attach(ctrl_conn);
-    ASSERT_EQ(res, 0);
-
-    res = wpa_ctrl_request(
-        ctrl_conn, "LEVEL 3", strlen("LEVEL 3"), buf, &buf_len, msg_cb);
-    ASSERT_EQ(res, 0);
-    std::cout << "[sync] LEVEL 3 " << buf << ":" << buf_len << std::endl;
-    /**
-     * SCAN
-     */
-    std::cout << "------ SENDING SCAN "  << std::endl;
-    buf_len = orig_buf_len;
-    res = wpa_ctrl_request(
-        ctrl_conn, "SCAN", strlen("SCAN"), buf, &buf_len, msg_cb);
-    ASSERT_EQ(res, 0);
-    std::cout << "[sync] SCAN " << buf << ":" << buf_len << std::endl;
-    std::this_thread::sleep_for(2s);
-    while (wpa_ctrl_pending(ctrl_conn) > 0) {
-        buf_len = sizeof(buf);
-        wpa_ctrl_recv(ctrl_conn, buf, &buf_len);
-        std::cout << "[monitor] CTRL: " << buf << ":" << buf_len << std::endl;
-    }
-
-    /**
-     * SCAN_RESULTS
-     */
-    std::cout << "------ SENDING SCAN_RESULTS "  << std::endl;
-    buf_len = orig_buf_len;
-    res = wpa_ctrl_request(ctrl_conn, "SCAN_RESULTS", strlen("SCAN_RESULTS"),
-        buf, &buf_len, msg_cb);
-    ASSERT_EQ(res, 0);
-    std::cout << "[sync] SCAN_RESULTS " << buf << ":" << buf_len << std::endl;
-    while (wpa_ctrl_pending(ctrl_conn) > 0) {
-        buf_len = sizeof(buf);
-        wpa_ctrl_recv(ctrl_conn, buf, &buf_len);
-        std::cout << "[sync] CTRL: " << buf << ":" << buf_len << std::endl;
-    }
-    wpa_ctrl_detach(ctrl_conn);
     wpa_ctrl_close(ctrl_conn);
 }
