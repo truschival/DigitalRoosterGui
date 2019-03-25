@@ -195,8 +195,11 @@ WifiNetwork DigitalRooster::line_to_network(const QStringRef& line) {
     QVector<QStringRef> list = line.split("\t");
 
     if (list.size() > 3) {
-        WifiNetwork nw{list[4].toString(), list[0].toString(), list[2].toInt(0),
-            false, false};
+        auto name = list.at(4).toString();
+        auto bssid = list.at(0).toString();
+        auto signal = list.at(2).toInt(0);
+        qCDebug(CLASS_LC) << "network:" << name << bssid << signal;
+        WifiNetwork nw{name, bssid, signal, false, false};
         return nw;
     } else {
         throw std::runtime_error("parse error");
@@ -209,8 +212,11 @@ QVector<WifiNetwork> DigitalRooster::parse_scanresult(
     QString results(buffer);
     auto lines = results.splitRef("\n");
     QVector<WifiNetwork> cont;
-    // skip first line which is header of table
-    for (int i = 1; i < lines.length(); i++) {
+    /*
+     * skip first line which is header of table and the last
+     * line which is a empty newline
+     */
+    for (int i = 1; i < lines.length() - 1; i++) {
         try {
             cont.push_back(line_to_network(lines[i]));
         } catch (std::exception& e) {

@@ -47,7 +47,6 @@ class WifiNetwork;
  */
 class WifiControl : public QObject {
     Q_OBJECT;
-    Q_ENUMS(ScanStatus)
     Q_PROPERTY(
         ScanStatus scan_status READ get_scan_status NOTIFY scan_status_changed)
 
@@ -121,7 +120,7 @@ signals:
     /**
      * Status changed
      */
-    void scan_status_changed(ScanStatus status);
+    void scan_status_changed(WifiControl::ScanStatus status);
 
 private:
     /**
@@ -189,7 +188,6 @@ private:
      */
     void set_scan_status(ScanStatus stat);
 };
-
 
 /**
  * Tokenize a single line of scan results and interpret fields as WifiNetwork

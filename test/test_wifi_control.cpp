@@ -55,13 +55,16 @@ TEST(WifiControl, parseBuffer){
 /*****************************************************************************/
 TEST(WifiControl, startScan){
 	CmMock cm;
+	// No real expectations but needed to return a network name.
     EXPECT_CALL(cm, get_wpa_socket_name())
-        .Times(1)
         .WillRepeatedly(Return(QString("/var/run/wpa_supplicant/wlp2s0")));
 
-	auto dut =  WifiControl::get_instance(&cm);
+    auto dut = WifiControl::get_instance(&cm);
+    int scanstatus_typeid =
+        qRegisterMetaType<WifiControl::ScanStatus>("WifiControl::ScanStatus");
+    ASSERT_TRUE(QMetaType::isRegistered(scanstatus_typeid));
 
-	QSignalSpy spy(dut, &WifiControl::scan_status_changed);
+    QSignalSpy spy(dut, &WifiControl::scan_status_changed);
 	ASSERT_TRUE(spy.isValid());
 	dut->start_scan();
 	spy.wait(300);
@@ -69,7 +72,7 @@ TEST(WifiControl, startScan){
 	ASSERT_EQ(spy.count(),2);
 
 	QList<QVariant> arguments = spy.takeFirst();
-    EXPECT_EQ(arguments.at(0).toInt(), 1);
+    EXPECT_EQ(arguments.at(0).toString(), QString("Scanning"));
 	arguments = spy.takeFirst();
 	EXPECT_EQ(arguments.at(0).toInt(), WifiControl::ScanOk);
 }
