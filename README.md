@@ -5,7 +5,7 @@
 DigitalRooster
 ===================
 
-Internet radio, podcast player and alarmclock. Intended to run on embedded linux with a small touch display. Microsoft Windows and GNU/Linux systems are also supported.
+Internet radio, podcast player and alarmclock. Intended to run on embedded Linux with a small touch display. Microsoft Windows and Desktop GNU/Linux systems are supported for development.
 
 ----
 # License
@@ -13,20 +13,25 @@ Internet radio, podcast player and alarmclock. Intended to run on embedded linux
 Copyright (c) 2018 by Thomas Ruschival <thomas@ruschival.de> 
 
 Licensed under [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0-standalone.html) 
+
 SPDX-License-Identifier: GPL-3.0-or-later
 
 DigitalRooster uses [Qmlbridgeformaterialfonts](https://github.com/kevincarlson/QmlBridgeForMaterialDesignIcons) 
 software by Kevin Carlso licenced under the [SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
 QmlBridgeForMaterialDesignIcons uses the True Type Font "materialdesignicons-webfont.ttf"
 
-The font materialdesignicons-webfont.ttf is licensed under [SIL Open
-Font License, Version 1.1.](http://scripts.sil.org/OFL) and copyright
-belongs to: Copyright (c) 2014, Austin Andrews 
+The font materialdesignicons-webfont.ttf is licensed under [SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL) - 
+Copyright (c) 2014, Austin Andrews 
 
 The Name [Material Design Icons](http://materialdesignicons.com/) is a reserved Font Name.  
 Copyright (c) 2014, [Google] (http://www.google.com/design/) licensed under
-[Apache License Version
-2.0](https://github.com/google/material-design-icons/blob/master/LICENSE)
+[Apache License Version 2.0](https://github.com/google/material-design-icons/blob/master/LICENSE)
+
+DigitalRooster uses ``include/wpa_ctrl/wpa_ctrl.h`` and ``wpa_ctrl/wpa_ctrl.c`` to interface with 
+[wpa_supplicant](https://w1.fi/wpa_supplicant/)
+Copyright (c) 2002-2018, Jouni Malinen <j@w1.fi> and contributors licensed under BSD license.
+``wpa_ctrl.c`` was modified with input from 
+[Holger Schurig](http://lists.shmoo.com/pipermail/hostap/2013-May/027826.html)
 
 All license details can be found in the file LICENSE	
 

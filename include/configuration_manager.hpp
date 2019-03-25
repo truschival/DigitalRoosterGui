@@ -161,6 +161,13 @@ public:
     std::chrono::minutes get_alarm_timeout() const {
         return global_alarmtimeout;
     }
+
+    /**
+     * Path to wpa_supplicant control socket
+     * @return "/var/wpa_supplicant/wlan0"
+     */
+    virtual QString get_wpa_socket_name() const;
+
     /**
      * Read full configuration file path
      * @return path to configuration file
@@ -292,6 +299,11 @@ private:
      * Timer tor write configuration to disk
      */
     QTimer writeTimer;
+
+    /**
+     * WPA control socket path /var/lib/wpa_supplicant/wlan0
+     */
+    QString wpa_socket_name;
 
     /**
      * Check if config directory exist, otherwise create it

@@ -29,10 +29,11 @@ SET(SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/podcastepisodemodel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/iradiolistmodel.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/alarmlistmodel.cpp
-)
+  ${CMAKE_CURRENT_SOURCE_DIR}/wifilistmodel.cpp
+  )
 
 #------------------------------
-# QT MOC, UIC RCC input 
+# QT MOC, UIC RCC input
 #------------------------------
 SET(UI_HDRS
   )
@@ -41,7 +42,8 @@ SET(MOC_SRC
   ${CMAKE_CURRENT_SOURCE_DIR}/podcastsourcemodel.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/podcastepisodemodel.hpp
   ${CMAKE_CURRENT_SOURCE_DIR}/iradiolistmodel.hpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/alarmlistmodel.hpp  
+  ${CMAKE_CURRENT_SOURCE_DIR}/alarmlistmodel.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/wifilistmodel.hpp
   )
 
 SET(QRC_SRC
@@ -75,8 +77,8 @@ SET_TARGET_PROPERTIES(
 
 TARGET_COMPILE_DEFINITIONS(${BINARY_NAME}
   # no public flags, nobody should use the main app as dependency
-  PRIVATE 
-  ${CPP_DEFS} 
+  PRIVATE
+  ${CPP_DEFS}
   )
 
 TARGET_COMPILE_OPTIONS(${BINARY_NAME} PRIVATE

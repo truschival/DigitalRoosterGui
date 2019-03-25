@@ -35,7 +35,8 @@ ConfigurationManager::ConfigurationManager(const QString& configdir)
     , volume(DEFAULT_VOLUME)
     , brightness_sb(DEFAULT_BRIGHTNESS)
     , brightness_act(DEFAULT_BRIGHTNESS)
-    , config_dir(configdir) {
+    , config_dir(configdir)
+	, wpa_socket_name(WPA_CONTROL_SOCKET_PATH){
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     writeTimer.setInterval(std::chrono::seconds(5));
@@ -108,6 +109,8 @@ void ConfigurationManager::parse_json(const QByteArray& json) {
         set_volume(vol.toInt(DEFAULT_VOLUME));
     }
 
+    auto wpa_sock = appconfig[KEY_WPA_SOCKET_NAME];
+    wpa_socket_name = wpa_sock.toString(WPA_CONTROL_SOCKET_PATH);
     read_radio_streams_from_file(appconfig);
     read_podcasts_from_file(appconfig);
     read_alarms_from_file(appconfig);
@@ -357,6 +360,7 @@ void ConfigurationManager::store_current_config() {
     appconfig[KEY_ALARM_TIMEOUT] =
         static_cast<qint64>(global_alarmtimeout.count());
     appconfig[KEY_SLEEP_TIMEOUT] = static_cast<qint64>(sleeptimeout.count());
+    appconfig[KEY_WPA_SOCKET_NAME] = wpa_socket_name;
     appconfig[KEY_VOLUME] = volume;
     appconfig[KEY_BRIGHTNESS_SB] = brightness_sb;
     appconfig[KEY_BRIGHTNESS_ACT] = brightness_act;
@@ -456,14 +460,18 @@ QDir ConfigurationManager::make_sure_config_path_exists() const {
 }
 
 /*****************************************************************************/
-
 QString ConfigurationManager::get_configuration_path() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return config_dir.filePath(CONFIG_JSON_FILE_NAME);
 }
 
 /*****************************************************************************/
+QString ConfigurationManager::get_wpa_socket_name() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    return wpa_socket_name;
+}
 
+/*****************************************************************************/
 QString ConfigurationManager::check_and_create_config() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     // check if file exists -> assume some default config and write file

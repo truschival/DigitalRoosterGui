@@ -21,10 +21,10 @@
 #include <QLoggingCategory>
 #include <QQmlApplicationEngine>
 #include <QtQuick>
-#include <memory>
-
+// STD C++
 #include <iostream>
-
+#include <memory>
+// Local classes
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
 #include "alarmlistmodel.hpp"
@@ -42,6 +42,8 @@
 #include "timeprovider.hpp"
 #include "volume_button.hpp"
 #include "weather.hpp"
+#include "wifi_control.hpp"
+#include "wifilistmodel.hpp"
 
 using namespace DigitalRooster;
 
@@ -86,6 +88,9 @@ int main(int argc, char* argv[]) {
         "ruschi.IRadioListModel", 1, 0, "IRadioListModel");
     qmlRegisterType<DigitalRooster::PlayableItem>(
         "ruschi.PlayableItem", 1, 0, "PlayableItem");
+    qmlRegisterType<DigitalRooster::WifiListModel>(
+        "ruschi.WifiListModel", 1, 0, "WifiListModel");
+
 
     /*Get available Podcasts */
     auto cm = std::make_shared<ConfigurationManager>();
@@ -103,6 +108,8 @@ int main(int argc, char* argv[]) {
     PodcastSourceModel psmodel(cm, playerproxy);
     IRadioListModel iradiolistmodel(cm, playerproxy);
     AlarmListModel alarmlistmodel(cm);
+    WifiListModel wifilistmodel;
+
     Weather weather(cm);
     PowerControl power;
     BrightnessControl brightness(cm);
@@ -118,8 +125,8 @@ int main(int argc, char* argv[]) {
     QObject::connect(
         &alarmdispatcher, SIGNAL(alarm_triggered()), &power, SLOT(activate()));
     /* Alarm Monitor alarm timeouts deactivates the system */
-    QObject::connect(
-        &alarmmonitor, SIGNAL(alarm_timeout_occurred()), &power, SLOT(standby()));
+    QObject::connect(&alarmmonitor, SIGNAL(alarm_timeout_occurred()), &power,
+        SLOT(standby()));
     /* Rotary encoder interface */
     VolumeButton volbtn(cm.get());
     QObject::connect(
@@ -137,6 +144,15 @@ int main(int argc, char* argv[]) {
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
+
+#ifdef __linux__
+    WifiControl* wifictrl = WifiControl::get_instance(cm.get());
+    ctxt->setContextProperty("wifictrl", wifictrl);
+    ctxt->setContextProperty("wifilistmodel", &wifilistmodel);
+    QObject::connect(wifictrl, &WifiControl::networks_found, &wifilistmodel,
+        &WifiListModel::update_scan_results);
+#endif
+
     ctxt->setContextProperty("podcastmodel", &psmodel);
     ctxt->setContextProperty("playerProxy", playerproxy.get());
     ctxt->setContextProperty("alarmlistmodel", &alarmlistmodel);
