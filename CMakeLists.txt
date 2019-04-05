@@ -94,7 +94,7 @@ MESSAGE(STATUS "Found Qt5 version: ${Qt5Core_VERSION_STRING}")
 
 # Instruct CMake to run moc automatically when needed.
 SET(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOUIC OFF)
 set(CMAKE_AUTORCC ON)
 
 # Get the latest abbreviated commit hash of the working branch

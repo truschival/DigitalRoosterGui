@@ -5,7 +5,6 @@ import QtMultimedia 5.9
 import ruschi.PodcastEpisode 1.0
 
 import "." // QTBUG-34418, singletons require explicit import to load qmldir file
-import "Icon.js" as MdiFont
 import "Jsutil.js" as Util
 
 
@@ -34,11 +33,10 @@ ApplicationWindow {
             anchors.fill: parent
             anchors.margins: Style.itemMargins.medium;
             anchors.topMargin: Style.itemMargins.slim;
-
             spacing: Style.itemSpacings.dense;
 
             IconButton {
-                text: MdiFont.Icon.menu
+                text: "\uf35c"
                 onClicked: {
                     drawer.open()
                 }
@@ -53,7 +51,7 @@ ApplicationWindow {
 
             IconButton {
                 id : playerControlBtn
-                text: MdiFont.Icon.play
+                text: "\uf40a"
                 onClicked:{
                     playerControlWidget.show()
                 }
@@ -61,7 +59,7 @@ ApplicationWindow {
 
             IconButton {
                 id : backButton
-                text: MdiFont.Icon.keyboardBackspace
+                text: "\uf30d"
                 Layout.rightMargin: Style.itemMargins.wide;
                 visible: (stackView.depth > 1)
                 onClicked:{

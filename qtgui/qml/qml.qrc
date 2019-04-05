@@ -3,11 +3,10 @@
         <file>qmldir</file>
         <file>main.qml</file>
         <file>qtquickcontrols2.conf</file>
-<!-- other resources -->
-	<file>BrightnessMenu.qml</file>
-	<file>WifiList.qml</file>
-	<file>WifiMenu.qml</file>
-	<file>WifiNetworkDelegate.qml</file>
+        <file>BrightnessMenu.qml</file>
+        <file>WifiList.qml</file>
+        <file>WifiMenu.qml</file>
+        <file>WifiNetworkDelegate.qml</file>
         <file>AlarmDelegate.qml</file>
         <file>AlarmEditDialog.qml</file>
         <file>AlarmList.qml</file>
@@ -24,5 +23,5 @@
         <file>SettingsPage.qml</file>
         <file>Style.qml</file>
         <file>VolumePopup.qml</file>
-</qresource>
+    </qresource>
 </RCC>
