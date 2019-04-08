@@ -30,13 +30,13 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
 
 /*****************************************************************************/
 ConfigurationManager::ConfigurationManager(const QString& configdir)
-    : global_alarmtimeout(DEFAULT_ALARM_TIMEOUT)
-    , sleeptimeout(DEFAULT_SLEEP_TIMEOUT)
+    : global_alarm_timeout(DEFAULT_ALARM_TIMEOUT)
+    , sleep_timeout(DEFAULT_SLEEP_TIMEOUT)
     , volume(DEFAULT_VOLUME)
     , brightness_sb(DEFAULT_BRIGHTNESS)
     , brightness_act(DEFAULT_BRIGHTNESS)
     , config_dir(configdir)
-	, wpa_socket_name(WPA_CONTROL_SOCKET_PATH){
+    , wpa_socket_name(WPA_CONTROL_SOCKET_PATH) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     writeTimer.setInterval(std::chrono::seconds(5));
@@ -90,10 +90,10 @@ void ConfigurationManager::parse_json(const QByteArray& json) {
     /* get application config */
     auto at = appconfig[DigitalRooster::KEY_ALARM_TIMEOUT];
     if (!at.isUndefined()) {
-        global_alarmtimeout =
+        global_alarm_timeout =
             std::chrono::minutes(at.toInt(DEFAULT_ALARM_TIMEOUT.count()));
     } else {
-        global_alarmtimeout =
+        global_alarm_timeout =
             std::chrono::minutes(DEFAULT_ALARM_TIMEOUT.count());
     }
     auto bright_act = appconfig[KEY_BRIGHTNESS_ACT];
@@ -107,6 +107,12 @@ void ConfigurationManager::parse_json(const QByteArray& json) {
     auto vol = appconfig[KEY_VOLUME];
     if (!vol.isUndefined()) {
         set_volume(vol.toInt(DEFAULT_VOLUME));
+    }
+
+    auto sleep_to = appconfig[KEY_SLEEP_TIMEOUT];
+    if (!sleep_to.isUndefined()) {
+        set_sleep_timeout(std::chrono::minutes(
+            sleep_to.toInt(DEFAULT_SLEEP_TIMEOUT.count())));
     }
 
     auto wpa_sock = appconfig[KEY_WPA_SOCKET_NAME];
@@ -222,7 +228,7 @@ void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
         alarm->set_volume(volume);
         /* if no specific alarm timeout is given take application default */
         auto timeout =
-            json_alarm[KEY_ALARM_TIMEOUT].toInt(global_alarmtimeout.count());
+            json_alarm[KEY_ALARM_TIMEOUT].toInt(global_alarm_timeout.count());
         alarm->set_timeout(std::chrono::minutes(timeout));
 
         connect(alarm.get(), SIGNAL(dataChanged()), this, SLOT(dataChanged()));
@@ -358,8 +364,8 @@ void ConfigurationManager::store_current_config() {
 
     /* global application configuration */
     appconfig[KEY_ALARM_TIMEOUT] =
-        static_cast<qint64>(global_alarmtimeout.count());
-    appconfig[KEY_SLEEP_TIMEOUT] = static_cast<qint64>(sleeptimeout.count());
+        static_cast<qint64>(global_alarm_timeout.count());
+    appconfig[KEY_SLEEP_TIMEOUT] = static_cast<qint64>(sleep_timeout.count());
     appconfig[KEY_WPA_SOCKET_NAME] = wpa_socket_name;
     appconfig[KEY_VOLUME] = volume;
     appconfig[KEY_BRIGHTNESS_SB] = brightness_sb;
@@ -443,7 +449,6 @@ void ConfigurationManager::create_default_configuration() {
     stream_sources.push_back(std::make_shared<PlayableItem>("BBC World Service",
         QUrl("http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk")));
 
-
     store_current_config();
 }
 
@@ -490,8 +495,8 @@ PodcastSource* ConfigurationManager::get_podcast_source_by_index(
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return podcast_sources.at(index).get();
 }
-/*****************************************************************************/
 
+/*****************************************************************************/
 void ConfigurationManager::remove_podcast_source_by_index(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     podcast_sources.remove(index);
@@ -513,4 +518,18 @@ int ConfigurationManager::delete_alarm(const QUuid& id) {
     dataChanged();
     return 0;
 };
+
 /*****************************************************************************/
+std::chrono::minutes ConfigurationManager::get_sleep_timeout() const {
+    return sleep_timeout;
+}
+
+/*****************************************************************************/
+void ConfigurationManager::set_sleep_timeout(std::chrono::minutes timeout) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    sleep_timeout = timeout;
+    writeTimer.start();
+}
+
+/*****************************************************************************/
+

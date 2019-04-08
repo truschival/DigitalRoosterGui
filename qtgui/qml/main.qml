@@ -49,6 +49,22 @@ ApplicationWindow {
                 Layout.fillWidth: true
             }
 
+            
+            IconLabel{
+                text:"\uf51a"
+                visible: (playerProxy.playbackState == MediaPlayer.PlayingState)
+                color: "white"
+            }
+            
+            Label {
+                id: countdown_to_sleep
+                text: sleeptimer.time_remaining;
+                Layout.rightMargin: Style.itemMargins.medium;
+                font: Style.font.title;
+                visible: (playerProxy.playbackState == MediaPlayer.PlayingState)
+            }
+            
+
             IconButton {
                 id : playerControlBtn
                 text: "\uf40a"
