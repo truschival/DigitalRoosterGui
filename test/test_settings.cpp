@@ -382,11 +382,7 @@ TEST_F(SettingsFixture, GetweatherConfigCityId) {
 /*****************************************************************************/
 TEST_F(SettingsFixture, changeSleepTimeoutMinutes) {
     auto new_to = std::chrono::minutes(5);
-	QSignalSpy spy(
-        cm.get(), SIGNAL(sleep_timeout_changed(std::chrono::minutes)));
-    ASSERT_TRUE(spy.isValid());
     cm->set_sleep_timeout(new_to);
-    ASSERT_EQ(spy.count(), 1);
     ASSERT_EQ(cm->get_sleep_timeout(), new_to);
 }
 
