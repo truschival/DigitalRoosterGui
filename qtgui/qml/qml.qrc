@@ -22,6 +22,7 @@
         <file>PodcastEpisodeList.qml</file>
         <file>PodcastList.qml</file>
         <file>SettingsPage.qml</file>
+        <file>SleepTimeoutMenu.qml</file>
         <file>Style.qml</file>
         <file>VolumePopup.qml</file>
 </qresource>

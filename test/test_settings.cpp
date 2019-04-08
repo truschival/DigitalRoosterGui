@@ -13,7 +13,7 @@
 #include <QSignalSpy>
 #include <QStandardPaths>
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
 #include <cstdio>
 #include <fstream>
@@ -377,6 +377,17 @@ TEST_F(SettingsFixture, GetweatherConfigApiToken) {
 TEST_F(SettingsFixture, GetweatherConfigCityId) {
     auto cfg = cm->get_weather_config();
     ASSERT_EQ(cfg.cityid, QString("3452925"));
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, changeSleepTimeoutMinutes) {
+    auto new_to = std::chrono::minutes(5);
+	QSignalSpy spy(
+        cm.get(), SIGNAL(sleep_timeout_changed(std::chrono::minutes)));
+    ASSERT_TRUE(spy.isValid());
+    cm->set_sleep_timeout(new_to);
+    ASSERT_EQ(spy.count(), 1);
+    ASSERT_EQ(cm->get_sleep_timeout(), new_to);
 }
 
 /*****************************************************************************/

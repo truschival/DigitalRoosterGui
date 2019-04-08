@@ -159,8 +159,20 @@ public:
      * @return default alarm timeout
      */
     std::chrono::minutes get_alarm_timeout() const {
-        return global_alarmtimeout;
+        return global_alarm_timeout;
     }
+
+    /**
+     * Minutes after which DigitalRooster goes in standby
+     * @return \ref sleep_timeout
+     */
+    std::chrono::minutes get_sleep_timeout() const;
+
+    /**
+     * Update sleep timeout Minutes after which DigitalRooster goes in standby
+     * @param timeout \ref sleep_timeout
+     */
+    void set_sleep_timeout(std::chrono::minutes timeout);
 
     /**
      * Path to wpa_supplicant control socket
@@ -260,12 +272,12 @@ private:
     /**
      * Duration for alarm to stop automatically
      */
-    std::chrono::minutes global_alarmtimeout;
+    std::chrono::minutes global_alarm_timeout;
 
     /**
      * Stop playback automatically (globally)
      */
-    std::chrono::minutes sleeptimeout;
+    std::chrono::minutes sleep_timeout;
 
     /**
      * Linear Volume in percent (stored in config file)

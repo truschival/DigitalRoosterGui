@@ -58,7 +58,25 @@ Page {
             color: "white"
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
-
+        
+        IconButton {
+            id: sleeptimeoutBtn;
+            text: "\uf51b";
+            Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+            onClicked: {
+                console.log("change sleep timeout")
+                sleepTimeoutMenu.popup((applicationWindow.width- sleepTimeoutMenu.width)/2,
+                               (applicationWindow.height- sleepTimeoutMenu.height)/2
+                               - Style.itemMargins.extrawide);
+            }
+        }
+        Text{
+            text: "sleep timeout";
+            font: Style.font.boldLabel;
+            color: "white"
+            Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+        }
+        
         IconButton {
             id: wifiBtn;
             text: "\uf5a9";
@@ -88,6 +106,11 @@ Page {
         title: "Wifi";
         height: applicationWindow.height*0.8;
         width: applicationWindow.width*0.7;
+    }
+    
+    SleepTimeoutMenu{
+        id: sleepTimeoutMenu;
+        title: "Sleep Timeout";  
     }
     
 }
