@@ -44,6 +44,7 @@ endif()
 #-------------------------------------------------------------------------------
 option(BUILD_EXE "Build QT Gui" On)
 option(BUILD_TESTS "Build Tests" On)
+option(HAS_WPA_SUPPLICANT "Target has wpa_supplicant" Off)
 option(PROFILE "Build with Profiling" Off)
 option(TEST_COVERAGE "Test Coverage" Off)
 option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" On)
@@ -247,10 +248,8 @@ endif(DOXYGEN_FOUND)
 # Sub-dirs to build each with its own CMakelists.txt
 #-------------------------------------------------------------------------------
 
-# control interface for wpa_supplicant - only for Linux / Unix
-# if (UNIX)
+# control interface for wpa_supplicant
 add_subdirectory(${PROJECT_SOURCE_DIR}/wpa_ctrl/)
-# endif (UNIX)
 add_subdirectory(${PROJECT_SOURCE_DIR}/libhwif/)
 add_subdirectory(${PROJECT_SOURCE_DIR}/libsrc/) #libsrc depends on libhwif
 

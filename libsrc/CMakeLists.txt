@@ -35,11 +35,11 @@ ELSE()
 ENDIF()
 LIST(APPEND OTHER_LIBS hwif)
 
-# target wpa_ctrl only exist ifdef UNIX
+# target wpa_ctrl always exists (the content depends on HAS_WPA_SUPPLICANT)
 IF(TARGET wpa_ctrl)
-	add_library(${PROJECT_NAME}::wpa_ctrl ALIAS wpa_ctrl)
+  add_library(${PROJECT_NAME}::wpa_ctrl ALIAS wpa_ctrl)
 ELSE()
-	find_package(${PROJECT_NAME} COMPONENTS wpa_ctrl CONFIG REQUIRED)
+  find_package(${PROJECT_NAME} COMPONENTS wpa_ctrl CONFIG REQUIRED)
 ENDIF()
 LIST(APPEND OTHER_LIBS wpa_ctrl)
 
