@@ -26,6 +26,7 @@ public:
         weather_cfg.cityid = "2172797"; // Cairns, AU
         weather_cfg.language = "de";
         weather_cfg.units = "metric";
+
     };
     MOCK_METHOD0(
         get_alarm_list, QVector<std::shared_ptr<DigitalRooster::Alarm>>&());
@@ -37,6 +38,9 @@ public:
     MOCK_CONST_METHOD0(do_get_volume, int());
     MOCK_METHOD1(set_active_brightness, void(int ab));
     MOCK_CONST_METHOD0(get_wpa_socket_name, QString());
+    MOCK_CONST_METHOD0(get_alarm_timeout, std::chrono::minutes());
+    MOCK_CONST_METHOD0(get_sleep_timeout, std::chrono::minutes());
+
 
     QVector<std::shared_ptr<DigitalRooster::Alarm>> alarms;
 
