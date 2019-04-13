@@ -32,7 +32,7 @@ Alarm::Alarm(const QUrl& media, const QTime& timepoint, Alarm::Period period,
     , period(period)
     , alarm_time(timepoint)
     , enabled(enabled)
-    , alarmtimeout(DEFAULT_ALARM_TIMEOUT) {
+    , timeout(DEFAULT_ALARM_TIMEOUT) {
 
     qCDebug(CLASS_LC) << Q_FUNC_INFO << "trigger:" << alarm_time;
 }

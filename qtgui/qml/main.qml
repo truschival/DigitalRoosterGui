@@ -44,7 +44,7 @@ ApplicationWindow {
             Label {
                 id: titleLabel
                 text: (stackView.depth > 1) ? currentTime.timestring_lz_hh_mm : "";
-                font: Style.font.title;
+                font: (playerProxy.playbackState == MediaPlayer.PlayingState) ? Style.font.title : Style.font.titleBold;
                 elide: Label.ElideRight
                 Layout.fillWidth: true
             }
@@ -52,6 +52,9 @@ ApplicationWindow {
             
             IconLabel{
                 text:"\uf51a"
+                font.pointSize: 14;
+                font.weight: DemiBold
+                Layout.margins: Style.itemMargins.slim;
                 visible: (playerProxy.playbackState == MediaPlayer.PlayingState)
                 color: "white"
             }
@@ -76,7 +79,6 @@ ApplicationWindow {
             IconButton {
                 id : backButton
                 text: "\uf30d"
-                Layout.rightMargin: Style.itemMargins.wide;
                 visible: (stackView.depth > 1)
                 onClicked:{
                     stackView.backNavigate()

@@ -62,7 +62,8 @@ signals:
      * @param alarm triggered alarm
      */
     void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm> alarm);
-    /**
+   
+	/**
      * Signal generic receivers if any alarm is triggered
      */
     void alarm_triggered();

@@ -127,14 +127,14 @@ public:
      * @return time in minutes
      */
     std::chrono::minutes get_timeout() {
-        return alarmtimeout;
+        return timeout;
     }
     /**
      * Duration for alarm to stop automatically
      * @param  timeout in minutes
      */
     void set_timeout(std::chrono::minutes timeout) {
-        alarmtimeout = timeout;
+        this->timeout = timeout;
     }
 
     /**
@@ -214,10 +214,12 @@ private:
      * Will it trigger?
      */
     bool enabled;
+
     /**
-     * Duration for alarm to stop automatically
+     * Duration after which DigitalRooster should stop
+     * playing the alarm (because nobody is there to stop it)
      */
-    std::chrono::minutes alarmtimeout;
+    std::chrono::minutes timeout;
 
     /**
      * Default volume for alarm

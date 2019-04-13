@@ -33,6 +33,7 @@ using namespace std;
 using ::testing::AtLeast;
 using namespace std::chrono_literals;
 
+/*****************************************************************************/
 TEST(AlarmMonitor, playsAlarmFuture) {
     auto player = std::make_shared<PlayerMock>();
     AlarmMonitor mon(player);
@@ -51,26 +52,7 @@ TEST(AlarmMonitor, playsAlarmFuture) {
     player->stop();
 }
 
-TEST(AlarmMonitor, stopsRunningAlarm) {
-    auto player = std::make_shared<PlayerMock>();
-    AlarmMonitor mon(player);
-    auto alm = std::make_shared<DigitalRooster::Alarm>(
-        QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
-        QTime::currentTime().addSecs(3), Alarm::Daily);
-	EXPECT_CALL(*(player.get()), do_play()).Times(1);
-    EXPECT_CALL(*(player.get()), do_stop()).Times(1);
-    EXPECT_CALL(*(player.get()), do_set_volume(_)).Times(1);
-    EXPECT_CALL(*(player.get()), do_set_media(_)).Times(1);
-
-    alm->set_timeout(std::chrono::duration_cast<std::chrono::minutes>(500ms));
-    QSignalSpy spy(&mon, SIGNAL(alarm_timeout_occurred()));
-	ASSERT_TRUE(spy.isValid());
-	mon.alarm_triggered(alm);
-    spy.wait(1000);
-    ASSERT_EQ(spy.count(), 1);
-}
-
-
+/*****************************************************************************/
 TEST(AlarmMonitor, triggersFallbackForError) {
     auto player = std::make_shared<PlayerMock>();
     AlarmMonitor mon(player);
@@ -92,3 +74,7 @@ TEST(AlarmMonitor, triggersFallbackForError) {
 
     std::this_thread::sleep_for(2s);
 }
+
+/*****************************************************************************/
+
+

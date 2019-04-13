@@ -125,12 +125,9 @@ int main(int argc, char* argv[]) {
     QObject::connect(
         &power, SIGNAL(going_in_standby()), playerproxy.get(), SLOT(stop()));
 
-    /* AlarmDispatcher sets activates system */
+    /* AlarmDispatcher activates system */
     QObject::connect(
         &alarmdispatcher, SIGNAL(alarm_triggered()), &power, SLOT(activate()));
-    /* Alarm Monitor alarm timeouts deactivates the system */
-    QObject::connect(&alarmmonitor, SIGNAL(alarm_timeout_occurred()), &power,
-        SLOT(standby()));
 
     /* Sleeptimer sends system to standby */
     QObject::connect(&sleeptimer, &SleepTimer::sleep_timer_elapsed, &power,
@@ -138,6 +135,11 @@ int main(int argc, char* argv[]) {
     /* Sleeptimer resets when player changes state to play */
     QObject::connect(playerproxy.get(), &MediaPlayer::playback_state_changed,
         &sleeptimer, &SleepTimer::playback_state_changed);
+    /* Sleeptimer also monitors alarms */
+    QObject::connect(&alarmdispatcher,
+        SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)),
+        &sleeptimer,
+        SLOT(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
 
     /* Rotary encoder interface */
     VolumeButton volbtn(cm.get());

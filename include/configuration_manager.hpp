@@ -158,7 +158,7 @@ public:
      * Access configuration when Alarm should stop automatically
      * @return default alarm timeout
      */
-    std::chrono::minutes get_alarm_timeout() const {
+    virtual std::chrono::minutes get_alarm_timeout() const {
         return global_alarm_timeout;
     }
 
@@ -166,7 +166,7 @@ public:
      * Minutes after which DigitalRooster goes in standby
      * @return \ref sleep_timeout
      */
-    std::chrono::minutes get_sleep_timeout() const;
+    virtual std::chrono::minutes get_sleep_timeout() const;
 
     /**
      * Update sleep timeout Minutes after which DigitalRooster goes in standby

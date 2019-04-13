@@ -97,7 +97,6 @@ TEST(Alarm, updatedTimeout) {
     ASSERT_EQ(al.get_timeout().count(), 5);
 }
 
-
 /*****************************************************************************/
 TEST(Alarm, periodChangeEmits) {
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),

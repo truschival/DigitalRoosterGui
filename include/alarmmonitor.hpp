@@ -41,18 +41,12 @@ public slots:
      */
     void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm> alarm);
 
-signals:
-    /**
-     * Alarm has been playing for more than configured timeout
-	 * player has been stopped.
-     */
-    void alarm_timeout_occurred();
-
 private:
     /**
      * PlayerBackend that receives the Alarms
      */
     std::shared_ptr<MediaPlayer> mpp;
+
     /**
      * Timer to trigger fallback behavior if player did not start to play
      * resource from alarm
@@ -69,30 +63,13 @@ private:
      * and we are expecting player to get active
      */
     bool expecting_alarm_playing = false;
+
     /**
      * Fallback Alarm
      */
     QMediaPlaylist fallback_alarm;
 
-    /**
-     * Timer to stop alarm automatically if user has not stopped
-     */
-    QTimer alarm_auto_stop_timer;
-
-    /**
-     * Helper method to start player and alarm_auto_stop_timer
-     */
-    void start_playing();
-
-    /**
-     * Slot/Callback to stop running alarm after alarm_auto_stop_timer
-     * has expired
-     */
 private slots:
-    /**
-	 * stops player and emits \ref alarm_timeout_occurred
-	 */
-    void stop_running_alarm();
 
     /**
      * will trigger if player has not started playing in due time

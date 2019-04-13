@@ -23,9 +23,14 @@ QtObject {
 	property QtObject font: QtObject{
 
 		property font title: Qt.font({
-			weight: Font.Bold,
+			weight: Font.DemiBold,
 			pointSize: 16
 		});
+		
+		property font titleBold: Qt.font({
+            weight: Font.Bold,
+            pointSize: 16
+        });
 
 		property font subtitle: Qt.font({
 			family: "DejaVu Sans Condensed",
