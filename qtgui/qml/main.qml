@@ -26,17 +26,17 @@ ApplicationWindow {
         source: "materialdesignicons-webfont.ttf"
     }
 
-    header: ToolBar {
+    menuBar: ToolBar {
         height: Style.toolbarHeight;
 
         RowLayout {
             anchors.fill: parent
-            anchors.margins: Style.itemMargins.medium;
-            anchors.topMargin: Style.itemMargins.slim;
+            anchors.margins: Style.itemMargins.slim;
+            anchors.topMargin: 0;
             spacing: Style.itemSpacings.dense;
 
             IconButton {
-                text: "\uf35c"
+                text: "\uf35c";
                 onClicked: {
                     drawer.open()
                 }
@@ -44,27 +44,27 @@ ApplicationWindow {
             Label {
                 id: titleLabel
                 text: (stackView.depth > 1) ? currentTime.timestring_lz_hh_mm : "";
-                font: (playerProxy.playbackState == MediaPlayer.PlayingState) ? Style.font.title : Style.font.titleBold;
+                font: (playerProxy.playbackState === MediaPlayer.PlayingState) ? Style.font.title : Style.font.titleBold;
                 elide: Label.ElideRight
                 Layout.fillWidth: true
             }
-
             
             IconLabel{
                 text:"\uf51a"
                 font.pointSize: 14;
-                font.weight: DemiBold
-                Layout.margins: Style.itemMargins.slim;
-                visible: (playerProxy.playbackState == MediaPlayer.PlayingState)
+                font.weight: Normal
+                Layout.rightMargin: 0;
+                visible: (playerProxy.playbackState === MediaPlayer.PlayingState)
                 color: "white"
             }
             
             Label {
                 id: countdown_to_sleep
                 text: sleeptimer.time_remaining;
+                Layout.leftMargin: 0;
                 Layout.rightMargin: Style.itemMargins.medium;
                 font: Style.font.title;
-                visible: (playerProxy.playbackState == MediaPlayer.PlayingState)
+                visible: (playerProxy.playbackState === MediaPlayer.PlayingState)
             }
             
 
@@ -202,7 +202,8 @@ ApplicationWindow {
 
     StackView {
         id: stackView
-        anchors.fill: parent
+        anchors.fill: parent;
+
         initialItem: ClockPage{
             id:initalClockPage
             property string objectName : "InitialPage"
@@ -213,6 +214,7 @@ ApplicationWindow {
                 stackView.pop()
             } else{
                 stackView.currentIndex = -1;
+                listView.currentIndex = -1;
             }
         }
 
