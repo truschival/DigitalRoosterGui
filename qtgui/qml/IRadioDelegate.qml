@@ -31,6 +31,7 @@ Rectangle{
             iradiolistmodel.send_to_player(index);
             playerControlWidget.setCurrentMediaTitle(station_name);
             playerControlWidget.show();
+            viewResetTimer.start();
         }
     }
 }

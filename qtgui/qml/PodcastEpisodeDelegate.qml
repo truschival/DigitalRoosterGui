@@ -70,7 +70,6 @@ Rectangle{
     }
     MouseArea {
         anchors.fill: parent
-
         onClicked:{
             episodemodel.currentIndex = index;
             if (playerProxy.playbackState !== MediaPlayer.PlayingState){
@@ -78,6 +77,7 @@ Rectangle{
                 playerControlWidget.setCurrentMediaTitle(title)
             }
             playerControlWidget.show()
+            viewResetTimer.start();
         }
 
         onPressAndHold:  {
@@ -85,6 +85,7 @@ Rectangle{
             episodemodel.send_to_player(index)
             playerControlWidget.setCurrentMediaTitle(title)
             playerControlWidget.show()
+            viewResetTimer.start();
         }
     }
 }

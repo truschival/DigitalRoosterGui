@@ -26,6 +26,15 @@ ApplicationWindow {
         source: "materialdesignicons-webfont.ttf"
     }
 
+    Timer {
+        // Timer to reset stackview after player has started
+        id: viewResetTimer
+        interval: 60000; // 1 minute
+        running: false;
+        repeat: false;
+        onTriggered: stackView.reset();
+    }
+
     menuBar: ToolBar {
         height: Style.toolbarHeight;
 
@@ -96,10 +105,10 @@ ApplicationWindow {
         id: drawer
         width: Style.drawer.w;
         height: applicationWindow.height
-        interactive: true;
         margins: Style.itemMargins.slim;
         edge: Qt.LeftEdge;
-
+        interactive: true;
+        
         ListView {
             id: listView
             anchors.fill: parent
@@ -223,7 +232,7 @@ ApplicationWindow {
                 stackView.pop(null);
             }
         }
-    }
+    }  
 
     /**** global connections ****/
     Component.onCompleted: {
