@@ -88,7 +88,7 @@ QtObject {
 
 		property font tumbler: Qt.font({
 			weight: Font.Bold,
-			pointSize: 16
+            pointSize: 16
 		});
 
 		property font button: Qt.font({

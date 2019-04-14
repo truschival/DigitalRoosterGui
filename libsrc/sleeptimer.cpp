@@ -63,6 +63,13 @@ void SleepTimer::playback_state_changed(QMediaPlayer::State state) {
 }
 
 /*****************************************************************************/
+void SleepTimer::reset_timer(){
+	qCDebug(CLASS_LC) << Q_FUNC_INFO;
+	sleep_timer.start();
+	emit remaining_time_changed(get_remaining_time());
+}
+
+/*****************************************************************************/
 void SleepTimer::alarm_triggered(std::shared_ptr<DigitalRooster::Alarm> alarm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     activity = SleepTimer::Alarm;

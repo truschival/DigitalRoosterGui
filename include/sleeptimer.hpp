@@ -74,7 +74,10 @@ public:
      * @param timeout \ref sleep_timeout
      */
     void set_sleep_timeout(std::chrono::minutes timeout);
-
+	/**
+	 * Generic timer reset
+	 */
+	Q_INVOKABLE void reset_timer();
 
 public slots:
     /**

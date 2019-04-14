@@ -58,24 +58,27 @@ ApplicationWindow {
                 Layout.fillWidth: true
             }
             
-            IconLabel{
-                text:"\uf51a"
-                font.pointSize: 14;
-                font.weight: Normal
+            Label{
+                id: countdown_to_sleep;
+                text: "<span style = 'font-family: materialdesignicons; font-size: 18pt; font-weight: bold'>\uf51a</span>
+                       <span style = 'font-family: DejaVu Sans Condensed Bold, sans-serif; font-size: 16pt; font-weight: normal'>"+sleeptimer.time_remaining+"</span>"
                 Layout.rightMargin: 0;
-                visible: (playerProxy.playbackState === MediaPlayer.PlayingState)
+                textFormat: Text.RichText
                 color: "white"
-            }
-            
-            Label {
-                id: countdown_to_sleep
-                text: sleeptimer.time_remaining;
-                Layout.leftMargin: 0;
-                Layout.rightMargin: Style.itemMargins.medium;
-                font: Style.font.title;
                 visible: (playerProxy.playbackState === MediaPlayer.PlayingState)
+
+                MouseArea{
+                    anchors.fill: parent
+                    // long click opens menu
+                    onPressAndHold: sleepTimeoutMenu.popup((applicationWindow.width- sleepTimeoutMenu.width)/2,
+                                                       (applicationWindow.height- sleepTimeoutMenu.height)/2
+                                                       - Style.itemMargins.extrawide);
+                    // click resets timer
+                    onPressed: sleeptimer.reset_timer();
+
+                }
             }
-            
+
 
             IconButton {
                 id : playerControlBtn
@@ -153,48 +156,28 @@ ApplicationWindow {
         }
     }
 
-    Menu {
-        id: powerOffMenu
-        GridLayout {
-            rows: 2;
-            columns: 2;
-            rowSpacing: Style.itemSpacings.medium;
-            columnSpacing: Style.itemSpacings.medium;
-
-            IconButton {
-                id: poweroffBtn
-                text: "\uf901"
-                Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-                onClicked: {
-                    console.log("power off button")
-                    powerControl.power_off();
-                }
-            }
-            Text{
-                text: "shutdown";
-                font: Style.font.boldLabel;
-                color: "white"
-                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-            }
-
-
-            IconButton {
-                id: rebootBtn
-                text: "\uf900";
-                Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-                onClicked: {
-                    console.log("reboot button")
-                    powerControl.reboot();
-                }
-            }
-            Text{
-                text: "reboot";
-                font: Style.font.boldLabel;
-                color: "white"
-                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-            }
-        }
+    PowerMenu {
+        id: powerOffMenu;
+        title:"Power";
     }
+
+    BrightnessMenu{
+        id: brightnessMenu;
+        title: "Brightness";
+    }
+
+    WifiMenu{
+        id: wifiMenu;
+        title: "Wifi";
+        height: applicationWindow.height*0.8;
+        width: applicationWindow.width*0.7;
+    }
+
+    SleepTimeoutMenu{
+        id: sleepTimeoutMenu;
+        title: "Sleep Timeout";
+    }
+
 
     PlayerControlWidget{
         id: playerControlWidget

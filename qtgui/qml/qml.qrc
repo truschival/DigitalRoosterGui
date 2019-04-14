@@ -24,5 +24,6 @@
         <file>SleepTimeoutMenu.qml</file>
         <file>Style.qml</file>
         <file>VolumePopup.qml</file>
+        <file>PowerMenu.qml</file>
     </qresource>
 </RCC>

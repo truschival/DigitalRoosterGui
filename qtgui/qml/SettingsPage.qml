@@ -94,23 +94,5 @@ Page {
             color: "white"
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
-    }// GridLayout
-
-    BrightnessMenu{
-        id: brightnessMenu;
-        title: "Brightness";
-    }
-
-    WifiMenu{
-        id: wifiMenu;
-        title: "Wifi";
-        height: applicationWindow.height*0.8;
-        width: applicationWindow.width*0.7;
-    }
-    
-    SleepTimeoutMenu{
-        id: sleepTimeoutMenu;
-        title: "Sleep Timeout";  
-    }
-    
+    }// GridLayout   
 }
