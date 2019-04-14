@@ -42,7 +42,7 @@ ListView {
         GridLayout {
             rows: 4;
             columns: 2;
-            rowSpacing: Style.itemSpacings.slim;
+            rowSpacing: Style.itemSpacings.dense;
             columnSpacing: Style.itemSpacings.medium;
    			
    			Text{

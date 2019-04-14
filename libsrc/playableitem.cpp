@@ -81,8 +81,6 @@ QString PlayableItem::do_get_display_name() const {
     }
     return publisher + ": " + title;
 }
-/***********************************************************************/
-
 
 /***********************************************************************/
 PodcastEpisode::PodcastEpisode(const QString& title, const QUrl& url)

@@ -23,12 +23,10 @@ Menu {
         rows: 3;
 		columns:2;
         columnSpacing: Style.itemSpacings.medium;
-        rowSpacing: Style.itemSpacings.slim;
-    
-        
+        rowSpacing: Style.itemSpacings.dense;
+
         Text{
-            text: "Sleep timeout in minutes" ;
-            horizontalAlignment: Text.AlignHCenter
+            text: "Sleep after minutes";
             font: Style.font.label;
             color: "white";
             elide: Text.ElideRight;
@@ -41,8 +39,8 @@ Menu {
 
 		Tumbler{
 			id: sleepTimeoutTumbler
-            Layout.maximumHeight: 100;
-            Layout.preferredHeight: 90;
+            Layout.maximumHeight: 120;
+            Layout.preferredHeight: 100;
             Layout.fillHeight: true;
             Layout.rowSpan: 2;
             Layout.margins: Style.itemMargins.medium;
@@ -50,31 +48,38 @@ Menu {
 			
 			TumblerColumn {
 				id: sleepTimeoutMinutes
-				model: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120];
-				width:  64;
-				delegate: Text {
+                model: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120];
+                width:  64;
+                delegate: Text {
                     text: styleData.value;
-					font: Style.font.tumbler;
-					horizontalAlignment: Text.AlignHCenter
+                    font: Style.font.tumbler;
+                    verticalAlignment: Text.AlignVCenter;
+                    horizontalAlignment: Text.AlignHCenter;
+                    anchors.margins: 0;
+                    topPadding: 0;
+                    bottomPadding: 0;
                     opacity: 0.3 + Math.max(0, 1 - Math.abs(styleData.displacement)) * 0.7
-				}
+                }
 			}
 		}
         Button{
             id: sleepTimeoutMenuOK;
             text: "Ok";
+            font: Style.font.boldLabel;
             Layout.preferredWidth: sleepTimeoutMenuCancel.width;
             Layout.alignment: Qt.AlignLeft| Qt.AlignTop
             onClicked: {
                 var minutes = (sleepTimeoutTumbler.currentIndexAt(0)+1) *10;
-                console.log(" new sleep timeout: " + minutes + " IDX:" + sleepTimeoutTumbler.currentIndexAt(0));
+                console.log(" new sleep timeout: " + minutes);
                 sleeptimer.sleep_timeout_min = minutes;
+                sleepTimeoutMenu.close();
             }
         }
 
         Button{
             id: sleepTimeoutMenuCancel;
             text: "Cancel"
+            font: Style.font.boldLabel;
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             onClicked: {
                 sleepTimeoutMenu.close();

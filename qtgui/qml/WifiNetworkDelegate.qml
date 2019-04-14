@@ -21,8 +21,8 @@ Rectangle{
     
     RowLayout{
         anchors.fill: parent
-        anchors.margins: Style.itemMargins.medium;
-        spacing: Style.itemSpacings.medium;
+        anchors.margins: Style.itemMargins.slim;
+        spacing: Style.itemSpacings.dense;
 
         IconLabel {
             text: icon_for_signal(signal);
@@ -35,7 +35,7 @@ Rectangle{
             font: Style.font.label;
             elide: Text.ElideRight;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter;
-            Layout.maximumWidth: parent.width*0.8;
+            Layout.fillWidth: true;
         }
     }
 

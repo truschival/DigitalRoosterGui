@@ -60,7 +60,7 @@ ApplicationWindow {
             
             Label{
                 id: countdown_to_sleep;
-                text: "<span style = 'font-family: materialdesignicons; font-size: 18pt; font-weight: bold'>\uf51a</span>
+                text: "<span style = 'font-family: materialdesignicons; font-size: 16pt; font-weight: bold'>\uf51a</span>
                        <span style = 'font-family: DejaVu Sans Condensed Bold, sans-serif; font-size: 16pt; font-weight: normal'>"+sleeptimer.time_remaining+"</span>"
                 Layout.rightMargin: 0;
                 textFormat: Text.RichText
@@ -70,9 +70,12 @@ ApplicationWindow {
                 MouseArea{
                     anchors.fill: parent
                     // long click opens menu
-                    onPressAndHold: sleepTimeoutMenu.popup((applicationWindow.width- sleepTimeoutMenu.width)/2,
-                                                       (applicationWindow.height- sleepTimeoutMenu.height)/2
-                                                       - Style.itemMargins.extrawide);
+                    onPressAndHold: {
+                        sleepTimeoutMenu.popup((applicationWindow.width- sleepTimeoutMenu.width)/2,
+                                               (applicationWindow.height- sleepTimeoutMenu.height)/2
+                                               - Style.itemMargins.extrawide);
+                        console.log("popup")
+                    }
                     // click resets timer
                     onPressed: sleeptimer.reset_timer();
 
@@ -170,12 +173,14 @@ ApplicationWindow {
         id: wifiMenu;
         title: "Wifi";
         height: applicationWindow.height*0.8;
-        width: applicationWindow.width*0.7;
+        width: applicationWindow.width*0.8;
     }
 
     SleepTimeoutMenu{
         id: sleepTimeoutMenu;
         title: "Sleep Timeout";
+        height: applicationWindow.height*0.6;
+        width: applicationWindow.width*0.7;
     }
 
 

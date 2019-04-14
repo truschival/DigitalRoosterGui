@@ -19,7 +19,6 @@ Menu {
     }
 
     GridLayout{
-        width: wifiMenu.width;
         height: wifiMenu.height;
         anchors.leftMargin: Style.itemMargins.slim;
         anchors.rightMargin: Style.itemMargins.slim;
@@ -40,7 +39,7 @@ Menu {
 
         Text{
             id: wifictrlStatus;
-            text: "Press for WPS PBC authentication";
+            text: "Press for WPS PBC";
             font: Style.font.label;
             color: "white";
             Layout.rightMargin: Style.itemMargins.wide;
@@ -51,7 +50,7 @@ Menu {
             id: wifilistview;
             Layout.fillWidth: true;
             Layout.margins: Style.itemMargins.wide;
-            Layout.minimumHeight: parent.height*0.8;
+            Layout.fillHeight: true;
             Layout.columnSpan: 2;
         }
     }// ColumnLayout
