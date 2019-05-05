@@ -11,7 +11,7 @@ ListView {
     antialiasing: true
     highlightRangeMode: ListView.ApplyRange
     boundsBehavior: Flickable.StopAtBounds
-    maximumFlickVelocity: 1500
+    maximumFlickVelocity: 1800
     flickDeceleration: 1800
     snapMode: ListView.SnapOneItem
     contentWidth: stackView.width
@@ -21,6 +21,12 @@ ListView {
         id: podcastdelegate
     }
     model: podcastmodel
+
+    Connections {
+       onFlickStarted : {
+           viewResetTimer.restart();
+       }
+    }
 
     /**
      * Popup to update/delete Podcast

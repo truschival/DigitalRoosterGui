@@ -78,7 +78,7 @@ Rectangle{
                 playerControlWidget.setCurrentMediaTitle(title)
             }
             playerControlWidget.show()
-            viewResetTimer.start();
+            viewResetTimer.restart();
         }
 
         onPressAndHold:  {
@@ -86,7 +86,7 @@ Rectangle{
             episodemodel.send_to_player(index)
             playerControlWidget.setCurrentMediaTitle(title)
             playerControlWidget.show()
-            viewResetTimer.start();
+            viewResetTimer.restart();
         }
     }
 }
