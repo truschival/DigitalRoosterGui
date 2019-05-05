@@ -417,6 +417,12 @@ private:
     }
 
     /**
+     * actually set active brightness
+     * @param brightness - new actual brightness
+     */
+    virtual void do_set_brightness_act(int brightness);
+
+    /**
      * Private virtual interface for volume settings
      */
     virtual int do_get_volume() const {

@@ -48,6 +48,17 @@ TEST(Brightness, RestoreActive) {
 }
 
 /*****************************************************************************/
+TEST(Brightness, setBrightness) {
+    auto cm = std::make_shared<CmMock>();
+    // active brightness is read in constructor
+    EXPECT_CALL(*cm.get(), do_set_brightness_act(25))
+        .Times(1);
+    BrightnessControl dut(cm);
+    dut.set_brightness(25);
+    ASSERT_EQ(dut.get_brightness(), 25);
+}
+
+/*****************************************************************************/
 TEST(Brightness, RestoreStandby) {
     auto cm = std::make_shared<CmMock>();
     // active brightness is read in constructor

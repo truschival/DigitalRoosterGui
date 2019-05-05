@@ -308,6 +308,12 @@ void ConfigurationManager::set_standby_brightness(int brightness) {
 
 /*****************************************************************************/
 void ConfigurationManager::set_active_brightness(int brightness) {
+	qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
+	return do_set_brightness_act(brightness);
+}
+
+/*****************************************************************************/
+void ConfigurationManager::do_set_brightness_act(int brightness){
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
     if (brightness >= 0 && brightness <= 100) {
         this->brightness_act = brightness;
