@@ -43,29 +43,36 @@ TEST(PlayableItem, EmitDNChangedPublisher) {
 }
 
 /*****************************************************************************/
-TEST(PlayableItem, EmptyTitleEmptyPublisher) {
+TEST(PlayableItem, DefaultGetDisplayName) {
 	PlayableItem pi("Foo", QUrl("http://www.heise.de"));
     ASSERT_EQ(pi.get_display_name(),QString("Foo"));
 }
 
 /*****************************************************************************/
-TEST(PlayableItem, EmptyTitleButPublisher) {
-	PlayableItem pi("Foo", QUrl("http://www.heise.de"));
-
-    QString publisher("Publisher");
-    pi.set_publisher(publisher);
-    ASSERT_EQ(pi.get_display_name(),publisher);
+TEST(PodcastEpisode, EmptyTitleEmptyPublisher) {
+	PodcastEpisode pi("Foo", QUrl("http://www.heise.de"));
+    ASSERT_EQ(pi.get_display_name(),QString("Foo"));
 }
 
 /*****************************************************************************/
-TEST(PlayableItem, TitleAndPublisher) {
-	PlayableItem pi("Foo", QUrl("http://www.heise.de"));
+TEST(PodcastEpisode, EmptyTitleButPublisher) {
+	PodcastEpisode pi("Foo", QUrl("http://www.heise.de"));
+
+    QString publisher("Publisher");
+    pi.set_publisher(publisher);
+    ASSERT_EQ(pi.get_display_name(),QString("Publisher: Foo"));
+}
+
+/*****************************************************************************/
+TEST(PodcastEpisode, TitleAndPublisher) {
+	PodcastEpisode pi("Foo", QUrl("http://www.heise.de"));
 
     QString publisher("Publisher");
     pi.set_publisher(publisher);
     QString title("Cool Title");
     pi.set_title(title);
-    ASSERT_EQ(pi.get_display_name(),publisher+": "+title);
+
+    ASSERT_EQ(pi.get_display_name(),QString("Publisher: Cool Title"));
 }
 
 /*****************************************************************************/
