@@ -31,8 +31,34 @@ namespace DigitalRooster {
 class AlarmMonitor : public QObject {
     Q_OBJECT
 public:
-    AlarmMonitor(
-        std::shared_ptr<MediaPlayer> player, QObject* parent = nullptr);
+    /**
+     * Monitor state
+     */
+    enum MonitorState {
+        Idle,           //!< idle, no alarm playing
+        ExpectingAlarm, //!< alarm should be playing soon
+        AlarmActive,    //!< alarm is playing
+        FallBackMode    //!< alarm failed to start, playing fall back
+    };
+    Q_ENUM(MonitorState)
+
+    /**
+     * Construct AlarmMonitor monitoring state changes of player
+     * @param player media player
+     * @param fallback_timeout grace period to wait until fallback is triggered
+     * @param parent
+     */
+    AlarmMonitor(std::shared_ptr<MediaPlayer> player,
+        std::chrono::milliseconds fallback_timeout = std::chrono::milliseconds(10000),
+        QObject* parent = nullptr);
+
+    /**
+     * access current state
+     * @return \ref AlarmMonitor::state
+     */
+    MonitorState get_state() const {
+        return state;
+    };
 
 public slots:
     /**
@@ -40,6 +66,13 @@ public slots:
      * @param  alarm to monitor
      */
     void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm> alarm);
+
+signals:
+    /**
+     * internal state has changed
+     * @param current state \ref AlarmMonitor::state
+     */
+    void state_changed(AlarmMonitor::MonitorState);
 
 private:
     /**
@@ -56,18 +89,24 @@ private:
     /**
      * Time to wait until fallback behavior is invoked
      */
-    int fallback_timeout = 20000;
-
-    /**
-     * Internal state to check if alarm has been dispatched
-     * and we are expecting player to get active
-     */
-    bool expecting_alarm_playing = false;
+    std::chrono::milliseconds timeout;
 
     /**
      * Fallback Alarm
      */
     QMediaPlaylist fallback_alarm;
+
+    /**
+     * Current state - check if alarm has been dispatched
+     * and we are expecting player to get active
+     */
+    MonitorState state = Idle;
+
+    /**
+     * update \ref AlarmMonitor::state and emit state_changed
+     * @param next_state next state
+     */
+    void set_state(MonitorState next_state);
 
 private slots:
 

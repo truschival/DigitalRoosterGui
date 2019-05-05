@@ -22,9 +22,11 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.AlarmMonitor");
 
 /*****************************************************************************/
-AlarmMonitor::AlarmMonitor(std::shared_ptr<MediaPlayer> player, QObject* parent)
+AlarmMonitor::AlarmMonitor(std::shared_ptr<MediaPlayer> player,
+    std::chrono::milliseconds fallback_timeout, QObject* parent)
     : QObject(parent)
-    , mpp(player) {
+    , mpp(player)
+    , timeout(fallback_timeout) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     /* Receive errors from player */
@@ -33,7 +35,7 @@ AlarmMonitor::AlarmMonitor(std::shared_ptr<MediaPlayer> player, QObject* parent)
             &MediaPlayer::error),
         [=](QMediaPlayer::Error error) {
             /* if any error occurs while we are expecting an alarm fallback! */
-            if (error != QMediaPlayer::NoError && expecting_alarm_playing) {
+            if (error != QMediaPlayer::NoError && state == ExpectingAlarm) {
                 qCWarning(CLASS_LC) << "player error occurred";
                 trigger_fallback_behavior();
             }
@@ -41,15 +43,21 @@ AlarmMonitor::AlarmMonitor(std::shared_ptr<MediaPlayer> player, QObject* parent)
 
     /* listen to player state changes */
     QObject::connect(mpp.get(), &MediaPlayer::playback_state_changed,
-        [=](QMediaPlayer::State state) {
+        [=](QMediaPlayer::State player_state) {
             /* check if alarm was stopped without error (user stopped) */
-            if (state == QMediaPlayer::StoppedState ||
-                state == QMediaPlayer::PausedState) {
+            if (player_state == QMediaPlayer::StoppedState ||
+                player_state == QMediaPlayer::PausedState) {
                 if (mpp->error() == QMediaPlayer::NoError) {
                     fallback_alarm_timer.stop();
+                    set_state(Idle);
+                } else {
+                    qCWarning(CLASS_LC) << "Player stopped with error!";
                 }
             }
-            qCDebug(CLASS_LC) << " AlarmMonitor received " << state
+            if (player_state == QMediaPlayer::PlayingState) {
+                set_state(AlarmActive);
+            }
+            qCDebug(CLASS_LC) << " AlarmMonitor received " << player_state
                               << " Player error: " << mpp->error();
         });
 
@@ -61,9 +69,16 @@ AlarmMonitor::AlarmMonitor(std::shared_ptr<MediaPlayer> player, QObject* parent)
      * Disarm the fallback behavior after some time has passed
      */
     fallback_alarm_timer.setSingleShot(true);
-    fallback_alarm_timer.setInterval(fallback_timeout);
+    fallback_alarm_timer.setInterval(timeout);
     QObject::connect(&fallback_alarm_timer, &QTimer::timeout,
-        [=]() { expecting_alarm_playing = false; });
+        [=]() { trigger_fallback_behavior(); });
+}
+
+/*****************************************************************************/
+void AlarmMonitor::set_state(MonitorState next_state) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    state = next_state;
+    emit state_changed(state);
 }
 
 /*****************************************************************************/
@@ -73,20 +88,22 @@ void AlarmMonitor::alarm_triggered(
     mpp->set_media(alarm->get_media());
     mpp->set_volume(alarm->get_volume());
     mpp->play();
-    expecting_alarm_playing = true;
-    fallback_alarm_timer.start(fallback_timeout);
+    set_state(ExpectingAlarm);
+    fallback_alarm_timer.start(timeout);
 }
 
 /*****************************************************************************/
 void AlarmMonitor::trigger_fallback_behavior() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (expecting_alarm_playing) {
+    if (state == ExpectingAlarm) {
         qCWarning(CLASS_LC) << "Player has not started in due time!";
-        expecting_alarm_playing = false;
         fallback_alarm.setCurrentIndex(0);
+        set_state(FallBackMode);
         mpp->set_volume(80);
         mpp->set_playlist(&fallback_alarm);
         mpp->play();
+    } else {
+        qCWarning(CLASS_LC) << Q_FUNC_INFO << " while not expecting!";
     }
 }
 
