@@ -47,10 +47,18 @@ void AlarmDispatcher::check_alarms() {
     auto now = wallclock->now();
     auto dow = now.date().dayOfWeek();
     for (const auto& alarm : cm->get_alarms()) {
-        /* only check period if enabled and due within the interval */
-        if (!alarm->is_enabled() ||
-            std::abs(now.time().secsTo(alarm->get_time())) > interval.count())
+        /* skip if alarm is disabled */
+        if (!alarm->is_enabled()) {
+            continue; 
+		}
+        /* 
+		 * skip if now is not near the alarm_time, i.e. less than interval
+		 * delta is negative if alarm_time is in the past 
+		 */
+        auto delta = now.time().secsTo(alarm->get_time());
+        if (delta < 0 || delta > interval.count()) {
             continue;
+        }
 
         /* Check if today is the day */
         switch (alarm->get_period()) {

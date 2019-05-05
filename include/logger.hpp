@@ -18,7 +18,9 @@
 
 namespace DigitalRooster {
 
-
+/**
+ * file logging faciltity to register with QLoggingCategory
+ */
 class Logger {
 
 public:

@@ -126,6 +126,21 @@ public:
     }
 
     /**
+     * Get a single podcast source identified by index
+     * @throws 	 std::out_of_range if not found
+     * @param index in vector
+     * @return PodastSource
+     */
+    PodcastSource* get_podcast_source_by_index(int index) const;
+
+    /**
+     * Removes a podcast source entry form list
+     * @throws 	 std::out_of_range if not found
+     * @param index in vector
+     */
+    void remove_podcast_source_by_index(int index);
+
+    /**
      * get all radio stream sources
      */
     const QVector<std::shared_ptr<Alarm>>& get_alarms() {
@@ -143,9 +158,28 @@ public:
      * Access configuration when Alarm should stop automatically
      * @return default alarm timeout
      */
-    std::chrono::minutes get_alarm_timeout() const {
-        return alarmtimeout;
+    virtual std::chrono::minutes get_alarm_timeout() const {
+        return global_alarm_timeout;
     }
+
+    /**
+     * Minutes after which DigitalRooster goes in standby
+     * @return \ref sleep_timeout
+     */
+    virtual std::chrono::minutes get_sleep_timeout() const;
+
+    /**
+     * Update sleep timeout Minutes after which DigitalRooster goes in standby
+     * @param timeout \ref sleep_timeout
+     */
+    void set_sleep_timeout(std::chrono::minutes timeout);
+
+    /**
+     * Path to wpa_supplicant control socket
+     * @return "/var/wpa_supplicant/wlan0"
+     */
+    virtual QString get_wpa_socket_name() const;
+
     /**
      * Read full configuration file path
      * @return path to configuration file
@@ -238,12 +272,12 @@ private:
     /**
      * Duration for alarm to stop automatically
      */
-    std::chrono::minutes alarmtimeout;
+    std::chrono::minutes global_alarm_timeout;
 
     /**
      * Stop playback automatically (globally)
      */
-    std::chrono::minutes sleeptimeout;
+    std::chrono::minutes sleep_timeout;
 
     /**
      * Linear Volume in percent (stored in config file)
@@ -279,6 +313,11 @@ private:
     QTimer writeTimer;
 
     /**
+     * WPA control socket path /var/lib/wpa_supplicant/wlan0
+     */
+    QString wpa_socket_name;
+
+    /**
      * Check if config directory exist, otherwise create it
      * @return directory that exist and is writable
      */
@@ -301,12 +340,12 @@ private:
     /**
      * read file and return content as string
      */
-    virtual QString getJsonFromFile(const QString& path);
+    virtual QString get_json_from_file(const QString& path);
 
     /**
      * interpret json string
      */
-    virtual void parseJson(const QByteArray& json);
+    virtual void parse_json(const QByteArray& json);
 
     /**
      * Fills the vector stream_sources with entries form settings file
@@ -376,6 +415,12 @@ private:
     virtual int do_get_brightness_act() const {
         return brightness_act;
     }
+
+    /**
+     * actually set active brightness
+     * @param brightness - new actual brightness
+     */
+    virtual void do_set_brightness_act(int brightness);
 
     /**
      * Private virtual interface for volume settings

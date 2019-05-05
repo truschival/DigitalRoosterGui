@@ -7,7 +7,7 @@ QtObject {
 	property int canvasHeight: 240;
 
 	property int toolbarWidth: 320;
-	property int toolbarHeight: 46;
+    property int toolbarHeight: 42;
 
 	property int contentWidth: 320;
 	property int contentHeight: canvasHeight-toolbarHeight;
@@ -23,9 +23,14 @@ QtObject {
 	property QtObject font: QtObject{
 
 		property font title: Qt.font({
-			weight: Font.Bold,
+            weight: Font.Normal,
 			pointSize: 16
 		});
+		
+		property font titleBold: Qt.font({
+            weight: Font.Bold,
+            pointSize: 16
+        });
 
 		property font subtitle: Qt.font({
 			family: "DejaVu Sans Condensed",
@@ -35,7 +40,14 @@ QtObject {
 
 		property font listItemHead: Qt.font({
 			family: "DejaVu Sans Condensed",
-			weight: Font.Bold,
+            weight: Font.DemiBold,
+			letterSpacing:-1,
+			pointSize: 12
+		});
+
+		property font listItemHeadListened: Qt.font({
+			family: "DejaVu Sans Condensed",
+			weight: Font.Normal,
 			letterSpacing:-1,
 			pointSize: 12
 		});
@@ -76,7 +88,7 @@ QtObject {
 
 		property font tumbler: Qt.font({
 			weight: Font.Bold,
-			pointSize: 16
+            pointSize: 16
 		});
 
 		property font button: Qt.font({

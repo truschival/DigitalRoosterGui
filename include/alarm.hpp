@@ -56,6 +56,7 @@ public:
      * @param timepoint time of day - any time of day
      * @param period periodicity
      * @param enabled activated/deactivated
+     * @param uid (optional) unique id
      * @param parent obligatory QObject parent
      */
     Alarm(const QUrl& media, const QTime& timepoint,
@@ -102,12 +103,9 @@ public:
 
     /**
      * Change periodicity
+     * @param period occurence period
      */
-    void set_period(Alarm::Period period) {
-        this->period = period;
-        emit period_changed(period);
-        emit period_changed(get_period_string());
-    };
+    void set_period(Alarm::Period period);
 
     /**
      * Volume for this Alarm
@@ -129,14 +127,14 @@ public:
      * @return time in minutes
      */
     std::chrono::minutes get_timeout() {
-        return alarmtimeout;
+        return timeout;
     }
     /**
      * Duration for alarm to stop automatically
      * @param  timeout in minutes
      */
     void set_timeout(std::chrono::minutes timeout) {
-        alarmtimeout = timeout;
+        this->timeout = timeout;
     }
 
     /**
@@ -216,10 +214,12 @@ private:
      * Will it trigger?
      */
     bool enabled;
+
     /**
-     * Duration for alarm to stop automatically
+     * Duration after which DigitalRooster should stop
+     * playing the alarm (because nobody is there to stop it)
      */
-    std::chrono::minutes alarmtimeout;
+    std::chrono::minutes timeout;
 
     /**
      * Default volume for alarm

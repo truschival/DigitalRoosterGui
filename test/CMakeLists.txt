@@ -1,4 +1,4 @@
-MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
+	MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
 
 SET(BINARY_NAME "${PROJECT_NAME}_gtest")
 
@@ -10,27 +10,6 @@ find_package(Qt5 COMPONENTS Test REQUIRED)
 # Threading library for gtest
 # Use ${CMAKE_THREAD_LIBS_INIT} for the library
 find_package(Threads REQUIRED)
-
-#-------------------------------------------------------------------------------
-# Unit test sources, TestDoubles, Mocks etc.
-#-------------------------------------------------------------------------------
-SET(TEST_HARNESS_SRCS
-  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_settings.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_reader.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_update_task.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcastsource.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_alarm.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_mediaplayerproxy.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_alarmdispatcher.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_alarmmonitor.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_weather.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_brightness.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_playableitem.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_volume_button.cpp
-  )
-
-
 #-------------------------------------------------------------------------------
 # Add libraries to test here
 #-------------------------------------------------------------------------------
@@ -42,6 +21,16 @@ ELSE()
 	find_package(${PROJECT_NAME} COMPONENTS digitalrooster CONFIG REQUIRED)
 ENDIF()
 LIST(APPEND DUT_LIBS digitalrooster)
+
+IF(UNIX)
+	# target wpa_ctrl only exist ifdef UNIX
+	IF(TARGET wpa_ctrl)
+		add_library(${PROJECT_NAME}::wpa_ctrl ALIAS wpa_ctrl)
+	ELSE()
+		find_package(${PROJECT_NAME} COMPONENTS wpa_ctrl CONFIG REQUIRED)
+	ENDIF()
+	LIST(APPEND DUT_LIBS wpa_ctrl)
+ENDIF(UNIX)
 
 #------------------------------
 # add compile definitions
@@ -176,6 +165,35 @@ CONFIGURE_FILE(
   "${CMAKE_CURRENT_SOURCE_DIR}/${WEATHER_TEST_FILE}"	
   "${CMAKE_BINARY_DIR}/${WEATHER_TEST_FILE}"
   COPYONLY)
+  
+#-------------------------------------------------------------------------------
+# Unit test sources, TestDoubles, Mocks etc.
+#-------------------------------------------------------------------------------
+SET(TEST_HARNESS_SRCS
+  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_settings.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_reader.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_update_task.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcastsource.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_alarm.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_mediaplayerproxy.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_alarmdispatcher.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_alarmmonitor.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_weather.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_brightness.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_playableitem.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_volume_button.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_serializer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_sleeptimer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_powercontrol.cpp
+  )  
+  
+IF(HAS_WPA_SUPPLICANT)
+	LIST(APPEND TEST_HARNESS_SRCS
+		${CMAKE_CURRENT_SOURCE_DIR}/test_wpa_ctrl.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/test_wifi_control.cpp
+	)
+ENDIF() 
   
 #------------------------------
 # Binary

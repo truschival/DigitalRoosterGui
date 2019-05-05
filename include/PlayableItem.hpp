@@ -21,6 +21,7 @@
 #include <QUuid>
 
 namespace DigitalRooster {
+
 /**
  * Interface of Playable Item : self contained information to play
  */
@@ -35,8 +36,6 @@ class PlayableItem : public QObject {
     Q_PROPERTY(QUrl url READ get_url WRITE set_url)
     Q_PROPERTY(QUuid id READ get_id)
     Q_PROPERTY(int position READ get_position WRITE set_position)
-    Q_PROPERTY(int duration READ get_duration WRITE set_duration NOTIFY
-            duration_changed)
 public:
     /**
      * Default Constructor
@@ -46,7 +45,8 @@ public:
     /**
      * Convenience Constructor
      * @param name display_name
-     * @param url media_url
+     * @param url  media_url
+     * @param uid  (optional) unique id
      */
     PlayableItem(const QString& name, const QUrl& url,
         const QUuid& uid = QUuid::createUuid());
@@ -58,8 +58,11 @@ public:
     QString get_display_name() const {
         return do_get_display_name();
     };
-
-    // void set_display_name(const QString& name);
+    /**
+     * Update (station-) name
+     * @param name \ref display_name
+     */
+    void set_display_name(const QString& name);
 
     /**
      * Stream source URI
@@ -78,10 +81,10 @@ public:
         return position;
     };
     /**
-     * update position of already listened content
+     * update \ref position - emits \ref position_updated
      * @param newVal current position in stream
      */
-    void set_position(qint64 newVal);
+    virtual void set_position(qint64 newVal);
 
     /**
      * Title for Playable item
@@ -109,27 +112,27 @@ public:
         return id;
     }
 
-    /**
-     * Total length of media in ms
-     * @return
-     */
-    qint64 get_duration() const {
-        return duration;
-    }
-
-    /**
-     * Update length in ms only used for display purpose
-     * @param len >= 0
-     */
-    void set_duration(qint64 len);
-
 signals:
+    /**
+     * Human readable identifier changed (title, name, publisher etc)
+     * \param info new \ref display_name
+     */
     void display_name_changed(const QString& info);
-    void duration_changed(qint64 duration);
+
+    /**
+     * Position has changed
+     * \param newpos updated position
+     */
+    void position_updated(qint64 newpos);
+
+    /**
+     * Any information changed
+     */
+    void data_changed();
 
 private:
     /**
-     * 'unique' id for this alarm
+     * 'unique' id for this object, info managed by configuration_manager
      */
     const QUuid id;
 
@@ -145,84 +148,137 @@ private:
     /** Media URL */
     QUrl media_url;
 
-    /**
-     * Current Position in stream
-     */
+    /** Current position in stream */
     qint64 position = 0;
 
+protected:
     /**
-     * Total length in ms
-     */
-    qint64 duration = 0;
-
-    /**
-     * Human information dynamically build
-     * @return
+     * Display name means differnt things to differnt playable items
+     * here \ref display_name ....
+     * @return string representation \ref display_name
      */
     virtual QString do_get_display_name() const;
 };
 
 /**
- * PodcastEpisode = item of RSS feed
+ * PodcastEpisode = item of a RSS feed
  */
 class PodcastEpisode : public PlayableItem {
     Q_OBJECT
-    Q_PROPERTY(QString description READ get_description)
+    Q_PROPERTY(
+        QString description READ get_description NOTIFY description_changed)
+    Q_PROPERTY(bool listened READ already_listened NOTIFY listened_changed)
+    Q_PROPERTY(int duration READ get_duration WRITE set_duration NOTIFY
+            duration_changed)
 public:
     PodcastEpisode() = default;
 
     /**
      * Convenience constructor
-     * @param name
+     * @param title
      * @param url
      */
-    PodcastEpisode(const QString& name, const QUrl& url)
-        : PlayableItem(name, url){
+    PodcastEpisode(const QString& title, const QUrl& url);
 
-          };
     virtual ~PodcastEpisode() = default;
 
-    const QString& get_description() const {
-        return description;
+    /**
+     * Human readable description written by Episode publisher assinged during
+     * RSS parsing
+     * @param desc description
+     */
+    void set_description(const QString& desc);
+    const QString& get_description() const;
+
+    /**
+     * Podcast publisher assinged unique ID can be URL or UUID formatted string
+     * @param uid new unique ID
+     */
+    void set_guid(const QString& uid);
+    QString get_guid() const;
+
+    /**
+     * Publication date of podcast episode
+     * @param date date&time
+     */
+    void set_publication_date(const QDateTime& date);
+    const QDateTime& get_publication_date() const;
+
+    /**
+     * update \ref position
+     *   emits \ref position_updated
+     *   emits \ref listened_changed(bool)
+     * @param newVal current position in stream
+     */
+    virtual void set_position(qint64 newVal) override;
+
+    /**
+     * Check if podcast episode is considered listened
+     */
+    bool already_listened() const;
+
+    /**
+     * Total length of media in ms
+     * @return
+     */
+    qint64 get_duration() const {
+        return duration;
     }
 
-    void set_description(const QString& desc) {
-        description = desc;
-    };
+    /**
+     * Update length in ms only used for display purpose
+     * @param len >= 0
+     */
+    void set_duration(qint64 len);
 
-    QString get_guid() const {
-        if (guid.isEmpty()) {
-            return get_url().toString();
-        }
-        return guid;
-    }
+signals:
+    void description_changed(const QString& desc);
 
-    void set_guid(const QString& uid) {
-        guid = uid;
-    };
+    void publication_date_changed(const QDateTime& datetime);
 
-    const QDateTime& get_publication_date() const {
-        return publication_date;
-    }
-
-    void set_publication_date(const QDateTime& date) {
-        if (date.isValid())
-            publication_date = date;
-    };
+    /**
+     * duration has been updated - does this happen?
+     */
+    void duration_changed(qint64 duration);
+    /**
+     * The podcast episoded is considered listend/new
+     */
+    void listened_changed(bool listened);
 
 private:
     /**
      * Synopsis of this episode
      */
     QString description;
+
     /**
      * Global Unique ID of podcast, assigned by publisher in RSS
+     * Do not confuse with PlayableItem.id
      */
     QString guid;
+
     /**
      * Release date of episode (item)
      */
     QDateTime publication_date;
+
+    /**
+     * Total duration in ms
+     */
+    qint64 duration = 0;
+
+    /**
+     * local flag to check if listened status changed
+     */
+    bool listened = false;
+
+protected:
+    /**
+     * Create human information dynamically from combination of
+     * \ref title, \ref publisher \ref display_name ....
+     * @return string representation
+     */
+    virtual QString do_get_display_name() const override;
 };
 };     // namespace DigitalRooster
 #endif // _PLAYABLEITEM_HPP_

@@ -21,4 +21,10 @@ ListView {
     }
 
     model: iradiolistmodel
+
+    Connections {
+       onFlickStarted : {
+           viewResetTimer.restart();
+       }
+    }
 }

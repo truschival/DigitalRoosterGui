@@ -19,7 +19,7 @@
 
 using namespace DigitalRooster;
 
-
+/******************************************************************************/
 class ValidRSS : public virtual ::testing::Test {
 public:
     ValidRSS()
@@ -38,6 +38,8 @@ protected:
     PodcastSource ps;
 };
 
+/******************************************************************************/
+
 TEST_F(ValidRSS, parseInfo_good) {
     update_podcast(ps, file.readAll());
 
@@ -48,6 +50,7 @@ TEST_F(ValidRSS, parseInfo_good) {
         "Alternativlos ist der Boulevard-Podcast von Frank und Fefe");
 }
 
+/******************************************************************************/
 TEST_F(ValidRSS, parseInfo_good_element_count) {
     update_podcast(ps, file.readAll());
 
@@ -55,41 +58,46 @@ TEST_F(ValidRSS, parseInfo_good_element_count) {
     EXPECT_EQ(episodes.size(), 27);
 }
 
+/******************************************************************************/
 TEST_F(ValidRSS, parseInfo_episode_length) {
     update_podcast(ps, file.readAll());
-    const auto episodes = ps.get_episodes();
+    const auto& episodes = ps.get_episodes();
     auto title = episodes[20];
     // ALT21 duration: 1:35:39 =(1*60*60+35*60+39)*1000 =5739000
     EXPECT_EQ(title->get_duration(), 5739000);
 }
 
+/******************************************************************************/
 TEST_F(ValidRSS, parseInfo_episode_length_mm_ss) {
     update_podcast(ps, file.readAll());
-    const auto episodes = ps.get_episodes();
+    const auto& episodes = ps.get_episodes();
     auto title = episodes[21];
     // ALT20 duration: 12:02 = 12*60+02)*1000 =722000
     EXPECT_EQ(title->get_duration(), 722000);
 }
 
+/******************************************************************************/
 TEST_F(ValidRSS, parseInfo_episode_length_m_ss) {
     update_podcast(ps, file.readAll());
-    const auto episodes = ps.get_episodes();
+    const auto& episodes = ps.get_episodes();
     auto title = episodes[22];
     // ALT019 duration: 9:57 = (9*60+57)*1000 =597000
     EXPECT_EQ(title->get_duration(), 597000);
 }
 
+/******************************************************************************/
 TEST_F(ValidRSS, parseInfo_episode_length_ss) {
     update_podcast(ps, file.readAll());
-    const auto episodes = ps.get_episodes();
+    const auto& episodes = ps.get_episodes();
     auto title = episodes[23];
     // ALT018 duration: 57 = (57)*1000 =57
     EXPECT_EQ(title->get_duration(), 57000);
 }
 
+/******************************************************************************/
 TEST_F(ValidRSS, parseInfo_episode_display_name) {
     update_podcast(ps, file.readAll());
-    const auto episodes = ps.get_episodes();
+    const auto& episodes = ps.get_episodes();
     auto title = episodes[19];
     EXPECT_EQ(title->get_title(), QString("ALT022: Korruption"));
     EXPECT_EQ(
@@ -98,23 +106,27 @@ TEST_F(ValidRSS, parseInfo_episode_display_name) {
         QString("Frank Rieger, Felix von Leitner: ALT022: Korruption"));
 }
 
+
+/******************************************************************************/
 TEST_F(ValidRSS, parseInfo_episode_pubdate) {
     update_podcast(ps, file.readAll());
-    const auto episodes = ps.get_episodes();
+    const auto& episodes = ps.get_episodes();
     auto title = episodes[19]; // ALT22
     auto testtime = QDateTime::fromString(
         "Mon, 05 Mar 2012 22:00:00 GMT", Qt::DateFormat::RFC2822Date);
     EXPECT_EQ(title->get_publication_date().toTime_t(), testtime.toTime_t());
 }
 
+/******************************************************************************/
 TEST_F(ValidRSS, parseInfo_episode_url) {
     update_podcast(ps, file.readAll());
 
-    const auto episodes = ps.get_episodes();
+    const auto& episodes = ps.get_episodes();
     EXPECT_STREQ(episodes[1]->get_url().toString().toStdString().c_str(),
         "http://alternativlos.cdn.as250.net/alternativlos-40.mp3");
 }
 
+/******************************************************************************/
 TEST_F(ValidRSS, maxEpisodesReached) {
     const int maxepisodes = 14;
     ps.set_max_episodes(maxepisodes);
@@ -126,7 +138,6 @@ TEST_F(ValidRSS, maxEpisodesReached) {
 }
 
 /*****************************************************************************/
-
 TEST(PodcastSourceReader, parseInfo_bad_malformatted) {
     PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
     QFile file(TEST_FILE_PATH + "/alternativlos_malformatted.rss");
@@ -135,6 +146,7 @@ TEST(PodcastSourceReader, parseInfo_bad_malformatted) {
     EXPECT_NO_THROW(update_podcast(ps, file.readAll()));
 }
 
+/******************************************************************************/
 TEST(PodcastSourceReader, parseInfo_bad_missing_title) {
     PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
     QFile file(TEST_FILE_PATH + "/alternativlos_bad.rss");
@@ -144,6 +156,7 @@ TEST(PodcastSourceReader, parseInfo_bad_missing_title) {
     EXPECT_EQ(episodes.size(), 25);
 }
 
+/******************************************************************************/
 TEST(PodcastSourceReader, parseInfo_bad_missing_url) {
     PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
     QFile file(TEST_FILE_PATH + "/alternativlos_bad.rss");
@@ -153,3 +166,5 @@ TEST(PodcastSourceReader, parseInfo_bad_missing_url) {
     const auto& episodes = ps.get_episodes();
     EXPECT_EQ(episodes.size(), 25);
 }
+
+/******************************************************************************/

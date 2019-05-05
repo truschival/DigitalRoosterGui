@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>Icon.js</file>
         <file>IconButton.qml</file>
         <file>IconLabel.qml</file>
         <file>materialdesignicons-webfont.ttf</file>

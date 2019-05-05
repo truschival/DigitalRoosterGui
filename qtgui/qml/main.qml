@@ -5,7 +5,6 @@ import QtMultimedia 5.9
 import ruschi.PodcastEpisode 1.0
 
 import "." // QTBUG-34418, singletons require explicit import to load qmldir file
-import "Icon.js" as MdiFont
 import "Jsutil.js" as Util
 
 
@@ -23,22 +22,30 @@ ApplicationWindow {
     }
 
     FontLoader {
-	id: materialdesignIconsFont;
-	source: "materialdesignicons-webfont.ttf"
+        id: materialdesignIconsFont;
+        source: "materialdesignicons-webfont.ttf"
     }
 
-    header: ToolBar {
-	height: Style.toolbarHeight;
+    Timer {
+        // Timer to reset stackview after player has started
+        id: viewResetTimer
+        interval: 60000; // 1 minute
+        running: false;
+        repeat: false;
+        onTriggered: stackView.reset();
+    }
+
+    menuBar: ToolBar {
+        height: Style.toolbarHeight;
 
         RowLayout {
             anchors.fill: parent
-            anchors.margins: Style.itemMargins.medium;
-            anchors.topMargin: Style.itemMargins.slim;
-
+            anchors.margins: Style.itemMargins.slim;
+            anchors.topMargin: 0;
             spacing: Style.itemSpacings.dense;
 
             IconButton {
-                text: MdiFont.Icon.menu
+                text: "\uf35c";
                 onClicked: {
                     drawer.open()
                 }
@@ -46,26 +53,50 @@ ApplicationWindow {
             Label {
                 id: titleLabel
                 text: (stackView.depth > 1) ? currentTime.timestring_lz_hh_mm : "";
-                font: Style.font.title;
+                font: (playerProxy.playbackState === MediaPlayer.PlayingState) ? Style.font.title : Style.font.titleBold;
                 elide: Label.ElideRight
                 Layout.fillWidth: true
             }
+            
+            Label{
+                id: countdown_to_sleep;
+                text: "<span style = 'font-family: materialdesignicons; font-size: 16pt; font-weight: bold'>\uf51a</span>
+                       <span style = 'font-family: DejaVu Sans Condensed Bold, sans-serif; font-size: 16pt; font-weight: normal'>"+sleeptimer.time_remaining+"</span>"
+                Layout.rightMargin: 0;
+                textFormat: Text.RichText
+                color: "white"
+                visible: (playerProxy.playbackState === MediaPlayer.PlayingState)
 
-	    IconButton {
+                MouseArea{
+                    anchors.fill: parent
+                    // long click opens menu
+                    onPressAndHold: {
+                        sleepTimeoutMenu.popup((applicationWindow.width- sleepTimeoutMenu.width)/2,
+                                               (applicationWindow.height- sleepTimeoutMenu.height)/2
+                                               - Style.itemMargins.extrawide);
+                        console.log("popup")
+                    }
+                    // click resets timer
+                    onPressed: sleeptimer.reset_timer();
+
+                }
+            }
+
+
+            IconButton {
                 id : playerControlBtn
-                text: MdiFont.Icon.play
+                text: "\uf40a"
                 onClicked:{
-		    playerControlWidget.show()
+                    playerControlWidget.show()
                 }
             }
 
             IconButton {
                 id : backButton
-                text: MdiFont.Icon.keyboardBackspace
-		Layout.rightMargin: Style.itemMargins.wide;
+                text: "\uf30d"
                 visible: (stackView.depth > 1)
                 onClicked:{
-		    stackView.backNavigate()
+                    stackView.backNavigate()
                 }
 
                 Shortcut {
@@ -80,17 +111,17 @@ ApplicationWindow {
         id: drawer
         width: Style.drawer.w;
         height: applicationWindow.height
+        margins: Style.itemMargins.slim;
+        edge: Qt.LeftEdge;
         interactive: true;
-	margins: Style.itemMargins.slim;
-	edge: Qt.LeftEdge;
-
-	ListView {
+        
+        ListView {
             id: listView
-	    anchors.fill: parent
-	    spacing: Style.itemSpacings.dense;
-	    anchors.margins: Style.itemMargins.slim;
-	    anchors.horizontalCenter: parent.horizontalCenter
-	    anchors.verticalCenter: parent.verticalCenter
+            anchors.fill: parent
+            spacing: Style.itemSpacings.dense;
+            anchors.margins: Style.itemMargins.slim;
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
 
             focus: true;
             currentIndex: -1;
@@ -100,110 +131,101 @@ ApplicationWindow {
                 highlighted: listView.currentIndex == index
 
                 onClicked: {
-		    console.log("Current "+ listView.currentIndex +
-				" index: "+index + " depth:"+ stackView.depth)
-		    if( stackView.depth > 1){
-			stackView.pop(null)
-		    }
-		    listView.currentIndex = index
+                    console.log("Current "+ listView.currentIndex +
+                                " index: "+index + " depth:"+ stackView.depth)
+                    if( stackView.depth > 1){
+                        stackView.pop(null)
+                    }
+                    listView.currentIndex = index
                     drawer.close()
                     /* Special item: power off button */
                     if(index === listView.count -1 ){
-                    	console.log("last item!")
-                    	powerOffMenu.popup((applicationWindow.width-powerOffMenu.width)/2,
-					   (applicationWindow.height-powerOffMenu.height)/2)
-                    	return; // nothing to do
+                        console.log("last item!")
+                        powerOffMenu.popup((applicationWindow.width-powerOffMenu.width)/2,
+                                           (applicationWindow.height-powerOffMenu.height)/2 - Style.itemMargins.extrawide)
+                        return; // nothing to do
                     }
-		    stackView.push(model.source)
+                    stackView.push(model.source)
                 }
             }
 
             model: ListModel {
                 ListElement { title: "\uf223"; source: "qrc:/PodcastList.qml"; objectName:"PodcastList"; }
-		ListElement { title: "\uf43B"; source: "qrc:/IRadioList.qml"; objectName:"InternetRadio"; }
-		ListElement { title: "\uf020"; source: "qrc:/AlarmList.qml"; objectName:"AlarmList"; }
-		ListElement { title: "\uf62e"; source: "qrc:/SettingsPage.qml"; objectName:"Settings"; }
-		ListElement { title: "\uf425"; source: ""; objectName:"PowerOff"; }
+                ListElement { title: "\uf43B"; source: "qrc:/IRadioList.qml"; objectName:"InternetRadio"; }
+                ListElement { title: "\uf020"; source: "qrc:/AlarmList.qml"; objectName:"AlarmList"; }
+                ListElement { title: "\uf62e"; source: "qrc:/SettingsPage.qml"; objectName:"Settings"; }
+                ListElement { title: "\uf425"; source: ""; objectName:"PowerOff"; }
             }
         }
     }
 
-    Menu {
-	id: powerOffMenu
-	RowLayout {
-	    spacing: Style.itemSpacings.medium;
-	    IconButton {
-		id: poweroffBtn
-		text: "\uf901"
-		Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-		onClicked: {
-		    console.log("power off button")
-		    powerControl.power_off();
-		}
-	    }
-
-	    IconButton {
-		id: standbyBtn
-		text: "\uf903";
-		Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-		onClicked: {
-		    console.log("standby button")
-		    powerControl.toggle_power_state();
-		}
-	    }
-
-	    IconButton {
-		id: rebootBtn
-		text: "\uf900";
-		Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-		onClicked: {
-		    console.log("reboot button")
-		    powerControl.reboot();
-		}
-	    }
-	}
+    PowerMenu {
+        id: powerOffMenu;
+        title:"Power";
     }
 
+    BrightnessMenu{
+        id: brightnessMenu;
+        title: "Brightness";
+    }
+
+    WifiMenu{
+        id: wifiMenu;
+        title: "Wifi";
+        height: applicationWindow.height*0.8;
+        width: applicationWindow.width*0.8;
+    }
+
+    SleepTimeoutMenu{
+        id: sleepTimeoutMenu;
+        title: "Sleep Timeout";
+        height: applicationWindow.height*0.6;
+        width: applicationWindow.width*0.7;
+    }
+
+
     PlayerControlWidget{
-	id: playerControlWidget
+        id: playerControlWidget
         width: parent.width*0.85;
-	x: Math.round((applicationWindow.width - width) / 2)
-	y: Math.round((applicationWindow.height - height) *0.6)
+        x: Math.round((applicationWindow.width - width) / 2)
+        y: Math.round((applicationWindow.height - height) *0.6)
     }
 
     VolumePopup{
-	id: volumePopUp
-	x: Math.round((applicationWindow.width - width) / 2)
-	y: Math.round((applicationWindow.height - height) / 2)
+        id: volumePopUp
+        x: Math.round((applicationWindow.width - width) / 2)
+        y: Math.round((applicationWindow.height - height) / 2)
     }
 
     StackView {
         id: stackView
-        anchors.fill: parent
+        anchors.fill: parent;
+
         initialItem: ClockPage{
             id:initalClockPage
             property string objectName : "InitialPage"
         }
 
-	function backNavigate(){
-	    if (stackView.depth > 1){
-		stackView.pop()
-	    } else{
-		stackView.currentIndex = -1;
-	    }
-	}
+        function backNavigate(){
+            if (stackView.depth > 1){
+                stackView.pop()
+            } else{
+                stackView.currentIndex = -1;
+                listView.currentIndex = -1;
+            }
+        }
 
-	function reset(){
-	    while(stackView.depth >1){
-		stackView.pop(null);
-	    }
-	}
-    }
+        function reset(){
+            while(stackView.depth >1){
+                stackView.pop(null);
+            }
+        }
+    }  
 
     /**** global connections ****/
     Component.onCompleted: {
-	console.log("main.qml completed")
-	powerControl.going_in_standby.connect(stackView.reset)
-	volumeButton.volume_incremented.connect(volumePopUp.show)
+        console.log("main.qml completed")
+        powerControl.going_in_standby.connect(stackView.reset)
+        volumeButton.volume_incremented.connect(volumePopUp.show)
     }
 } // application window

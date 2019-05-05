@@ -62,12 +62,13 @@ int set_brightness(int brightness);
 
 /**
  * Read scroll_event data from filedescriptor
+ * @param filedescriptor of open event file
  */
 ScrollEvent get_scroll_event(int filedescriptor);
 
 /**
  * Read value of push-button (rotary switch)
- * @param filehandle
+ * @param filedescriptor of open event file
  * @return 0/1
  */
 int get_pushbutton_value(int filedescriptor);

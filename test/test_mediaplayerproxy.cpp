@@ -155,6 +155,77 @@ TEST_F(PlayerFixture, setPositionForward) {
     ASSERT_GE(dut.get_position(),500); // less than 50ms delta
 }
 
+/*****************************************************************************/
+TEST_F(PlayerFixture, getDuration) {
+   ASSERT_EQ(dut.error(), QMediaPlayer::NoError);
+   ASSERT_EQ(dut.media_status(), QMediaPlayer::NoMedia);
+   dut.set_media(podcast);
+   // we have to wait until media is loaded
+   QSignalSpy spy(
+       &dut, SIGNAL(media_status_changed(QMediaPlayer::MediaStatus)));
+   ASSERT_TRUE(spy.isValid());
+   spy.wait(500);
+   EXPECT_EQ(spy.count(), 1);
+   auto signal_params = spy.takeFirst();
+   EXPECT_EQ(signal_params.at(0).toInt(), QMediaPlayer::LoadedMedia);
+
+   dut.play();
+   spy.wait(500);
+   EXPECT_EQ(spy.count(), 1);
+   signal_params = spy.takeFirst();
+   EXPECT_EQ(signal_params.at(0).toInt(), QMediaPlayer::BufferedMedia);
+
+   auto duration = dut.get_duration();
+   // Rounded to seconds - it behaves differently on windows
+   ASSERT_EQ(duration/1000, 202617/1000);
+}
+
+/*****************************************************************************/
+TEST_F(PlayerFixture, getStatus) {
+   ASSERT_EQ(dut.media_status(), QMediaPlayer::NoMedia);
+   dut.set_media(podcast);
+   // we have to wait until media is loaded
+   QSignalSpy spy(
+       &dut, SIGNAL(media_status_changed(QMediaPlayer::MediaStatus)));
+   ASSERT_TRUE(spy.isValid());
+   spy.wait(500);
+   EXPECT_EQ(spy.count(), 1);
+   auto signal_params = spy.takeFirst();
+   EXPECT_EQ(signal_params.at(0).toInt(), QMediaPlayer::LoadedMedia);
+   EXPECT_EQ(dut.media_status(), QMediaPlayer::LoadedMedia);
+}
+
+/*****************************************************************************/
+TEST_F(PlayerFixture, checkErrorStates) {
+   ASSERT_EQ(dut.error(), QMediaPlayer::NoError);
+   ASSERT_EQ(dut.media_status(), QMediaPlayer::NoMedia);
+   // No such file
+   auto media = std::make_shared<PodcastEpisode>("WebsiteAsEpisode",
+       QUrl::fromLocalFile(TEST_FILE_PATH + "/testaudio.mp4"));
+   dut.set_media(media);
+   // monitor for errors
+	QSignalSpy error_spy(&dut, SIGNAL(error(QMediaPlayer::Error)));
+   ASSERT_TRUE(error_spy.isValid());
+
+	// we have to wait until media is loaded
+   QSignalSpy media_status_spy(
+       &dut, SIGNAL(media_status_changed(QMediaPlayer::MediaStatus)));
+   ASSERT_TRUE(media_status_spy.isValid());
+   media_status_spy.wait(500);
+   ASSERT_EQ(media_status_spy.count(), 1);
+   auto media_status_events = media_status_spy.takeFirst();
+   ASSERT_EQ(
+       media_status_events.at(0).toInt(), QMediaPlayer::InvalidMedia);
+
+   dut.play();
+	error_spy.wait(500);
+
+   ASSERT_GE(error_spy.count(), 1); // one or more errors
+   auto signal_params = error_spy.takeFirst();
+   EXPECT_EQ(signal_params.at(0).toInt(), QMediaPlayer::NoMedia);
+   EXPECT_EQ(dut.error(), QMediaPlayer::NoMedia);
+}
+/*****************************************************************************/
 
 
 

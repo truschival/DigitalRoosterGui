@@ -2,22 +2,28 @@
     <qresource prefix="/">
         <file>qmldir</file>
         <file>main.qml</file>
-        <file>PodcastDelegate.qml</file>
-        <file>PodcastList.qml</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>BrightnessMenu.qml</file>
+        <file>WifiList.qml</file>
+        <file>WifiMenu.qml</file>
+        <file>WifiNetworkDelegate.qml</file>
+        <file>AlarmDelegate.qml</file>
+        <file>AlarmEditDialog.qml</file>
+        <file>AlarmList.qml</file>
         <file>Clock.qml</file>
         <file>ClockPage.qml</file>
-        <file>PodcastEpisodeDelegate.qml</file>
-        <file>PodcastEpisodeList.qml</file>
-        <file>qtquickcontrols2.conf</file>
-        <file>Jsutil.js</file>
         <file>IRadioDelegate.qml</file>
         <file>IRadioList.qml</file>
+        <file>Jsutil.js</file>
         <file>PlayerControlWidget.qml</file>
-        <file>AlarmDelegate.qml</file>
-        <file>AlarmList.qml</file>
+        <file>PodcastDelegate.qml</file>
+        <file>PodcastEpisodeDelegate.qml</file>
+        <file>PodcastEpisodeList.qml</file>
+        <file>PodcastList.qml</file>
         <file>SettingsPage.qml</file>
-        <file>VolumePopup.qml</file>
-        <file>AlarmEditDialog.qml</file>
+        <file>SleepTimeoutMenu.qml</file>
         <file>Style.qml</file>
+        <file>VolumePopup.qml</file>
+        <file>PowerMenu.qml</file>
     </qresource>
 </RCC>

@@ -19,12 +19,12 @@ IF(${CMAKE_VERSION} VERSION_LESS "3.9")
   PROJECT(DigitalRooster
 	LANGUAGES CXX C
 	)
-  SET(PROJECT_VERSION "0.6.2")
+  SET(PROJECT_VERSION "0.7.0")
   SET(PROJECT_DESCRIPTION  "A digital alarm clock and podcast player")
 ELSE()
   MESSAGE( STATUS "Running ${CMAKE_COMMAND} v${CMAKE_VERSION}" )
   PROJECT(DigitalRooster
-	VERSION 0.6.2
+	VERSION 0.7.0
 	DESCRIPTION  "A digital alarm clock and podcast player"
 	LANGUAGES CXX C
 	)
@@ -34,7 +34,6 @@ STRING(TIMESTAMP CMAKE_CONFIGURATION_TIME "%Y-%m-%d %H:%M:%S"  UTC)
 
 # Package-Config for components that CMake does not support directly
 # include(FindPkgConfig)
-
 if(POLICY CMP0071)
 # POLICY since CMake 3.10 (https://cmake.org/cmake/help/git-stage/policy/CMP0071.html)
 	cmake_policy(SET CMP0071 NEW)
@@ -45,15 +44,25 @@ endif()
 #-------------------------------------------------------------------------------
 option(BUILD_EXE "Build QT Gui" On)
 option(BUILD_TESTS "Build Tests" On)
+option(HAS_WPA_SUPPLICANT "Target has wpa_supplicant" Off)
 option(PROFILE "Build with Profiling" Off)
 option(TEST_COVERAGE "Test Coverage" Off)
 option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" On)
 option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." Off)
 
+# most likely we have wpa_supplicant on Unix,linux etc.
+if(UNIX)
+option(HAS_WPA_SUPPLICANT "Target has wpa_supplicant" On)
+else(UNIX)
+option(HAS_WPA_SUPPLICANT "Target has wpa_supplicant" Off)
+endif(UNIX)
+
 SET(SYSTEM_TARGET_NAME "Host"
   CACHE STRING "Target: {Host|Rpi}")
 SET(SETTINGS_FILE_NAME "digitalrooster.json"
   CACHE STRING "application configuration file name")
+SET(WIFI_INTERFACE "/var/run/wpa_supplicant/wlp2s0"
+  CACHE STRING "wpa_supplicant interface contrl socket path")
 SET(SETTINGS_PATH  "${CMAKE_CURRENT_BINARY_DIR}/settings"
   CACHE PATH "application configuration path")
 SET(GENERATED_DIR  "${CMAKE_BINARY_DIR}/generated" CACHE INTERNAL "" )
@@ -86,7 +95,7 @@ MESSAGE(STATUS "Found Qt5 version: ${Qt5Core_VERSION_STRING}")
 
 # Instruct CMake to run moc automatically when needed.
 SET(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOUIC OFF)
 set(CMAKE_AUTORCC ON)
 
 # Get the latest abbreviated commit hash of the working branch
@@ -109,6 +118,7 @@ MESSAGE(STATUS "Build UnitTests:\t ${BUILD_TESTS} ")
 MESSAGE(STATUS "Build GoogleTest:\t ${BUILD_GTEST_FROM_SRC} ")
 MESSAGE(STATUS "Test coverage:\t ${TEST_COVERAGE} ")
 MESSAGE(STATUS "Profiling:\t\t ${PROFILE} ")
+MESSAGE(STATUS "Wpa supplicant:\t ${HAS_WPA_SUPPLICANT} ")
 MESSAGE(STATUS "Revision:\t\t ${GIT_DESCRIBE_REV} ")
 MESSAGE(STATUS "System:\t\t ${SYSTEM_TARGET_NAME} ")
 MESSAGE(STATUS "------------------------------ " )
@@ -124,6 +134,7 @@ SET(PROJECT_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/config.h.in"
   "${GENERATED_DIR}/config.h"
+  ESCAPE_QUOTES
   @ONLY
   NEWLINE_STYLE UNIX
   )
@@ -237,7 +248,8 @@ endif(DOXYGEN_FOUND)
 # Sub-dirs to build each with its own CMakelists.txt
 #-------------------------------------------------------------------------------
 
-# Library source
+# control interface for wpa_supplicant
+add_subdirectory(${PROJECT_SOURCE_DIR}/wpa_ctrl/)
 add_subdirectory(${PROJECT_SOURCE_DIR}/libhwif/)
 add_subdirectory(${PROJECT_SOURCE_DIR}/libsrc/) #libsrc depends on libhwif
 

@@ -24,24 +24,62 @@
 
 namespace DigitalRooster {
 
+/**
+ * Supervision of alarm behavior. Makes sure I wake up even if the original
+ * media stream of the alarm is unavailable.
+ */
 class AlarmMonitor : public QObject {
     Q_OBJECT
 public:
-    AlarmMonitor(
-        std::shared_ptr<MediaPlayer> player, QObject* parent = nullptr);
+    /**
+     * Monitor state
+     */
+    enum MonitorState {
+        Idle,           //!< idle, no alarm playing
+        ExpectingAlarm, //!< alarm should be playing soon
+        AlarmActive,    //!< alarm is playing
+        FallBackMode    //!< alarm failed to start, playing fall back
+    };
+    Q_ENUM(MonitorState)
+
+    /**
+     * Construct AlarmMonitor monitoring state changes of player
+     * @param player media player
+     * @param fallback_timeout grace period to wait until fallback is triggered
+     * @param parent
+     */
+    AlarmMonitor(std::shared_ptr<MediaPlayer> player,
+        std::chrono::milliseconds fallback_timeout = std::chrono::milliseconds(10000),
+        QObject* parent = nullptr);
+
+    /**
+     * access current state
+     * @return \ref AlarmMonitor::state
+     */
+    MonitorState get_state() const {
+        return state;
+    };
 
 public slots:
     /**
      * Monitor the trigged alarm if it has started in due time
-     * @param triggered alarm
+     * @param  alarm to monitor
      */
-    void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>);
+    void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm> alarm);
+
+signals:
+    /**
+     * internal state has changed
+     * @param current state \ref AlarmMonitor::state
+     */
+    void state_changed(AlarmMonitor::MonitorState);
 
 private:
     /**
      * PlayerBackend that receives the Alarms
      */
     std::shared_ptr<MediaPlayer> mpp;
+
     /**
      * Timer to trigger fallback behavior if player did not start to play
      * resource from alarm
@@ -51,34 +89,26 @@ private:
     /**
      * Time to wait until fallback behavior is invoked
      */
-    int fallback_timeout = 20000;
+    std::chrono::milliseconds timeout;
 
-    /**
-     * Internal state to check if alarm has been dispatched
-     * and we are expecting player to get active
-     */
-    bool expecting_alarm_playing = false;
     /**
      * Fallback Alarm
      */
     QMediaPlaylist fallback_alarm;
 
     /**
-     * Timer to stop alarm automatically if user has not stopped
+     * Current state - check if alarm has been dispatched
+     * and we are expecting player to get active
      */
-    QTimer alarm_auto_stop_timer;
+    MonitorState state = Idle;
 
     /**
-     * Helper method to start player and alarm_auto_stop_timer
+     * update \ref AlarmMonitor::state and emit state_changed
+     * @param next_state next state
      */
-    void start_playing();
+    void set_state(MonitorState next_state);
 
-    /**
-     * Slot/Callback to stop running alarm after alarm_auto_stop_timer
-     * has expired
-     */
 private slots:
-    void stop_running_alarm();
 
     /**
      * will trigger if player has not started playing in due time

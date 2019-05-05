@@ -3,7 +3,6 @@ import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.1
 import QtMultimedia 5.9
 import ruschi.PodcastEpisode 1.0
-import "Icon.js" as MdiFont
 import "Jsutil.js" as Util
 
 Popup {
@@ -56,7 +55,7 @@ Popup {
 			Layout.minimumWidth: parent.width/3 - 20;
 			Layout.preferredWidth: parent.width/3 ;
 
-			text: MdiFont.Icon.rewind
+			text: "\uf45f"
 
 			onClicked: {
 				interactiontimer.restart()
@@ -68,7 +67,7 @@ Popup {
 			id: playBtn
 			Layout.alignment: Qt.AlignCenter| Qt.AlignTop
 			Layout.fillWidth: true;
-			text: MdiFont.Icon.play // default to play icon
+			text: "\uf40a" // default to play icon
 
 			onClicked: {
 				interactiontimer.restart()
@@ -82,13 +81,13 @@ Popup {
 			function switchPlayButtonIcon(playbackState) {
 				switch (playbackState) {
 				case MediaPlayer.PlayingState:
-					playBtn.text = MdiFont.Icon.pause
+					playBtn.text = "\uf3e4"
 					break
 				case MediaPlayer.PausedState:
-					playBtn.text = MdiFont.Icon.play
+					playBtn.text = "\uf40a"
 					break
 				case MediaPlayer.StoppedState:
-					playBtn.text = MdiFont.Icon.play
+					playBtn.text = "\uf40a"
 					break
 				default:
 					console.log("player???")
@@ -102,7 +101,7 @@ Popup {
 			Layout.minimumWidth: parent.width/3 - 20;
 			Layout.preferredWidth: parent.width/3 ;
 
-			text: MdiFont.Icon.fastForward
+			text: "\uf211"
 			onClicked: {
 				interactiontimer.restart()
 				playerProxy.seek(10000)

@@ -43,26 +43,48 @@ TEST(PlayableItem, EmitDNChangedPublisher) {
 }
 
 /*****************************************************************************/
-TEST(PlayableItem, EmptyTitleEmptyPublisher) {
+TEST(PlayableItem, DefaultGetDisplayName) {
 	PlayableItem pi("Foo", QUrl("http://www.heise.de"));
     ASSERT_EQ(pi.get_display_name(),QString("Foo"));
 }
 
 /*****************************************************************************/
-TEST(PlayableItem, EmptyTitleButPublisher) {
-	PlayableItem pi("Foo", QUrl("http://www.heise.de"));
+TEST(PodcastEpisode, EmptyTitleEmptyPublisher) {
+	PodcastEpisode pi("Foo", QUrl("http://www.heise.de"));
+    ASSERT_EQ(pi.get_display_name(),QString("Foo"));
+}
+
+/*****************************************************************************/
+TEST(PodcastEpisode, EmptyTitleButPublisher) {
+	PodcastEpisode pi("Foo", QUrl("http://www.heise.de"));
 
     QString publisher("Publisher");
     pi.set_publisher(publisher);
-    ASSERT_EQ(pi.get_display_name(),publisher);
+    ASSERT_EQ(pi.get_display_name(),QString("Publisher: Foo"));
 }
+
 /*****************************************************************************/
-TEST(PlayableItem, TitleAndPublisher) {
-	PlayableItem pi("Foo", QUrl("http://www.heise.de"));
+TEST(PodcastEpisode, TitleAndPublisher) {
+	PodcastEpisode pi("Foo", QUrl("http://www.heise.de"));
 
     QString publisher("Publisher");
     pi.set_publisher(publisher);
     QString title("Cool Title");
     pi.set_title(title);
-    ASSERT_EQ(pi.get_display_name(),publisher+": "+title);
+
+    ASSERT_EQ(pi.get_display_name(),QString("Publisher: Cool Title"));
 }
+
+/*****************************************************************************/
+TEST(PlayableItem, ListenedChanged) {
+	PodcastEpisode episode("Foo", QUrl("http://www.heise.de"));
+	episode.set_duration(1000);
+	QSignalSpy spy(&episode,SIGNAL(listened_changed(bool)));
+	ASSERT_TRUE(spy.isValid());
+	episode.set_position(900);
+	spy.wait();
+	ASSERT_EQ(spy.count(),1);
+    ASSERT_TRUE(episode.already_listened());
+}
+
+

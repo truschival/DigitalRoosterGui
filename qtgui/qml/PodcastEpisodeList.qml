@@ -13,4 +13,10 @@ ListView {
 	delegate:PodcastEpisodeDelegate{
 		id: ped
 	}
+
+	Connections {
+	   onFlickStarted : {
+	       viewResetTimer.restart();
+	   }
+	}
 }

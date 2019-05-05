@@ -71,9 +71,21 @@ MediaPlayerProxy::MediaPlayerProxy()
                     backend->metaData(QMediaMetaData::Title).toString();
                 QString publisher =
                     backend->metaData(QMediaMetaData::Publisher).toString();
+
+                qCDebug(CLASS_LC)
+                    << "\n\tTitle:" << title
+					<< "\n\tPublisher:" << publisher
+                    << "\n\tAlbumArtist:"
+                    << backend->metaData(QMediaMetaData::AlbumArtist).toString()
+                    << "\n\tAuthor:"
+                    << backend->metaData(QMediaMetaData::Author).toString()
+					<< "\n\tDescription:"
+                    << backend->metaData(QMediaMetaData::Description).toString();
+
                 if (title != "") {
                     current_item->set_title(title);
-                } else if (publisher != "") {
+                }
+                if (publisher != "") {
                     current_item->set_publisher(publisher);
                 }
             } else {
@@ -145,7 +157,7 @@ void MediaPlayerProxy::do_set_media(
     auto previous_position = media->get_position();
 
     backend->setMedia(QMediaContent(media->get_url()));
-    if (previous_position != 0 && previous_position < media->get_duration()) {
+    if (previous_position != 0) {
         qDebug() << "restarting from position" << previous_position;
         set_position(previous_position);
     }
@@ -173,11 +185,11 @@ void MediaPlayerProxy::do_set_volume(int volume) {
     if (volume < 0 || volume > 100) {
         qCWarning(CLASS_LC) << "invalid volume (must be 0..100%)";
         return;
-	}
+    }
     linear_volume = volume;
     emit volume_changed(volume);
 
-	/* backend works with logarithmic volume */
+    /* backend works with logarithmic volume */
     auto adjusted_volume = QAudio::convertVolume(volume / qreal(100.0),
         QAudio::LogarithmicVolumeScale, QAudio::LinearVolumeScale);
     backend->setVolume(qRound(adjusted_volume * 100.0));
@@ -187,7 +199,7 @@ void MediaPlayerProxy::do_set_volume(int volume) {
 void MediaPlayerProxy::do_increment_volume(int increment) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << increment;
     qCDebug(CLASS_LC) << " current volume" << linear_volume;
-	set_volume(linear_volume + increment);
+    set_volume(linear_volume + increment);
 }
 
 /*****************************************************************************/
