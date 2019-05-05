@@ -71,12 +71,16 @@ MediaPlayerProxy::MediaPlayerProxy()
                     backend->metaData(QMediaMetaData::Title).toString();
                 QString publisher =
                     backend->metaData(QMediaMetaData::Publisher).toString();
+
                 qCDebug(CLASS_LC)
-                    << " Title:" << title << "Publisher:" << publisher
-                    << "AlbumArtist:"
+                    << "\n\tTitle:" << title
+					<< "\n\tPublisher:" << publisher
+                    << "\n\tAlbumArtist:"
                     << backend->metaData(QMediaMetaData::AlbumArtist).toString()
-                    << "Author:"
-                    << backend->metaData(QMediaMetaData::Author).toString();
+                    << "\n\tAuthor:"
+                    << backend->metaData(QMediaMetaData::Author).toString()
+					<< "\n\tDescription:"
+                    << backend->metaData(QMediaMetaData::Description).toString();
 
                 if (title != "") {
                     current_item->set_title(title);

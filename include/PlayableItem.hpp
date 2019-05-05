@@ -58,6 +58,11 @@ public:
     QString get_display_name() const {
         return do_get_display_name();
     };
+    /**
+     * Update (station-) name
+     * @param name \ref display_name
+     */
+    void set_display_name(const QString& name);
 
     /**
      * Stream source URI
@@ -146,10 +151,11 @@ private:
     /** Current position in stream */
     qint64 position = 0;
 
+protected:
     /**
-     * Create human information dynamically from combination of
-     * \ref title, \ref publisher \ref display_name ....
-     * @return string representation
+     * Display name means differnt things to differnt playable items
+     * here \ref display_name ....
+     * @return string representation \ref display_name
      */
     virtual QString do_get_display_name() const;
 };
@@ -265,6 +271,14 @@ private:
      * local flag to check if listened status changed
      */
     bool listened = false;
+
+protected:
+    /**
+     * Create human information dynamically from combination of
+     * \ref title, \ref publisher \ref display_name ....
+     * @return string representation
+     */
+    virtual QString do_get_display_name() const override;
 };
 };     // namespace DigitalRooster
 #endif // _PLAYABLEITEM_HPP_

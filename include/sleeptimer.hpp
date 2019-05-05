@@ -38,6 +38,7 @@ public:
     /**
      * Sleep timer constructor
      * @param cm configuration manager
+     * @param parent owning QObject
      */
     SleepTimer(
         std::shared_ptr<ConfigurationManager> cm, QObject* parent = nullptr);
@@ -50,7 +51,7 @@ public:
 
     /**
      * Minutes after which DigitalRooster goes in standby
-     * @return \ref sleep_timeout
+     * @return \ref ConfigurationManager::sleep_timeout
      */
     std::chrono::minutes get_sleep_timeout() const;
 
@@ -58,20 +59,20 @@ public:
      * Minutes after which DigitalRooster goes in standby
      * \ref get_sleep_timeout for clients that dont understand
      * std::chrono::minutes
-     * @return \ref sleep_timeout
+     * @return \ref ConfigurationManager::sleep_timeout in minutes
      */
     int get_sleep_timeout_minutes_count() const;
 
     /**
      * Update sleep timeout Minutes after which DigitalRooster goes in standby
      * for clients that dont understand std::chrono::minutes
-     * @param timeout \ref sleep_timeout
+     * @param timeout \ref ConfigurationManager::sleep_timeout
      */
     void set_sleep_timeout(int timeout);
 
     /**
      * Update sleep timeout Minutes after which DigitalRooster goes in standby
-     * @param timeout \ref sleep_timeout
+     * @param timeout \ref ConfigurationManager::sleep_timeout
      */
     void set_sleep_timeout(std::chrono::minutes timeout);
 	/**
@@ -119,7 +120,7 @@ signals:
     /**
      * Sleep timeout has been changed
      * for clients that dont understand std::chrono::minutes
-     * \param minutes \ref sleep_timeout
+     * \param minutes updated timeout \ref ConfigurationManager::sleep_timeout
      */
     void sleep_timeout_changed(int minutes);
 
@@ -144,7 +145,7 @@ private:
     QTimer sleep_timer;
 
     /**
-     * Event Loop timer id from \ref QObject::startTimer()
+     * Event Loop timer id assigned by \ref QObject::startTimer()
      */
     int evt_timer_id;
 

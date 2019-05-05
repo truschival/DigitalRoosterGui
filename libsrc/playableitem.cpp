@@ -67,11 +67,28 @@ void PlayableItem::set_publisher(const QString& publisher) {
     emit data_changed();
 };
 
+
+/***********************************************************************/
+void PlayableItem::set_display_name(const QString& name) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    display_name = name;
+}
+
 /***********************************************************************/
 QString PlayableItem::do_get_display_name() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    return display_name;
+}
+
+/***********************************************************************/
+QString PodcastEpisode::do_get_display_name() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto publisher = get_publisher();
+    auto title = get_title();
+
     if (title.isEmpty() && publisher.isEmpty()) {
-        return display_name;
+        // default to generic human config assigned name
+        return PlayableItem::do_get_display_name();
     }
     if (!title.isEmpty() && publisher.isEmpty()) {
         return title;
