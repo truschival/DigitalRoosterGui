@@ -19,12 +19,12 @@ IF(${CMAKE_VERSION} VERSION_LESS "3.9")
   PROJECT(DigitalRooster
 	LANGUAGES CXX C
 	)
-  SET(PROJECT_VERSION "0.6.2")
+  SET(PROJECT_VERSION "0.7.0")
   SET(PROJECT_DESCRIPTION  "A digital alarm clock and podcast player")
 ELSE()
   MESSAGE( STATUS "Running ${CMAKE_COMMAND} v${CMAKE_VERSION}" )
   PROJECT(DigitalRooster
-	VERSION 0.6.2
+	VERSION 0.7.0
 	DESCRIPTION  "A digital alarm clock and podcast player"
 	LANGUAGES CXX C
 	)
