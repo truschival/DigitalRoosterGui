@@ -33,7 +33,7 @@
  *   v0.4.0-1-g47cb4c6a-dirty
  */
 #ifndef GIT_DESCRIBE_REV
-#define GIT_DESCRIBE_REV 	CMAKE_PROJECT_VERSION
+#define GIT_DESCRIBE_REV 	@GIT_DESCRIBE_REV@
 #endif
  
  /**

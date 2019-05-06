@@ -2,7 +2,7 @@
 # Top-level CMakeLists.txt
 ##
 
-cmake_minimum_required (VERSION 3.8)
+cmake_minimum_required (VERSION 3.10)
 SET(CMAKE_CXX_STANDARD 14)
 set(CMAKE_VERBOSE_MAKEFILE  OFF)
 set(CMAKE_COLOR_MAKEFILE ON)
@@ -14,21 +14,12 @@ list(APPEND CMAKE_MODULE_PATH  ${CMAKE_SOURCE_DIR}/CMakeModules/)
 
 #-------------------------------------------------------------------------------
 # Project Name
-IF(${CMAKE_VERSION} VERSION_LESS "3.9")
-  MESSAGE( STATUS "Running ${CMAKE_COMMAND} v${CMAKE_VERSION} < 3.9" )
-  PROJECT(DigitalRooster
-	LANGUAGES CXX C
-	)
-  SET(PROJECT_VERSION "0.7.0")
-  SET(PROJECT_DESCRIPTION  "A digital alarm clock and podcast player")
-ELSE()
-  MESSAGE( STATUS "Running ${CMAKE_COMMAND} v${CMAKE_VERSION}" )
-  PROJECT(DigitalRooster
+MESSAGE( STATUS "Running ${CMAKE_COMMAND} v${CMAKE_VERSION}" )
+PROJECT(DigitalRooster
 	VERSION 0.7.0
 	DESCRIPTION  "A digital alarm clock and podcast player"
 	LANGUAGES CXX C
 	)
-ENDIF()
 
 STRING(TIMESTAMP CMAKE_CONFIGURATION_TIME "%Y-%m-%d %H:%M:%S"  UTC)
 
@@ -78,7 +69,6 @@ IF(NOT CMAKE_BUILD_TYPE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
 # User did not provide install prefix via cmake commandline
-
 IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT )
   SET(CMAKE_INSTALL_PREFIX ${STAGING_DIR} )
 ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -151,7 +141,6 @@ SET(COMPONENT_NAME ${PROJECT_NAME})
 
 # Make debug libs visible per default ->  SET_TARGET_PROPERTIES
 SET(CMAKE_DEBUG_POSTFIX "_dbg")
-SET(CMAKE_TESTCOVERAGE_POSTFIX "_cov")
 # (CMAKE_BINARY_DIR = where cmake was invoked and found project())
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY	"${PROJECT_BINARY_DIR}/bin/")
 # Folder for libraries (during build)
