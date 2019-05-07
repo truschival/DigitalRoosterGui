@@ -33,9 +33,10 @@ AlarmMonitor::AlarmMonitor(std::shared_ptr<MediaPlayer> player,
     QObject::connect(mpp.get(),
         static_cast<void (MediaPlayer::*)(QMediaPlayer::Error)>(
             &MediaPlayer::error),
-        [=](QMediaPlayer::Error error) {
-            /* if any error occurs while we are expecting an alarm fallback! */
-            if (error != QMediaPlayer::NoError && state == ExpectingAlarm) {
+        [&](QMediaPlayer::Error error) {
+            /* if any error occurs while we are expecting or playing an alarm */
+            if (error != QMediaPlayer::NoError &&
+                (state == ExpectingAlarm || state == AlarmActive)) {
                 qCWarning(CLASS_LC) << "player error occurred";
                 trigger_fallback_behavior();
             }
@@ -43,12 +44,14 @@ AlarmMonitor::AlarmMonitor(std::shared_ptr<MediaPlayer> player,
 
     /* listen to player state changes */
     QObject::connect(mpp.get(), &MediaPlayer::playback_state_changed,
-        [=](QMediaPlayer::State player_state) {
+        [&](QMediaPlayer::State player_state) {
+            qCDebug(CLASS_LC) << "AlarmMonitor PlayerState:" << player_state
+                              << "PlayerError:" << mpp->error();
             /* check if alarm was stopped without error (user stopped) */
             if (player_state == QMediaPlayer::StoppedState ||
                 player_state == QMediaPlayer::PausedState) {
                 if (mpp->error() == QMediaPlayer::NoError) {
-                    fallback_alarm_timer.stop();
+                    qCDebug(CLASS_LC) << " Stopped player without error";
                     set_state(Idle);
                 } else {
                     qCWarning(CLASS_LC) << "Player stopped with error!";
@@ -57,8 +60,6 @@ AlarmMonitor::AlarmMonitor(std::shared_ptr<MediaPlayer> player,
             if (player_state == QMediaPlayer::PlayingState) {
                 set_state(AlarmActive);
             }
-            qCDebug(CLASS_LC) << " AlarmMonitor received " << player_state
-                              << " Player error: " << mpp->error();
         });
 
     /* setup fallback behavior */
@@ -70,13 +71,17 @@ AlarmMonitor::AlarmMonitor(std::shared_ptr<MediaPlayer> player,
      */
     fallback_alarm_timer.setSingleShot(true);
     fallback_alarm_timer.setInterval(timeout);
-    QObject::connect(&fallback_alarm_timer, &QTimer::timeout,
-        [=]() { trigger_fallback_behavior(); });
+    QObject::connect(&fallback_alarm_timer, &QTimer::timeout, [&]() {
+        qCWarning(CLASS_LC) << "fallback_alarm_timer.timeout()";
+        if (state == ExpectingAlarm) {
+            trigger_fallback_behavior();
+        }
+    });
 }
 
 /*****************************************************************************/
 void AlarmMonitor::set_state(MonitorState next_state) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << state << "-->" << next_state;
     state = next_state;
     emit state_changed(state);
 }
@@ -85,26 +90,21 @@ void AlarmMonitor::set_state(MonitorState next_state) {
 void AlarmMonitor::alarm_triggered(
     std::shared_ptr<DigitalRooster::Alarm> alarm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    set_state(ExpectingAlarm);
     mpp->set_media(alarm->get_media());
     mpp->set_volume(alarm->get_volume());
     mpp->play();
-    set_state(ExpectingAlarm);
     fallback_alarm_timer.start(timeout);
 }
 
 /*****************************************************************************/
 void AlarmMonitor::trigger_fallback_behavior() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (state == ExpectingAlarm) {
-        qCWarning(CLASS_LC) << "Player has not started in due time!";
-        fallback_alarm.setCurrentIndex(0);
-        set_state(FallBackMode);
-        mpp->set_volume(80);
-        mpp->set_playlist(&fallback_alarm);
-        mpp->play();
-    } else {
-        qCWarning(CLASS_LC) << Q_FUNC_INFO << " while not expecting!";
-    }
+    fallback_alarm.setCurrentIndex(0);
+    set_state(FallBackMode);
+    mpp->set_volume(50);
+    mpp->set_playlist(&fallback_alarm);
+    mpp->play();
 }
 
 /*****************************************************************************/
