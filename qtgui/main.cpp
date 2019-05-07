@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
     playerproxy->set_volume(cm->get_volume());
 
     AlarmDispatcher alarmdispatcher(cm);
-    AlarmMonitor alarmmonitor(playerproxy);
+    AlarmMonitor alarmmonitor(playerproxy, std::chrono::seconds(20));
     QObject::connect(&alarmdispatcher,
         SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)),
         &alarmmonitor,
