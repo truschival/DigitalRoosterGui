@@ -69,7 +69,7 @@ TEST(AlarmMonitor, triggersFallbackForError) {
     EXPECT_CALL(*(player.get()), do_set_volume(40)).Times(1);
 
     // Fallback behavior
-    EXPECT_CALL(*(player.get()), do_set_volume(80)).Times(1);
+    EXPECT_CALL(*(player.get()), do_set_volume(50)).Times(1);
     EXPECT_CALL(*(player.get()), do_set_playlist(_)).Times(1);
 
     QSignalSpy spy(&mon, SIGNAL(state_changed(AlarmMonitor::MonitorState)));
