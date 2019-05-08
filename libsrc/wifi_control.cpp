@@ -12,6 +12,7 @@
 
 #include <QLoggingCategory>
 #include <QString>
+#include <cerrno>
 #include <exception>
 
 #include "appconstants.hpp"
@@ -34,9 +35,12 @@ WifiControl* WifiControl::get_instance(ConfigurationManager* cm) {
             instance.connect_wpa_control_socket();
             instance.ctrl_notifier = std::make_unique<QSocketNotifier>(
                 wpa_ctrl_get_fd(instance.ctrl), QSocketNotifier::Read);
+
             connect(instance.ctrl_notifier.get(), SIGNAL(activated(int)),
                 &instance, SLOT(ctrl_event(int)));
 
+        } catch (std::system_error& exc) {
+            qCCritical(CLASS_LC) << exc.what();
         } catch (std::exception& exc) {
             qCCritical(CLASS_LC) << exc.what();
         }
@@ -57,7 +61,8 @@ void WifiControl::connect_wpa_control_socket() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << wpa_supplicant_sock_path;
     ctrl = wpa_ctrl_open(wpa_supplicant_sock_path.toStdString().c_str());
     if (!ctrl) {
-        throw std::runtime_error("Opening wpa_ctrl failed!");
+        throw std::system_error(
+            errno, std::generic_category(), "wpa_ctrl_open() failed");
     }
     if (wpa_ctrl_attach(ctrl) < 0) {
         qCCritical(CLASS_LC) << " notifier attach failed!";

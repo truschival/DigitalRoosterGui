@@ -34,7 +34,7 @@ BrightnessControl::BrightnessControl(
 void BrightnessControl::set_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << "Linear: " << brightness;
     linear_brightness = brightness;
-	::set_brightness(lin2log(linear_brightness));
+    ::set_brightness(lin2log(linear_brightness));
     cm->set_active_brightness(brightness);
 }
 
@@ -49,9 +49,9 @@ int BrightnessControl::lin2log(int lb) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     double lin = (double)lb / 100.0;
     double log_brightness = 1.0;
-	if (lin < 0.99) {
+    if (lin < 0.99) {
         log_brightness = -std::log(1 - lin) / LOG_100;
-	}
+    }
     return qRound(log_brightness * 100);
 }
 

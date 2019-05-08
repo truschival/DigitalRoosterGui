@@ -55,8 +55,8 @@ struct WeatherConfig {
  */
 class ConfigurationManager : public QObject {
     Q_OBJECT
-    Q_PROPERTY(QString revision READ get_revision)
-    Q_PROPERTY(QString buildtime READ get_build)
+    Q_PROPERTY(QString revision READ get_revision CONSTANT)
+    Q_PROPERTY(QString buildtime READ get_build CONSTANT)
     Q_PROPERTY(int standbybrightness READ get_standby_brightness WRITE
             set_standby_brightness)
     Q_PROPERTY(int activebrightness READ get_active_brightness WRITE
@@ -77,6 +77,9 @@ public:
      * return compile time version string
      */
     QString get_revision() const {
+        if (GIT_REVISION.isEmpty()) {
+            return PROJECT_VERSION;
+        }
         return GIT_REVISION;
     }
 
