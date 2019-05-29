@@ -24,9 +24,11 @@
 namespace DigitalRooster {
 
 /**
- * SleepTimer resets internal timer to \ref ConfigurationManager::sleep_timeout
- * on signal player_state_chaged() and puts DigitalRooster in standby when
- * sleep_timeout has elapsed
+ * SleepTimer emits sleep_timer_elapsed() after \ref
+ * ConfigurationManager::sleep_timeout The timer is restarted when:
+ * - alarm is triggered, i.e. signal \ref alarm_triggered()
+ * - player starts playing, i.e. signal \ref
+ *   playback_state_changed(QMediaPlayer::Playing)
  */
 class SleepTimer : public QObject {
     Q_OBJECT

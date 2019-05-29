@@ -77,7 +77,7 @@ TEST(SleepTimer, stopsPlayer) {
 }
 
 /*****************************************************************************/
-TEST(SleepTimer, PlayerStoppedDoesNotEmitSignal) {
+TEST(SleepTimer, PlayerStoppedStillEmitsSignal) {
     auto cm = std::make_shared<CmMock>();
     /* sleep timeout 500 ms */
     EXPECT_CALL(*(cm.get()), get_sleep_timeout())
@@ -91,7 +91,7 @@ TEST(SleepTimer, PlayerStoppedDoesNotEmitSignal) {
     dut.playback_state_changed(QMediaPlayer::PlayingState);
     dut.playback_state_changed(QMediaPlayer::StoppedState);
     spy.wait(1000);
-    ASSERT_EQ(spy.count(), 0); // should never be called
+    ASSERT_EQ(spy.count(), 1);
 }
 
 /*****************************************************************************/

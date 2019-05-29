@@ -37,7 +37,11 @@ SleepTimer::SleepTimer(
     sleep_timer.setSingleShot(true);
 
     connect(
-        &sleep_timer, &QTimer::timeout, this, &SleepTimer::sleep_timer_elapsed);
+        &sleep_timer, &QTimer::timeout, this, [=](){ 
+		// reset internal state
+		this->activity = SleepTimer::Idle;
+        emit sleep_timer_elapsed();
+	});
     // Event loop timer every 30 seconds to update remaining time
     evt_timer_id = startTimer(seconds(30));
 }
@@ -46,19 +50,14 @@ SleepTimer::SleepTimer(
 void SleepTimer::playback_state_changed(QMediaPlayer::State state) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (state == QMediaPlayer::PlayingState) {
-        /* Check if alarm was dispatched or if user started play */
+        /* Check if alarm was dispatched do not set normal sleep_timeout */
         if (activity != SleepTimer::Alarm) {
-            qCDebug(CLASS_LC) << " restarting timer";
+            qCDebug(CLASS_LC) << " restarting timer";         
             sleep_timer.setInterval(cm->get_sleep_timeout());
             sleep_timer.start();
             emit remaining_time_changed(get_remaining_time());
         }
-    }
-
-    /* Stop resets the internal state */
-    if (state == QMediaPlayer::StoppedState) {
-        sleep_timer.stop();
-        activity = SleepTimer::Idle;
+        activity = SleepTimer::Playing;
     }
 }
 
