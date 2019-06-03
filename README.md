@@ -7,33 +7,42 @@ DigitalRooster
 
 Internet radio, podcast player and alarmclock. Intended to run on embedded Linux with a small touch display. Microsoft Windows and Desktop GNU/Linux systems are supported for development.
 
+
+![DigitalRooster on hardware](./documentation/figs/Demo_on_hardware.jpg)
+
+## Some Screenshots
+![Default screen with clock and weather information](/documentation/figs/Main.png)
+![Podcast source selection](/documentation/figs/Podcasts.png)
+![Alarms](/documentation/figs/Alarms.png)
+![Navigation with menu drawer](/documentation/figs/Menubar.png)
+
 ----
 # License
 
-Copyright (c) 2018 by Thomas Ruschival <thomas@ruschival.de> 
+Copyright (c) 2018 by Thomas Ruschival <thomas@ruschival.de>
 
-Licensed under [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0-standalone.html) 
+Licensed under [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0-standalone.html)
 
 SPDX-License-Identifier: GPL-3.0-or-later
 
-DigitalRooster uses [Qmlbridgeformaterialfonts](https://github.com/kevincarlson/QmlBridgeForMaterialDesignIcons) 
+DigitalRooster uses [Qmlbridgeformaterialfonts](https://github.com/kevincarlson/QmlBridgeForMaterialDesignIcons)
 software by Kevin Carlso licenced under the [SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
 QmlBridgeForMaterialDesignIcons uses the True Type Font "materialdesignicons-webfont.ttf"
 
-The font materialdesignicons-webfont.ttf is licensed under [SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL) - 
-Copyright (c) 2014, Austin Andrews 
+The font materialdesignicons-webfont.ttf is licensed under [SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL) -
+Copyright (c) 2014, Austin Andrews
 
-The Name [Material Design Icons](http://materialdesignicons.com/) is a reserved Font Name.  
+The Name [Material Design Icons](http://materialdesignicons.com/) is a reserved Font Name.
 Copyright (c) 2014, [Google] (http://www.google.com/design/) licensed under
 [Apache License Version 2.0](https://github.com/google/material-design-icons/blob/master/LICENSE)
 
-DigitalRooster uses ``include/wpa_ctrl/wpa_ctrl.h`` and ``wpa_ctrl/wpa_ctrl.c`` to interface with 
+DigitalRooster uses ``include/wpa_ctrl/wpa_ctrl.h`` and ``wpa_ctrl/wpa_ctrl.c`` to interface with
 [wpa_supplicant](https://w1.fi/wpa_supplicant/)
 Copyright (c) 2002-2018, Jouni Malinen <j@w1.fi> and contributors licensed under BSD license.
-``wpa_ctrl.c`` was modified with input from 
+``wpa_ctrl.c`` was modified with input from
 [Holger Schurig](http://lists.shmoo.com/pipermail/hostap/2013-May/027826.html)
 
-All license details can be found in the file LICENSE	
+All license details can be found in the file LICENSE
 
 -----
 ## Build configuration
@@ -41,10 +50,10 @@ All license details can be found in the file LICENSE
 ### Options & Defaults (compilation flags & targets):
 
 - `-DBUILD_TESTS=On`           build unit tests
-- `-DBUILD_GTEST_FROM_SRC=On`  download GoogleTest and build it from source 
+- `-DBUILD_GTEST_FROM_SRC=On`  download GoogleTest and build it from source
                                   (`OFF` requires gtest as external project)
 - `-DTEST_COVERAGE=Off`        code coverage
-- `-DPROFILING=On`             profiling build for Visual Studio 
+- `-DPROFILING=On`             profiling build for Visual Studio
 
 Slightly useless configurations
 
@@ -75,9 +84,9 @@ QT5.10 is included in Debian Buster or later. Ubuntu should also work.
 		flex bison zip unzip \
 		libssl-dev uuid-dev
     ```
-	
+
 2. Install QT5 development libraries
-	
+
     ```
 	apt-get install -y \
 		qt5-default qtbase5-dev-tools \
@@ -102,9 +111,9 @@ in privileged mode using `--privileged`.
 
 ### Build Steps (on Linux)
 
-The following commands will checkout the sources to `/tmp/checkout/`, create a build directory in '/tmp/build/' 
+The following commands will checkout the sources to `/tmp/checkout/`, create a build directory in '/tmp/build/'
 configure and build DigitalRooster.
-	
+
 1. Setup directories and checkout
     ```
     export SRC_DIR=/tmp/checkout
@@ -112,7 +121,7 @@ configure and build DigitalRooster.
     git clone https://github.com/truschival/DigitalRoosterGui.git $SRC_DIR
     ```
 
-2. Configuration 
+2. Configuration
 
     ```
     cmake -G "Eclipse CDT4 - Unix Makefiles"  \
@@ -122,7 +131,7 @@ configure and build DigitalRooster.
     -DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT=true \
     -DBUILD_TESTS=On \
     -DBUILD_GTEST_FROM_SRC=On \
-    -DTEST_COVERAGE=On 
+    -DTEST_COVERAGE=On
     ```
 
 3. Build
@@ -134,7 +143,7 @@ configure and build DigitalRooster.
 ### Optional post build steps
 
 1. Run Tests
- 
+
     The tests must be executed in the build directory.
     ```
     cd $BUILD_DIR
@@ -144,18 +153,18 @@ configure and build DigitalRooster.
     ```
     cmake --build $BUILD_DIR --target DigitalRooster_gtest_coverage
     ```
-	
-2. Create Doxygen documentation (if Doxygen is installed)    
+
+2. Create Doxygen documentation (if Doxygen is installed)
     ```
 	cmake --build $BUILD_DIR --target DOC
     ```
-	
+
 3. Packaging (optional)
     ```
     cd $BUILD_DIR
     cpack
     ```
-    
+
 -------
 
 ## Runtime configuration
@@ -167,7 +176,7 @@ Digitalrooster runs from any directory and generates on the first start a defaul
 The configuration path is derived from
 [QStandardPaths::ConfigLocation](http://doc.qt.io/qt-5/qstandardpaths.html)
 i.e.:
-- On Linux :  `~/.config/DigitalRooster/digitalrooster.json` 
+- On Linux :  `~/.config/DigitalRooster/digitalrooster.json`
 - On Windows:  `%LOCALAPPDATA%/DigitalRooster/digitalrooster.json`
 
 #### Global configuration and common properties of objects:
@@ -190,7 +199,7 @@ i.e.:
 - `period` frequency when to trigger alarm. Possible values are `workdays`, `weekend`, `daily`
 - `volume` volume to set for playing alarm
 
-If an alarm is triggered and the stream source is unavailable or has errors a fallback sound will be played. 
+If an alarm is triggered and the stream source is unavailable or has errors a fallback sound will be played.
 
 #### Podcast Source objects:
 `Podcasts` is an array containing individual RSS sources for podcasts. The only mandatory property is `uri` others are optional:
@@ -277,16 +286,16 @@ The `Weather` object configures the displayed weather information form [openweat
 
 Digitalrooster supports dynamic logging configuration using
 [QLoggingCategory](http://doc.qt.io/qt-5/qloggingcategory.html) i.e.:
-- On Linux:   `~/.config/QtProject/qtlogging.ini` 
+- On Linux:   `~/.config/QtProject/qtlogging.ini`
 - On Windows: `%LOCALAPPDATA%/Temp/Digitalrooster.log`
 
 The runtime log file is created in
 `QStandardPaths::TempLocation/Digitalrooster.log` i.e.:
-- On Linux:   `/tmp/Digitalrooster.log` 
+- On Linux:   `/tmp/Digitalrooster.log`
 - On Windows: `%LOCALAPPDATA%/Temp/Digitalrooster.log`
 
 
-#### Logging example configuration 
+#### Logging example configuration
 
 All debug messages except for `HttpClient` and `AlarmMonitor` are disabled
 
@@ -296,6 +305,3 @@ All debug messages except for `HttpClient` and `AlarmMonitor` are disabled
 DigitalRooster.AlarmMonitor.debug=true
 DigitalRooster.HttpClient.debug=true
 ```
-
-
-
