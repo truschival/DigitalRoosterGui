@@ -11,7 +11,7 @@ Internet radio, podcast player and alarmclock. Intended to run on embedded Linux
 ![Default Screen with clock and weather information](/documentation/figs/Main.png)
 ![Podcast source selection](/documentation/figs/Podcasts.png)
 ![Alarms](/documentation/figs/Alarms.png)
-![Navigation with menu drawer](/documentation/figs/Menu.png)
+![Navigation with menu drawer](/documentation/figs/Menubar.png)
 
 ----
 # License
