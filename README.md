@@ -7,6 +7,12 @@ DigitalRooster
 
 Internet radio, podcast player and alarmclock. Intended to run on embedded Linux with a small touch display. Microsoft Windows and Desktop GNU/Linux systems are supported for development.
 
+## Some screenshots 
+![Default Screen with clock and weather information](/documentation/figs/Main.png)
+![Podcast source selection](/documentation/figs/Podcasts.png)
+![Alarms](/documentation/figs/Alarms.png)
+![Navigation with menu drawer](/documentation/figs/Menu.png)
+
 ----
 # License
 
