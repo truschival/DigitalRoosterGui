@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/f6cddffc954b44acbdd799fcf3c7b7f7)](https://app.codacy.com/app/truschival/DigitalRoosterGui?utm_source=github.com&utm_medium=referral&utm_content=truschival/DigitalRoosterGui&utm_campaign=Badge_Grade_Settings)
 [![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Build Status](https://travis-ci.com/truschival/DigitalRoosterGui.svg?branch=develop)](https://travis-ci.com/truschival/DigitalRoosterGui)
 [![codecov](https://codecov.io/gh/truschival/DigitalRoosterGui/branch/develop/graph/badge.svg)](https://codecov.io/gh/truschival/DigitalRoosterGui)
