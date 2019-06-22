@@ -27,17 +27,19 @@ using namespace DigitalRooster;
 
 class PodcastSourceFixture : public virtual ::testing::Test {
 public:
-	PodcastSourceFixture()
-        : cache_dir(TEST_FILE_PATH + QDir::separator() + QString("podcast_cache")),
-		  uid(QUuid::createUuid()),
-		  ps(QUrl("https://alternativlos.org/alternativlos.rss"),cache_dir, uid){
+    PodcastSourceFixture()
+        : cache_dir(
+              TEST_FILE_PATH + QDir::separator() + QString("podcast_cache"))
+        , uid(QUuid::createUuid())
+        , ps(QUrl("https://alternativlos.org/alternativlos.rss"), cache_dir,
+              uid) {
     }
 
     ~PodcastSourceFixture() {
     }
 
     void SetUp() {
-    	cache_dir.mkpath(".");
+        cache_dir.mkpath(".");
     }
 
     void TearDown() {
@@ -119,7 +121,7 @@ TEST_F(PodcastSourceFixture, getEpisodeById) {
 
 /******************************************************************************/
 TEST_F(PodcastSourceFixture, set_updater) {
-   ps.set_update_task(std::make_unique<UpdateTask>());
+    ps.set_update_task(std::make_unique<UpdateTask>());
     ps.set_update_interval(std::chrono::seconds(1));
 
     QSignalSpy spy(&ps, SIGNAL(dataChanged()));
@@ -136,3 +138,32 @@ TEST_F(PodcastSourceFixture, getFileName) {
 }
 
 /******************************************************************************/
+TEST_F(PodcastSourceFixture, storeAndPurgeworks) {
+    auto filename = ps.get_cache_file_name();
+    QFile cachefile(filename);
+    ASSERT_FALSE(cachefile.exists());
+    ps.set_description("MyDescription");
+    auto first =
+        std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
+    ps.add_episode(first);
+    ps.store();
+    ASSERT_TRUE(cachefile.exists());
+    ps.purge();
+    ASSERT_FALSE(cachefile.exists());
+    ASSERT_EQ(ps.get_episode_count(),0);
+}
+
+/******************************************************************************/
+TEST(PodcastSource, store_bad_nothrow) {
+	QDir cache_dir_bad("/some/nonexistent/cache/dir");
+    PodcastSource ps(QUrl("http://foo.bar"),cache_dir_bad);
+    ps.set_description("MyDescription");
+    auto first =
+        std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
+    ps.add_episode(first);
+    ASSERT_NO_THROW(ps.store());
+}
+
+/******************************************************************************/
+
+
