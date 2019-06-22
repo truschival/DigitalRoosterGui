@@ -25,5 +25,6 @@
         <file>Style.qml</file>
         <file>VolumePopup.qml</file>
         <file>PowerMenu.qml</file>
+        <file>PodcastContextMenu.qml</file>
     </qresource>
 </RCC>

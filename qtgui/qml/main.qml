@@ -46,6 +46,7 @@ ApplicationWindow {
 
             IconButton {
                 text: "\uf35c";
+                Layout.maximumWidth: 48;
                 onClicked: {
                     drawer.open()
                 }
@@ -74,7 +75,6 @@ ApplicationWindow {
                         sleepTimeoutMenu.popup((applicationWindow.width- sleepTimeoutMenu.width)/2,
                                                (applicationWindow.height- sleepTimeoutMenu.height)/2
                                                - Style.itemMargins.extrawide);
-                        console.log("popup")
                     }
                     // click resets timer
                     onPressed: sleeptimer.reset_timer();
@@ -86,6 +86,7 @@ ApplicationWindow {
             IconButton {
                 id : playerControlBtn
                 text: "\uf40a"
+                Layout.maximumWidth: 48;
                 onClicked:{
                     playerControlWidget.show()
                 }
@@ -94,6 +95,7 @@ ApplicationWindow {
             IconButton {
                 id : backButton
                 text: "\uf30d"
+                Layout.maximumWidth: 48;
                 visible: (stackView.depth > 1)
                 onClicked:{
                     stackView.backNavigate()
