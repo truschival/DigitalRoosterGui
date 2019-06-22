@@ -56,16 +56,26 @@ static void messageHandler(
     out << context.category << "\t" << msg << endl;
     out.flush();
 }
-/*****************************************************************************/
 
+/*****************************************************************************/
 Logger::Logger(QString filename) {
     qDebug() << Q_FUNC_INFO;
     qDebug() << "Logging to " << filename;
     logfile = std::make_shared<QFile>(filename);
-    logfile->open(QIODevice::ReadWrite | QIODevice::Append| QIODevice::Text);
+    logfile->open(QIODevice::WriteOnly | QIODevice::Append| QIODevice::Text);
     qInstallMessageHandler(messageHandler);
 }
 
 /*****************************************************************************/
+Logger::Logger() {
+    qDebug() << Q_FUNC_INFO;
+    qDebug() << "Logging to stdout";
+    logfile = std::make_shared<QFile>();
+    logfile->open(stdout, QIODevice::WriteOnly);
+    qInstallMessageHandler(messageHandler);
+}
+
+/*****************************************************************************/
+
 
 } // namespace

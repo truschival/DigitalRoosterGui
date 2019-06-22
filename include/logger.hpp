@@ -24,9 +24,16 @@ namespace DigitalRooster {
 class Logger {
 
 public:
-    Logger(QString filename = QString(
-               QStandardPaths::writableLocation(QStandardPaths::TempLocation) +
-               "/Digitalrooster.log"));
+	/**
+	 * Logger to write to an existing file
+	 * @param filename
+	 */
+    explicit Logger(QString filename);
+
+    /**
+     * Logger to write to stdout
+     */
+    explicit Logger();
 };
 } // namespace DigitalRooster
 

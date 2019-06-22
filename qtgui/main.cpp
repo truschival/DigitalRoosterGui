@@ -69,15 +69,19 @@ int main(int argc, char* argv[]) {
     QString config_file_path =
         QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) +
         QDir::separator() + CONFIG_JSON_FILE_NAME;
-    QString cache_dir_path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+    QString cache_dir_path =
+        QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
 
     /*
      * Setup Commandline Parser
      */
     QCommandLineParser cmdline;
+    QCommandLineOption logstdout({"s", "stdout"},
+            QString("log to stdout"));
     QCommandLineOption logfile({"l", "logfile"},
-        QString("application log <file> (default: stdout)"),
-        QString("logfile"));
+        QString("application log <file>"), // description
+        QString("logfile")				   // value name
+		);
     QCommandLineOption confpath({"c", "confpath"},
         QString("configuration file path (default: ") + config_file_path,
         QString("confpath"), config_file_path);
@@ -85,23 +89,28 @@ int main(int argc, char* argv[]) {
         QString("application cache <directory> (default: ") + cache_dir_path,
         QString("cachedir"), cache_dir_path);
 
+    cmdline.addOption(logstdout);
     cmdline.addOption(confpath);
     cmdline.addOption(logfile);
     cmdline.addOption(cachedir);
     cmdline.addHelpOption();
     cmdline.addVersionOption();
     cmdline.process(app);
-
-    std::cout << "confpath: " << cmdline.value(confpath).toStdString().c_str()
-                  << std::endl;
-    std::cout << "cachedir: " << cmdline.value(cachedir).toStdString().c_str()
-              << std::endl;
-    std::cout << "Logfile: " << cmdline.value(logfile).toStdString().c_str()
-              << std::endl;
     /*
      * Setup Logger
+     * TODO: there is no need for Logger to be a class...
      */
-    Logger logfacility;
+    if (cmdline.isSet(logstdout)) {
+        Logger logfacility(); // Write log to stdout
+    } else if (cmdline.isSet(logfile)) {
+        Logger logfacility(cmdline.value(logfile));
+    } else { // Default behavour as before
+        Logger logfacility(
+            QStandardPaths::writableLocation(QStandardPaths::TempLocation) +
+            "/Digitalrooster.log");
+    }
+    qCInfo(MAIN) << "confpath: " << cmdline.value(confpath);
+    qCInfo(MAIN) << "cachedir: " << cmdline.value(cachedir);
     qCInfo(MAIN) << APPLICATION_NAME << " - " << GIT_REVISION;
     qCDebug(MAIN) << "SSL Support: " << QSslSocket::supportsSsl()
                   << QSslSocket::sslLibraryVersionString();
