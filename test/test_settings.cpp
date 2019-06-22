@@ -351,9 +351,9 @@ TEST_F(SettingsFixture, emitConfigChanged) {
 /*****************************************************************************/
 TEST(ConfigManager, CreateDefaultConfigDir) {
     auto config_path =
-    		 QDir::tempPath()+ QDir::separator() + QString("testConfigDir");
+        QDir::tempPath() + QDir::separator() + QString("testConfigDir");
     auto config_file_name =
-         config_path + QDir::separator() + CONFIG_JSON_FILE_NAME;
+        config_path + QDir::separator() + CONFIG_JSON_FILE_NAME;
 
     QDir config_dir(config_path);
     config_dir.removeRecursively();
@@ -372,8 +372,8 @@ TEST(ConfigManager, CreateDefaultConfig) {
     config_dir.removeRecursively();
     auto file_path = config_dir.filePath(CONFIG_JSON_FILE_NAME);
 
-    ConfigurationManager cm(file_path,
-        QString(DigitalRooster::TEST_FILE_PATH + "/" + "cache"));
+    ConfigurationManager cm(
+        file_path, QString(DigitalRooster::TEST_FILE_PATH + "/" + "cache"));
     cm.update_configuration();
 
     QFile config_file(file_path);
@@ -387,15 +387,35 @@ TEST(ConfigManager, DefaultForNotWritableCache) {
     QDir config_dir(config_path);
     auto file_path = config_dir.filePath(CONFIG_JSON_FILE_NAME);
 
-    auto default_cache_path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+    auto default_cache_path =
+        QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
     QDir default_cache_dir(default_cache_path);
     default_cache_dir.removeRecursively();
     ASSERT_FALSE(default_cache_dir.exists());
 
-    ConfigurationManager cm(file_path,
-        QString("/dev/"));
+    ConfigurationManager cm(file_path, QString("/dev/"));
 
     ASSERT_TRUE(QDir(default_cache_path).exists());
+}
+
+/*****************************************************************************/
+TEST(ConfigManager, DefaultForNotWritableConfig) {
+    auto config_path =
+        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+    QDir config_dir(config_path);
+    QFile default_conf_file(config_dir.filePath(CONFIG_JSON_FILE_NAME));
+    ASSERT_TRUE(default_conf_file.remove());
+
+    auto default_cache_path =
+        QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+    QDir default_cache_dir(default_cache_path);
+    default_cache_dir.removeRecursively();
+    ASSERT_FALSE(default_cache_dir.exists());
+
+    ConfigurationManager cm(QString("/dev/foobar.json"),
+        QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+
+    ASSERT_TRUE(default_conf_file.exists());
 }
 
 /*****************************************************************************/

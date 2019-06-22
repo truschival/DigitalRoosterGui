@@ -220,7 +220,8 @@ void ConfigurationManager::read_podcasts_from_file(
         }
         auto uid = QUuid::fromString(
             jo[KEY_ID].toString(QUuid::createUuid().toString()));
-        auto ps = std::make_shared<PodcastSource>(url, uid);
+        auto ps =
+            std::make_shared<PodcastSource>(url, application_cache_dir, uid);
         auto title = jo[KEY_NAME].toString();
         ps->set_title(title);
         ps->set_update_interval(
@@ -474,16 +475,18 @@ void ConfigurationManager::create_default_configuration() {
 
     /* Podcasts */
     podcast_sources.push_back(std::make_shared<PodcastSource>(
-        QUrl("http://armscontrolwonk.libsyn.com/rss")));
+        QUrl("http://armscontrolwonk.libsyn.com/rss"), application_cache_dir));
 
     podcast_sources.push_back(std::make_shared<PodcastSource>(
-        QUrl("https://rss.acast.com/mydadwroteaporno")));
+        QUrl("https://rss.acast.com/mydadwroteaporno"), application_cache_dir));
 
     podcast_sources.push_back(std::make_shared<PodcastSource>(
-        QUrl("https://alternativlos.org/alternativlos.rss")));
+        QUrl("https://alternativlos.org/alternativlos.rss"),
+        application_cache_dir));
 
     podcast_sources.push_back(std::make_shared<PodcastSource>(
-        QUrl("http://www.podcastone.com/podcast?categoryID2=1225")));
+        QUrl("http://www.podcastone.com/podcast?categoryID2=1225"),
+        application_cache_dir));
 
     /* Radio Streams */
     stream_sources.push_back(std::make_shared<PlayableItem>("Deutschlandfunk",
@@ -508,28 +511,6 @@ void ConfigurationManager::create_default_configuration() {
         QUrl("http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk")));
 
     store_current_config();
-}
-
-/*****************************************************************************/
-bool ConfigurationManager::make_sure_config_path_exists() const {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    QFileInfo file_info(config_file);
-    auto path = QDir(file_info.dir());
-    if (file_info.exists() && file_info.isWritable()) {
-        return true;
-    }
-
-    if (!path.exists()) {
-        qCInfo(CLASS_LC) << " Creating config dir" << path.absolutePath();
-        if (!path.mkpath(path.absolutePath())) {
-            qCCritical(CLASS_LC) << "Cannot create configuration path!";
-            throw std::system_error(
-                make_error_code(std::errc::no_such_file_or_directory),
-                "Cannot create configuration path!");
-        }
-    }
-
-    return true;
 }
 
 /*****************************************************************************/

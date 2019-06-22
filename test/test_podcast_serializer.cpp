@@ -33,8 +33,8 @@ using ::testing::Invoke;
 /******************************************************************************/
 class PodcastSourceMock : public DigitalRooster::PodcastSource {
 public:
-    PodcastSourceMock()
-        : PodcastSource(){};
+    PodcastSourceMock(const QDir& cachedir)
+        : PodcastSource(QUrl(), cachedir){};
 
     MOCK_CONST_METHOD0(get_cache_file_impl, QString());
     MOCK_CONST_METHOD0(get_description, const QString&());
@@ -50,8 +50,8 @@ public:
 /******************************************************************************/
 class PodcastSourceMock_episodes : public PodcastSourceMock {
 public:
-    PodcastSourceMock_episodes()
-        : PodcastSourceMock(){};
+    PodcastSourceMock_episodes(const QDir& cachedir)
+        : PodcastSourceMock(cachedir){};
 
     MOCK_CONST_METHOD0(
         get_episodes_impl, const QVector<std::shared_ptr<PodcastEpisode>>&());
@@ -60,6 +60,12 @@ public:
 /******************************************************************************/
 class SerializerFixture : public ::testing::Test {
 public:
+    SerializerFixture()
+        : cache_dir(
+              TEST_FILE_PATH + QDir::separator() + QString("podcast_cache"))
+        , psmock(cache_dir)
+        , ps(QUrl(), cache_dir){};
+
     // Make our own clock to be the wallclock
     void SetUp() {
         mc = std::make_shared<MockClock>();
@@ -86,6 +92,9 @@ public:
 
 protected:
     std::shared_ptr<MockClock> mc;
+    QDir cache_dir;
+    PodcastSourceMock psmock;
+    PodcastSource ps;
 
     QString expected_desc = QString("ExpectedDescription");
     QString expected_title = QString("ExpectedTitle");
@@ -111,9 +120,8 @@ protected:
 
 
 /******************************************************************************/
-TEST(PodcastSerializer, FileNotFoundThrows) {
+TEST_F(SerializerFixture, FileNotFoundThrows) {
     PodcastSerializer dut;
-    PodcastSourceMock psmock;
     EXPECT_CALL(psmock, get_cache_file_impl())
         .Times(1)
         .WillOnce(Return(QString("/tmp/some_non_existent_file")));
@@ -123,8 +131,6 @@ TEST(PodcastSerializer, FileNotFoundThrows) {
 /******************************************************************************/
 TEST_F(SerializerFixture, PodcastSourceSerialization) {
     PodcastSerializer dut;
-    PodcastSourceMock psmock;
-
     EXPECT_CALL(psmock, get_description())
         .Times(1)
         .WillOnce(ReturnRef(expected_desc));
@@ -166,7 +172,6 @@ TEST_F(SerializerFixture, PodcastEpisodeSerialization) {
 /******************************************************************************/
 TEST_F(SerializerFixture, PodcastSourceFromJson_PsWasNeverUpdated) {
     PodcastSerializer dut;
-    PodcastSourceMock psmock;
     QDateTime invalid_date;
 
     EXPECT_CALL(psmock, get_last_updated())
@@ -187,7 +192,6 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_PsRecentlyUpdated) {
     PodcastSerializer dut;
     // Recently updated PodcastSource with title should not be changed if
     // file is older
-    PodcastSourceMock psmock;
     psmock.set_title(expected_title);
     // newer than file
     QDateTime update_timestamp =
@@ -208,7 +212,6 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_PsRecentlyUpdated) {
 /******************************************************************************/
 TEST_F(SerializerFixture, PodcastSourceFromJson_Add2Episodes) {
     PodcastSerializer dut;
-    PodcastSourceMock psmock;
     QDateTime invalid_date;
 
     EXPECT_CALL(psmock, get_last_updated())
@@ -234,7 +237,6 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_Add2Episodes) {
 /******************************************************************************/
 TEST_F(SerializerFixture, PodcastSourceFromJson_UpdateEpisodePosition) {
     PodcastSerializer dut;
-    PodcastSourceMock psmock;
     QDateTime invalid_date;
 
     EXPECT_CALL(psmock, get_last_updated())
@@ -256,9 +258,8 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_UpdateEpisodePosition) {
 }
 
 /******************************************************************************/
-TEST(PodcastSerializer, ReadFromFileInvalidTimestamp) {
+TEST_F(SerializerFixture, ReadFromFileInvalidTimestamp) {
     PodcastSerializer dut;
-    PodcastSourceMock psmock;
     QString test_file_name("some_test_file.json");
     /* create file to read */
     QFile test_file(test_file_name);
@@ -287,9 +288,8 @@ TEST(PodcastSerializer, ReadFromFileInvalidTimestamp) {
 }
 
 /******************************************************************************/
-TEST(PodcastSerializer, ReadFromFileDocumentEmpty) {
+TEST_F(SerializerFixture, ReadFromFileDocumentEmpty) {
     PodcastSerializer dut;
-    PodcastSourceMock psmock;
     QString test_file_name("some_test_file.json");
     /* create file to read */
     QFile test_file(test_file_name);
@@ -312,7 +312,7 @@ TEST(PodcastSerializer, ReadFromFileDocumentEmpty) {
 }
 
 /******************************************************************************/
-TEST(PodcastSerializer, ReadFromFile) {
+TEST_F(SerializerFixture, ReadFromFile) {
     PodcastSerializer dut;
     QString test_file_name("some_test_file.json");
     /* create file to read */
@@ -343,7 +343,6 @@ TEST(PodcastSerializer, ReadFromFile) {
               "} \n";
     test_file.close();
 
-    PodcastSource ps;
     dut.read_from_file(&ps, test_file_name);
 
     ASSERT_EQ(ps.get_description(), QString("some fancy description"));
@@ -359,7 +358,7 @@ TEST(PodcastSerializer, ReadFromFile) {
 /******************************************************************************/
 TEST_F(SerializerFixture, FullRoundTrip) {
     PodcastSerializer dut;
-    PodcastSourceMock_episodes psmock;
+    PodcastSourceMock_episodes psmock_episodes(cache_dir);
     QString test_file_name("FullRoundTrip_test_file.json");
     QVector<std::shared_ptr<PodcastEpisode>> ep_vec;
     for (int i = 0; i < 3; i++) {
@@ -372,18 +371,18 @@ TEST_F(SerializerFixture, FullRoundTrip) {
         ep_vec.push_back(e);
     }
 
-    EXPECT_CALL(psmock, get_cache_file_impl())
+    EXPECT_CALL(psmock_episodes, get_cache_file_impl())
         .WillRepeatedly(Return(test_file_name));
-    EXPECT_CALL(psmock, get_description())
+    EXPECT_CALL(psmock_episodes, get_description())
         .Times(1)
         .WillOnce(ReturnRef(expected_desc));
-    EXPECT_CALL(psmock, get_title())
+    EXPECT_CALL(psmock_episodes, get_title())
         .Times(1)
         .WillOnce(ReturnRef(expected_title));
-    EXPECT_CALL(psmock, get_image_uri())
+    EXPECT_CALL(psmock_episodes, get_image_uri())
         .Times(1)
         .WillOnce(ReturnRef(expected_image_url));
-    EXPECT_CALL(psmock, get_episodes_impl())
+    EXPECT_CALL(psmock_episodes, get_episodes_impl())
         .Times(1)
         .WillOnce(ReturnRef(ep_vec));
 
@@ -392,9 +391,7 @@ TEST_F(SerializerFixture, FullRoundTrip) {
         .WillOnce(Return(expected_timestamp))
         .WillRepeatedly(Return(expected_timestamp.addSecs(3)));
 
-    dut.store_to_file(&psmock);
-
-    PodcastSource ps;
+    dut.store_to_file(&psmock_episodes);
     dut.read_from_file(&ps, test_file_name);
 
     ASSERT_EQ(ps.get_title(), expected_title);

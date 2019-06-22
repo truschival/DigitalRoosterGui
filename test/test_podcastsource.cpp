@@ -24,8 +24,34 @@
 using namespace DigitalRooster;
 
 /******************************************************************************/
-TEST(PodcastSource, dont_add_twice) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
+
+class PodcastSourceFixture : public virtual ::testing::Test {
+public:
+	PodcastSourceFixture()
+        : cache_dir(TEST_FILE_PATH + QDir::separator() + QString("podcast_cache")),
+		  uid(QUuid::createUuid()),
+		  ps(QUrl("https://alternativlos.org/alternativlos.rss"),cache_dir, uid){
+    }
+
+    ~PodcastSourceFixture() {
+    }
+
+    void SetUp() {
+    	cache_dir.mkpath(".");
+    }
+
+    void TearDown() {
+        cache_dir.removeRecursively();
+    }
+
+protected:
+    QDir cache_dir;
+    QUuid uid;
+    PodcastSource ps;
+};
+
+/******************************************************************************/
+TEST_F(PodcastSourceFixture, dont_add_twice) {
     auto pi =
         std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
     ps.add_episode(pi);
@@ -34,8 +60,7 @@ TEST(PodcastSource, dont_add_twice) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, add_two_with_guid) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
+TEST_F(PodcastSourceFixture, add_two_with_guid) {
     auto pi1 =
         std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
     pi1->set_guid("FooBAR");
@@ -47,8 +72,7 @@ TEST(PodcastSource, add_two_with_guid) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, add_episodeEmitsCountChanged) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
+TEST_F(PodcastSourceFixture, add_episodeEmitsCountChanged) {
     auto pi1 =
         std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
     QSignalSpy spy(&ps, SIGNAL(episodes_count_changed(int)));
@@ -63,8 +87,7 @@ TEST(PodcastSource, add_episodeEmitsCountChanged) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, get_episode_names) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
+TEST_F(PodcastSourceFixture, get_episode_names) {
     auto pi =
         std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
     ps.add_episode(pi);
@@ -74,8 +97,7 @@ TEST(PodcastSource, get_episode_names) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, getEpisodeById) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
+TEST_F(PodcastSourceFixture, getEpisodeById) {
     auto first =
         std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
     ps.add_episode(first);
@@ -96,9 +118,8 @@ TEST(PodcastSource, getEpisodeById) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, set_updater) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-    ps.set_update_task(std::make_unique<UpdateTask>());
+TEST_F(PodcastSourceFixture, set_updater) {
+   ps.set_update_task(std::make_unique<UpdateTask>());
     ps.set_update_interval(std::chrono::seconds(1));
 
     QSignalSpy spy(&ps, SIGNAL(dataChanged()));
@@ -107,13 +128,9 @@ TEST(PodcastSource, set_updater) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, getFileName) {
-    QUuid uid = QUuid::createUuid();
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"), uid);
+TEST_F(PodcastSourceFixture, getFileName) {
     auto filename = ps.get_cache_file_name();
-    QString expected_filename(
-        QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-    expected_filename += QDir::separator() + uid.toString();
+    QString expected_filename(cache_dir.filePath(uid.toString()));
 
     ASSERT_EQ(filename, expected_filename);
 }

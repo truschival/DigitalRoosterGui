@@ -43,15 +43,13 @@ class PodcastSource : public QObject {
 
 public:
     /**
-     * default constructor to allow for mocking
-     */
-    PodcastSource() = default;
-    /**
      * Preconfigured Podcast Source
      * @param url Feed URL
+     * @param cache_dir directory for cache files
      * @param uid unique id for this podcast
      */
-    explicit PodcastSource(const QUrl& url, QUuid uid = QUuid::createUuid());
+    PodcastSource(const QUrl& url, const QDir& cache_dir,
+        QUuid uid = QUuid::createUuid());
 
     /**
      * Give the Podcast source a (new) update task
@@ -77,6 +75,12 @@ public:
     virtual const QDateTime& get_last_updated() const {
         return last_updated;
     };
+
+    /**
+     * Set cache dir for saving/restoring information
+     * @param dirname path to directory (expected to exist)
+     */
+    void set_cache_dir(const QString& dirname);
 
     /**
      * cached pocast source information in this file
@@ -293,6 +297,11 @@ private:
      * Logo Image of podcast
      */
     QUrl image_uri;
+
+    /**
+     * Cache directory
+     */
+    const QDir& cache_dir;
 
     /**
      * show max_episodes in the list

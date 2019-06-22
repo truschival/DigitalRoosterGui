@@ -337,12 +337,6 @@ private:
     QString wpa_socket_name;
 
     /**
-     * Check if config directory exist, otherwise create the directory
-     * @return true if file exists and is writable
-     */
-    bool make_sure_config_path_exists() const;
-
-    /**
      * Check if config and path exist, otherwise create default config file at
      * that location
      * @return full file path to configuration file

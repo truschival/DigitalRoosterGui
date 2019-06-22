@@ -24,9 +24,10 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.PodcastSource");
 
 /*****************************************************************************/
-PodcastSource::PodcastSource(const QUrl& url, QUuid uid)
+PodcastSource::PodcastSource(const QUrl& url, const QDir& cache_dir, QUuid uid)
     : id(uid)
-    , rss_feed_uri(url) {
+    , rss_feed_uri(url)
+    , cache_dir(cache_dir) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     // read initial settings from file if it exists
     restore();
@@ -122,10 +123,7 @@ QString PodcastSource::get_cache_file_name() const {
 /*****************************************************************************/
 QString PodcastSource::get_cache_file_impl() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    QString res(
-        QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-    res = res + QDir::separator() + get_id().toString();
-    return res;
+    return cache_dir.filePath(get_id().toString());
 }
 
 /*****************************************************************************/

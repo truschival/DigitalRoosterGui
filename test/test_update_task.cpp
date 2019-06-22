@@ -20,17 +20,26 @@
 using namespace std;
 using namespace DigitalRooster;
 
-
+/*****************************************************************************/
 TEST(TestDownload, parsed) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
+    const QDir cache_dir(
+        QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+
+    PodcastSource ps(
+        QUrl("https://alternativlos.org/alternativlos.rss"), cache_dir);
     QSignalSpy spy(&ps, SIGNAL(titleChanged()));
     UpdateTask task(&ps);
     ASSERT_TRUE(spy.wait());
     ASSERT_EQ(ps.get_title(), "Alternativlos");
 }
 
+/*****************************************************************************/
 TEST(TestDownload, donotReEmitEpisodesChanged) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
+    const QDir cache_dir(
+        QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+
+    PodcastSource ps(
+        QUrl("https://alternativlos.org/alternativlos.rss"), cache_dir);
     QSignalSpy spy(&ps, SIGNAL(titleChanged()));
     UpdateTask task(&ps);
     spy.wait(1000);
@@ -41,4 +50,3 @@ TEST(TestDownload, donotReEmitEpisodesChanged) {
     ASSERT_EQ(spy2.count(), 0);
     ASSERT_EQ(ps.get_title(), "Alternativlos");
 }
-
