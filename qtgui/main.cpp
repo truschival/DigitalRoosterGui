@@ -15,6 +15,7 @@
 #define QT_QML_DEBUG
 #endif
 
+#include <QCommandLineParser>
 #include <QDebug>
 #include <QFontDatabase>
 #include <QGuiApplication>
@@ -64,38 +65,60 @@ int main(int argc, char* argv[]) {
     QCoreApplication::setApplicationName(APPLICATION_NAME);
     QCoreApplication::setApplicationVersion(PROJECT_VERSION);
 
-    std::cout << APPLICATION_NAME.toStdString().c_str() << " - "
-              << GIT_REVISION.toStdString().c_str() << "\n logging to: ";
-    std::cout << QString(QStandardPaths::writableLocation(
-                             QStandardPaths::TempLocation) +
-                     "/Digitalrooster.log")
-                     .toStdString()
-                     .c_str()
-              << std::endl;
+    // Default configuration values
+    QString config_file_path =
+        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) +
+        QDir::separator() + CONFIG_JSON_FILE_NAME;
+    QString cache_dir_path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
 
+    /*
+     * Setup Commandline Parser
+     */
+    QCommandLineParser cmdline;
+    QCommandLineOption logfile({"l", "logfile"},
+        QString("application log <file> (default: stdout)"),
+        QString("logfile"));
+    QCommandLineOption confpath({"c", "confpath"},
+        QString("configuration file path (default: ") + config_file_path,
+        QString("confpath"), config_file_path);
+    QCommandLineOption cachedir({"d", "cachedir"},
+        QString("application cache <directory> (default: ") + cache_dir_path,
+        QString("cachedir"), cache_dir_path);
+
+    cmdline.addOption(confpath);
+    cmdline.addOption(logfile);
+    cmdline.addOption(cachedir);
+    cmdline.addHelpOption();
+    cmdline.addVersionOption();
+    cmdline.process(app);
+
+    std::cout << "confpath: " << cmdline.value(confpath).toStdString().c_str()
+                  << std::endl;
+    std::cout << "cachedir: " << cmdline.value(cachedir).toStdString().c_str()
+              << std::endl;
+    std::cout << "Logfile: " << cmdline.value(logfile).toStdString().c_str()
+              << std::endl;
+    /*
+     * Setup Logger
+     */
     Logger logfacility;
+    qCInfo(MAIN) << APPLICATION_NAME << " - " << GIT_REVISION;
     qCDebug(MAIN) << "SSL Support: " << QSslSocket::supportsSsl()
                   << QSslSocket::sslLibraryVersionString();
 
-    // Initialize Hardware (or call stubs)
+    /*
+     *  Initialize Hardware (or call stubs)
+     */
     ::setup_hardware();
 
-    qmlRegisterType<PodcastEpisodeModel>(
-        "ruschi.PodcastEpisodeModel", 1, 0, "PodcastEpisodeModel");
-    qmlRegisterType<DigitalRooster::PodcastEpisode>(
-        "ruschi.PodcastEpisode", 1, 0, "PodcastEpisode");
-    qmlRegisterType<DigitalRooster::Alarm>("ruschi.Alarm", 1, 0, "Alarm");
-    qmlRegisterType<DigitalRooster::IRadioListModel>(
-        "ruschi.IRadioListModel", 1, 0, "IRadioListModel");
-    qmlRegisterType<DigitalRooster::PlayableItem>(
-        "ruschi.PlayableItem", 1, 0, "PlayableItem");
-    qmlRegisterType<DigitalRooster::WifiListModel>(
-        "ruschi.WifiListModel", 1, 0, "WifiListModel");
-
-
-    /*Get available Podcasts */
-    auto cm = std::make_shared<ConfigurationManager>();
+    /*
+     * Read configuration
+     */
+    auto cm = std::make_shared<ConfigurationManager>(
+        cmdline.value(confpath), cmdline.value(cachedir));
     cm->update_configuration();
+
+    // Initialize Player
     auto playerproxy = std::make_shared<MediaPlayerProxy>();
     playerproxy->set_volume(cm->get_volume());
 
@@ -145,6 +168,7 @@ int main(int argc, char* argv[]) {
     VolumeButton volbtn(cm.get());
     QObject::connect(
         &volbtn, SIGNAL(button_released()), &power, SLOT(toggle_power_state()));
+
     QObject::connect(&volbtn, SIGNAL(volume_incremented(int)),
         playerproxy.get(), SLOT(increment_volume(int)));
 
@@ -156,6 +180,21 @@ int main(int argc, char* argv[]) {
 
     /* we start in standby */
     power.standby();
+
+    /*
+     * QML Setup
+     */
+    qmlRegisterType<PodcastEpisodeModel>(
+        "ruschi.PodcastEpisodeModel", 1, 0, "PodcastEpisodeModel");
+    qmlRegisterType<DigitalRooster::PodcastEpisode>(
+        "ruschi.PodcastEpisode", 1, 0, "PodcastEpisode");
+    qmlRegisterType<DigitalRooster::Alarm>("ruschi.Alarm", 1, 0, "Alarm");
+    qmlRegisterType<DigitalRooster::IRadioListModel>(
+        "ruschi.IRadioListModel", 1, 0, "IRadioListModel");
+    qmlRegisterType<DigitalRooster::PlayableItem>(
+        "ruschi.PlayableItem", 1, 0, "PlayableItem");
+    qmlRegisterType<DigitalRooster::WifiListModel>(
+        "ruschi.WifiListModel", 1, 0, "WifiListModel");
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();

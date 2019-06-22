@@ -29,23 +29,75 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
 
 /*****************************************************************************/
-ConfigurationManager::ConfigurationManager(const QString& configdir)
+bool DigitalRooster::is_writable_directory(const QString& dirname) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    QFileInfo file_info(dirname);
+    if (file_info.isDir() && file_info.isWritable()) {
+        return true;
+    }
+    return false;
+}
+
+/*****************************************************************************/
+bool DigitalRooster::create_writable_directory(const QString& dirname) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    QFileInfo file_info(dirname);
+    auto path = QDir(file_info.dir());
+    path.mkpath(dirname);
+    return is_writable_directory(dirname);
+}
+
+/*****************************************************************************/
+ConfigurationManager::ConfigurationManager(
+    const QString& configpath, const QString& cachedir)
     : global_alarm_timeout(DEFAULT_ALARM_TIMEOUT)
     , sleep_timeout(DEFAULT_SLEEP_TIMEOUT)
     , volume(DEFAULT_VOLUME)
     , brightness_sb(DEFAULT_BRIGHTNESS)
     , brightness_act(DEFAULT_BRIGHTNESS)
-    , config_dir(configdir)
+    , config_file(configpath)
+    , application_cache_dir(cachedir)
     , wpa_socket_name(WPA_CONTROL_SOCKET_PATH) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+
+    /*
+     * check if the cache directory exists and is writable or if it can be
+     * created
+     */
+    if (!is_writable_directory(cachedir) &&
+        !create_writable_directory(cachedir)) {
+        qCWarning(CLASS_LC)
+            << "Failed using " << get_cache_dir_name()
+            << "as cache using default:"
+            << QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
+        application_cache_dir.setPath(
+            QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+        QDir().mkpath(
+            QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+    }
+
+
+    // Check or create config dir
+    QFileInfo config_file_info(configpath);
+    QString config_dir = config_file_info.dir().absolutePath();
+    if (!is_writable_directory(config_dir) &&
+        !create_writable_directory(config_dir)) {
+        config_file = QStandardPaths::writableLocation(
+                          QStandardPaths::AppConfigLocation) +
+            "/" + CONFIG_JSON_FILE_NAME;
+        qCWarning(CLASS_LC)
+            << "directory of config file does not exist or is not writable"
+            << "using default path" << config_file;
+        QDir().mkpath(QStandardPaths::writableLocation(
+            QStandardPaths::AppConfigLocation));
+    }
+
+    auto path = check_and_create_config();
+    filewatcher.addPath(path);
 
     writeTimer.setInterval(std::chrono::seconds(5));
     writeTimer.setSingleShot(true);
     connect(&writeTimer, SIGNAL(timeout()), this, SLOT(store_current_config()));
-    // open or create configuration
-    make_sure_config_path_exists();
-    auto path = check_and_create_config();
-    filewatcher.addPath(path);
     // store connection to disconnect during write_config_file
     fwConn = connect(&filewatcher, &QFileSystemWatcher::fileChanged, this,
         &ConfigurationManager::fileChanged);
@@ -308,12 +360,12 @@ void ConfigurationManager::set_standby_brightness(int brightness) {
 
 /*****************************************************************************/
 void ConfigurationManager::set_active_brightness(int brightness) {
-	qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
-	return do_set_brightness_act(brightness);
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
+    return do_set_brightness_act(brightness);
 }
 
 /*****************************************************************************/
-void ConfigurationManager::do_set_brightness_act(int brightness){
+void ConfigurationManager::do_set_brightness_act(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
     if (brightness >= 0 && brightness <= 100) {
         this->brightness_act = brightness;
@@ -459,21 +511,31 @@ void ConfigurationManager::create_default_configuration() {
 }
 
 /*****************************************************************************/
-QDir ConfigurationManager::make_sure_config_path_exists() const {
+bool ConfigurationManager::make_sure_config_path_exists() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (!config_dir.mkpath(".")) {
-        qCCritical(CLASS_LC) << "Cannot create configuration path!";
-        throw std::system_error(
-            make_error_code(std::errc::no_such_file_or_directory),
-            "Cannot create configuration path!");
+    QFileInfo file_info(config_file);
+    auto path = QDir(file_info.dir());
+    if (file_info.exists() && file_info.isWritable()) {
+        return true;
     }
-    return config_dir;
+
+    if (!path.exists()) {
+        qCInfo(CLASS_LC) << " Creating config dir" << path.absolutePath();
+        if (!path.mkpath(path.absolutePath())) {
+            qCCritical(CLASS_LC) << "Cannot create configuration path!";
+            throw std::system_error(
+                make_error_code(std::errc::no_such_file_or_directory),
+                "Cannot create configuration path!");
+        }
+    }
+
+    return true;
 }
 
 /*****************************************************************************/
 QString ConfigurationManager::get_configuration_path() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return config_dir.filePath(CONFIG_JSON_FILE_NAME);
+    return config_file;
 }
 
 /*****************************************************************************/
@@ -538,4 +600,9 @@ void ConfigurationManager::set_sleep_timeout(std::chrono::minutes timeout) {
 }
 
 /*****************************************************************************/
+QString ConfigurationManager::get_cache_dir_name() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    return application_cache_dir.path();
+}
 
+/*****************************************************************************/

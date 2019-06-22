@@ -11,22 +11,28 @@
  *****************************************************************************/
 
 #include <QTime>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+#include <QString>
 #include <memory>
 
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
+#include "appconstants.hpp"
 #include "configuration_manager.hpp"
 
 class CmMock : public DigitalRooster::ConfigurationManager {
 public:
-    CmMock() {
+    CmMock(const QString& configpath = QString(DigitalRooster::TEST_FILE_PATH +
+               "/" + DigitalRooster::CONFIG_JSON_FILE_NAME),
+        const QString& cachedir = QString(
+            DigitalRooster::TEST_FILE_PATH + "/" + "cache"))
+        : ConfigurationManager(configpath, cachedir) {
         qRegisterMetaType<std::shared_ptr<DigitalRooster::Alarm>>(
             "std::shared_ptr<DigitalRooster::Alarm>");
 
         weather_cfg.cityid = "2172797"; // Cairns, AU
         weather_cfg.language = "de";
         weather_cfg.units = "metric";
-
     };
     MOCK_METHOD0(
         get_alarm_list, QVector<std::shared_ptr<DigitalRooster::Alarm>>&());
