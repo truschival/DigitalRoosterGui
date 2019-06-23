@@ -34,7 +34,7 @@ public:
      * Constructor
      * @param confman configuration
      */
-    BrightnessControl(std::shared_ptr<ConfigurationManager> confman);
+    explicit BrightnessControl(std::shared_ptr<ConfigurationManager> confman);
     ~BrightnessControl() = default;
 
     /**
