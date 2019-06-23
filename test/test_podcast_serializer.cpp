@@ -39,7 +39,7 @@ public:
     MOCK_CONST_METHOD0(get_cache_file_impl, QString());
     MOCK_CONST_METHOD0(get_description, const QString&());
     MOCK_CONST_METHOD0(get_title, const QString&());
-    MOCK_CONST_METHOD0(get_image_uri, const QUrl&());
+    MOCK_CONST_METHOD0(get_image_url, const QUrl&());
     MOCK_CONST_METHOD0(get_last_updated, const QDateTime&());
 
     const QString& get_title_nonmock() const {
@@ -61,8 +61,7 @@ public:
 class SerializerFixture : public ::testing::Test {
 public:
     SerializerFixture()
-        : cache_dir(
-              TEST_FILE_PATH + QDir::separator() + QString("podcast_cache"))
+        : cache_dir(DEFAULT_CACHE_DIR_PATH)
         , psmock(cache_dir)
         , ps(QUrl(), cache_dir){};
 
@@ -137,7 +136,7 @@ TEST_F(SerializerFixture, PodcastSourceSerialization) {
     EXPECT_CALL(psmock, get_title())
         .Times(1)
         .WillOnce(ReturnRef(expected_title));
-    EXPECT_CALL(psmock, get_image_uri())
+    EXPECT_CALL(psmock, get_image_url())
         .Times(1)
         .WillOnce(ReturnRef(expected_image_url));
     EXPECT_CALL(*(mc.get()), get_time())
@@ -149,7 +148,7 @@ TEST_F(SerializerFixture, PodcastSourceSerialization) {
     ASSERT_EQ(
         json_obj[KEY_TIMESTAMP].toString(), expected_timestamp.toString());
     ASSERT_EQ(
-        json_obj[KEY_IMAGE_PATH].toString(), expected_image_url.toString());
+        json_obj[KEY_ICON_URL].toString(), expected_image_url.toString());
     ASSERT_EQ(json_obj[KEY_TITLE].toString(), expected_title);
 }
 
@@ -322,7 +321,8 @@ TEST_F(SerializerFixture, ReadFromFile) {
     stream << "{ \n"
               " \"title\": \"foo\", \n"
               " \"description\": \"some fancy description\", \n"
-              " \"image\": \"/foo/bar/baz.jpg\",\n"
+              " \"icon-cached\": \"/foo/bar/baz.jpg\",\n"
+    		  " \"icon\": \"http://some.remote.com/baz.jpg\",\n"
               " \"timestamp\": \"Fr Feb 15 14:21:57 2019\", \n"
               " \"Episodes\": [ \n"
               "   { \n"
@@ -347,7 +347,8 @@ TEST_F(SerializerFixture, ReadFromFile) {
 
     ASSERT_EQ(ps.get_description(), QString("some fancy description"));
     ASSERT_EQ(ps.get_title(), QString("foo"));
-    ASSERT_EQ(ps.get_image_uri(), QUrl("/foo/bar/baz.jpg"));
+    ASSERT_EQ(ps.get_image_url(), QUrl("http://some.remote.com/baz.jpg"));
+    ASSERT_EQ(ps.get_image_file_path(),QString("/foo/bar/baz.jpg"));
     ASSERT_EQ(ps.get_episode_count(), 2);
     auto ep = ps.get_episode_by_id("ZZ-XX-ABV");
     ASSERT_TRUE(ep);
@@ -379,7 +380,7 @@ TEST_F(SerializerFixture, FullRoundTrip) {
     EXPECT_CALL(psmock_episodes, get_title())
         .Times(1)
         .WillOnce(ReturnRef(expected_title));
-    EXPECT_CALL(psmock_episodes, get_image_uri())
+    EXPECT_CALL(psmock_episodes, get_image_url())
         .Times(1)
         .WillOnce(ReturnRef(expected_image_url));
     EXPECT_CALL(psmock_episodes, get_episodes_impl())
