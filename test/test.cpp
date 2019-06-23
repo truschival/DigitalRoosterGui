@@ -15,6 +15,8 @@
 #include <QObject>
 #include <QTimer>
 #include <QLoggingCategory>
+#include <QStandardPaths>
+
 #include "logger.hpp"
 #include "timeprovider.hpp"
 #include <memory>
@@ -28,7 +30,7 @@ std::shared_ptr<DigitalRooster::TimeProvider> DigitalRooster::wallclock =
 
 int main(int argc, char **argv) {
 	QCoreApplication app(argc, argv);
-	DigitalRooster::Logger logfacility(
+	DigitalRooster::setup_logger_file(
 			QStandardPaths::writableLocation(QStandardPaths::TempLocation)
 					+ "/Digitalrooster_tests.log");
 

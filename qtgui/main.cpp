@@ -97,15 +97,14 @@ int main(int argc, char* argv[]) {
     cmdline.addVersionOption();
     cmdline.process(app);
     /*
-     * Setup Logger
-     * TODO: there is no need for Logger to be a class...
+     * Setup Logfacility
      */
     if (cmdline.isSet(logstdout)) {
-        Logger logfacility(); // Write log to stdout
+        setup_logger_stdout(); // Write log to stdout
     } else if (cmdline.isSet(logfile)) {
-        Logger logfacility(cmdline.value(logfile));
+        setup_logger_file(cmdline.value(logfile));
     } else { // Default behavour as before
-        Logger logfacility(
+        setup_logger_file(
             QStandardPaths::writableLocation(QStandardPaths::TempLocation) +
             "/Digitalrooster.log");
     }
