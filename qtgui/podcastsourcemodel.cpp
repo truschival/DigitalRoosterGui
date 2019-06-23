@@ -94,7 +94,7 @@ QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
     case DescriptionRole:
         return ps->get_description();
     case ImageRole:
-        return ps->get_image_uri();
+        return ps->get_icon();
     }
     return QVariant();
 }

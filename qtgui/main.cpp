@@ -74,7 +74,8 @@ const QString DigitalRooster::DEFAULT_CONFIG_FILE_PATH(
  * Cache directory
  */
 const QString DigitalRooster::DEFAULT_CACHE_DIR_PATH(
-    QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+    QDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation))
+        .filePath(APPLICATION_NAME));
 
 /**
  * Global wall clock
