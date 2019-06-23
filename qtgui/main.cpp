@@ -52,6 +52,30 @@ using namespace DigitalRooster;
 Q_DECLARE_LOGGING_CATEGORY(MAIN)
 Q_LOGGING_CATEGORY(MAIN, "DigitalRooster.main")
 
+
+/*****************************************************************************
+ * Application constants
+ ****************************************************************************/
+/**
+ * Log file path
+ */
+const QString DigitalRooster::DEFAULT_LOG_PATH(
+    QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
+        .filePath(APPLICATION_NAME + ".log"));
+
+/**
+ * Default configuration file path
+ */
+const QString DigitalRooster::DEFAULT_CONFIG_FILE_PATH(
+    QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation))
+        .filePath(CONFIG_JSON_FILE_NAME));
+
+/**
+ * Cache directory
+ */
+const QString DigitalRooster::DEFAULT_CACHE_DIR_PATH(
+    QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+
 /**
  * Global wall clock
  */
@@ -65,29 +89,23 @@ int main(int argc, char* argv[]) {
     QCoreApplication::setApplicationName(APPLICATION_NAME);
     QCoreApplication::setApplicationVersion(PROJECT_VERSION);
 
-    // Default configuration values
-    QString config_file_path =
-        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) +
-        QDir::separator() + CONFIG_JSON_FILE_NAME;
-    QString cache_dir_path =
-        QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
-
     /*
      * Setup Commandline Parser
      */
     QCommandLineParser cmdline;
-    QCommandLineOption logstdout({"s", "stdout"},
-            QString("log to stdout"));
+    QCommandLineOption logstdout({"s", "stdout"}, QString("log to stdout"));
     QCommandLineOption logfile({"l", "logfile"},
         QString("application log <file>"), // description
-        QString("logfile")				   // value name
-		);
+        QString("logfile")                 // value name
+    );
     QCommandLineOption confpath({"c", "confpath"},
-        QString("configuration file path (default: ") + config_file_path,
-        QString("confpath"), config_file_path);
+        QString("configuration file path (default: ") +
+            DEFAULT_CONFIG_FILE_PATH,
+        QString("confpath"), DEFAULT_CONFIG_FILE_PATH);
     QCommandLineOption cachedir({"d", "cachedir"},
-        QString("application cache <directory> (default: ") + cache_dir_path,
-        QString("cachedir"), cache_dir_path);
+        QString("application cache <directory> (default: ") +
+            DEFAULT_CACHE_DIR_PATH,
+        QString("cachedir"), DEFAULT_CACHE_DIR_PATH);
 
     cmdline.addOption(logstdout);
     cmdline.addOption(confpath);
@@ -104,9 +122,7 @@ int main(int argc, char* argv[]) {
     } else if (cmdline.isSet(logfile)) {
         setup_logger_file(cmdline.value(logfile));
     } else { // Default behavour as before
-        setup_logger_file(
-            QStandardPaths::writableLocation(QStandardPaths::TempLocation) +
-            "/Digitalrooster.log");
+        setup_logger_file(DEFAULT_LOG_PATH);
     }
     qCInfo(MAIN) << "confpath: " << cmdline.value(confpath);
     qCInfo(MAIN) << "cachedir: " << cmdline.value(cachedir);

@@ -50,7 +50,7 @@ endif(UNIX)
 
 SET(SYSTEM_TARGET_NAME "Host"
   CACHE STRING "Target: {Host|Rpi}")
-SET(SETTINGS_FILE_NAME "digitalrooster.json"
+SET(SETTINGS_FILE_NAME "${CMAKE_PROJECT_NAME}.json"
   CACHE STRING "application configuration file name")
 SET(WIFI_INTERFACE "/var/run/wpa_supplicant/wlp2s0"
   CACHE STRING "wpa_supplicant interface contrl socket path")

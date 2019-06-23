@@ -66,14 +66,10 @@ ConfigurationManager::ConfigurationManager(
      */
     if (!is_writable_directory(cachedir) &&
         !create_writable_directory(cachedir)) {
-        qCWarning(CLASS_LC)
-            << "Failed using " << get_cache_dir_name()
-            << "as cache using default:"
-            << QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
-        application_cache_dir.setPath(
-            QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-        QDir().mkpath(
-            QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
+        qCWarning(CLASS_LC) << "Failed using " << get_cache_dir_name()
+                            << "as cache using default:" << DEFAULT_CACHE_DIR_PATH;
+        application_cache_dir.setPath(DEFAULT_CACHE_DIR_PATH);
+        QDir().mkpath(DEFAULT_CACHE_DIR_PATH);
     }
 
 
@@ -82,14 +78,10 @@ ConfigurationManager::ConfigurationManager(
     QString config_dir = config_file_info.dir().absolutePath();
     if (!is_writable_directory(config_dir) &&
         !create_writable_directory(config_dir)) {
-        config_file = QStandardPaths::writableLocation(
-                          QStandardPaths::AppConfigLocation) +
-            "/" + CONFIG_JSON_FILE_NAME;
+        config_file = DEFAULT_CONFIG_FILE_PATH;
         qCWarning(CLASS_LC)
             << "directory of config file does not exist or is not writable"
             << "using default path" << config_file;
-        QDir().mkpath(QStandardPaths::writableLocation(
-            QStandardPaths::AppConfigLocation));
     }
 
     auto path = check_and_create_config();
