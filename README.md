@@ -46,9 +46,9 @@ Copyright (c) 2002-2018, Jouni Malinen <j@w1.fi> and contributors licensed under
 All license details can be found in the file LICENSE
 
 -----
-## Build configuration
+# Build configuration
 
-### Options & Defaults (compilation flags & targets):
+## Options & Defaults (compilation flags & targets):
 
 - `-DBUILD_TESTS=On`           build unit tests
 - `-DBUILD_GTEST_FROM_SRC=On`  download GoogleTest and build it from source
@@ -62,15 +62,15 @@ Slightly useless configurations
 - `-DSETTINGS_FILE_PATH=...` Where to find configuration file
 
 
-### Native build for GNU/Linux and Windows
+## Native build for GNU/Linux and Windows
 
-DigitalRooster requires OpenSSL and QT5.10 to run. For the build a C++14
-Compiler, cmake-3.9 are required.
+DigitalRooster requires OpenSSL >1.0.2 and QT 5.10 to run. For the build a C++14
+Compiler, cmake-3.10 are required.
 
 The build was tested with QT5.10 Open Source license with Visual Studio 2017
 Community on Windows 7 and Windows 10.
 
-#### Linux prerequisites
+### Linux prerequisites
 
 QT5.10 is included in Debian Buster or later. Ubuntu should also work.
 
@@ -168,9 +168,22 @@ configure and build DigitalRooster.
 
 -------
 
-## Runtime configuration
+# Runtime configuration
 
-### Podcast, Streams and Alarms
+## Command line options
+
+DigitalRooster accepts some command line arguments to configure its runtime behaviour.
+
+- `-s, --stdout`                 log to stdout
+- `-c, --confpath <confpath>`  configuration file path see [Configuration file](#configuration-file)
+- `-l, --logfile <logfile> `   application log <file> see [Log file](#logging-configuration)
+- `-d, --cachedir <cachedir>`  application cache <directory>
+- `-h, --help`                   Displays this help.
+- `-v, --version`                Displays version information.
+
+
+
+## Configuration file
 
 Digitalrooster runs from any directory and generates on the first start a default configuration is generated if no config is found.
 
@@ -180,7 +193,7 @@ i.e.:
 - On Linux :  `~/.config/DigitalRooster/digitalrooster.json`
 - On Windows:  `%LOCALAPPDATA%/DigitalRooster/digitalrooster.json`
 
-#### Global configuration and common properties of objects:
+### Global configuration and common properties of objects:
 -  `id` of the objects is auto generated if not present.
 -  `name` is updated according to infromation form RSS (for podcasts) or shoutcast information for radio streams (if available)
 -  `AlarmTimeout` time in minutes an alarm should play until it is automatically stopped.
@@ -191,7 +204,7 @@ i.e.:
 -  `Version` project version for this config file (upgrades and backward compatibility not yet implemented)
 -  `SleepTimeout` time in minutes after which standby is activated (not yet implemented)
 
-#### Alarm objects:
+### Alarm objects:
 `Alarms` is an array of alarm objects.
 - `id` unique identifier - auto generated if not present
 - `enabled` enabled/disables triggering of alarm
@@ -202,24 +215,24 @@ i.e.:
 
 If an alarm is triggered and the stream source is unavailable or has errors a fallback sound will be played.
 
-#### Podcast Source objects:
+### Podcast Source objects:
 `Podcasts` is an array containing individual RSS sources for podcasts. The only mandatory property is `uri` others are optional:
 - `id` unique identifier - auto generated if not present
 - `name` human readable identifier, updated according to RSS XML
 - `uri` RSS uri
 
-#### Internet Stream objects:
+### Internet Stream objects:
 `InternetRadio` is an array containing individual stream source configurations. The only mandatory property is `uri` others are optional:
 - `id` unique identifier - auto generated if not present
 - `name` human readable identifier, updated according to shoutcast information when played (if available)
 - `uri` stream uri
 
-#### Weather:
+### Weather:
 The `Weather` object configures the displayed weather information form [openweathermap.org](https://api.openweathermap.org)
 - `LocationID` identifier for the geographic location, see [http://bulk.openweathermap.org/sample/city.list.json.gz](http://bulk.openweathermap.org/sample/city.list.json.gz) e.g. Esslingen: `"LocationID" = "2928751"` or Porto Alegre: `"LocationID" = "3452925"`
 - `API-Key` access token to the openweather api
 
-#### Example configuration file
+### Example configuration file
 ```
 {
     "AlarmTimeout": 15,
@@ -283,20 +296,21 @@ The `Weather` object configures the displayed weather information form [openweat
 
 ```
 
-### Logging configuration
+## Logging configuration
 
 Digitalrooster supports dynamic logging configuration using
 [QLoggingCategory](http://doc.qt.io/qt-5/qloggingcategory.html) i.e.:
 - On Linux:   `~/.config/QtProject/qtlogging.ini`
 - On Windows: `%LOCALAPPDATA%/Temp/Digitalrooster.log`
 
-The runtime log file is created in
+You can specify the log file using the `-l ` [command line option](#command-line-options).
+The default runtime logfile is created in:
 `QStandardPaths::TempLocation/Digitalrooster.log` i.e.:
 - On Linux:   `/tmp/Digitalrooster.log`
 - On Windows: `%LOCALAPPDATA%/Temp/Digitalrooster.log`
 
 
-#### Logging example configuration
+### Logging example configuration
 
 All debug messages except for `HttpClient` and `AlarmMonitor` are disabled
 
