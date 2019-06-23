@@ -7,7 +7,6 @@
 
 Internet radio, podcast player and alarmclock. Intended to run on embedded Linux with a small touch display. Microsoft Windows and Desktop GNU/Linux systems are supported for development.
 
-
 ![DigitalRooster on hardware](./documentation/figs/Demo_on_hardware.jpg)
 
 ## Some Screenshots
@@ -50,16 +49,19 @@ All license details can be found in the file LICENSE
 
 ### Options & Defaults (compilation flags & targets)
 
-- `-DBUILD_TESTS=On`           build unit tests
-- `-DBUILD_GTEST_FROM_SRC=On`  download GoogleTest and build it from source
+-   `-DBUILD_TESTS=On`           build unit tests
+
+-   `-DBUILD_GTEST_FROM_SRC=On`  download GoogleTest and build it from source
                                   (`OFF` requires gtest as external project)
-- `-DTEST_COVERAGE=Off`        code coverage
-- `-DPROFILING=On`             profiling build for Visual Studio
+                                  
+-   `-DTEST_COVERAGE=Off`        code coverage
+
+-   `-DPROFILING=On`              profiling build for Visual Studio
 
 Slightly useless configurations
 
-- `-DSETTINGS_FILE_NAME=...` Filename of settings default=`digitalrooster.json`
-- `-DSETTINGS_FILE_PATH=...` Where to find configuration file
+-   `-DSETTINGS_FILE_NAME=...` Filename of settings default=`digitalrooster.json`
+-   `-DSETTINGS_FILE_PATH=...` Where to find configuration file
 
 ### Native build for GNU/Linux and Windows
 
@@ -73,7 +75,7 @@ Community on Windows 7 and Windows 10.
 
 QT5.10 is included in Debian Buster or later. Ubuntu should also work.
 
-1. Setup the basic development environment.
+1.Setup the basic development environment.
 
     ```sh
     apt-get install -y \
@@ -85,13 +87,13 @@ QT5.10 is included in Debian Buster or later. Ubuntu should also work.
 		libssl-dev uuid-dev
     ```
 
-2. Install QT5 development libraries
+2.Install QT5 development libraries
 
     ```sh
 	apt-get install -y \
-		qt5-default qtbase5-dev-tools \
-		qtdeclarative5-dev qtmultimedia5-dev \
-		qtquickcontrols2-5-dev qtdeclarative5-dev-tools
+	   qt5-default qtbase5-dev-tools \
+	   qtdeclarative5-dev qtmultimedia5-dev \
+	   qtquickcontrols2-5-dev qtdeclarative5-dev-tools
     ```
 
 #### Docker container for build
@@ -110,13 +112,12 @@ call](https://github.com/docker/for-linux/issues/208) which is used by the QT
 buildtools during MOC generation.  A workaround is to start the docker container
 in privileged mode using `--privileged`.
 
-
 #### Build Steps (on Linux)
 
 The following commands will checkout the sources to `/tmp/checkout/`, create a build directory in '/tmp/build/'
 configure and build DigitalRooster.
 
-1. Setup directories and checkout
+1.Setup directories and checkout
    
     ```sh
     export SRC_DIR=/tmp/checkout
@@ -124,7 +125,7 @@ configure and build DigitalRooster.
     git clone https://github.com/truschival/DigitalRoosterGui.git $SRC_DIR
     ```
 
-2. Configuration
+2.Configuration
 
     ```sh
     cmake -G "Eclipse CDT4 - Unix Makefiles"  \
@@ -137,33 +138,35 @@ configure and build DigitalRooster.
     -DTEST_COVERAGE=On
     ```
 
-3. Build
+3.Build
 
-    ```
+    ```sh
     cmake --build $BUILD_DIR
     ```
 
 #### Optional post build steps
 
-1. Run Tests
-
+1.Run Tests
     The tests must be executed in the build directory.
-    ```
+  
+    ```sh
     cd $BUILD_DIR
     bin/DigitalRooster_gtest
     ```
+    
     or with lcov coverage output as HTML:
+   
     ```
     cmake --build $BUILD_DIR --target DigitalRooster_gtest_coverage
     ```
 
-2. Create Doxygen documentation (if Doxygen is installed)
+2.Create Doxygen documentation (if Doxygen is installed)
     
-    ```sh
-	cmake --build $BUILD_DIR --target DOC
-    ```
+   ```sh
+   cmake --build $BUILD_DIR --target DOC
+   ```
 
-3. Packaging (optional)
+3.Packaging (optional)
     
     ```sh
     cd $BUILD_DIR
@@ -178,14 +181,12 @@ configure and build DigitalRooster.
 
 DigitalRooster accepts some command line arguments to configure its runtime behaviour.
 
-- `-s, --stdout`                 log to stdout
-- `-c, --confpath <confpath>`  configuration file path see [Configuration file](#configuration-file)
-- `-l, --logfile <logfile> `   application log <file> see [Log file](#logging-configuration)
-- `-d, --cachedir <cachedir>`  application cache <directory>
-- `-h, --help`                   Displays this help.
-- `-v, --version`                Displays version information.
-
-
+-   `-s, --stdout`                 log to stdout
+-   `-c, --confpath <confpath>`  configuration file path see [Configuration file](#configuration-file)
+-   `-l, --logfile <logfile> `   application log <file> see [Log file](#logging-configuration)
+-   `-d, --cachedir <cachedir>`  application cache <directory>
+-   `-h, --help`                   Displays this help.
+-   `-v, --version`                Displays version information.
 
 ### Configuration file
 
@@ -195,50 +196,51 @@ is generated if no config is found.
 The configuration path is derived from
 [QStandardPaths::ConfigLocation](http://doc.qt.io/qt-5/qstandardpaths.html)
 i.e.:
-- On Linux :  `~/.config/DigitalRooster/digitalrooster.json`
-- On Windows:  `%LOCALAPPDATA%/DigitalRooster/digitalrooster.json`
+-   On Linux :  `~/.config/DigitalRooster/digitalrooster.json`
+-   On Windows:  `%LOCALAPPDATA%/DigitalRooster/digitalrooster.json`
 
 #### Global configuration and common properties of objects
--  `id` of the objects is auto generated if not present.
--  `name` is updated according to infromation form RSS (for podcasts) or shoutcast information for radio streams (if available)
--  `AlarmTimeout` time in minutes an alarm should play until it is automatically stopped.
--  `SleepTimeout` is not yet implemented.
--  `brightnessActive` is the display background when active (0-100%)
--  `brightnessStandby` is the display background in standby mode (0-100%)
--  `volume` is the default volume
--  `Version` project version for this config file (upgrades and backward compatibility not yet implemented)
--  `SleepTimeout` time in minutes after which standby is activated (not yet implemented)
+-   `id` of the objects is auto generated if not present.
+-   `name` is updated according to infromation form RSS (for podcasts) or shoutcast information for radio streams (if available)
+-   `AlarmTimeout` time in minutes an alarm should play until it is automatically stopped.
+-   `SleepTimeout` is not yet implemented.
+-   `brightnessActive` is the display background when active (0-100%)
+-   `brightnessStandby` is the display background in standby mode (0-100%)
+-   `volume` is the default volume
+-   `Version` project version for this config file (upgrades and backward compatibility not yet implemented)
+-   `SleepTimeout` time in minutes after which standby is activated (not yet implemented)
 
 #### Alarm objects
 `Alarms` is an array of alarm objects.
-- `id` unique identifier - auto generated if not present
-- `enabled` enabled/disables triggering of alarm
-- `uri` stream uri to play for this alarm
-- `time` Time of day when to trigger the alarm
-- `period` frequency when to trigger alarm. Possible values are `workdays`, `weekend`, `daily`
-- `volume` volume to set for playing alarm
+-   `id` unique identifier - auto generated if not present
+-   `enabled` enabled/disables triggering of alarm
+-   `uri` stream uri to play for this alarm
+-   `time` Time of day when to trigger the alarm
+-   `period` frequency when to trigger alarm. Possible values are `workdays`, `weekend`, `daily`
+-   `volume` volume to set for playing alarm
 
 If an alarm is triggered and the stream source is unavailable or has errors a fallback sound will be played.
 
 #### Podcast Source objects
 `Podcasts` is an array containing individual RSS sources for podcasts. The only mandatory property is `uri` others are optional:
-- `id` unique identifier - auto generated if not present
-- `name` human readable identifier, updated according to RSS XML
-- `uri` RSS uri
+-   `id` unique identifier - auto generated if not present
+-   `name` human readable identifier, updated according to RSS XML
+-   `uri` RSS uri
 
 #### Internet Stream objects
 `InternetRadio` is an array containing individual stream source configurations. The only mandatory property is `uri` others are optional:
-- `id` unique identifier - auto generated if not present
-- `name` human readable identifier, updated according to shoutcast information when played (if available)
-- `uri` stream uri
+-   `id` unique identifier - auto generated if not present
+-   `name` human readable identifier, updated according to shoutcast information when played (if available)
+-   `uri` stream uri
 
 #### Weather
 The `Weather` object configures the displayed weather information form [openweathermap.org](https://api.openweathermap.org)
-- `LocationID` identifier for the geographic location, see [http://bulk.openweathermap.org/sample/city.list.json.gz](http://bulk.openweathermap.org/sample/city.list.json.gz) e.g. Esslingen: `"LocationID" = "2928751"` or Porto Alegre: `"LocationID" = "3452925"`
-- `API-Key` access token to the openweather api
+
+-   `LocationID` identifier for the geographic location, see [http://bulk.openweathermap.org/sample/city.list.json.gz](http://bulk.openweathermap.org/sample/city.list.json.gz) e.g. Esslingen: `"LocationID" = "2928751"` or Porto Alegre: `"LocationID" = "3452925"`
+-   `API-Key` access token to the openweather api
 
 #### Example configuration file
-```
+```JSON
 {
     "AlarmTimeout": 15,
     "Alarms": [
@@ -305,21 +307,20 @@ The `Weather` object configures the displayed weather information form [openweat
 
 Digitalrooster supports dynamic logging configuration using
 [QLoggingCategory](http://doc.qt.io/qt-5/qloggingcategory.html) i.e.:
-- On Linux:   `~/.config/QtProject/qtlogging.ini`
-- On Windows: `%LOCALAPPDATA%/Temp/Digitalrooster.log`
+-   On Linux:   `~/.config/QtProject/qtlogging.ini`
+-   On Windows: `%LOCALAPPDATA%/Temp/Digitalrooster.log`
 
 You can specify the log file using the `-l ` [command line option](#command-line-options).
 The default runtime logfile is created in:
 `QStandardPaths::TempLocation/Digitalrooster.log` i.e.:
-- On Linux:   `/tmp/Digitalrooster.log`
-- On Windows: `%LOCALAPPDATA%/Temp/Digitalrooster.log`
-
+-   On Linux:   `/tmp/Digitalrooster.log`
+-   On Windows: `%LOCALAPPDATA%/Temp/Digitalrooster.log`
 
 #### Logging example configuration
 
 All debug messages except for `HttpClient` and `AlarmMonitor` are disabled
 
-```
+```INI
 [Rules]
 *.debug=false
 DigitalRooster.AlarmMonitor.debug=true
