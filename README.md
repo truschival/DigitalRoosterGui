@@ -3,8 +3,7 @@
 [![codecov](https://codecov.io/gh/truschival/DigitalRoosterGui/branch/develop/graph/badge.svg)](https://codecov.io/gh/truschival/DigitalRoosterGui)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a95a270a2f8548f59a26811e7f2de20b)](https://www.codacy.com/app/truschival/DigitalRoosterGui)
 
-DigitalRooster
-===================
+# DigitalRooster
 
 Internet radio, podcast player and alarmclock. Intended to run on embedded Linux with a small touch display. Microsoft Windows and Desktop GNU/Linux systems are supported for development.
 
@@ -17,8 +16,8 @@ Internet radio, podcast player and alarmclock. Intended to run on embedded Linux
 ![Alarms](/documentation/figs/Alarms.png)
 ![Navigation with menu drawer](/documentation/figs/Menubar.png)
 
-----
-# License
+---
+## License
 
 Copyright (c) 2018 by Thomas Ruschival <thomas@ruschival.de>
 
@@ -45,10 +44,11 @@ Copyright (c) 2002-2018, Jouni Malinen <j@w1.fi> and contributors licensed under
 
 All license details can be found in the file LICENSE
 
------
-# Build configuration
+---
 
-## Options & Defaults (compilation flags & targets):
+## Build configuration
+
+### Options & Defaults (compilation flags & targets)
 
 - `-DBUILD_TESTS=On`           build unit tests
 - `-DBUILD_GTEST_FROM_SRC=On`  download GoogleTest and build it from source
@@ -61,8 +61,7 @@ Slightly useless configurations
 - `-DSETTINGS_FILE_NAME=...` Filename of settings default=`digitalrooster.json`
 - `-DSETTINGS_FILE_PATH=...` Where to find configuration file
 
-
-## Native build for GNU/Linux and Windows
+### Native build for GNU/Linux and Windows
 
 DigitalRooster requires OpenSSL >1.0.2 and QT 5.10 to run. For the build a C++14
 Compiler, cmake-3.10 are required.
@@ -70,13 +69,13 @@ Compiler, cmake-3.10 are required.
 The build was tested with QT5.10 Open Source license with Visual Studio 2017
 Community on Windows 7 and Windows 10.
 
-### Linux prerequisites
+#### Linux prerequisites
 
 QT5.10 is included in Debian Buster or later. Ubuntu should also work.
 
 1. Setup the basic development environment.
 
-    ```
+    ```sh
     apt-get install -y \
 		bc cmake curl git \
 		build-essential g++ gcc \
@@ -88,35 +87,38 @@ QT5.10 is included in Debian Buster or later. Ubuntu should also work.
 
 2. Install QT5 development libraries
 
-    ```
+    ```sh
 	apt-get install -y \
 		qt5-default qtbase5-dev-tools \
 		qtdeclarative5-dev qtmultimedia5-dev \
 		qtquickcontrols2-5-dev qtdeclarative5-dev-tools
     ```
 
-### Docker container for build
+#### Docker container for build
 
 If you don't want to install packages on your machine the docker image
 `ruschi/devlinuxqtquick2:latest` includes all dependencies to build and run
 DigitalRooster.
-
+    
+    ```sh
     docker pull ruschi/devlinuxqtquick2:latest
     docker run -it --privileged --name build_container ruschi/devlinuxqtquick2
-
+    ```
+    
 Some versions of [docker do not allow the statx system
 call](https://github.com/docker/for-linux/issues/208) which is used by the QT
 buildtools during MOC generation.  A workaround is to start the docker container
 in privileged mode using `--privileged`.
 
 
-### Build Steps (on Linux)
+#### Build Steps (on Linux)
 
 The following commands will checkout the sources to `/tmp/checkout/`, create a build directory in '/tmp/build/'
 configure and build DigitalRooster.
 
 1. Setup directories and checkout
-    ```
+   
+    ```sh
     export SRC_DIR=/tmp/checkout
     export BUILD_DIR=/tmp/build
     git clone https://github.com/truschival/DigitalRoosterGui.git $SRC_DIR
@@ -124,7 +126,7 @@ configure and build DigitalRooster.
 
 2. Configuration
 
-    ```
+    ```sh
     cmake -G "Eclipse CDT4 - Unix Makefiles"  \
     -H$SRC_DIR -B$BUILD_DIR  \
     -DCMAKE_BUILD_TYPE=Debug \
@@ -141,7 +143,7 @@ configure and build DigitalRooster.
     cmake --build $BUILD_DIR
     ```
 
-### Optional post build steps
+#### Optional post build steps
 
 1. Run Tests
 
@@ -156,21 +158,23 @@ configure and build DigitalRooster.
     ```
 
 2. Create Doxygen documentation (if Doxygen is installed)
-    ```
+    
+    ```sh
 	cmake --build $BUILD_DIR --target DOC
     ```
 
 3. Packaging (optional)
-    ```
+    
+    ```sh
     cd $BUILD_DIR
     cpack
     ```
 
--------
+---
 
-# Runtime configuration
+## Runtime configuration
 
-## Command line options
+### Command line options
 
 DigitalRooster accepts some command line arguments to configure its runtime behaviour.
 
@@ -183,9 +187,10 @@ DigitalRooster accepts some command line arguments to configure its runtime beha
 
 
 
-## Configuration file
+### Configuration file
 
-Digitalrooster runs from any directory and generates on the first start a default configuration is generated if no config is found.
+Digitalrooster runs from any directory and generates on the first start a default configuration 
+is generated if no config is found.
 
 The configuration path is derived from
 [QStandardPaths::ConfigLocation](http://doc.qt.io/qt-5/qstandardpaths.html)
@@ -193,7 +198,7 @@ i.e.:
 - On Linux :  `~/.config/DigitalRooster/digitalrooster.json`
 - On Windows:  `%LOCALAPPDATA%/DigitalRooster/digitalrooster.json`
 
-### Global configuration and common properties of objects:
+#### Global configuration and common properties of objects
 -  `id` of the objects is auto generated if not present.
 -  `name` is updated according to infromation form RSS (for podcasts) or shoutcast information for radio streams (if available)
 -  `AlarmTimeout` time in minutes an alarm should play until it is automatically stopped.
@@ -204,7 +209,7 @@ i.e.:
 -  `Version` project version for this config file (upgrades and backward compatibility not yet implemented)
 -  `SleepTimeout` time in minutes after which standby is activated (not yet implemented)
 
-### Alarm objects:
+#### Alarm objects
 `Alarms` is an array of alarm objects.
 - `id` unique identifier - auto generated if not present
 - `enabled` enabled/disables triggering of alarm
@@ -215,24 +220,24 @@ i.e.:
 
 If an alarm is triggered and the stream source is unavailable or has errors a fallback sound will be played.
 
-### Podcast Source objects:
+#### Podcast Source objects
 `Podcasts` is an array containing individual RSS sources for podcasts. The only mandatory property is `uri` others are optional:
 - `id` unique identifier - auto generated if not present
 - `name` human readable identifier, updated according to RSS XML
 - `uri` RSS uri
 
-### Internet Stream objects:
+#### Internet Stream objects
 `InternetRadio` is an array containing individual stream source configurations. The only mandatory property is `uri` others are optional:
 - `id` unique identifier - auto generated if not present
 - `name` human readable identifier, updated according to shoutcast information when played (if available)
 - `uri` stream uri
 
-### Weather:
+#### Weather
 The `Weather` object configures the displayed weather information form [openweathermap.org](https://api.openweathermap.org)
 - `LocationID` identifier for the geographic location, see [http://bulk.openweathermap.org/sample/city.list.json.gz](http://bulk.openweathermap.org/sample/city.list.json.gz) e.g. Esslingen: `"LocationID" = "2928751"` or Porto Alegre: `"LocationID" = "3452925"`
 - `API-Key` access token to the openweather api
 
-### Example configuration file
+#### Example configuration file
 ```
 {
     "AlarmTimeout": 15,
@@ -296,7 +301,7 @@ The `Weather` object configures the displayed weather information form [openweat
 
 ```
 
-## Logging configuration
+### Logging configuration
 
 Digitalrooster supports dynamic logging configuration using
 [QLoggingCategory](http://doc.qt.io/qt-5/qloggingcategory.html) i.e.:
@@ -310,7 +315,7 @@ The default runtime logfile is created in:
 - On Windows: `%LOCALAPPDATA%/Temp/Digitalrooster.log`
 
 
-### Logging example configuration
+#### Logging example configuration
 
 All debug messages except for `HttpClient` and `AlarmMonitor` are disabled
 
