@@ -11,6 +11,7 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  ******************************************************************************/
 #include <QByteArray>
+#include <QRegExp>
 #include <QDebug>
 #include <QHash>
 #include <QQmlEngine>
@@ -91,6 +92,7 @@ QVariant PodcastEpisodeModel::data(const QModelIndex& index, int role) const {
     if (index.row() < 0 || index.row() >= episodes->size())
         return QVariant();
 
+    QString desc;
     auto ep = episodes->at(index.row());
     auto duration = QTime::fromMSecsSinceStartOfDay(ep->get_duration());
 
@@ -106,7 +108,9 @@ QVariant PodcastEpisodeModel::data(const QModelIndex& index, int role) const {
     case CurrentPositionRole:
         return QVariant(ep->get_position());
     case DescriptionRole:
-        return QVariant(ep->get_description());
+    	desc = ep->get_description();
+    	desc.remove(QRegExp("<[^>]*>")); //Strip HTML tags
+        return QVariant(desc);
     case ListenedRole:
         return QVariant(ep->already_listened());
     case DateRole:

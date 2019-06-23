@@ -81,7 +81,7 @@ QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
     auto v = cm->get_podcast_sources();
     if (index.row() < 0 || index.row() >= v.size())
         return QVariant();
-
+    QString desc;
     auto ps = v[index.row()];
 
     switch (role) {
@@ -92,7 +92,9 @@ QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
     case DisplayCountRole:
         return ps->get_episodes().size();
     case DescriptionRole:
-        return ps->get_description();
+    	desc = ps->get_description();
+    	desc.remove(QRegExp("<[^>]*>")); //Strip HTML tags
+        return QVariant(desc);
     case ImageRole:
         return ps->get_image_uri();
     }
