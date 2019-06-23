@@ -30,7 +30,7 @@ class PodcastEpisodeModel : public QAbstractListModel {
     Q_PROPERTY(int currentIndex READ get_current_index WRITE set_current_index
             NOTIFY current_index_changed)
 public:
-    PodcastEpisodeModel(QObject* parent = nullptr);
+    explicit PodcastEpisodeModel(QObject* parent = nullptr);
 
     PodcastEpisodeModel(
         const QVector<std::shared_ptr<DigitalRooster::PodcastEpisode>>*

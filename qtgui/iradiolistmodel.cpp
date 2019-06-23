@@ -57,8 +57,7 @@ int IRadioListModel::rowCount(const QModelIndex& /*parent */) const {
 }
 
 /*****************************************************************************/
-QUrl IRadioListModel::get_station_url(
-    int index) {
+QUrl IRadioListModel::get_station_url(int index) {
     auto pi = cm->get_stream_sources().at(index);
     return pi->get_url();
 }

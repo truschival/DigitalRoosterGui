@@ -33,7 +33,7 @@ using ::testing::Invoke;
 /******************************************************************************/
 class PodcastSourceMock : public DigitalRooster::PodcastSource {
 public:
-    PodcastSourceMock(const QDir& cachedir)
+    explicit PodcastSourceMock(const QDir& cachedir)
         : PodcastSource(QUrl(), cachedir){};
 
     MOCK_CONST_METHOD0(get_cache_file_impl, QString());
@@ -50,7 +50,7 @@ public:
 /******************************************************************************/
 class PodcastSourceMock_episodes : public PodcastSourceMock {
 public:
-    PodcastSourceMock_episodes(const QDir& cachedir)
+    explicit PodcastSourceMock_episodes(const QDir& cachedir)
         : PodcastSourceMock(cachedir){};
 
     MOCK_CONST_METHOD0(

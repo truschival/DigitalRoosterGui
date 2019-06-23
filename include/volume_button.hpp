@@ -32,7 +32,7 @@ public:
      * Construct with path to event interface for rotary encoder and
      * push button GPIO
      */
-    VolumeButton(QObject* parent = nullptr);
+    explicit VolumeButton(QObject* parent = nullptr);
     /**
      * check if button is pressed
      * @return pressed/not pressed

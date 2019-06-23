@@ -26,7 +26,7 @@ class ConfigurationManager;
 class AlarmListModel : public QAbstractListModel {
     Q_OBJECT
 public:
-    AlarmListModel(QObject* parent = nullptr);
+    explicit AlarmListModel(QObject* parent = nullptr);
 
     AlarmListModel(
         std::shared_ptr<DigitalRooster::ConfigurationManager> confman,
