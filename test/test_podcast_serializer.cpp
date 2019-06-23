@@ -149,7 +149,7 @@ TEST_F(SerializerFixture, PodcastSourceSerialization) {
     ASSERT_EQ(
         json_obj[KEY_TIMESTAMP].toString(), expected_timestamp.toString());
     ASSERT_EQ(
-        json_obj[KEY_IMAGE_PATH].toString(), expected_image_url.toString());
+        json_obj[KEY_ICON_URL].toString(), expected_image_url.toString());
     ASSERT_EQ(json_obj[KEY_TITLE].toString(), expected_title);
 }
 
