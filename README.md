@@ -5,7 +5,9 @@
 
 # DigitalRooster
 
-Internet radio, podcast player and alarmclock. Intended to run on embedded Linux with a small touch display. Microsoft Windows and Desktop GNU/Linux systems are supported for development.
+Internet radio, podcast player and alarmclock. Intended to run on embedded 
+Linux with a small touch display. 
+Microsoft Windows and Desktop GNU/Linux systems are supported for development.
 
 ![DigitalRooster on hardware](./documentation/figs/Demo_on_hardware.jpg)
 
@@ -26,20 +28,22 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 DigitalRooster uses [Qmlbridgeformaterialfonts](https://github.com/kevincarlson/QmlBridgeForMaterialDesignIcons)
 software by Kevin Carlso licenced under the [SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
-QmlBridgeForMaterialDesignIcons uses the True Type Font "materialdesignicons-webfont.ttf"
+QmlBridgeForMaterialDesignIcons uses the True Type Font 
+"materialdesignicons-webfont.ttf"
 
 The font materialdesignicons-webfont.ttf is licensed under [SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL) -
 Copyright (c) 2014, Austin Andrews
 
-The Name [Material Design Icons](http://materialdesignicons.com/) is a reserved Font Name.
-Copyright (c) 2014, [Google] (http://www.google.com/design/) licensed under
-[Apache License Version 2.0](https://github.com/google/material-design-icons/blob/master/LICENSE)
+The Name [Material Design Icons](http://materialdesignicons.com/) is a reserved 
+font name. Copyright (c) 2014, [Google] (http://www.google.com/design/) 
+licensed under [Apache License Version 2.0](https://github.com/google/material-design-icons/blob/master/LICENSE)
 
-DigitalRooster uses ``include/wpa_ctrl/wpa_ctrl.h`` and ``wpa_ctrl/wpa_ctrl.c`` to interface with
-[wpa_supplicant](https://w1.fi/wpa_supplicant/)
-Copyright (c) 2002-2018, Jouni Malinen <j@w1.fi> and contributors licensed under BSD license.
-``wpa_ctrl.c`` was modified with input from
-[Holger Schurig](http://lists.shmoo.com/pipermail/hostap/2013-May/027826.html)
+DigitalRooster uses ``include/wpa_ctrl/wpa_ctrl.h`` and ``wpa_ctrl/wpa_ctrl.c`` 
+to interface with [wpa_supplicant](https://w1.fi/wpa_supplicant/)
+Copyright (c) 2002-2018, Jouni Malinen <j@w1.fi> and contributors 
+licensed under BSD license.
+
+``wpa_ctrl.c`` was modified with input from [Holger Schurig](http://lists.shmoo.com/pipermail/hostap/2013-May/027826.html)
 
 All license details can be found in the file LICENSE
 
@@ -53,7 +57,7 @@ All license details can be found in the file LICENSE
 
 -   `-DBUILD_GTEST_FROM_SRC=On`  download GoogleTest and build it from source
                                   (`OFF` requires gtest as external project)
-                                  
+
 -   `-DTEST_COVERAGE=Off`        code coverage
 
 -   `-DPROFILING=On`              profiling build for Visual Studio
@@ -114,8 +118,8 @@ in privileged mode using `--privileged`.
 
 #### Build Steps (on Linux)
 
-The following commands will checkout the sources to `/tmp/checkout/`, create a build directory in '/tmp/build/'
-configure and build DigitalRooster.
+The following commands will checkout the sources to `/tmp/checkout/`, create a 
+build directory in `/tmp/build/` configure and build DigitalRooster.
 
 1.Setup directories and checkout
    
@@ -179,7 +183,7 @@ configure and build DigitalRooster.
 
 ### Command line options
 
-DigitalRooster accepts some command line arguments to configure its runtime behaviour.
+DigitalRooster accepts some command line arguments for its runtime behaviour.
 
 -   `-s, --stdout`                 log to stdout
 -   `-c, --confpath <confpath>`  configuration file path see [Configuration file](#configuration-file)
@@ -190,8 +194,8 @@ DigitalRooster accepts some command line arguments to configure its runtime beha
 
 ### Configuration file
 
-Digitalrooster runs from any directory and generates on the first start a default configuration 
-is generated if no config is found.
+DigitalRooster runs from any directory and generates on the first start a 
+default configuration is generated if no config is found.
 
 The configuration path is derived from
 [QStandardPaths::ConfigLocation](http://doc.qt.io/qt-5/qstandardpaths.html)
@@ -200,43 +204,71 @@ i.e.:
 -   On Windows:  `%LOCALAPPDATA%/DigitalRooster/digitalrooster.json`
 
 #### Global configuration and common properties of objects
+
 -   `id` of the objects is auto generated if not present.
--   `name` is updated according to infromation form RSS (for podcasts) or shoutcast information for radio streams (if available)
--   `AlarmTimeout` time in minutes an alarm should play until it is automatically stopped.
+
+-   `name` is updated according to infromation form RSS (for podcasts) 
+            or shoutcast information for radio streams (if available)
+
+-   `AlarmTimeout` time in minutes an alarm should play until it is 
+                     automatically stopped.
+
 -   `SleepTimeout` is not yet implemented.
+
 -   `brightnessActive` is the display background when active (0-100%)
+
 -   `brightnessStandby` is the display background in standby mode (0-100%)
+
 -   `volume` is the default volume
--   `Version` project version for this config file (upgrades and backward compatibility not yet implemented)
--   `SleepTimeout` time in minutes after which standby is activated (not yet implemented)
+
+-   `Version` project version for this config file 
+               (upgrades and backward compatibility not yet implemented)
+
+-   `SleepTimeout` time in minutes after which standby is activated 
 
 #### Alarm objects
 `Alarms` is an array of alarm objects.
+
 -   `id` unique identifier - auto generated if not present
+
 -   `enabled` enabled/disables triggering of alarm
+
 -   `uri` stream uri to play for this alarm
+
 -   `time` Time of day when to trigger the alarm
--   `period` frequency when to trigger alarm. Possible values are `workdays`, `weekend`, `daily`
+
+-   `period` frequency when to trigger alarm. 
+              Possible values are `workdays`, `weekend`, `daily`
+
 -   `volume` volume to set for playing alarm
 
-If an alarm is triggered and the stream source is unavailable or has errors a fallback sound will be played.
+If an alarm is triggered and the stream source is unavailable or has 
+errors a fallback sound will be played.
 
 #### Podcast Source objects
-`Podcasts` is an array containing individual RSS sources for podcasts. The only mandatory property is `uri` others are optional:
+`Podcasts` is an array containing individual RSS sources for podcasts. 
+The only mandatory property is `uri` others are optional:
 -   `id` unique identifier - auto generated if not present
 -   `name` human readable identifier, updated according to RSS XML
 -   `uri` RSS uri
 
 #### Internet Stream objects
-`InternetRadio` is an array containing individual stream source configurations. The only mandatory property is `uri` others are optional:
+`InternetRadio` is an array containing individual stream source configurations. 
+The only mandatory property is `uri` others are optional:
 -   `id` unique identifier - auto generated if not present
--   `name` human readable identifier, updated according to shoutcast information when played (if available)
+
+-   `name` human readable identifier, updated according to shoutcast 
+            information when played (if available)
+
 -   `uri` stream uri
 
 #### Weather
-The `Weather` object configures the displayed weather information form [openweathermap.org](https://api.openweathermap.org)
+The `Weather` object configures the displayed weather information 
+form [openweathermap.org](https://api.openweathermap.org)
 
--   `LocationID` identifier for the geographic location, see [http://bulk.openweathermap.org/sample/city.list.json.gz](http://bulk.openweathermap.org/sample/city.list.json.gz) e.g. Esslingen: `"LocationID" = "2928751"` or Porto Alegre: `"LocationID" = "3452925"`
+-   `LocationID` identifier for the geographic location, see [http://bulk.openweathermap.org/sample/city.list.json.gz](http://bulk.openweathermap.org/sample/city.list.json.gz) 
+                   e.g. Esslingen: `"LocationID" = "2928751"` or Porto Alegre: `"LocationID" = "3452925"`
+
 -   `API-Key` access token to the openweather api
 
 #### Example configuration file
