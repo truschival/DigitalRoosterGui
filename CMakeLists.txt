@@ -34,11 +34,11 @@ endif()
 # user Configuration + Defaults
 #-------------------------------------------------------------------------------
 option(BUILD_EXE "Build QT Gui" On)
-option(BUILD_TESTS "Build Tests" Off)
+option(BUILD_TESTS "Build Tests" On)
 option(HAS_WPA_SUPPLICANT "Target has wpa_supplicant" Off)
 option(PROFILE "Build with Profiling" Off)
 option(TEST_COVERAGE "Test Coverage" Off)
-option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" Off)
+option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" On)
 option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." Off)
 
 # most likely we have wpa_supplicant on Unix,linux etc.
