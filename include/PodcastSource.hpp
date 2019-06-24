@@ -111,16 +111,16 @@ public:
     }
 
     /**
-     * Logo Image URI of podcast
+     * Logo Image URL of podcast
      */
-    virtual const QUrl& get_image_uri() const {
+    virtual const QUrl& get_image_url() const {
         return icon_url;
     }
-    void set_image_uri(const QUrl& uri);
+    void set_image_url(const QUrl& uri);
 
     /**
      * Image file path to local cache of image uri
-     * @return
+     * @return local file if it exists
      */
     QString get_image_file_path() const {
         return image_file_path;

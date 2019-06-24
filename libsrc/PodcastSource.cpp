@@ -269,7 +269,7 @@ int DigitalRooster::PodcastSource::get_episode_count_impl() const {
 }
 
 /*****************************************************************************/
-void PodcastSource::set_image_uri(const QUrl& uri) {
+void PodcastSource::set_image_url(const QUrl& uri) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     icon_url = uri;
     emit icon_changed();

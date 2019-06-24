@@ -12,12 +12,14 @@
 #include <appconstants.hpp>
 #include <gtest/gtest.h>
 #include <memory>
+#include <iostream>
 #include <stdexcept> // std::system_error
 
 #include <QSignalSpy>
 #include <QString>
 #include <QUrl>
 
+#include "appconstants.hpp"
 #include "PlayableItem.hpp"
 #include "PodcastSource.hpp"
 
@@ -28,8 +30,7 @@ using namespace DigitalRooster;
 class PodcastSourceFixture : public virtual ::testing::Test {
 public:
     PodcastSourceFixture()
-        : cache_dir(
-              TEST_FILE_PATH + QDir::separator() + QString("podcast_cache"))
+        : cache_dir(DEFAULT_CACHE_DIR_PATH)
         , uid(QUuid::createUuid())
         , ps(QUrl("https://alternativlos.org/alternativlos.rss"), cache_dir,
               uid) {
@@ -150,20 +151,57 @@ TEST_F(PodcastSourceFixture, storeAndPurgeworks) {
     ASSERT_TRUE(cachefile.exists());
     ps.purge();
     ASSERT_FALSE(cachefile.exists());
-    ASSERT_EQ(ps.get_episode_count(),0);
+    ASSERT_EQ(ps.get_episode_count(), 0);
+}
+/******************************************************************************/
+TEST_F(PodcastSourceFixture, storeIconCache) {
+    auto image_url = QUrl(
+        "https://www.ruschival.de/wp-content/uploads/2013/12/424504199718.jpg");
+    auto file_name = image_url.fileName();
+    QFile cache_file(cache_dir.filePath(file_name));
+
+    ps.set_image_url(image_url);
+    QSignalSpy spy(&ps, SIGNAL(icon_changed()));
+    // First time return image_url - data not yet cached
+    ASSERT_EQ(ps.get_icon(), image_url);
+    spy.wait(); // after download icon_changed() is emitted
+    ASSERT_EQ(spy.count(), 1);
+    // Second time the local cache should be returned
+    auto expeced_local_url = QUrl::fromLocalFile(cache_dir.filePath(file_name));
+    ASSERT_EQ(ps.get_icon(),expeced_local_url);
+
+    ASSERT_TRUE(cache_file.exists());
+    ASSERT_TRUE(cache_file.remove());
+}
+
+/******************************************************************************/
+TEST_F(PodcastSourceFixture, purgeIconCache) {
+    auto image_url = QUrl(
+        "https://www.ruschival.de/wp-content/uploads/2013/12/424504199718.jpg");
+    auto file_name = image_url.fileName();
+    QFile cache_file(cache_dir.filePath(file_name));
+
+    ps.set_image_url(image_url);
+    QSignalSpy spy(&ps, SIGNAL(icon_changed()));
+
+    // First time return image_url - data not yet cached
+    ASSERT_EQ(ps.get_icon(), image_url);
+    spy.wait(); // after download icon_changed() is emitted
+    ASSERT_EQ(spy.count(), 1);
+    // File should be deleted and the URL is returned
+    ps.purge_icon_cache();
+
+    ASSERT_EQ(ps.get_icon(), image_url); // URL not local cache
+    ASSERT_FALSE(cache_file.exists());   // file is deleted
 }
 
 /******************************************************************************/
 TEST(PodcastSource, store_bad_nothrow) {
-	QDir cache_dir_bad("/some/nonexistent/cache/dir");
-    PodcastSource ps(QUrl("http://foo.bar"),cache_dir_bad);
+    QDir cache_dir_bad("/some/nonexistent/cache/dir");
+    PodcastSource ps(QUrl("http://foo.bar"), cache_dir_bad);
     ps.set_description("MyDescription");
     auto first =
         std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
     ps.add_episode(first);
     ASSERT_NO_THROW(ps.store());
 }
-
-/******************************************************************************/
-
-
