@@ -3,6 +3,15 @@ extraction:
     prepare:
       packages:
         - libssl-dev
+        - doxygen
+        - uuid-dev
+        - pkg-config
+        - qt5-default
+        - qt5base-dev-tools
+        - qtdeclarative5-dev
+        - qtmultimedia5-dev
+        - qtquickcontrols2-5-dev
+        - qtdeclarative5-dev-tools
     after_prepare:    # Customizable step used by all languages.
       - cmake --version
     configure:    # Customizable step used only by C/C++ extraction.
