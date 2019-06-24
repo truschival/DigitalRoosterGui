@@ -1,3 +1,8 @@
+path_classifiers:
+  library:
+    - libhwif/
+  test:
+    - test/
 extraction:
   cpp:
     prepare:
@@ -7,7 +12,8 @@ extraction:
         - uuid-dev
         - pkg-config
         - qt5-default
-        - qt5base-dev-tools
+        - qtbase5-dev
+        - qtbase5-dev-tools
         - qtdeclarative5-dev
         - qtmultimedia5-dev
         - qtquickcontrols2-5-dev
