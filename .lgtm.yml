@@ -1,5 +1,8 @@
 extraction:
   cpp:
+    prepare:
+      packages:
+        - libssl-dev
     after_prepare:    # Customizable step used by all languages.
       - cmake --version
     configure:    # Customizable step used only by C/C++ extraction.
@@ -8,7 +11,5 @@ extraction:
     before_index:    # Customizable step used by all languages.
       - echo "before_index"
     index:    # Customizable step used by all languages.
-      exclude:
-        - libhwif/hardwarecontrol_stub.cpp
       build_command:
         - cmake --build $LGTM_WORKSPACE --parallel
