@@ -1,9 +1,3 @@
-path_classifiers:
-  library:
-    - libhwif/
-  test:
-    - test/
-    
 extraction:
   cpp:
     prepare:
@@ -33,6 +27,4 @@ extraction:
     index:    # Customizable step used by all languages.
       build_command:
         - cmake --build $LGTM_WORKSPACE --parallel
-        
-  javascript:
-    
+
