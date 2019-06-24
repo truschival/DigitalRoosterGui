@@ -149,7 +149,7 @@ void parse_channel(PodcastSource& podcastsource, QXmlStreamReader& xml) {
             } else if (xml.namespaceUri() ==
                 "http://www.itunes.com/dtds/podcast-1.0.dtd") {
                 if (xml.name() == "image") {
-                    podcastsource.set_image_uri(
+                    podcastsource.set_image_url(
                         QUrl(xml.attributes().value("href").toString()));
                 }
             }
