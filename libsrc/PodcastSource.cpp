@@ -49,8 +49,10 @@ PodcastSource::~PodcastSource() {
     if (download_cnx)
         disconnect(download_cnx);
 
-    if (icon_downloader)
+    if (icon_downloader){
         icon_downloader.get()->deleteLater();
+        icon_downloader.release();
+    }
 }
 
 
@@ -309,6 +311,7 @@ void PodcastSource::store_image(QByteArray data) {
     // disable receiving signals form downloader
     disconnect(download_cnx);
     icon_downloader.get()->deleteLater();
+    icon_downloader.release(); // let QT manage the object
     writeTimer.start(); // start delayed write
 }
 
