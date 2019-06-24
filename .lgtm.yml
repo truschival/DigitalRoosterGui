@@ -1,11 +1,7 @@
 extraction:
   cpp:
-    prepare:    # Customizable step used by all languages.
-      - echo "prepare"
     after_prepare:    # Customizable step used by all languages.
-      - echo "after_prepare"
       - cmake --version
-
     configure:    # Customizable step used only by C/C++ extraction.
       command:
         - cmake -DCMAKE_BUILD_TYPE=Release -H$LGTM_SRC -B$LGTM_WORKSPACE -DBUILD_TESTS=Off -DTEST_COVERAGE=Off -DBUILD_GTEST_FROM_SRC=Off
