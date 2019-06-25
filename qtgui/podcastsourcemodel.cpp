@@ -96,7 +96,7 @@ QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
     	desc.remove(QRegExp("<[^>]*>")); //Strip HTML tags
         return QVariant(desc);
     case ImageRole:
-        return ps->get_image_uri();
+        return ps->get_icon();
     }
     return QVariant();
 }

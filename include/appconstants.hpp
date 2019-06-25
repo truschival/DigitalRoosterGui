@@ -170,7 +170,12 @@ const QString KEY_FILE_PATH("path");
 /**
  * key for any image path property
  */
-const QString KEY_IMAGE_PATH("image");
+const QString KEY_ICON_URL("icon");
+
+/**
+ * key for any image path property
+ */
+const QString KEY_IMAGE_CACHE("icon-cached");
 
 /**
  * key for numeric position property

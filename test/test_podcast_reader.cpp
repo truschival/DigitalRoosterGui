@@ -25,8 +25,7 @@ class PodcastReaderFixture : public virtual ::testing::Test {
 public:
     PodcastReaderFixture()
         : file(TEST_FILE_PATH + "/alternativlos.rss")
-        , cache_dir(
-              TEST_FILE_PATH + QDir::separator() + QString("podcast_cache"))
+        , cache_dir(DEFAULT_CACHE_DIR_PATH)
         , ps(QUrl("https://alternativlos.org/alternativlos.rss"), cache_dir) {
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             qDebug() << file.errorString();
