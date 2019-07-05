@@ -2,6 +2,8 @@
 [![Build Status](https://travis-ci.com/truschival/DigitalRoosterGui.svg?branch=develop)](https://travis-ci.com/truschival/DigitalRoosterGui)
 [![codecov](https://codecov.io/gh/truschival/DigitalRoosterGui/branch/develop/graph/badge.svg)](https://codecov.io/gh/truschival/DigitalRoosterGui)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a95a270a2f8548f59a26811e7f2de20b)](https://www.codacy.com/app/truschival/DigitalRoosterGui)
+[![Coverity](https://scan.coverity.com/projects/18711/badge.svg)](https://scan.coverity.com/projects/truschival-digitalroostergui)
+
 
 # DigitalRooster
 
