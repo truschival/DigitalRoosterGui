@@ -20,6 +20,8 @@
 #include <chrono>
 #include <memory>
 
+#include "appconstants.hpp"
+
 namespace DigitalRooster {
 
 class PlayableItem;
@@ -70,7 +72,8 @@ public:
         : id(QUuid::createUuid())
         , media(nullptr)
         , period(Alarm::Daily)
-        , enabled(true){};
+        , enabled(true)
+        , timeout(DEFAULT_ALARM_TIMEOUT){};
 
     /**
      * unique id for alarm
