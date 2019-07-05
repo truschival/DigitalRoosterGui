@@ -77,8 +77,13 @@ int setup_hardware() {
     pwmWrite(BRIGHTNESS_PWM_PIN, 100);
 
     push_button_filehandle = open("/sys/class/gpio/gpio22/value", O_RDONLY);
+    if(push_button_filehandle < 0){
+    	qCWarning(CLASS_LC) << " failed to open push-button GPIO";
+    }
     rotary_button_filehandle = open("/dev/input/event1", O_RDONLY);
-
+    if(rotary_button_filehandle < 0){
+    	qCWarning(CLASS_LC) << " failed to open rotary-button event interface";
+    }
     return 0;
 };
 
@@ -86,12 +91,14 @@ int setup_hardware() {
 /*****************************************************************************/
 
 int get_push_button_handle() {
+	qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return push_button_filehandle;
 }
 
 /*****************************************************************************/
 
 int get_rotary_button_handle() {
+	qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return rotary_button_filehandle;
 }
 
