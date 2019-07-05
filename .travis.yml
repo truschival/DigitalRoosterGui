@@ -1,5 +1,3 @@
-sudo: required
-
 env:
   BUILD_DIR=/tmp/build
   SRC_DIR=/tmp/checkout
