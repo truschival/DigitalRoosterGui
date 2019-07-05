@@ -22,6 +22,9 @@ Rectangle{
 
 	Image {
 	    id: podcasticon;
+	    Layout.maximumHeight : DEFAULT_ICON_WIDTH;
+	    Layout.maximumWidth : DEFAULT_ICON_WIDTH;
+/*
 	    Layout.maximumHeight : podcastdelegate.height-
 		2*Style.itemMargins.slim;
 	    Layout.maximumWidth :  podcastdelegate.height-
@@ -32,7 +35,7 @@ Rectangle{
 		2*Style.itemMargins.slim;
 	    Layout.minimumHeight : 0.9*podcastdelegate.height-
 		2*Style.itemMargins.slim;
-
+*/
 	    Layout.rowSpan: 2
 	    Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter
 
@@ -65,7 +68,7 @@ Rectangle{
 	    Layout.topMargin: 0;
 	    Layout.columnSpan: 2;
 	    Layout.fillWidth: true;
-	    Layout.maximumHeight: parent.height/2
+	    Layout.maximumHeight: parent.height/1.8
 	    Layout.alignment: Qt.AlignLeft| Qt.AlignTop
 	}
     }

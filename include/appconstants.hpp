@@ -234,6 +234,12 @@ const int DEFAULT_VOLUME = 30;
  */
 const int DEFAULT_BRIGHTNESS = 25;
 
+/**
+ * Constant Podcast Icon size
+ * Shared between C++ and QML
+ */
+const int DEFAULT_ICON_WIDTH = 88;
+
 /*****************************************************************************
  CMake build configurations from config.h
  *****************************************************************************/

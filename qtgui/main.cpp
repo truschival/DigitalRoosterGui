@@ -240,6 +240,8 @@ int main(int argc, char* argv[]) {
     ctxt->setContextProperty("brightnessControl", &brightness);
     ctxt->setContextProperty("volumeButton", &volbtn);
     ctxt->setContextProperty("sleeptimer", &sleeptimer);
+    ctxt->setContextProperty(
+        "DEFAULT_ICON_WIDTH", QVariant::fromValue(DEFAULT_ICON_WIDTH));
 
     view.load(QUrl("qrc:/main.qml"));
 
