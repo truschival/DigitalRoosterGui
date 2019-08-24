@@ -11,6 +11,10 @@
  *****************************************************************************/
 
 #include <QLoggingCategory>
+#include <QString>
+#include <QDir>
+#include <QFileInfo>
+
 #include <fcntl.h>
 #include <linux/input-event-codes.h>
 #include <linux/input.h>
@@ -42,6 +46,37 @@ static const double BRIGHTNESS_SLOPE =
 
 static int push_button_filehandle = 0;
 static int rotary_button_filehandle = 0;
+
+/*****************************************************************************/
+static QString find_event_interface_by_name(const QString& device_name) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << device_name;
+    QDir evt_dir = QDir("/dev/input/");
+    for (auto& file_name : evt_dir.entryList(QDir::System)) {
+        QFile f(file_name);
+        if (!f.open(QFile::ReadWrite)) {
+            qCCritical(CLASS_LC)
+                << "Error: open file " << f.fileName() << f.errorString();
+            continue;
+        }
+        char buf[256];
+        int ret = ioctl(f.handle(), EVIOCGNAME(sizeof(buf)), buf);
+        if (ret < 0) {
+            qCCritical(CLASS_LC) << " ioctl failed " << ret ;
+            continue;
+        } else {
+            // match name
+            QString dev_name(buf);
+            qCDebug(CLASS_LC) << "Checking " << dev_name
+                              << "equals: " << (dev_name == device_name);
+            if (dev_name == device_name) {
+            	f.close();
+                return QFileInfo(f).absoluteFilePath();
+            }
+        }
+        f.close();
+    }
+    return QString();
+}
 
 /*****************************************************************************/
 int system_reboot() {
@@ -77,10 +112,14 @@ int setup_hardware() {
     pwmSetRange(PWM_RANGE);
     pwmWrite(BRIGHTNESS_PWM_PIN, 100);
 
-    push_button_filehandle = open("/sys/class/gpio/gpio22/value", O_RDONLY);
-    if(push_button_filehandle < 0){
-    	qCWarning(CLASS_LC) << " failed to open push-button GPIO";
-    }
+    QString pb_event_file_name = find_event_interface_by_name("Rotary");
+    if (pb_event_file_name.isEmpty()) {
+        qCCritical(CLASS_LC) << "Pushbutton event interface not found";
+    } else {
+        push_button_filehandle = open("/dev/input/event1", O_RDONLY);
+        if (push_button_filehandle < 0) {
+            qCWarning(CLASS_LC) << " failed to open push-button GPIO";
+        }
     rotary_button_filehandle = open("/dev/input/event1", O_RDONLY);
     if(rotary_button_filehandle < 0){
     	qCWarning(CLASS_LC) << " failed to open rotary-button event interface";
