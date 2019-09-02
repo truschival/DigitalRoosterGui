@@ -65,7 +65,7 @@ Menu {
         Button{
             id: sleepTimeoutMenuOK;
             text: "Ok";
-            font: Style.font.boldLabel;
+            font: Style.font.label;
             Layout.preferredWidth: sleepTimeoutMenuCancel.width;
             Layout.alignment: Qt.AlignLeft| Qt.AlignTop
             onClicked: {
@@ -79,7 +79,7 @@ Menu {
         Button{
             id: sleepTimeoutMenuCancel;
             text: "Cancel"
-            font: Style.font.boldLabel;
+            font: Style.font.label;
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             onClicked: {
                 sleepTimeoutMenu.close();
