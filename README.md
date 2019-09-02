@@ -4,11 +4,10 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/a95a270a2f8548f59a26811e7f2de20b)](https://www.codacy.com/app/truschival/DigitalRoosterGui)
 [![Coverity](https://scan.coverity.com/projects/18711/badge.svg)](https://scan.coverity.com/projects/truschival-digitalroostergui)
 
-
 # DigitalRooster
 
-Internet radio, podcast player and alarmclock. Intended to run on embedded 
-Linux with a small touch display. 
+Internet radio, podcast player and alarmclock. Intended to run on embedded
+Linux with a small touch display.
 Microsoft Windows and Desktop GNU/Linux systems are supported for development.
 
 ![DigitalRooster on hardware](./documentation/figs/Demo_on_hardware.jpg)
@@ -28,26 +27,35 @@ Licensed under [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl
 
 SPDX-License-Identifier: GPL-3.0-or-later
 
-DigitalRooster uses [Qmlbridgeformaterialfonts](https://github.com/kevincarlson/QmlBridgeForMaterialDesignIcons)
-software by Kevin Carlso licenced under the [SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
-QmlBridgeForMaterialDesignIcons uses the True Type Font 
-"materialdesignicons-webfont.ttf"
+### Third party work used in DigitalRooster
 
-The font materialdesignicons-webfont.ttf is licensed under [SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL) -
-Copyright (c) 2014, Austin Andrews
+The icons of DigitalRooster use the font "materialdesignicons-webfont.ttf"
 
-The Name [Material Design Icons](http://materialdesignicons.com/) is a reserved 
-font name. Copyright (c) 2014, [Google] (http://www.google.com/design/) 
+"Materialdesignicons-webfont" copyright (c) 2014, Austin Andrews
+is licensed under [SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
+
+The name ["Material Design Icons"](http://materialdesignicons.com/) is a
+reserved font name, copyright (c) 2014 [Google](http://www.google.com/design/)
 licensed under [Apache License Version 2.0](https://github.com/google/material-design-icons/blob/master/LICENSE)
 
-DigitalRooster uses ``include/wpa_ctrl/wpa_ctrl.h`` and ``wpa_ctrl/wpa_ctrl.c`` 
+Parts of QML in DigitalRooster are inspired by [Qmlbridgeformaterialfonts](https://github.com/kevincarlson/QmlBridgeForMaterialDesignIcons)
+by Kevin Carlso licenced under the [SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
+
+DigitalRooster uses ``include/wpa_ctrl/wpa_ctrl.h`` and ``wpa_ctrl/wpa_ctrl.c``
 to interface with [wpa_supplicant](https://w1.fi/wpa_supplicant/)
-Copyright (c) 2002-2018, Jouni Malinen <j@w1.fi> and contributors 
+
+Copyright (c) 2002-2018, Jouni Malinen <j@w1.fi> and contributors
 licensed under BSD license.
 
-``wpa_ctrl.c`` was modified with input from [Holger Schurig](http://lists.shmoo.com/pipermail/hostap/2013-May/027826.html)
+``wpa_ctrl.c`` was modified with input from
+[Holger Schurig](http://lists.shmoo.com/pipermail/hostap/2013-May/027826.html)
 
-All license details can be found in the file LICENSE
+The fallback alarm sound "TempleBell" copyright (c) by Mike Koenig downloaded
+from [www.soundbible.com](http://soundbible.com/1531-Temple-Bell.html)
+
+"Temple Bell" is licensed under Creative Commons Attribution
+
+All license texts can be found in the directory [licenses](licenses).
 
 ---
 
@@ -107,12 +115,12 @@ QT5.10 is included in Debian Buster or later. Ubuntu should also work.
 If you don't want to install packages on your machine the docker image
 `ruschi/devlinuxqtquick2:latest` includes all dependencies to build and run
 DigitalRooster.
-    
+
     ```sh
     docker pull ruschi/devlinuxqtquick2:latest
     docker run -it --privileged --name build_container ruschi/devlinuxqtquick2
     ```
-    
+
 Some versions of [docker do not allow the statx system
 call](https://github.com/docker/for-linux/issues/208) which is used by the QT
 buildtools during MOC generation.  A workaround is to start the docker container
@@ -120,11 +128,11 @@ in privileged mode using `--privileged`.
 
 #### Build Steps (on Linux)
 
-The following commands will checkout the sources to `/tmp/checkout/`, create a 
+The following commands will checkout the sources to `/tmp/checkout/`, create a
 build directory in `/tmp/build/` configure and build DigitalRooster.
 
 1.Setup directories and checkout
-   
+
     ```sh
     export SRC_DIR=/tmp/checkout
     export BUILD_DIR=/tmp/build
@@ -154,26 +162,26 @@ build directory in `/tmp/build/` configure and build DigitalRooster.
 
 1.Run Tests
     The tests must be executed in the build directory.
-  
+
     ```sh
     cd $BUILD_DIR
     bin/DigitalRooster_gtest
     ```
-    
+
     or with lcov coverage output as HTML:
-   
+
     ```
     cmake --build $BUILD_DIR --target DigitalRooster_gtest_coverage
     ```
 
 2.Create Doxygen documentation (if Doxygen is installed)
-    
+
    ```sh
    cmake --build $BUILD_DIR --target DOC
    ```
 
 3.Packaging (optional)
-    
+
     ```sh
     cd $BUILD_DIR
     cpack
@@ -196,7 +204,7 @@ DigitalRooster accepts some command line arguments for its runtime behaviour.
 
 ### Configuration file
 
-DigitalRooster runs from any directory and generates on the first start a 
+DigitalRooster runs from any directory and generates on the first start a
 default configuration is generated if no config is found.
 
 The configuration path is derived from
@@ -209,10 +217,10 @@ i.e.:
 
 -   `id` of the objects is auto generated if not present.
 
--   `name` is updated according to infromation form RSS (for podcasts) 
+-   `name` is updated according to infromation form RSS (for podcasts)
             or shoutcast information for radio streams (if available)
 
--   `AlarmTimeout` time in minutes an alarm should play until it is 
+-   `AlarmTimeout` time in minutes an alarm should play until it is
                      automatically stopped.
 
 -   `SleepTimeout` is not yet implemented.
@@ -223,10 +231,10 @@ i.e.:
 
 -   `volume` is the default volume
 
--   `Version` project version for this config file 
+-   `Version` project version for this config file
                (upgrades and backward compatibility not yet implemented)
 
--   `SleepTimeout` time in minutes after which standby is activated 
+-   `SleepTimeout` time in minutes after which standby is activated
 
 #### Alarm objects
 `Alarms` is an array of alarm objects.
@@ -239,36 +247,36 @@ i.e.:
 
 -   `time` Time of day when to trigger the alarm
 
--   `period` frequency when to trigger alarm. 
+-   `period` frequency when to trigger alarm.
               Possible values are `workdays`, `weekend`, `daily`
 
 -   `volume` volume to set for playing alarm
 
-If an alarm is triggered and the stream source is unavailable or has 
+If an alarm is triggered and the stream source is unavailable or has
 errors a fallback sound will be played.
 
 #### Podcast Source objects
-`Podcasts` is an array containing individual RSS sources for podcasts. 
+`Podcasts` is an array containing individual RSS sources for podcasts.
 The only mandatory property is `uri` others are optional:
 -   `id` unique identifier - auto generated if not present
 -   `name` human readable identifier, updated according to RSS XML
 -   `uri` RSS uri
 
 #### Internet Stream objects
-`InternetRadio` is an array containing individual stream source configurations. 
+`InternetRadio` is an array containing individual stream source configurations.
 The only mandatory property is `uri` others are optional:
 -   `id` unique identifier - auto generated if not present
 
--   `name` human readable identifier, updated according to shoutcast 
+-   `name` human readable identifier, updated according to shoutcast
             information when played (if available)
 
 -   `uri` stream uri
 
 #### Weather
-The `Weather` object configures the displayed weather information 
+The `Weather` object configures the displayed weather information
 form [openweathermap.org](https://api.openweathermap.org)
 
--   `LocationID` identifier for the geographic location, see [http://bulk.openweathermap.org/sample/city.list.json.gz](http://bulk.openweathermap.org/sample/city.list.json.gz) 
+-   `LocationID` identifier for the geographic location, see [http://bulk.openweathermap.org/sample/city.list.json.gz](http://bulk.openweathermap.org/sample/city.list.json.gz)
                    e.g. Esslingen: `"LocationID" = "2928751"` or Porto Alegre: `"LocationID" = "3452925"`
 
 -   `API-Key` access token to the openweather api
