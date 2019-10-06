@@ -1,6 +1,7 @@
 import QtQuick 2.9
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.1
+import QtQuick.Controls.Material 2.1
 import QtMultimedia 5.9
 import ruschi.PodcastEpisode 1.0
 
@@ -13,7 +14,10 @@ ApplicationWindow {
     visible: true
     width: Style.canvasWidth;
     height: Style.canvasHeight;
-
+    
+    Material.theme: Material.Dark
+    Material.accent: Material.Red
+    
     property alias playerControlWidget: playerControlWidget
     property string functionMode: "Clock"
 

@@ -1,5 +1,7 @@
 // Style.qml
 import QtQuick 2.0
+import QtQuick.Controls.Material 2.1
+
 pragma Singleton
 
 QtObject {
@@ -14,10 +16,10 @@ QtObject {
 
 
 	property QtObject colors: QtObject{
-		property  color selected :  "#2196F3";
-		property color unselected: "lightgray";
-		property color disabled: "gainsboro";
-		property color enabled: "#2196F3";
+		property color selected :   Material.primary; // "#2196F3";
+		property color unselected:  Material.color(Material.Grey) ;// "gainsboro";
+		property color disabled: Material.color(Material.Grey);
+		property color enabled: Material.primary; //"#2196F3";
 	}
 
 	property QtObject font: QtObject{
