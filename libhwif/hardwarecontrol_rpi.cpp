@@ -53,6 +53,7 @@ static QString find_event_interface_by_name(const QString& device_name) {
     QDir evt_dir = QDir("/dev/input/");
     for (auto& file_name : evt_dir.entryList(QDir::System)) {
         QFile f(file_name);
+        qCDebug(CLASS_LC) << "trying " << file_name;
         if (!f.open(QFile::ReadWrite)) {
             qCCritical(CLASS_LC)
                 << "Error: open file " << f.fileName() << f.errorString();
