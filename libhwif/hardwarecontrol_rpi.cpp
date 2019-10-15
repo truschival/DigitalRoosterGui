@@ -69,6 +69,7 @@ int set_brightness(int brightness) {
 
 /*****************************************************************************/
 int setup_hardware() {
+	qCDebug(CLASS_LC) << Q_FUNC_INFO << "(real)";
     wiringPiSetup();
     pinMode(BRIGHTNESS_PWM_PIN, PWM_OUTPUT);
     pwmSetMode(PWM_MODE_BAL);
@@ -80,7 +81,7 @@ int setup_hardware() {
     if(push_button_filehandle < 0){
     	qCWarning(CLASS_LC) << " failed to open push-button GPIO";
     }
-    rotary_button_filehandle = open("/dev/input/event0", O_RDONLY);
+    rotary_button_filehandle = open("/dev/input/event1", O_RDONLY);
     if(rotary_button_filehandle < 0){
     	qCWarning(CLASS_LC) << " failed to open rotary-button event interface";
     }
