@@ -140,7 +140,7 @@ include_directories(${PROJECT_INCLUDE_DIR} ${GENERATED_DIR})
 SET(COMPONENT_NAME ${PROJECT_NAME})
 
 # Make debug libs visible per default ->  SET_TARGET_PROPERTIES
-SET(CMAKE_DEBUG_POSTFIX "_dbg")
+SET(CMAKE_DEBUG_POSTFIX "d")
 # (CMAKE_BINARY_DIR = where cmake was invoked and found project())
 SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY	"${PROJECT_BINARY_DIR}/bin/")
 # Folder for libraries (during build)
