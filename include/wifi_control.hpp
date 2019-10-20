@@ -146,7 +146,7 @@ private:
     /**
      * Buffer to hold reply of command
      */
-    char reply[2048];
+    char reply[2048] = {};
     size_t reply_size;
 
     /**
@@ -212,9 +212,9 @@ class WifiNetwork {
 public:
     QString name;
     QString bssid;
-    int signal_strength;
-    bool wps_available;
-    bool connected;
+    int signal_strength =0;
+    bool wps_available = false;
+    bool connected = false;
 };
 
 } // namespace DigitalRooster
