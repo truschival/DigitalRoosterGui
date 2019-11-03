@@ -13,17 +13,26 @@ Microsoft Windows and Desktop GNU/Linux systems are supported for development.
 ![DigitalRooster on hardware](./documentation/figs/Demo_on_hardware.jpg)
 
 ## Some Screenshots
-![Default screen with clock and weather information](/documentation/figs/Main.png)
-![Podcast source selection](/documentation/figs/Podcasts.png)
-![Alarms](/documentation/figs/Alarms.png)
-![Navigation with menu drawer](/documentation/figs/Menubar.png)
+![Default screen with clock and weather information](./documentation/figs/Main.png)
+![Podcast source selection](./documentation/figs/Podcasts.png)
+![Alarms](./documentation/figs/Alarms.png)
+![Navigation with menu drawer](./documentation/figs/Menubar.png)
 
 ---
 ## License
 
 Copyright (c) 2018 by Thomas Ruschival <thomas@ruschival.de>
 
-Licensed under [GNU General Public License v3.0](http://www.gnu.org/licenses/gpl-3.0-standalone.html)
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+See [GNU General Public License v3.0](./LICENSE)
 
 SPDX-License-Identifier: GPL-3.0-or-later
 
