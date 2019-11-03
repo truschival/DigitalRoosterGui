@@ -44,8 +44,8 @@ int get_rotary_button_handle() {
 }
 
 /*****************************************************************************/
-BasicInputEvent get_input_event(int filedescriptor) {
-    BasicInputEvent evt;
+ScrollEvent get_input_event(int filedescriptor) {
+	ScrollEvent evt;
     evt.code = 0;
     evt.value = 0;
     evt.type = 0;

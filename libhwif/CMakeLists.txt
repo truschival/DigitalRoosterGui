@@ -28,17 +28,18 @@ LIST(APPEND CPP_DEFS SYSTEM_TARGET_NAME=${SYSTEM_TARGET_NAME} )
 #------------------------------
 # normal sources
 #------------------------------
+set(SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardware_configuration.cpp )
 
 if(${SYSTEM_TARGET_NAME} STREQUAL "RPi" )
 	MESSAGE(STATUS "adding raspberry pi specific flags")
-	set(SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_rpi.cpp )
+	LIST(APPEND SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_rpi.cpp )
 	find_library(WIRING_LIB 
 		wiringPi
 		DOC "Wiring Pi library"
 	)
 	MESSAGE(STATUS "Found library  ${WIRING_LIB-VERSION} : ${WIRING_LIB} ")
 else()
-	set(SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_stub.cpp )
+	LIST(APPEND SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_stub.cpp )
 endif()
 
 #------------------------------

@@ -20,7 +20,15 @@ extern "C" {
 /**
  * Simplified linux/input event to allow portable code
  */
-struct BasicInputEvent {
+struct ScrollEvent {
+    enum Direction { DOWN = -1, UP = 1 };
+    Direction dir;
+    int code;
+    int value;
+    int type;
+};
+
+struct PushEvent {
     int code;
     int value;
     int type;
@@ -62,7 +70,7 @@ int set_brightness(int brightness);
  * Read scroll_event data from filedescriptor
  * @param filedescriptor of open event file
  */
-BasicInputEvent get_input_event(int filedescriptor);
+ScrollEvent get_input_event(int filedescriptor);
 
 /**
  * Read value of push-button (rotary switch)

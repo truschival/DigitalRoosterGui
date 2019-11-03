@@ -10,14 +10,13 @@
  * 			  SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
 
-#include <QLoggingCategory>
-#include <QString>
 #include <QDir>
 #include <QFileInfo>
+#include <QLoggingCategory>
+#include <QString>
 
 #include <fcntl.h>
-#include <linux/input-event-codes.h>
-#include <linux/input.h>
+
 #include <linux/reboot.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,9 +24,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <wiringPi.h>
-
+#include <linux/input-event-codes.h>
+#include <linux/input.h>
 
 #include "hwif/hal.h"
+#include "hwif/hardware_configuration.hpp"
 
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HAL");
 
@@ -47,37 +48,6 @@ static const double BRIGHTNESS_SLOPE =
 static int push_button_filehandle = 0;
 static int rotary_button_filehandle = 0;
 
-/*****************************************************************************/
-static QString find_event_interface_by_name(const QString& device_name) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO << device_name;
-    QDir evt_dir = QDir("/dev/input/");
-    for (auto& file_name : evt_dir.entryList(QDir::System)) {
-        QFile f(file_name);
-        qCDebug(CLASS_LC) << "trying " << file_name;
-        if (!f.open(QFile::ReadWrite)) {
-            qCCritical(CLASS_LC)
-                << "Error: open file " << f.fileName() << f.errorString();
-            continue;
-        }
-        char buf[256];
-        int ret = ioctl(f.handle(), EVIOCGNAME(sizeof(buf)), buf);
-        if (ret < 0) {
-            qCCritical(CLASS_LC) << " ioctl failed " << ret ;
-            continue;
-        } else {
-            // match name
-            QString dev_name(buf);
-            qCDebug(CLASS_LC) << "Checking " << dev_name
-                              << "equals: " << (dev_name == device_name);
-            if (dev_name == device_name) {
-            	f.close();
-                return QFileInfo(f).absoluteFilePath();
-            }
-        }
-        f.close();
-    }
-    return QString();
-}
 
 /*****************************************************************************/
 int system_reboot() {
@@ -105,7 +75,7 @@ int set_brightness(int brightness) {
 
 /*****************************************************************************/
 int setup_hardware() {
-	qCDebug(CLASS_LC) << Q_FUNC_INFO << "(real)";
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << "(real)";
     wiringPiSetup();
     pinMode(BRIGHTNESS_PWM_PIN, PWM_OUTPUT);
     pwmSetMode(PWM_MODE_BAL);
@@ -113,33 +83,41 @@ int setup_hardware() {
     pwmSetRange(PWM_RANGE);
     pwmWrite(BRIGHTNESS_PWM_PIN, 100);
 
-    QString pb_event_file_name = find_event_interface_by_name("Rotary");
+    Hal::HardwareConfiguration hwcfg;
+
+    auto pb_event_file_name = hwcfg.get_push_button_event_path();
     if (pb_event_file_name.isEmpty()) {
         qCCritical(CLASS_LC) << "Pushbutton event interface not found";
     } else {
-        push_button_filehandle = open("/dev/input/event1", O_RDONLY);
+        push_button_filehandle = open(pb_event_file_name.toStdString().c_str(), O_RDONLY);
         if (push_button_filehandle < 0) {
-            qCWarning(CLASS_LC) << " failed to open push-button GPIO";
+            qCWarning(CLASS_LC) << " failed to open push-button device";
         }
-    rotary_button_filehandle = open("/dev/input/event1", O_RDONLY);
-    if(rotary_button_filehandle < 0){
-    	qCWarning(CLASS_LC) << " failed to open rotary-button event interface";
+    }
+
+    auto rot_event_file_name = hwcfg.get_rotary_event_path();
+    if (rot_event_file_name.isEmpty()) {
+        qCCritical(CLASS_LC) << "Rotary event interface not found";
+    } else {
+        rotary_button_filehandle = open(rot_event_file_name.toStdString().c_str(), O_RDONLY);
+        if (rotary_button_filehandle < 0) {
+            qCWarning(CLASS_LC) << " failed to open rotary encoder device";
+        }
     }
     return 0;
-};
-
+}
 
 /*****************************************************************************/
 
 int get_push_button_handle() {
-	qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return push_button_filehandle;
 }
 
 /*****************************************************************************/
 
 int get_rotary_button_handle() {
-	qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return rotary_button_filehandle;
 }
 
