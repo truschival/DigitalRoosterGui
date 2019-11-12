@@ -45,8 +45,6 @@ static bool override_if_env_var_exists(
 
 HardwareConfiguration::HardwareConfiguration() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto env = QProcessEnvironment::systemEnvironment();
-
     /* set push button device name if specified*/
     override_if_env_var_exists(
         PUSH_BUTTON_EVENT_DEV_ENV_VAR_NAME, &dev_push_button_event_name);
@@ -67,7 +65,8 @@ HardwareConfiguration::HardwareConfiguration() {
 }
 /*****************************************************************************/
 
-QString HardwareConfiguration::resolve_name_to_path(const QString& device_name) {
+QString HardwareConfiguration::resolve_name_to_path(
+    const QString& device_name) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << device_name;
     QDir evt_dir = QDir("/dev/input/");
     for (auto& file_name : evt_dir.entryList(QDir::System)) {
@@ -100,5 +99,3 @@ QString HardwareConfiguration::resolve_name_to_path(const QString& device_name) 
 }
 
 /*****************************************************************************/
-
-

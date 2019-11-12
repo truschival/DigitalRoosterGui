@@ -63,7 +63,6 @@ in privileged mode using `--privileged`.
 
 -   `-DPROFILING=On`              profiling build for Visual Studio
 
-
 The following commands will checkout the sources to `/tmp/checkout/`, create a
 build directory in `/tmp/build/` configure and build DigitalRooster.
 
