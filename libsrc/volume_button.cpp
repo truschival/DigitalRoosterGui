@@ -34,10 +34,13 @@ DigitalRooster::VolumeButton::VolumeButton(QObject* parent)
 
     /* connect notifier and handler for push button */
     button_notifier = std::make_unique<QSocketNotifier>(
-        get_push_button_handle(), QSocketNotifier::Exception);
+        get_push_button_handle(), QSocketNotifier::Read);
 
     connect(button_notifier.get(), &QSocketNotifier::activated, this,
         &VolumeButton::read_button);
+
+    rotary_notifier->setEnabled(true);
+    button_notifier->setEnabled(true);
 }
 
 /*****************************************************************************/
@@ -48,7 +51,7 @@ VolumeButton::~VolumeButton() {
 /*****************************************************************************/
 void DigitalRooster::VolumeButton::read_rotary(int filehandle) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto evt = get_scroll_event(filehandle);
+    auto evt = get_input_event(filehandle);
     // only react on -1 or 1 events
     if (evt.value < 0) {
         emit volume_incremented(-1);
@@ -67,14 +70,12 @@ void DigitalRooster::VolumeButton::monitor_rotary_button(bool active) {
 /*****************************************************************************/
 void DigitalRooster::VolumeButton::read_button(int filehandle) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    /*
-     * TODO: maybe we don't even need to read the actual value. Triggered
-     * on edges Could be enough.
-     */
 
-    // disable during read, otherwise QSocketNotifier is triggered again
     button_notifier->setEnabled(false);
-    auto status = get_pushbutton_value(filehandle);
+    auto evt = get_input_event(filehandle);
+    qCDebug(CLASS_LC) << "C:" << evt.code << "v:" <<evt.value;
+
+    auto status = evt.value;
     if (status > 0 && !button_state) {
         qCDebug(CLASS_LC) << "button_pressed";
         emit button_pressed();

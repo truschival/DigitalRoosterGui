@@ -85,10 +85,10 @@ std::shared_ptr<TimeProvider> DigitalRooster::wallclock =
 
 /*****************************************************************************/
 int main(int argc, char* argv[]) {
-    QGuiApplication app(argc, argv);
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setApplicationName(APPLICATION_NAME);
     QCoreApplication::setApplicationVersion(PROJECT_VERSION);
+    QGuiApplication app(argc, argv);
 
     /*
      * Setup Commandline Parser

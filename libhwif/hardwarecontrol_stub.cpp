@@ -44,9 +44,8 @@ int get_rotary_button_handle() {
 }
 
 /*****************************************************************************/
-ScrollEvent get_scroll_event(int filedescriptor) {
-    ScrollEvent evt;
-    evt.dir = ScrollEvent::UP;
+ScrollEvent get_input_event(int filedescriptor) {
+	ScrollEvent evt;
     evt.code = 0;
     evt.value = 0;
     evt.type = 0;

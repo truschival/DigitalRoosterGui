@@ -184,6 +184,7 @@ SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_serializer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_sleeptimer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_powercontrol.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_hardware_config.cpp
   )  
   
 IF(HAS_WPA_SUPPLICANT)

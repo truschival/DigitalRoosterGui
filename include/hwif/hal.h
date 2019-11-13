@@ -28,6 +28,12 @@ struct ScrollEvent {
     int type;
 };
 
+struct PushEvent {
+    int code;
+    int value;
+    int type;
+};
+
 
 /**
  * Hardware init
@@ -64,7 +70,7 @@ int set_brightness(int brightness);
  * Read scroll_event data from filedescriptor
  * @param filedescriptor of open event file
  */
-ScrollEvent get_scroll_event(int filedescriptor);
+ScrollEvent get_input_event(int filedescriptor);
 
 /**
  * Read value of push-button (rotary switch)
