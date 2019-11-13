@@ -217,7 +217,7 @@ if(DOXYGEN_FOUND)
 	  )
 
     # detailed module doumentation is not always generated (no ALL after target)
-    add_custom_target(DOC
+    add_custom_target(apidoc
         ${DOXYGEN_EXECUTABLE} ${GENERATED_DIR}/Doxyfile
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Generate documentation"
@@ -280,7 +280,7 @@ SET(CPACK_COMPONENT_APIDOC_DISPLAY_NAME "API Documentation")
 SET(CPACK_COMPONENT_DEVELOP_DESCRIPTION "Components needed for development")
 SET(CPACK_COMPONENT_APIDOC_DESCRIPTION  "API Documentation")
 
-SET(CPACK_NSIS_CONTACT "t.ruschival@gmail.com")
+SET(CPACK_NSIS_CONTACT "thomas@ruschival.de")
 SET(CPACK_NSIS_MODIFY_PATH ON)
 
 INCLUDE(CPack)

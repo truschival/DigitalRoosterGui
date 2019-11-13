@@ -57,7 +57,7 @@ public:
     /**
      * Default constructor reads environment variables and sets
      * @ref dev_rotary_event_path and
-     * @ref def_push_button_event_path accordingly
+     * @ref dev_push_button_event_path accordingly
      */
     HardwareConfiguration();
 
