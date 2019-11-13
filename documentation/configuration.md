@@ -156,7 +156,7 @@ form [openweathermap.org](https://api.openweathermap.org)
 
 ## Environment Variables
 
-This part is only works on the embedded linux build. There are a few 
+This part is only works on the embedded linux build. There are a few
 environment variables that allow for configuration of the actually used
 input event interfaces.
 
@@ -165,18 +165,20 @@ tree provided during build with buildroot_extenal. For development purposes
 the following variables are provided:
 
 Setting the input event interfaces directly:
--   ``DR_PUSH_EVENT_PATH`` input device for push button events 
+-   ``DR_PUSH_EVENT_PATH``  input device for push button events
      e.g. ``'/dev/input/event1'``
 
--   ``DR_ROTARY_EVENT_PATH``input device for rotary encoder events 
+-   ``DR_ROTARY_EVENT_PATH``  input device for rotary encoder events
      e.g. ``'/dev/input/event2'`
 
 Setting the input device names to look for using ``ioctl(EVIOCGNAME)``:
--   ``DR_PUSH_EVENT_NAME``name of gpio-keys in device tree e.g. ``'gpio-keys'``
--   ``DR_ROTARY_EVENT_NAME`` name of rotary encoder in device tree e.g. ``'rotary_abs'``
+-   ``DR_PUSH_EVENT_NAME``  name of gpio-keys in device tree
+     e.g. ``'gpio-keys'``
+-   ``DR_ROTARY_EVENT_NAME`` name of rotary encoder in device tree
+     e.g. ``'rotary_abs'``
 
-If ``DR_PUSH_EVENT_PATH`` or ``DR_ROTARY_EVENT_PATH`` are set this 
-value is taken regardless if the device node exists or if it is 
+If ``DR_PUSH_EVENT_PATH`` or ``DR_ROTARY_EVENT_PATH`` are set this
+value is taken regardless if the device node exists or if it is
 the *correct* device.
 
 ## Logging configuration

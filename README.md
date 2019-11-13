@@ -9,7 +9,7 @@
 Internet radio, podcast player and alarmclock. Intended to run on embedded
 Linux with a small touch display.
 
-This repository is part of a larger project. For more information head to 
+This repository is part of a larger project. For more information head to
 [www.digitalrooster.dev](https://www.digitalrooster.dev)
 
 Microsoft Windows and Desktop GNU/Linux systems are supported for development.
@@ -33,10 +33,9 @@ Copyright (c) 2018 by Thomas Ruschival <thomas@ruschival.de>
     (at your option) any later version.
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See [GNU General Public License v3.0](./LICENSE)
+See the [GNU General Public License v3.0](./LICENSE) for more details.
 
 SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -75,7 +74,7 @@ All license texts can be found in the directory [licenses](licenses).
 ## Build configuration
 
 On how to build the desktop version see [documentation/build.md](./documentation/build.md)
-For information on how to build the embedded version see the project 
+For information on how to build the embedded version see the project
 [buildroot_digitalrooster](https://github.com/truschival/buildroot_digitalrooster)
 and [www.digitalrooster.dev](https://www.digitalrooster.dev)
 
@@ -83,8 +82,8 @@ and [www.digitalrooster.dev](https://www.digitalrooster.dev)
 
 ## Runtime configuration
 
-DigitalRooster as a range of options to configure the program behavior, 
-default paths etc. For detailed description see 
-[documentation/configuration.md](./documentation/build.md)
+DigitalRooster as a range of options to configure the program behavior,
+default paths etc. For detailed description see
+[documentation/configuration.md](./documentation/configuration.md)
 
 ---
