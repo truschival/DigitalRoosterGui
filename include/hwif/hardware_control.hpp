@@ -28,9 +28,9 @@ namespace Hal {
  * Simplified linux/input event to allow portable code
  */
 struct InputEvent {
-    int code;
-    int value;
-    int type;
+    int code = 0;
+    int value = 0;
+    int type = 0;
 };
 
 const int EVENT_KEY = 0x01;
@@ -88,7 +88,6 @@ signals:
     void rotary_event(const InputEvent evt);
 
 private:
-
     /**
      * monitors changes on rotary encoder
      */
@@ -109,7 +108,6 @@ private:
      * @param file_handle socket fo rotary_notifier
      */
     void generate_rotary_event(int file_handle);
-
 };
 
 };     // namespace Hal
