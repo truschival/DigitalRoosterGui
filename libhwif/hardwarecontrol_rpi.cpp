@@ -49,7 +49,16 @@ static const double BRIGHTNESS_SLOPE =
 
 namespace Hal {
 /** forward declaration for rpi hardware */
-static int setup_rpi_hardware();
+static int setup_rpi_hardware() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << "(real)";
+    wiringPiSetup();
+    pinMode(BRIGHTNESS_PWM_PIN, PWM_OUTPUT);
+    pwmSetMode(PWM_MODE_BAL);
+    pwmSetClock(CLOCK_DIV);
+    pwmSetRange(PWM_RANGE);
+    pwmWrite(BRIGHTNESS_PWM_PIN, 100);
+    return 0;
+}
 
 /*****************************************************************************/
 static InputEvent read_event(int filedescriptor) {
@@ -94,6 +103,8 @@ HardwareControl::HardwareControl(
     : QObject(parent) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
+    setup_rpi_hardware();
+
     try {
         auto fh = Hal::open_event_file_handle(cfg.get_push_button_event_path());
         button_notifier =
@@ -119,11 +130,6 @@ HardwareControl::HardwareControl(
     } catch (std::exception& exc) {
         qCCritical(CLASS_LC) << exc.what();
     }
-}
-
-/*****************************************************************************/
-void HardwareControl::~HardwareControl() {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }
 
 /*****************************************************************************/
@@ -164,15 +170,4 @@ int HardwareControl::set_brightness(int brightness) {
     return 0;
 }
 
-
 /*****************************************************************************/
-int setup_rpi_hardware() {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO << "(real)";
-    wiringPiSetup();
-    pinMode(BRIGHTNESS_PWM_PIN, PWM_OUTPUT);
-    pwmSetMode(PWM_MODE_BAL);
-    pwmSetClock(CLOCK_DIV);
-    pwmSetRange(PWM_RANGE);
-    pwmWrite(BRIGHTNESS_PWM_PIN, 100);
-    return 0;
-}
