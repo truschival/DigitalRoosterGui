@@ -28,15 +28,13 @@ namespace Hal {
  * Simplified linux/input event to allow portable code
  */
 struct InputEvent {
-    int code = 0;
-    int value = 0;
-    int type = 0;
+	/** Key code (if key-event) */
+    int code{0};
+	/** Value pressed/released increment etc. */
+    int value{0};
+    /** Type key event / mouse etc. ... (0x01 EV_KEY) */
+    int type{0};
 };
-
-const int EVENT_KEY = 0x01;
-const int KEY_PRESSED = 0x01;
-const int PUSHBUTTON_CODE = 102;
-
 
 /**
  * Abstracts access to underlying files and hardware
