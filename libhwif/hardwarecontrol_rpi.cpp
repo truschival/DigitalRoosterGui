@@ -17,6 +17,9 @@
 
 #include <fcntl.h>
 
+#include <cstring> //std::strerror
+#include <linux/input-event-codes.h>
+#include <linux/input.h>
 #include <linux/reboot.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,8 +27,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <wiringPi.h>
-#include <linux/input-event-codes.h>
-#include <linux/input.h>
 
 #include "hwif/hal.h"
 #include "hwif/hardware_configuration.hpp"
@@ -91,7 +92,7 @@ int setup_hardware() {
     } else {
         push_button_filehandle = open(pb_event_file_name.toStdString().c_str(), O_RDONLY);
         if (push_button_filehandle < 0) {
-            qCWarning(CLASS_LC) << " failed to open push-button device";
+            qCWarning(CLASS_LC) << " failed to open push-button device " << std::strerror(errno) << "(" <<errno << ")" ;
         }
     }
 
@@ -101,7 +102,7 @@ int setup_hardware() {
     } else {
         rotary_button_filehandle = open(rot_event_file_name.toStdString().c_str(), O_RDONLY);
         if (rotary_button_filehandle < 0) {
-            qCWarning(CLASS_LC) << " failed to open rotary encoder device";
+            qCWarning(CLASS_LC) << " failed to open rotary encoder device "<< errno;
         }
     }
     return 0;
@@ -122,9 +123,9 @@ int get_rotary_button_handle() {
 }
 
 /*****************************************************************************/
-ScrollEvent get_scroll_event(int filedescriptor) {
+InputEvent get_input_event(int filedescriptor) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    ScrollEvent evt;
+    InputEvent evt;
     struct input_event evt_raw;
 
     auto s = ::read(filedescriptor, &evt_raw, sizeof(evt_raw));
@@ -140,21 +141,5 @@ ScrollEvent get_scroll_event(int filedescriptor) {
                           << "C:" << evt.code;
     }
     return evt;
-}
-
-/*****************************************************************************/
-int get_pushbutton_value(int filedescriptor) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    char value = 0;
-    lseek(filedescriptor, 0, SEEK_SET);
-    auto s = ::read(filedescriptor, &value, sizeof(char));
-    if (s < 0) {
-        qCCritical(CLASS_LC) << "push_button read error";
-    }
-    if (s > 0) {
-        qCDebug(CLASS_LC) << "push_button:" << value;
-        return atoi(&value);
-    }
-    return value;
 }
 }

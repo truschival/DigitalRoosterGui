@@ -2,7 +2,7 @@
  * \filename
  * \brief		Hardware abstraction interface functions
  *
- * \details		implementaion is target specific
+ * \details		implementation is target specific
  *
  * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
  * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
@@ -20,20 +20,14 @@ extern "C" {
 /**
  * Simplified linux/input event to allow portable code
  */
-struct ScrollEvent {
-    enum Direction { DOWN = -1, UP = 1 };
-    Direction dir;
+struct InputEvent {
     int code;
     int value;
     int type;
 };
 
-struct PushEvent {
-    int code;
-    int value;
-    int type;
-};
-
+#define EVT_TYPE_KEY_PRESSED 1
+#define EVT_TYPE_KEY_RELEASED 0
 
 /**
  * Hardware init
@@ -67,18 +61,10 @@ int system_poweroff();
 int set_brightness(int brightness);
 
 /**
- * Read scroll_event data from filedescriptor
+ * Read input-event data from filedescriptor
  * @param filedescriptor of open event file
  */
-ScrollEvent get_input_event(int filedescriptor);
-
-/**
- * Read value of push-button (rotary switch)
- * @param filedescriptor of open event file
- * @return 0/1
- */
-int get_pushbutton_value(int filedescriptor);
-
+InputEvent get_input_event(int filedescriptor);
 
 #ifdef __cplusplus
 } // extern "C"

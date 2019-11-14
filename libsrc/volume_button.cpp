@@ -21,8 +21,7 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.VolumeButton");
 using namespace DigitalRooster;
 
 /*****************************************************************************/
-DigitalRooster::VolumeButton::VolumeButton(QObject* parent)
-	{
+DigitalRooster::VolumeButton::VolumeButton(QObject* parent) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     /* connect notifier and handler for  rotary encoder */
@@ -70,22 +69,24 @@ void DigitalRooster::VolumeButton::monitor_rotary_button(bool active) {
 /*****************************************************************************/
 void DigitalRooster::VolumeButton::read_button(int filehandle) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-
-    button_notifier->setEnabled(false);
     auto evt = get_input_event(filehandle);
-    qCDebug(CLASS_LC) << "C:" << evt.code << "v:" <<evt.value;
-
-    auto status = evt.value;
-    if (status > 0 && !button_state) {
-        qCDebug(CLASS_LC) << "button_pressed";
+    /*
+     * Type=(0x01 EV_KEY), value=(1 pressed, 0 released), code=(102 KEY_HOME)
+     * => only catch key events for key_home
+     */
+    if (evt.type != 0x01 || evt.code != 102) {
+        qCDebug(CLASS_LC) << "uninteresting event type:" << evt.type
+                          << " code: " << evt.code;
+        return;
+    }
+    if (evt.value == 1) {
+        qCDebug(CLASS_LC) << "button pressed";
         emit button_pressed();
     }
-    if (status == 0 && button_state) {
-        qCDebug(CLASS_LC) << "button_released";
+    if (evt.value == 0) {
+        qCDebug(CLASS_LC) << "button released";
         emit button_released();
     }
-    button_state = status > 0;
-    button_notifier->setEnabled(true);
 }
 
 /*****************************************************************************/
