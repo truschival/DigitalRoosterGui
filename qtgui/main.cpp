@@ -25,6 +25,11 @@
 // STD C++
 #include <iostream>
 #include <memory>
+
+// hardware interface
+#include "hwif/hardware_configuration.hpp"
+#include "hwif/hardware_control.hpp"
+
 // Local classes
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
@@ -33,7 +38,6 @@
 #include "appconstants.hpp"
 #include "brightnesscontrol.hpp"
 #include "configuration_manager.hpp"
-#include "hwif/hal.h"
 #include "iradiolistmodel.hpp"
 #include "logger.hpp"
 #include "mediaplayerproxy.hpp"
@@ -134,7 +138,8 @@ int main(int argc, char* argv[]) {
     /*
      *  Initialize Hardware (or call stubs)
      */
-    ::setup_hardware();
+    Hal::HardwareConfiguration hwcfg;
+    Hal::HardwareControl hwctrl(hwcfg);
 
     /*
      * Read configuration
@@ -160,10 +165,14 @@ int main(int argc, char* argv[]) {
     WifiListModel wifilistmodel;
 
     Weather weather(cm);
-    PowerControl power;
-    BrightnessControl brightness(cm);
     SleepTimer sleeptimer(cm);
 
+    /* Brightness control sends pwm update requests to Hardware */
+    BrightnessControl brightness(cm);
+    QObject::connect(&brightness, &BrightnessControl::brightness_pwm_change,
+        &hwctrl, &Hal::HardwareControl::set_brightness);
+
+    PowerControl power;
     /* PowerControl standby sets brightness */
     QObject::connect(&power, SIGNAL(going_in_standby()), &brightness,
         SLOT(restore_standby_brightness()));
@@ -172,6 +181,11 @@ int main(int argc, char* argv[]) {
     /* Powercontrol standby stops player */
     QObject::connect(
         &power, SIGNAL(going_in_standby()), playerproxy.get(), SLOT(stop()));
+    /* Wire shutdown and reboot requests to hardware */
+    QObject::connect(&power, &PowerControl::reboot_request, &hwctrl,
+        &Hal::HardwareControl::system_reboot);
+    QObject::connect(&power, &PowerControl::shutdown_request, &hwctrl,
+        &Hal::HardwareControl::system_poweroff);
 
     /* AlarmDispatcher activates system */
     QObject::connect(
@@ -189,11 +203,17 @@ int main(int argc, char* argv[]) {
         &sleeptimer,
         SLOT(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
 
-    /* Rotary encoder interface */
-    VolumeButton volbtn(cm.get());
+    /* Rotary encoder push button interface */
+    VolumeButton volbtn;
+    /* connect volume button to hardware interface */
+    QObject::connect(&hwctrl, &Hal::HardwareControl::button_event, &volbtn,
+        &VolumeButton::process_key_event);
+    QObject::connect(&hwctrl, &Hal::HardwareControl::rotary_event, &volbtn,
+        &VolumeButton::process_rotary_event);
+
+    /* wire volume button to consumers */
     QObject::connect(
         &volbtn, SIGNAL(button_released()), &power, SLOT(toggle_power_state()));
-
     QObject::connect(&volbtn, SIGNAL(volume_incremented(int)),
         playerproxy.get(), SLOT(increment_volume(int)));
 

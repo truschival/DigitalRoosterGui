@@ -72,7 +72,7 @@ signals:
      * internal state has changed
      * @param current state \ref AlarmMonitor::state
      */
-    void state_changed(AlarmMonitor::MonitorState);
+    void state_changed(AlarmMonitor::MonitorState current);
 
 private:
     /**

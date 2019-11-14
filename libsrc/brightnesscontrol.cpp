@@ -15,7 +15,6 @@
 
 #include "brightnesscontrol.hpp"
 #include "configuration_manager.hpp"
-#include "hwif/hal.h"
 
 using namespace DigitalRooster;
 
@@ -34,7 +33,7 @@ BrightnessControl::BrightnessControl(
 void BrightnessControl::set_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << "Linear: " << brightness;
     linear_brightness = brightness;
-    ::set_brightness(lin2log(linear_brightness));
+    emit brightness_pwm_change(lin2log(linear_brightness));
     cm->set_active_brightness(brightness);
 }
 
@@ -59,14 +58,14 @@ int BrightnessControl::lin2log(int lb) {
 void BrightnessControl::restore_active_brightness() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     linear_brightness = cm->get_active_brightness();
-    ::set_brightness(lin2log(linear_brightness));
+    emit brightness_pwm_change(lin2log(linear_brightness));
 }
 
 /*****************************************************************************/
 void BrightnessControl::restore_standby_brightness() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     linear_brightness = cm->get_standby_brightness();
-    ::set_brightness(lin2log(linear_brightness));
+    emit brightness_pwm_change(lin2log(linear_brightness));
 }
 
 /*****************************************************************************/

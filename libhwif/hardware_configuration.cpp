@@ -26,7 +26,6 @@ using namespace Hal;
 
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HAL");
 
-
 /*****************************************************************************/
 static bool override_if_env_var_exists(
     const QString& env_var_name, QString* var) {

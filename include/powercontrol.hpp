@@ -18,7 +18,7 @@
 namespace DigitalRooster {
 
 /**
- * Controls power-off & reboot
+ * Thin abstraction layer between QML and hardware control
  */
 class PowerControl : public QObject {
     Q_OBJECT
@@ -32,7 +32,7 @@ public:
     };
     Q_ENUM(PowerState)
 
-    PowerControl() = default;
+    PowerControl(QObject* parent = nullptr) : QObject(parent){};
     Q_INVOKABLE void power_off();
     Q_INVOKABLE void reboot();
 
@@ -49,6 +49,9 @@ signals:
     void becoming_active();
     void going_in_standby();
     void active(bool);
+
+    void shutdown_request();
+    void reboot_request();
 
 private:
     /** Default state in standby */
