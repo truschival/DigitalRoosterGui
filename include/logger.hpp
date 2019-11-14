@@ -13,21 +13,19 @@
 #ifndef _LOGGER_HPP_
 #define _LOGGER_HPP_
 
-#include <QStandardPaths>
 #include <QString>
-
 namespace DigitalRooster {
 
 /**
- * file logging faciltity to register with QLoggingCategory
+ * Logger to write to stdout
  */
-class Logger {
+void setup_logger_stdout();
+/**
+ * Logger to write to file
+ * @param filename
+ */
+void setup_logger_file(const QString& filename);
 
-public:
-    Logger(QString filename = QString(
-               QStandardPaths::writableLocation(QStandardPaths::TempLocation) +
-               "/Digitalrooster.log"));
-};
 } // namespace DigitalRooster
 
 #endif /*_LOGGER_HPP_ */

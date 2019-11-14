@@ -25,7 +25,7 @@ namespace DigitalRooster {
 class WifiListModel : public QAbstractListModel {
     Q_OBJECT
 public:
-    WifiListModel(QObject* parent = nullptr);
+    explicit WifiListModel(QObject* parent = nullptr);
 
     enum NetworkRoles {
         BssidRole = Qt::UserRole + 1,

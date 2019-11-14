@@ -28,7 +28,8 @@ using namespace DigitalRooster;
 class SettingsFixture : public virtual ::testing::Test {
 public:
     SettingsFixture()
-        : filename(TEST_FILE_PATH + "/" + CONFIG_JSON_FILE_NAME) {
+        : filename(DEFAULT_CONFIG_FILE_PATH+"_SettingsFixture")
+        , cache_dir(DEFAULT_CACHE_DIR_PATH) {
     }
 
     ~SettingsFixture() {
@@ -41,21 +42,27 @@ public:
         add_weather_config(appconfig);
         QJsonDocument doc(appconfig);
         QFile tf(filename);
+        QFileInfo file_info(tf);
+        QDir().mkpath(file_info.path());
         tf.open(QIODevice::ReadWrite | QIODevice::Text);
         tf.write(doc.toJson());
         tf.close();
 
-        cm = std::make_unique<ConfigurationManager>(TEST_FILE_PATH);
+        cm = std::make_unique<ConfigurationManager>(filename, cache_dir);
         cm->update_configuration();
     }
 
     void TearDown() {
-        QFile file(filename);
-        file.remove();
+        QFileInfo file_info(filename);
+        QDir(file_info.dir()).removeRecursively();
+
+        QDir cd(cache_dir);
+        cd.removeRecursively();
     }
 
 protected:
     QString filename;
+    QString cache_dir;
     QJsonObject appconfig;
     std::unique_ptr<ConfigurationManager> cm;
 
@@ -173,7 +180,7 @@ TEST_F(SettingsFixture, addRadioStation_write) {
         /* should write file in destructor */
         cm->store_current_config();
     }
-    ConfigurationManager control(TEST_FILE_PATH);
+    ConfigurationManager control(filename, TEST_FILE_PATH);
     control.update_configuration();
     auto& v = control.get_stream_sources();
     ASSERT_EQ(4, v.size());
@@ -343,13 +350,15 @@ TEST_F(SettingsFixture, emitConfigChanged) {
 /*****************************************************************************/
 TEST(ConfigManager, CreateDefaultConfigDir) {
     auto config_path =
-        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
-    QDir config_dir(config_path);
-    config_dir.remove(".");
+        QDir(QDir::tempPath()).filePath(QString("testdir_to_delete"));
+    auto config_file_name = QDir(config_path).filePath(CONFIG_JSON_FILE_NAME);
 
-    ConfigurationManager cm;
+    QDir config_dir(config_path);
+    config_dir.removeRecursively();
+
+    ConfigurationManager cm(config_file_name, DEFAULT_CACHE_DIR_PATH);
     cm.update_configuration();
-    ASSERT_TRUE(config_dir.exists());
+    ASSERT_TRUE(QDir(config_path).exists());
 }
 
 /*****************************************************************************/
@@ -359,12 +368,32 @@ TEST(ConfigManager, CreateDefaultConfig) {
     QDir config_dir(config_path);
     config_dir.removeRecursively();
     auto file_path = config_dir.filePath(CONFIG_JSON_FILE_NAME);
-    QFile config_file(file_path);
 
-    ConfigurationManager cm;
+    ConfigurationManager cm(file_path, DEFAULT_CACHE_DIR_PATH);
     cm.update_configuration();
 
+    QFile config_file(file_path);
     ASSERT_GT(config_file.size(), 0);
+}
+
+/*****************************************************************************/
+TEST(ConfigManager, DefaultForNotWritableCache) {
+    QDir default_cache_dir(DEFAULT_CACHE_DIR_PATH);
+    default_cache_dir.removeRecursively();
+    ASSERT_FALSE(default_cache_dir.exists());
+
+    ConfigurationManager cm(DEFAULT_CONFIG_FILE_PATH, QString("/dev/"));
+
+    ASSERT_TRUE(default_cache_dir.exists());
+}
+
+/*****************************************************************************/
+TEST(ConfigManager, DefaultForNotWritableConfig) {
+    QFile default_conf_file(DEFAULT_CONFIG_FILE_PATH);
+    ASSERT_TRUE(default_conf_file.remove());
+    ConfigurationManager cm(QString("/dev/foobar.json"),
+        DEFAULT_CACHE_DIR_PATH);
+    ASSERT_TRUE(default_conf_file.exists());
 }
 
 /*****************************************************************************/

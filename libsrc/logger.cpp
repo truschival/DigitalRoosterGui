@@ -10,8 +10,9 @@
  *
  *****************************************************************************/
 
-#include <QFile>
 #include <memory>
+
+#include <QFile>
 #include <QDateTime>
 #include <QDebug>
 #include <QLoggingCategory>
@@ -56,16 +57,30 @@ static void messageHandler(
     out << context.category << "\t" << msg << endl;
     out.flush();
 }
-/*****************************************************************************/
 
-Logger::Logger(QString filename) {
+/*****************************************************************************/
+void setup_logger_file(const QString& filename) {
     qDebug() << Q_FUNC_INFO;
     qDebug() << "Logging to " << filename;
     logfile = std::make_shared<QFile>(filename);
-    logfile->open(QIODevice::ReadWrite | QIODevice::Append| QIODevice::Text);
+    if(! logfile->open(QIODevice::WriteOnly | QIODevice::Append| QIODevice::Text)){
+        throw std::system_error(
+            make_error_code(std::errc::bad_file_descriptor),
+            logfile->errorString().toStdString());
+    };
     qInstallMessageHandler(messageHandler);
 }
 
 /*****************************************************************************/
+void setup_logger_stdout() {
+    qDebug() << Q_FUNC_INFO;
+    qDebug() << "Logging to stdout";
+    logfile = std::make_shared<QFile>();
+    logfile->open(stdout, QIODevice::WriteOnly);
+    qInstallMessageHandler(messageHandler);
+}
+
+/*****************************************************************************/
+
 
 } // namespace

@@ -102,10 +102,12 @@ void PodcastSerializer::parse_podcast_source_from_json(
         // need to update podcast source data
         auto title = tl_obj[KEY_TITLE].toString();
         auto desc = tl_obj[KEY_DESCRIPTION].toString();
-        auto img_src = tl_obj[KEY_IMAGE_PATH].toString();
+        auto img_url = tl_obj[KEY_ICON_URL].toString();
+        auto img_cached = tl_obj[KEY_IMAGE_CACHE].toString();
         ps->set_title(title);
         ps->set_description(desc);
-        ps->set_image_uri(img_src);
+        ps->set_image_url(img_url);
+        ps->set_image_file_path(img_cached);
     }
     auto episodes_json_array = tl_obj[KEY_EPISODES].toArray();
     if (episodes_json_array.isEmpty()) {
@@ -161,8 +163,8 @@ QJsonObject DigitalRooster::PodcastSerializer::json_from_podcast_source(
     ps_obj[KEY_TIMESTAMP] = wallclock->now().toString();
     ps_obj[KEY_TITLE] = ps->get_title();
     ps_obj[KEY_DESCRIPTION] = ps->get_description();
-    ps_obj[KEY_IMAGE_PATH] = ps->get_image_uri().toString();
-
+    ps_obj[KEY_ICON_URL] = ps->get_image_url().toString();
+    ps_obj[KEY_IMAGE_CACHE] = ps->get_image_file_path();
     return ps_obj;
 }
 

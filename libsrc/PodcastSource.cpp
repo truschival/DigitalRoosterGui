@@ -11,12 +11,17 @@
  *****************************************************************************/
 
 #include <QDateTime>
+#include <QImage>
 #include <QLoggingCategory>
 #include <QMediaPlayer>
 #include <QStandardPaths>
+
 #include <algorithm>
+#include <memory>
 
 #include "PodcastSource.hpp"
+#include "appconstants.hpp"
+#include "httpclient.hpp"
 #include "podcast_serializer.hpp"
 
 using namespace DigitalRooster;
@@ -24,9 +29,10 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.PodcastSource");
 
 /*****************************************************************************/
-PodcastSource::PodcastSource(const QUrl& url, QUuid uid)
+PodcastSource::PodcastSource(const QUrl& url, const QDir& cache_dir, QUuid uid)
     : id(uid)
-    , rss_feed_uri(url) {
+    , rss_feed_uri(url)
+    , cache_dir(cache_dir) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     // read initial settings from file if it exists
     restore();
@@ -35,6 +41,21 @@ PodcastSource::PodcastSource(const QUrl& url, QUuid uid)
     writeTimer.setSingleShot(true);
     connect(&writeTimer, SIGNAL(timeout()), this, SLOT(store()));
 }
+
+/*****************************************************************************/
+PodcastSource::~PodcastSource() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    writeTimer.stop();
+
+    if (download_cnx)
+        disconnect(download_cnx);
+
+    if (icon_downloader) {
+        icon_downloader.get()->deleteLater();
+        icon_downloader.release();
+    }
+}
+
 
 /*****************************************************************************/
 void PodcastSource::add_episode(std::shared_ptr<PodcastEpisode> newep) {
@@ -122,10 +143,7 @@ QString PodcastSource::get_cache_file_name() const {
 /*****************************************************************************/
 QString PodcastSource::get_cache_file_impl() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    QString res(
-        QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-    res = res + QDir::separator() + get_id().toString();
-    return res;
+    return cache_dir.filePath(get_id().toString());
 }
 
 /*****************************************************************************/
@@ -176,14 +194,39 @@ void PodcastSource::refresh() {
 }
 
 /*****************************************************************************/
-void PodcastSource::purge() {
+void PodcastSource::purge_icon_cache() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    /* remove local image cache */
+    if (image_file_path.isEmpty()) {
+        return;
+    }
+    QFile img_file(image_file_path);
+    if (!img_file.remove()) {
+        qCWarning(CLASS_LC) << " removing image cache failed "
+                            << image_file_path << ":" << img_file.errorString();
+    }
+    image_file_path.clear(); // reset image file
+}
+
+/*****************************************************************************/
+void PodcastSource::purge_episodes() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+
     QFile cache_file(get_cache_file_name());
     if (!cache_file.remove()) {
-        qCDebug(CLASS_LC) << " removing cache_file failed "
-                          << cache_file.errorString();
+        qCWarning(CLASS_LC)
+            << " removing cache_file failed " << get_cache_file_name() << ":"
+            << cache_file.errorString();
     }
     episodes.clear();
+    emit episodes_count_changed(episodes.size());
+}
+
+/*****************************************************************************/
+void PodcastSource::purge() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    purge_episodes();
+    purge_icon_cache();
 }
 
 /*****************************************************************************/
@@ -229,9 +272,49 @@ int DigitalRooster::PodcastSource::get_episode_count_impl() const {
 }
 
 /*****************************************************************************/
-void PodcastSource::set_image_uri(const QUrl& uri) {
+void PodcastSource::set_image_url(const QUrl& uri) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    image_uri = uri;
+    icon_url = uri;
+    emit icon_changed();
+}
+/*****************************************************************************/
+void PodcastSource::set_image_file_path(const QString& path) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    image_file_path = path;
+    emit icon_changed();
+}
+
+/*****************************************************************************/
+QUrl PodcastSource::get_icon_impl() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    if (!image_file_path.isEmpty() && QFile(image_file_path).exists()) {
+        return QUrl::fromLocalFile(image_file_path);
+    } else {
+        /* Download for next time */
+        icon_downloader = std::make_unique<HttpClient>();
+        download_cnx = connect(icon_downloader.get(),
+            &HttpClient::dataAvailable, this, &PodcastSource::store_image);
+        icon_downloader->doDownload(icon_url);
+        return icon_url;
+    }
+}
+
+/*****************************************************************************/
+void PodcastSource::store_image(QByteArray data) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto file_name = QDir(DEFAULT_CACHE_DIR_PATH).filePath(icon_url.fileName());
+    /* Resize image and save file */
+    auto image_data = QImage::fromData(data);
+    auto small_image = image_data.scaled(DEFAULT_ICON_WIDTH, DEFAULT_ICON_WIDTH,
+        Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    small_image.save(file_name);
+    image_file_path = file_name;
+    emit icon_changed();
+    // disable receiving signals form downloader
+    disconnect(download_cnx);
+    icon_downloader.get()->deleteLater();
+    icon_downloader.release(); // let QT manage the object
+    writeTimer.start();        // start delayed write
 }
 
 /*****************************************************************************/

@@ -19,6 +19,8 @@
 #include <QString>
 #include <memory>
 
+#include "hwif/hardware_control.hpp"
+
 namespace DigitalRooster {
 /**
  * Abstracts access to rotary button event interfaces and notifies updated
@@ -32,12 +34,7 @@ public:
      * Construct with path to event interface for rotary encoder and
      * push button GPIO
      */
-    VolumeButton(QObject* parent = nullptr);
-    /**
-     * check if button is pressed
-     * @return pressed/not pressed
-     */
-    bool get_button_state();
+    explicit VolumeButton(QObject* parent = nullptr);
 
     /**
      * disable copy-constructor and copy assignment
@@ -57,44 +54,45 @@ public:
     virtual ~VolumeButton();
 
 public slots:
+    /**
+     * Enable/Disable generation of rotary button events
+     * @sa volume_incremented
+     * @param active state
+     */
     void monitor_rotary_button(bool active);
+
+    /**
+     * process rotary events
+     * @param evt event that occurred
+     */
+    void process_rotary_event(const Hal::InputEvent& evt);
+
+    /**
+     * process Push-button events
+     * @param evt event that occurred
+     */
+    void process_key_event(const Hal::InputEvent& evt);
 
 signals:
     /**
-	 * volume was incremented/decremented by increment 
-	 */
+     * volume was incremented/decremented by increment
+     */
     void volume_incremented(int increment);
+    /**
+     * Push button was/is pressed
+     */
     void button_pressed();
+
+    /**
+     * Push button was/is released
+     */
     void button_released();
 
 private:
     /**
-     * monitors changes on rotary encoder
+     * if false no volume_increment events will be generated
      */
-    std::unique_ptr<QSocketNotifier> rotary_notifier;
-
-    /**
-     * monitors changes on push button
-     */
-    std::unique_ptr<QSocketNotifier> button_notifier;
-
-    /**
-     * cached button state
-     */
-    bool button_state = true;
-
-private slots:
-    /**
-     * read event(s) from rotary file handle
-     * update volume
-     */
-    void read_rotary(int filehandle);
-
-    /**
-     * read events from button file handle
-     * update button_state
-     */
-    void read_button(int filehandle);
+    bool enable_volume_changes;
 };
 } // namespace DigitalRooster
 #endif /* VOLUME_BUTTON_HPP */

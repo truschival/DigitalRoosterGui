@@ -13,6 +13,7 @@
 #define _APPCONSTANTS_HPP_
 
 #include <QDir>
+#include <QStandardPaths>
 #include <QString>
 #include <chrono>
 
@@ -22,7 +23,6 @@
 #define STR_VALUE(arg) STRINGIZER(arg)
 
 namespace DigitalRooster {
-
 /**
  * configuration Key for Sources Array
  */
@@ -170,7 +170,12 @@ const QString KEY_FILE_PATH("path");
 /**
  * key for any image path property
  */
-const QString KEY_IMAGE_PATH("image");
+const QString KEY_ICON_URL("icon");
+
+/**
+ * key for any image path property
+ */
+const QString KEY_IMAGE_CACHE("icon-cached");
 
 /**
  * key for numeric position property
@@ -229,6 +234,12 @@ const int DEFAULT_VOLUME = 30;
  */
 const int DEFAULT_BRIGHTNESS = 25;
 
+/**
+ * Constant Podcast Icon size
+ * Shared between C++ and QML
+ */
+const int DEFAULT_ICON_WIDTH = 88;
+
 /*****************************************************************************
  CMake build configurations from config.h
  *****************************************************************************/
@@ -265,6 +276,25 @@ const QString CONFIG_JSON_FILE_NAME(STR_VALUE(CMAKE_SETTINGS_FILE_NAME));
  */
 const QString WPA_CONTROL_SOCKET_PATH(STR_VALUE(WIFI_INTERFACE_PATH));
 
+/****************************************************************************/
+
+/**
+ * Log file path
+ * initialized in main.cpp or test.cpp
+ */
+extern const QString DEFAULT_LOG_PATH;
+
+/**
+ * Default configuration file path
+ * initialized in main.cpp or test.cpp
+ */
+extern const QString DEFAULT_CONFIG_FILE_PATH;
+
+/**
+ * Cache directory
+ * initialized in main.cpp or test.cpp
+ */
+extern const QString DEFAULT_CACHE_DIR_PATH;
 
 } // namespace DigitalRooster
 

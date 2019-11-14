@@ -15,6 +15,7 @@
 #define QT_QML_DEBUG
 #endif
 
+#include <QCommandLineParser>
 #include <QDebug>
 #include <QFontDatabase>
 #include <QGuiApplication>
@@ -24,6 +25,11 @@
 // STD C++
 #include <iostream>
 #include <memory>
+
+// hardware interface
+#include "hwif/hardware_configuration.hpp"
+#include "hwif/hardware_control.hpp"
+
 // Local classes
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
@@ -32,7 +38,6 @@
 #include "appconstants.hpp"
 #include "brightnesscontrol.hpp"
 #include "configuration_manager.hpp"
-#include "hwif/hal.h"
 #include "iradiolistmodel.hpp"
 #include "logger.hpp"
 #include "mediaplayerproxy.hpp"
@@ -51,6 +56,31 @@ using namespace DigitalRooster;
 Q_DECLARE_LOGGING_CATEGORY(MAIN)
 Q_LOGGING_CATEGORY(MAIN, "DigitalRooster.main")
 
+
+/*****************************************************************************
+ * Application constants
+ ****************************************************************************/
+/**
+ * Log file path
+ */
+const QString DigitalRooster::DEFAULT_LOG_PATH(
+    QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
+        .filePath(APPLICATION_NAME + ".log"));
+
+/**
+ * Default configuration file path
+ */
+const QString DigitalRooster::DEFAULT_CONFIG_FILE_PATH(
+    QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation))
+        .filePath(CONFIG_JSON_FILE_NAME));
+
+/**
+ * Cache directory
+ */
+const QString DigitalRooster::DEFAULT_CACHE_DIR_PATH(
+    QDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation))
+        .filePath(APPLICATION_NAME));
+
 /**
  * Global wall clock
  */
@@ -59,43 +89,70 @@ std::shared_ptr<TimeProvider> DigitalRooster::wallclock =
 
 /*****************************************************************************/
 int main(int argc, char* argv[]) {
-    QGuiApplication app(argc, argv);
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QCoreApplication::setApplicationName(APPLICATION_NAME);
     QCoreApplication::setApplicationVersion(PROJECT_VERSION);
+    QGuiApplication app(argc, argv);
 
-    std::cout << APPLICATION_NAME.toStdString().c_str() << " - "
-              << GIT_REVISION.toStdString().c_str() << "\n logging to: ";
-    std::cout << QString(QStandardPaths::writableLocation(
-                             QStandardPaths::TempLocation) +
-                     "/Digitalrooster.log")
-                     .toStdString()
-                     .c_str()
-              << std::endl;
+    /*
+     * Setup Commandline Parser
+     */
+    QCommandLineParser cmdline;
+    QCommandLineOption logstdout({"s", "stdout"}, QString("log to stdout"));
+    QCommandLineOption logfile({"l", "logfile"},
+        QString("application log <file>"), // description
+        QString("logfile")                 // value name
+    );
+    QCommandLineOption confpath({"c", "confpath"},
+        QString("configuration file path (default: ") +
+            DEFAULT_CONFIG_FILE_PATH,
+        QString("confpath"), DEFAULT_CONFIG_FILE_PATH);
+    QCommandLineOption cachedir({"d", "cachedir"},
+        QString("application cache <directory> (default: ") +
+            DEFAULT_CACHE_DIR_PATH,
+        QString("cachedir"), DEFAULT_CACHE_DIR_PATH);
 
-    Logger logfacility;
+    cmdline.addOption(logstdout);
+    cmdline.addOption(confpath);
+    cmdline.addOption(logfile);
+    cmdline.addOption(cachedir);
+    cmdline.addHelpOption();
+    cmdline.addVersionOption();
+    cmdline.process(app);
+    /*
+     * Setup Logfacility
+     */
+    if (cmdline.isSet(logstdout)) {
+        setup_logger_stdout(); // Write log to stdout
+    } else if (cmdline.isSet(logfile)) {
+        try {
+            setup_logger_file(cmdline.value(logfile));
+        } catch (std::system_error& exc) {
+            setup_logger_stdout(); // Write log to stdout
+        }
+    } else { // Default behavour as before
+        setup_logger_file(DEFAULT_LOG_PATH);
+    }
+    qCInfo(MAIN) << "confpath: " << cmdline.value(confpath);
+    qCInfo(MAIN) << "cachedir: " << cmdline.value(cachedir);
+    qCInfo(MAIN) << APPLICATION_NAME << " - " << GIT_REVISION;
     qCDebug(MAIN) << "SSL Support: " << QSslSocket::supportsSsl()
                   << QSslSocket::sslLibraryVersionString();
 
-    // Initialize Hardware (or call stubs)
-    ::setup_hardware();
+    /*
+     *  Initialize Hardware (or call stubs)
+     */
+    Hal::HardwareConfiguration hwcfg;
+    Hal::HardwareControl hwctrl(hwcfg);
 
-    qmlRegisterType<PodcastEpisodeModel>(
-        "ruschi.PodcastEpisodeModel", 1, 0, "PodcastEpisodeModel");
-    qmlRegisterType<DigitalRooster::PodcastEpisode>(
-        "ruschi.PodcastEpisode", 1, 0, "PodcastEpisode");
-    qmlRegisterType<DigitalRooster::Alarm>("ruschi.Alarm", 1, 0, "Alarm");
-    qmlRegisterType<DigitalRooster::IRadioListModel>(
-        "ruschi.IRadioListModel", 1, 0, "IRadioListModel");
-    qmlRegisterType<DigitalRooster::PlayableItem>(
-        "ruschi.PlayableItem", 1, 0, "PlayableItem");
-    qmlRegisterType<DigitalRooster::WifiListModel>(
-        "ruschi.WifiListModel", 1, 0, "WifiListModel");
-
-
-    /*Get available Podcasts */
-    auto cm = std::make_shared<ConfigurationManager>();
+    /*
+     * Read configuration
+     */
+    auto cm = std::make_shared<ConfigurationManager>(
+        cmdline.value(confpath), cmdline.value(cachedir));
     cm->update_configuration();
+
+    // Initialize Player
     auto playerproxy = std::make_shared<MediaPlayerProxy>();
     playerproxy->set_volume(cm->get_volume());
 
@@ -112,10 +169,14 @@ int main(int argc, char* argv[]) {
     WifiListModel wifilistmodel;
 
     Weather weather(cm);
-    PowerControl power;
-    BrightnessControl brightness(cm);
     SleepTimer sleeptimer(cm);
 
+    /* Brightness control sends pwm update requests to Hardware */
+    BrightnessControl brightness(cm);
+    QObject::connect(&brightness, &BrightnessControl::brightness_pwm_change,
+        &hwctrl, &Hal::HardwareControl::set_brightness);
+
+    PowerControl power;
     /* PowerControl standby sets brightness */
     QObject::connect(&power, SIGNAL(going_in_standby()), &brightness,
         SLOT(restore_standby_brightness()));
@@ -124,6 +185,11 @@ int main(int argc, char* argv[]) {
     /* Powercontrol standby stops player */
     QObject::connect(
         &power, SIGNAL(going_in_standby()), playerproxy.get(), SLOT(stop()));
+    /* Wire shutdown and reboot requests to hardware */
+    QObject::connect(&power, &PowerControl::reboot_request, &hwctrl,
+        &Hal::HardwareControl::system_reboot);
+    QObject::connect(&power, &PowerControl::shutdown_request, &hwctrl,
+        &Hal::HardwareControl::system_poweroff);
 
     /* AlarmDispatcher activates system */
     QObject::connect(
@@ -141,8 +207,15 @@ int main(int argc, char* argv[]) {
         &sleeptimer,
         SLOT(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
 
-    /* Rotary encoder interface */
-    VolumeButton volbtn(cm.get());
+    /* Rotary encoder push button interface */
+    VolumeButton volbtn;
+    /* connect volume button to hardware interface */
+    QObject::connect(&hwctrl, &Hal::HardwareControl::button_event, &volbtn,
+        &VolumeButton::process_key_event);
+    QObject::connect(&hwctrl, &Hal::HardwareControl::rotary_event, &volbtn,
+        &VolumeButton::process_rotary_event);
+
+    /* wire volume button to consumers */
     QObject::connect(
         &volbtn, SIGNAL(button_released()), &power, SLOT(toggle_power_state()));
     QObject::connect(&volbtn, SIGNAL(volume_incremented(int)),
@@ -156,6 +229,21 @@ int main(int argc, char* argv[]) {
 
     /* we start in standby */
     power.standby();
+
+    /*
+     * QML Setup
+     */
+    qmlRegisterType<PodcastEpisodeModel>(
+        "ruschi.PodcastEpisodeModel", 1, 0, "PodcastEpisodeModel");
+    qmlRegisterType<DigitalRooster::PodcastEpisode>(
+        "ruschi.PodcastEpisode", 1, 0, "PodcastEpisode");
+    qmlRegisterType<DigitalRooster::Alarm>("ruschi.Alarm", 1, 0, "Alarm");
+    qmlRegisterType<DigitalRooster::IRadioListModel>(
+        "ruschi.IRadioListModel", 1, 0, "IRadioListModel");
+    qmlRegisterType<DigitalRooster::PlayableItem>(
+        "ruschi.PlayableItem", 1, 0, "PlayableItem");
+    qmlRegisterType<DigitalRooster::WifiListModel>(
+        "ruschi.WifiListModel", 1, 0, "WifiListModel");
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
@@ -176,6 +264,8 @@ int main(int argc, char* argv[]) {
     ctxt->setContextProperty("brightnessControl", &brightness);
     ctxt->setContextProperty("volumeButton", &volbtn);
     ctxt->setContextProperty("sleeptimer", &sleeptimer);
+    ctxt->setContextProperty(
+        "DEFAULT_ICON_WIDTH", QVariant::fromValue(DEFAULT_ICON_WIDTH));
 
     view.load(QUrl("qrc:/main.qml"));
 

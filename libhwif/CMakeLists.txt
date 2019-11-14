@@ -28,24 +28,36 @@ LIST(APPEND CPP_DEFS SYSTEM_TARGET_NAME=${SYSTEM_TARGET_NAME} )
 #------------------------------
 # normal sources
 #------------------------------
+set(SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardware_configuration.cpp )
 
 if(${SYSTEM_TARGET_NAME} STREQUAL "RPi" )
 	MESSAGE(STATUS "adding raspberry pi specific flags")
-	set(SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_rpi.cpp )
+	LIST(APPEND SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_rpi.cpp )
 	find_library(WIRING_LIB 
 		wiringPi
 		DOC "Wiring Pi library"
 	)
 	MESSAGE(STATUS "Found library  ${WIRING_LIB-VERSION} : ${WIRING_LIB} ")
 else()
-	set(SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_stub.cpp )
+	LIST(APPEND SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_stub.cpp )
 endif()
+
+#------------------------------
+# QT MOC, UIC RCC input
+#------------------------------
+
+# Moc any classes derived from QObject
+SET(MOC_SRCS
+    ${PROJECT_INCLUDE_DIR}/hwif/hardware_control.hpp
+    )
+
 
 #------------------------------
 # Output a library
 #------------------------------
 ADD_LIBRARY(${LIBRARY_NAME} STATIC 
 	${SRCS} 
+	${MOC_SRCS}
 	)
 
 SET_TARGET_PROPERTIES(
@@ -57,7 +69,7 @@ SET_TARGET_PROPERTIES(
 TARGET_INCLUDE_DIRECTORIES(
   ${LIBRARY_NAME}
   PRIVATE
-  $<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>/hal
+  $<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>/hwif
   PUBLIC
   $<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>
   )

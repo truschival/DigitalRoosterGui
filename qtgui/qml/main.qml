@@ -1,6 +1,7 @@
 import QtQuick 2.9
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.1
+import QtQuick.Controls.Material 2.1
 import QtMultimedia 5.9
 import ruschi.PodcastEpisode 1.0
 
@@ -13,7 +14,10 @@ ApplicationWindow {
     visible: true
     width: Style.canvasWidth;
     height: Style.canvasHeight;
-
+    
+    Material.theme: Material.Dark
+    Material.accent: Material.Red
+    
     property alias playerControlWidget: playerControlWidget
     property string functionMode: "Clock"
 
@@ -46,6 +50,7 @@ ApplicationWindow {
 
             IconButton {
                 text: "\uf35c";
+                Layout.maximumWidth: 48;
                 onClicked: {
                     drawer.open()
                 }
@@ -74,7 +79,6 @@ ApplicationWindow {
                         sleepTimeoutMenu.popup((applicationWindow.width- sleepTimeoutMenu.width)/2,
                                                (applicationWindow.height- sleepTimeoutMenu.height)/2
                                                - Style.itemMargins.extrawide);
-                        console.log("popup")
                     }
                     // click resets timer
                     onPressed: sleeptimer.reset_timer();
@@ -86,6 +90,7 @@ ApplicationWindow {
             IconButton {
                 id : playerControlBtn
                 text: "\uf40a"
+                Layout.maximumWidth: 48;
                 onClicked:{
                     playerControlWidget.show()
                 }
@@ -94,6 +99,7 @@ ApplicationWindow {
             IconButton {
                 id : backButton
                 text: "\uf30d"
+                Layout.maximumWidth: 48;
                 visible: (stackView.depth > 1)
                 onClicked:{
                     stackView.backNavigate()

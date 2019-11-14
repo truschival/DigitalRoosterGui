@@ -11,6 +11,11 @@
  *****************************************************************************/
 
 #include <QLoggingCategory>
+#include <QString>
+#include <cstring>
+#include <exception>
+#include <memory>
+
 #include <fcntl.h>
 #include <linux/input-event-codes.h>
 #include <linux/input.h>
@@ -20,14 +25,16 @@
 #include <sys/reboot.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <wiringPi.h>
+
+#include <wiringPi.h> // TODO: remove dependency
 
 
-#include "hwif/hal.h"
+#include "hwif/hardware_configuration.hpp"
+#include "hwif/hardware_control.hpp"
 
+using namespace Hal;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HAL");
 
-extern "C" {
 static const int PWM_RANGE = 512; // 2 to 4095 (1024 default)
 static const int CLOCK_DIV = 64;  // 1 to 4096
 static const int BRIGHTNESS_PWM_PIN = 23;
@@ -40,92 +47,28 @@ static const double BRIGHTNESS_VAL_MAX = 256;
 static const double BRIGHTNESS_SLOPE =
     (BRIGHTNESS_VAL_MAX - BRIGHTNESS_VAL_OFFSET_0) / 100.0;
 
-static int push_button_filehandle = 0;
-static int rotary_button_filehandle = 0;
-
-/*****************************************************************************/
-int system_reboot() {
-    sync();
-    return system("/sbin/reboot -d 2");
-    // return reboot(LINUX_REBOOT_CMD_RESTART);
-}
-
-/*****************************************************************************/
-
-int system_poweroff() {
-    sync();
-    // use init to shut down gracefully...
-    return system("/sbin/poweroff -d 2");
-    // if we get here we shut down hard
-    //   return reboot(LINUX_REBOOT_CMD_POWER_OFF);
-}
-
-/*****************************************************************************/
-int set_brightness(int brightness) {
-    int pwm_val = BRIGHTNESS_VAL_OFFSET_0 + brightness * BRIGHTNESS_SLOPE;
-    pwmWrite(BRIGHTNESS_PWM_PIN, pwm_val);
-    return 0;
-}
-
-/*****************************************************************************/
-int setup_hardware() {
+namespace Hal {
+/** forward declaration for rpi hardware */
+static int setup_rpi_hardware() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << "(real)";
     wiringPiSetup();
     pinMode(BRIGHTNESS_PWM_PIN, PWM_OUTPUT);
     pwmSetMode(PWM_MODE_BAL);
     pwmSetClock(CLOCK_DIV);
     pwmSetRange(PWM_RANGE);
     pwmWrite(BRIGHTNESS_PWM_PIN, 100);
-
-    push_button_filehandle = open("/sys/class/gpio/gpio22/value", O_RDONLY);
-    rotary_button_filehandle = open("/dev/input/event1", O_RDONLY);
-
     return 0;
-};
-
-
-/*****************************************************************************/
-
-int get_push_button_handle() {
-    return push_button_filehandle;
 }
 
 /*****************************************************************************/
-
-int get_rotary_button_handle() {
-    return rotary_button_filehandle;
-}
-
-/*****************************************************************************/
-int setup_gpio_pushbutton(int gpio) {
+static InputEvent read_event(int filedescriptor) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    int err = 0;
-    FILE* fp;
-    if ((fp = fopen("/sys/class/gpio/export", "w")) == NULL)
-        return -1;
-    rewind(fp);
-    fprintf(fp, "%d", gpio);
-    fclose(fp);
-
-    char gpio_path[128];
-    snprintf(
-        gpio_path, sizeof(gpio_path), "/sys/class/gpio/gpio%d/direction", gpio);
-    // TODO;
-    if ((fp = fopen(gpio_path, "w")) == NULL)
-        return -1;
-
-    return err;
-}
-
-
-/*****************************************************************************/
-ScrollEvent get_scroll_event(int filedescriptor) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    ScrollEvent evt;
+    InputEvent evt;
     struct input_event evt_raw;
 
     auto s = ::read(filedescriptor, &evt_raw, sizeof(evt_raw));
     if (s < 0) {
-        qCCritical(CLASS_LC) << "ERROR ";
+        qCCritical(CLASS_LC) << std::strerror(errno);
     }
 
     if (s > 0) {
@@ -139,18 +82,92 @@ ScrollEvent get_scroll_event(int filedescriptor) {
 }
 
 /*****************************************************************************/
-int get_pushbutton_value(int filedescriptor) {
+static int open_event_file_handle(const QString& path) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    char value = 0;
-    lseek(filedescriptor, 0, SEEK_SET);
-    auto s = ::read(filedescriptor, &value, sizeof(char));
-    if (s < 0) {
-        qCCritical(CLASS_LC) << "push_button read error";
+    int fh;
+    if (path.isEmpty()) {
+        throw std::runtime_error("file path empty");
+    } else {
+        fh = open(path.toStdString().c_str(), O_RDONLY);
+        if (fh < 0) {
+            throw std::system_error(
+                std::make_error_code(static_cast<std::errc>(errno)));
+        }
     }
-    if (s > 0) {
-        qCDebug(CLASS_LC) << "push_button:" << value;
-        return atoi(&value);
+    return fh;
+}
+} // namespace Hal
+/*****************************************************************************/
+HardwareControl::HardwareControl(
+    Hal::HardwareConfiguration& cfg, QObject* parent)
+    : QObject(parent) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+
+    setup_rpi_hardware();
+
+    try {
+        auto fh = Hal::open_event_file_handle(cfg.get_push_button_event_path());
+        button_notifier =
+            std::make_unique<QSocketNotifier>(fh, QSocketNotifier::Read);
+        connect(button_notifier.get(), &QSocketNotifier::activated, this,
+            &HardwareControl::generate_button_event);
+        button_notifier->setEnabled(true);
+
+    } catch (std::exception& exc) {
+        qCCritical(CLASS_LC) << exc.what();
     }
-    return value;
+
+    try {
+        auto fh = Hal::open_event_file_handle(cfg.get_rotary_event_path());
+        /* connect notifier and handler for  rotary encoder */
+        rotary_notifier =
+            std::make_unique<QSocketNotifier>(fh, QSocketNotifier::Read);
+
+        connect(rotary_notifier.get(), &QSocketNotifier::activated, this,
+            &HardwareControl::generate_rotary_event);
+        rotary_notifier->setEnabled(true);
+
+    } catch (std::exception& exc) {
+        qCCritical(CLASS_LC) << exc.what();
+    }
 }
+
+/*****************************************************************************/
+void HardwareControl::generate_button_event(int file_handle) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto evt = read_event(file_handle);
+    emit button_event(evt);
 }
+
+/*****************************************************************************/
+void HardwareControl::generate_rotary_event(int file_handle) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto evt = read_event(file_handle);
+    emit rotary_event(evt);
+}
+
+/*****************************************************************************/
+void HardwareControl::system_reboot() {
+    sync();
+    system("/sbin/reboot -d 2");
+    // return reboot(LINUX_REBOOT_CMD_RESTART);
+}
+
+/*****************************************************************************/
+
+void HardwareControl::system_poweroff() {
+    sync();
+    // use init to shut down gracefully...
+    system("/sbin/poweroff -d 2");
+    // if we get here we shut down hard
+    //   return reboot(LINUX_REBOOT_CMD_POWER_OFF);
+}
+
+/*****************************************************************************/
+int HardwareControl::set_brightness(int brightness) {
+    int pwm_val = BRIGHTNESS_VAL_OFFSET_0 + brightness * BRIGHTNESS_SLOPE;
+    pwmWrite(BRIGHTNESS_PWM_PIN, pwm_val);
+    return 0;
+}
+
+/*****************************************************************************/

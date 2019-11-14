@@ -65,11 +65,13 @@ class ConfigurationManager : public QObject {
 
 public:
     /**
-     * Default Constructor will use QT Standard paths for configuration
+     * Default constructor will use QT Standard paths for configuration
+     * @param configpath path to application configuration
+     * @param cachedir directory to cache data (podcastlist etc)
      */
     ConfigurationManager(
-        const QString& configdir = QStandardPaths::writableLocation(
-            QStandardPaths::AppConfigLocation));
+        const QString& configpath,
+        const QString& cachedir);
 
     virtual ~ConfigurationManager() = default;
 
@@ -188,6 +190,15 @@ public:
      * @return path to configuration file
      */
     QString get_configuration_path() const;
+
+    /**
+     * Where to store cache files
+     * @return application_cache_dir.dirName()
+     */
+    QString get_cache_path(){
+    	return get_cache_dir_name();
+    };
+
     /**
      * Append the radio stream to list - duplicates will not be checked
      * @param src the new stream source - we take ownership
@@ -308,7 +319,12 @@ private:
     /**
      * Configuration directory, writable, created if it doesn't exist
      */
-    QDir config_dir;
+    QString config_file;
+
+    /**
+     * Directory for storing cache files
+     */
+    QDir application_cache_dir;
 
     /**
      * Timer tor write configuration to disk
@@ -319,13 +335,6 @@ private:
      * WPA control socket path /var/lib/wpa_supplicant/wlan0
      */
     QString wpa_socket_name;
-
-    /**
-     * Check if config directory exist, otherwise create it
-     * @return directory that exist and is writable
-     */
-
-    QDir make_sure_config_path_exists() const;
 
     /**
      * Check if config and path exist, otherwise create default config file at
@@ -344,6 +353,14 @@ private:
      * read file and return content as string
      */
     virtual QString get_json_from_file(const QString& path);
+
+    /**
+     * Application wide cache dir, set by command line parameter
+     * defaults to
+     * QStandardPaths::writableLocation(QStandardPaths::CacheLocation)
+     * @return application_cache_dir.dirName()
+     */
+    virtual QString get_cache_dir_name();
 
     /**
      * interpret json string
@@ -432,5 +449,21 @@ private:
         return volume;
     };
 };
+
+/**
+ * Check if path is a directory and is writable
+ * @param dirname
+ * @return true for success, false otherwise
+ */
+bool is_writable_directory(const QString& dirname);
+
+/**
+ * try to create a directory for the files
+ * @param dirname
+ * @return true for success, false otherwise
+ */
+bool create_writable_directory(const QString& dirname);
+
+
 } // namespace DigitalRooster
 #endif // _SETTINGS_READER_HPP_

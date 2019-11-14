@@ -29,23 +29,67 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
 
 /*****************************************************************************/
-ConfigurationManager::ConfigurationManager(const QString& configdir)
+bool DigitalRooster::is_writable_directory(const QString& dirname) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    QFileInfo file_info(dirname);
+    if (file_info.isDir() && file_info.isWritable()) {
+        return true;
+    }
+    return false;
+}
+
+/*****************************************************************************/
+bool DigitalRooster::create_writable_directory(const QString& dirname) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    QFileInfo file_info(dirname);
+    auto path = QDir(file_info.dir());
+    path.mkpath(dirname);
+    return is_writable_directory(dirname);
+}
+
+/*****************************************************************************/
+ConfigurationManager::ConfigurationManager(
+    const QString& configpath, const QString& cachedir)
     : global_alarm_timeout(DEFAULT_ALARM_TIMEOUT)
     , sleep_timeout(DEFAULT_SLEEP_TIMEOUT)
     , volume(DEFAULT_VOLUME)
     , brightness_sb(DEFAULT_BRIGHTNESS)
     , brightness_act(DEFAULT_BRIGHTNESS)
-    , config_dir(configdir)
+    , config_file(configpath)
+    , application_cache_dir(cachedir)
     , wpa_socket_name(WPA_CONTROL_SOCKET_PATH) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+
+    /*
+     * check if the cache directory exists and is writable or if it can be
+     * created
+     */
+    if (!is_writable_directory(cachedir) &&
+        !create_writable_directory(cachedir)) {
+        qCWarning(CLASS_LC) << "Failed using " << get_cache_dir_name()
+                            << "as cache using default:" << DEFAULT_CACHE_DIR_PATH;
+        application_cache_dir.setPath(DEFAULT_CACHE_DIR_PATH);
+        QDir().mkpath(DEFAULT_CACHE_DIR_PATH);
+    }
+
+
+    // Check or create config dir
+    QFileInfo config_file_info(configpath);
+    QString config_dir = config_file_info.dir().absolutePath();
+    if (!is_writable_directory(config_dir) &&
+        !create_writable_directory(config_dir)) {
+        config_file = DEFAULT_CONFIG_FILE_PATH;
+        qCWarning(CLASS_LC)
+            << "directory of config file does not exist or is not writable"
+            << "using default path" << config_file;
+    }
+
+    auto path = check_and_create_config();
+    filewatcher.addPath(path);
 
     writeTimer.setInterval(std::chrono::seconds(5));
     writeTimer.setSingleShot(true);
     connect(&writeTimer, SIGNAL(timeout()), this, SLOT(store_current_config()));
-    // open or create configuration
-    make_sure_config_path_exists();
-    auto path = check_and_create_config();
-    filewatcher.addPath(path);
     // store connection to disconnect during write_config_file
     fwConn = connect(&filewatcher, &QFileSystemWatcher::fileChanged, this,
         &ConfigurationManager::fileChanged);
@@ -168,7 +212,8 @@ void ConfigurationManager::read_podcasts_from_file(
         }
         auto uid = QUuid::fromString(
             jo[KEY_ID].toString(QUuid::createUuid().toString()));
-        auto ps = std::make_shared<PodcastSource>(url, uid);
+        auto ps =
+            std::make_shared<PodcastSource>(url, application_cache_dir, uid);
         auto title = jo[KEY_NAME].toString();
         ps->set_title(title);
         ps->set_update_interval(
@@ -308,12 +353,12 @@ void ConfigurationManager::set_standby_brightness(int brightness) {
 
 /*****************************************************************************/
 void ConfigurationManager::set_active_brightness(int brightness) {
-	qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
-	return do_set_brightness_act(brightness);
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
+    return do_set_brightness_act(brightness);
 }
 
 /*****************************************************************************/
-void ConfigurationManager::do_set_brightness_act(int brightness){
+void ConfigurationManager::do_set_brightness_act(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
     if (brightness >= 0 && brightness <= 100) {
         this->brightness_act = brightness;
@@ -422,16 +467,18 @@ void ConfigurationManager::create_default_configuration() {
 
     /* Podcasts */
     podcast_sources.push_back(std::make_shared<PodcastSource>(
-        QUrl("http://armscontrolwonk.libsyn.com/rss")));
+        QUrl("http://armscontrolwonk.libsyn.com/rss"), application_cache_dir));
 
     podcast_sources.push_back(std::make_shared<PodcastSource>(
-        QUrl("https://rss.acast.com/mydadwroteaporno")));
+        QUrl("https://rss.acast.com/mydadwroteaporno"), application_cache_dir));
 
     podcast_sources.push_back(std::make_shared<PodcastSource>(
-        QUrl("https://alternativlos.org/alternativlos.rss")));
+        QUrl("https://alternativlos.org/alternativlos.rss"),
+        application_cache_dir));
 
     podcast_sources.push_back(std::make_shared<PodcastSource>(
-        QUrl("http://www.podcastone.com/podcast?categoryID2=1225")));
+        QUrl("http://www.podcastone.com/podcast?categoryID2=1225"),
+        application_cache_dir));
 
     /* Radio Streams */
     stream_sources.push_back(std::make_shared<PlayableItem>("Deutschlandfunk",
@@ -459,21 +506,9 @@ void ConfigurationManager::create_default_configuration() {
 }
 
 /*****************************************************************************/
-QDir ConfigurationManager::make_sure_config_path_exists() const {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (!config_dir.mkpath(".")) {
-        qCCritical(CLASS_LC) << "Cannot create configuration path!";
-        throw std::system_error(
-            make_error_code(std::errc::no_such_file_or_directory),
-            "Cannot create configuration path!");
-    }
-    return config_dir;
-}
-
-/*****************************************************************************/
 QString ConfigurationManager::get_configuration_path() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return config_dir.filePath(CONFIG_JSON_FILE_NAME);
+    return config_file;
 }
 
 /*****************************************************************************/
@@ -538,4 +573,9 @@ void ConfigurationManager::set_sleep_timeout(std::chrono::minutes timeout) {
 }
 
 /*****************************************************************************/
+QString ConfigurationManager::get_cache_dir_name() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    return application_cache_dir.path();
+}
 
+/*****************************************************************************/

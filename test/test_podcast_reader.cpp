@@ -10,6 +10,7 @@
  *
  *****************************************************************************/
 
+#include <QDir>
 #include <QMap>
 #include <gtest/gtest.h>
 #include <rss2podcastsource.hpp>
@@ -20,11 +21,12 @@
 using namespace DigitalRooster;
 
 /******************************************************************************/
-class ValidRSS : public virtual ::testing::Test {
+class PodcastReaderFixture : public virtual ::testing::Test {
 public:
-    ValidRSS()
+    PodcastReaderFixture()
         : file(TEST_FILE_PATH + "/alternativlos.rss")
-        , ps(QUrl("https://alternativlos.org/alternativlos.rss")) {
+        , cache_dir(DEFAULT_CACHE_DIR_PATH)
+        , ps(QUrl("https://alternativlos.org/alternativlos.rss"), cache_dir) {
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             qDebug() << file.errorString();
             throw std::system_error(
@@ -35,12 +37,13 @@ public:
 
 protected:
     QFile file;
+    QDir cache_dir;
     PodcastSource ps;
 };
 
 /******************************************************************************/
 
-TEST_F(ValidRSS, parseInfo_good) {
+TEST_F(PodcastReaderFixture, parseInfo_good) {
     update_podcast(ps, file.readAll());
 
     EXPECT_EQ(ps.get_title(), QString("Alternativlos"));
@@ -51,7 +54,7 @@ TEST_F(ValidRSS, parseInfo_good) {
 }
 
 /******************************************************************************/
-TEST_F(ValidRSS, parseInfo_good_element_count) {
+TEST_F(PodcastReaderFixture, parseInfo_good_element_count) {
     update_podcast(ps, file.readAll());
 
     const auto& episodes = ps.get_episodes();
@@ -59,7 +62,7 @@ TEST_F(ValidRSS, parseInfo_good_element_count) {
 }
 
 /******************************************************************************/
-TEST_F(ValidRSS, parseInfo_episode_length) {
+TEST_F(PodcastReaderFixture, parseInfo_episode_length) {
     update_podcast(ps, file.readAll());
     const auto& episodes = ps.get_episodes();
     auto title = episodes[20];
@@ -68,7 +71,7 @@ TEST_F(ValidRSS, parseInfo_episode_length) {
 }
 
 /******************************************************************************/
-TEST_F(ValidRSS, parseInfo_episode_length_mm_ss) {
+TEST_F(PodcastReaderFixture, parseInfo_episode_length_mm_ss) {
     update_podcast(ps, file.readAll());
     const auto& episodes = ps.get_episodes();
     auto title = episodes[21];
@@ -77,7 +80,7 @@ TEST_F(ValidRSS, parseInfo_episode_length_mm_ss) {
 }
 
 /******************************************************************************/
-TEST_F(ValidRSS, parseInfo_episode_length_m_ss) {
+TEST_F(PodcastReaderFixture, parseInfo_episode_length_m_ss) {
     update_podcast(ps, file.readAll());
     const auto& episodes = ps.get_episodes();
     auto title = episodes[22];
@@ -86,7 +89,7 @@ TEST_F(ValidRSS, parseInfo_episode_length_m_ss) {
 }
 
 /******************************************************************************/
-TEST_F(ValidRSS, parseInfo_episode_length_ss) {
+TEST_F(PodcastReaderFixture, parseInfo_episode_length_ss) {
     update_podcast(ps, file.readAll());
     const auto& episodes = ps.get_episodes();
     auto title = episodes[23];
@@ -95,7 +98,7 @@ TEST_F(ValidRSS, parseInfo_episode_length_ss) {
 }
 
 /******************************************************************************/
-TEST_F(ValidRSS, parseInfo_episode_display_name) {
+TEST_F(PodcastReaderFixture, parseInfo_episode_display_name) {
     update_podcast(ps, file.readAll());
     const auto& episodes = ps.get_episodes();
     auto title = episodes[19];
@@ -108,7 +111,7 @@ TEST_F(ValidRSS, parseInfo_episode_display_name) {
 
 
 /******************************************************************************/
-TEST_F(ValidRSS, parseInfo_episode_pubdate) {
+TEST_F(PodcastReaderFixture, parseInfo_episode_pubdate) {
     update_podcast(ps, file.readAll());
     const auto& episodes = ps.get_episodes();
     auto title = episodes[19]; // ALT22
@@ -118,7 +121,7 @@ TEST_F(ValidRSS, parseInfo_episode_pubdate) {
 }
 
 /******************************************************************************/
-TEST_F(ValidRSS, parseInfo_episode_url) {
+TEST_F(PodcastReaderFixture, parseInfo_episode_url) {
     update_podcast(ps, file.readAll());
 
     const auto& episodes = ps.get_episodes();
@@ -127,7 +130,7 @@ TEST_F(ValidRSS, parseInfo_episode_url) {
 }
 
 /******************************************************************************/
-TEST_F(ValidRSS, maxEpisodesReached) {
+TEST_F(PodcastReaderFixture, maxEpisodesReached) {
     const int maxepisodes = 14;
     ps.set_max_episodes(maxepisodes);
     update_podcast(ps, file.readAll());
@@ -138,31 +141,28 @@ TEST_F(ValidRSS, maxEpisodesReached) {
 }
 
 /*****************************************************************************/
-TEST(PodcastSourceReader, parseInfo_bad_malformatted) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-    QFile file(TEST_FILE_PATH + "/alternativlos_malformatted.rss");
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
+TEST_F(PodcastReaderFixture, parseInfo_bad_malformatted) {
+    QFile file_bad(TEST_FILE_PATH + "/alternativlos_malformatted.rss");
+    file_bad.open(QIODevice::ReadOnly | QIODevice::Text);
     /* all exceptions should be caught */
     EXPECT_NO_THROW(update_podcast(ps, file.readAll()));
 }
 
 /******************************************************************************/
-TEST(PodcastSourceReader, parseInfo_bad_missing_title) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-    QFile file(TEST_FILE_PATH + "/alternativlos_bad.rss");
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-    update_podcast(ps, file.readAll());
+TEST_F(PodcastReaderFixture, parseInfo_bad_missing_title) {
+    QFile file_bad(TEST_FILE_PATH + "/alternativlos_bad.rss");
+    file_bad.open(QIODevice::ReadOnly | QIODevice::Text);
+    update_podcast(ps, file_bad.readAll());
     const auto& episodes = ps.get_episodes();
     EXPECT_EQ(episodes.size(), 25);
 }
 
 /******************************************************************************/
-TEST(PodcastSourceReader, parseInfo_bad_missing_url) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
-    QFile file(TEST_FILE_PATH + "/alternativlos_bad.rss");
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
+TEST_F(PodcastReaderFixture, parseInfo_bad_missing_url) {
+    QFile file_bad(TEST_FILE_PATH + "/alternativlos_bad.rss");
+    file_bad.open(QIODevice::ReadOnly | QIODevice::Text);
 
-    update_podcast(ps, file.readAll());
+    update_podcast(ps, file_bad.readAll());
     const auto& episodes = ps.get_episodes();
     EXPECT_EQ(episodes.size(), 25);
 }

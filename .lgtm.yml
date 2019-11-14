@@ -1,0 +1,43 @@
+path_classifiers:
+  library:
+    - libhwif/
+  test:
+    - test/
+
+extraction:
+  cpp:
+    prepare:
+      packages:
+        - libssl-dev
+        - doxygen
+        - uuid-dev
+        - pkg-config
+        - qt5-default
+        - qtbase5-dev
+        - qtbase5-dev-tools
+        - qtdeclarative5-dev
+        - qtmultimedia5-dev
+        - qtquickcontrols2-5-dev
+        - qtdeclarative5-dev-tools
+
+    after_prepare:    # Customizable step used by all languages.
+      - cmake --version
+
+    configure:    # Customizable step used only by C/C++ extraction.
+      command:
+        - cmake
+            -DCMAKE_BUILD_TYPE=Release
+            -DBUILD_TESTS=Off
+            -DTEST_COVERAGE=Off
+            -DBUILD_GTEST_FROM_SRC=Off
+            -H$LGTM_SRC
+            -B$LGTM_WORKSPACE
+
+    before_index:    # Customizable step used by all languages.
+      - echo "before_index"
+
+    index:    # Customizable step used by all languages.
+      build_command:
+        - cmake --build $LGTM_WORKSPACE --parallel
+
+  javascript:

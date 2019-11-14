@@ -106,7 +106,7 @@ TEST(AlarmMonitor, triggersFallbackForTimeout) {
 TEST(AlarmMonitor, noFallBackIfStoppedNormally) {
     auto player = std::make_shared<PlayerMock>();
     AlarmMonitor mon(player);
-    auto timepoint = QDateTime::currentDateTimeUtc().addSecs(1);
+
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
         QTime::currentTime().addSecs(1), Alarm::Daily);

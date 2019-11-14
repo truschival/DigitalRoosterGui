@@ -2,13 +2,15 @@ import QtQuick 2.9
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.1
 import QtMultimedia 5.9
+import QtQuick.Controls.Material 2.1
+
 import ruschi.PodcastEpisode 1.0
 import "Jsutil.js" as Util
 
 Popup {
 	closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
 	background: Rectangle {
-        color: "#3F51B5"
+        color: "#3F51B5";
     }
 
 	enter: Transition {
@@ -40,7 +42,7 @@ Popup {
 			id: currentMediaTitle
 			text: "" ;
 			font: Style.font.label;
-			color: "white";
+			color: Material.accent;
 			elide: Text.ElideRight;
 
 			Layout.topMargin: 0;
@@ -54,9 +56,7 @@ Popup {
 			Layout.alignment: Qt.AlignRight| Qt.AlignTop
 			Layout.minimumWidth: parent.width/3 - 20;
 			Layout.preferredWidth: parent.width/3 ;
-
 			text: "\uf45f"
-
 			onClicked: {
 				interactiontimer.restart()
 				playerProxy.seek(-10000)

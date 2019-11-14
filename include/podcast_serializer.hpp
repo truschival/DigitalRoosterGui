@@ -103,10 +103,10 @@ private:
  */
 class PodcastSourceJSonCorrupted : public std::runtime_error {
 public:
-    PodcastSourceJSonCorrupted(const char* what)
+    explicit PodcastSourceJSonCorrupted(const char* what)
         : std::runtime_error(what){};
 
-    PodcastSourceJSonCorrupted(const std::string& what)
+    explicit PodcastSourceJSonCorrupted(const std::string& what)
         : std::runtime_error(what){};
 };
 

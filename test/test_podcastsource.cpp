@@ -12,20 +12,49 @@
 #include <appconstants.hpp>
 #include <gtest/gtest.h>
 #include <memory>
+#include <iostream>
 #include <stdexcept> // std::system_error
 
 #include <QSignalSpy>
 #include <QString>
 #include <QUrl>
 
+#include "appconstants.hpp"
 #include "PlayableItem.hpp"
 #include "PodcastSource.hpp"
 
 using namespace DigitalRooster;
 
 /******************************************************************************/
-TEST(PodcastSource, dont_add_twice) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
+
+class PodcastSourceFixture : public virtual ::testing::Test {
+public:
+    PodcastSourceFixture()
+        : cache_dir(DEFAULT_CACHE_DIR_PATH)
+        , uid(QUuid::createUuid())
+        , ps(QUrl("https://alternativlos.org/alternativlos.rss"), cache_dir,
+              uid) {
+    }
+
+    ~PodcastSourceFixture() {
+    }
+
+    void SetUp() {
+        cache_dir.mkpath(".");
+    }
+
+    void TearDown() {
+        cache_dir.removeRecursively();
+    }
+
+protected:
+    QDir cache_dir;
+    QUuid uid;
+    PodcastSource ps;
+};
+
+/******************************************************************************/
+TEST_F(PodcastSourceFixture, dont_add_twice) {
     auto pi =
         std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
     ps.add_episode(pi);
@@ -34,8 +63,7 @@ TEST(PodcastSource, dont_add_twice) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, add_two_with_guid) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
+TEST_F(PodcastSourceFixture, add_two_with_guid) {
     auto pi1 =
         std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
     pi1->set_guid("FooBAR");
@@ -47,8 +75,7 @@ TEST(PodcastSource, add_two_with_guid) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, add_episodeEmitsCountChanged) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
+TEST_F(PodcastSourceFixture, add_episodeEmitsCountChanged) {
     auto pi1 =
         std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
     QSignalSpy spy(&ps, SIGNAL(episodes_count_changed(int)));
@@ -63,8 +90,7 @@ TEST(PodcastSource, add_episodeEmitsCountChanged) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, get_episode_names) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
+TEST_F(PodcastSourceFixture, get_episode_names) {
     auto pi =
         std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
     ps.add_episode(pi);
@@ -74,8 +100,7 @@ TEST(PodcastSource, get_episode_names) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, getEpisodeById) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
+TEST_F(PodcastSourceFixture, getEpisodeById) {
     auto first =
         std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
     ps.add_episode(first);
@@ -96,8 +121,7 @@ TEST(PodcastSource, getEpisodeById) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, set_updater) {
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"));
+TEST_F(PodcastSourceFixture, set_updater) {
     ps.set_update_task(std::make_unique<UpdateTask>());
     ps.set_update_interval(std::chrono::seconds(1));
 
@@ -107,15 +131,77 @@ TEST(PodcastSource, set_updater) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, getFileName) {
-    QUuid uid = QUuid::createUuid();
-    PodcastSource ps(QUrl("https://alternativlos.org/alternativlos.rss"), uid);
+TEST_F(PodcastSourceFixture, getFileName) {
     auto filename = ps.get_cache_file_name();
-    QString expected_filename(
-        QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-    expected_filename += QDir::separator() + uid.toString();
+    QString expected_filename(cache_dir.filePath(uid.toString()));
 
     ASSERT_EQ(filename, expected_filename);
 }
 
 /******************************************************************************/
+TEST_F(PodcastSourceFixture, storeAndPurgeworks) {
+    auto filename = ps.get_cache_file_name();
+    QFile cachefile(filename);
+    ASSERT_FALSE(cachefile.exists());
+    ps.set_description("MyDescription");
+    auto first =
+        std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
+    ps.add_episode(first);
+    ps.store();
+    ASSERT_TRUE(cachefile.exists());
+    ps.purge();
+    ASSERT_FALSE(cachefile.exists());
+    ASSERT_EQ(ps.get_episode_count(), 0);
+}
+/******************************************************************************/
+TEST_F(PodcastSourceFixture, storeIconCache) {
+    auto image_url = QUrl(
+        "https://www.ruschival.de/wp-content/uploads/2013/12/424504199718.jpg");
+    auto file_name = image_url.fileName();
+    QFile cache_file(cache_dir.filePath(file_name));
+
+    ps.set_image_url(image_url);
+    QSignalSpy spy(&ps, SIGNAL(icon_changed()));
+    // First time return image_url - data not yet cached
+    ASSERT_EQ(ps.get_icon(), image_url);
+    spy.wait(); // after download icon_changed() is emitted
+    ASSERT_EQ(spy.count(), 1);
+    // Second time the local cache should be returned
+    auto expeced_local_url = QUrl::fromLocalFile(cache_dir.filePath(file_name));
+    ASSERT_EQ(ps.get_icon(),expeced_local_url);
+
+    ASSERT_TRUE(cache_file.exists());
+    ASSERT_TRUE(cache_file.remove());
+}
+
+/******************************************************************************/
+TEST_F(PodcastSourceFixture, purgeIconCache) {
+    auto image_url = QUrl(
+        "https://www.ruschival.de/wp-content/uploads/2013/12/424504199718.jpg");
+    auto file_name = image_url.fileName();
+    QFile cache_file(cache_dir.filePath(file_name));
+
+    ps.set_image_url(image_url);
+    QSignalSpy spy(&ps, SIGNAL(icon_changed()));
+
+    // First time return image_url - data not yet cached
+    ASSERT_EQ(ps.get_icon(), image_url);
+    spy.wait(); // after download icon_changed() is emitted
+    ASSERT_EQ(spy.count(), 1);
+    // File should be deleted and the URL is returned
+    ps.purge_icon_cache();
+
+    ASSERT_EQ(ps.get_icon(), image_url); // URL not local cache
+    ASSERT_FALSE(cache_file.exists());   // file is deleted
+}
+
+/******************************************************************************/
+TEST(PodcastSource, store_bad_nothrow) {
+    QDir cache_dir_bad("/some/nonexistent/cache/dir");
+    PodcastSource ps(QUrl("http://foo.bar"), cache_dir_bad);
+    ps.set_description("MyDescription");
+    auto first =
+        std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
+    ps.add_episode(first);
+    ASSERT_NO_THROW(ps.store());
+}

@@ -9,54 +9,47 @@
  * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
  * 			  SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
-#include "hwif/hal.h"
+#include <QLoggingCategory>
+#include <QString>
+#include <exception>
+#include <memory>
 
-int system_reboot() {
-    return 0;
+#include "hwif/hardware_configuration.hpp"
+#include "hwif/hardware_control.hpp"
+
+
+using namespace Hal;
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HAL");
+
+/*****************************************************************************/
+HardwareControl::HardwareControl(
+    Hal::HardwareConfiguration& cfg, QObject* parent)
+    : QObject(parent) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }
 
 /*****************************************************************************/
-
-int system_poweroff() {
-    return 0;
+void HardwareControl::generate_button_event(int file_handle) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }
 
 /*****************************************************************************/
-int set_brightness(int brightness) {
-    return 0;
+void HardwareControl::generate_rotary_event(int file_handle) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }
 
 /*****************************************************************************/
-int setup_hardware() {
-    return 0;
+void HardwareControl::system_reboot() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }
 
 /*****************************************************************************/
-
-int get_push_button_handle() {
-    return 0;
+void  HardwareControl::system_poweroff() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }
 
 /*****************************************************************************/
-
-int get_rotary_button_handle() {
-    return 0;
-}
-
-/*****************************************************************************/
-ScrollEvent get_scroll_event(int filedescriptor) {
-    ScrollEvent evt;
-    evt.dir = ScrollEvent::UP;
-    return evt;
-}
-
-/*****************************************************************************/
-int setup_gpio_pushbutton(int gpio) {
-    return 0;
-}
-
-/*****************************************************************************/
-int get_pushbutton_value(int filedescriptor) {
+int HardwareControl::set_brightness(int brightness) {
     return 0;
 }
 /*****************************************************************************/

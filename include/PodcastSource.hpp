@@ -27,7 +27,9 @@
 #include "PlayableItem.hpp"
 #include "UpdateTask.hpp"
 
+
 namespace DigitalRooster {
+class HttpClient; // forward declaration
 
 /**
  * Class to represent a RSS channel with items as episodes
@@ -40,18 +42,21 @@ class PodcastSource : public QObject {
     Q_PROPERTY(
         int episode_count READ get_episode_count NOTIFY episodes_count_changed)
     Q_PROPERTY(QUrl url READ get_url)
-
+    Q_PROPERTY(QUrl icon READ get_icon NOTIFY icon_changed)
 public:
-    /**
-     * default constructor to allow for mocking
-     */
-    PodcastSource() = default;
     /**
      * Preconfigured Podcast Source
      * @param url Feed URL
+     * @param cache_dir directory for cache files
      * @param uid unique id for this podcast
      */
-    explicit PodcastSource(const QUrl& url, QUuid uid = QUuid::createUuid());
+    PodcastSource(const QUrl& url, const QDir& cache_dir,
+        QUuid uid = QUuid::createUuid());
+
+    /**
+     * Destructor to delete icon_downloader nicely
+     */
+    virtual ~PodcastSource();
 
     /**
      * Give the Podcast source a (new) update task
@@ -79,6 +84,12 @@ public:
     };
 
     /**
+     * Set cache dir for saving/restoring information
+     * @param dirname path to directory (expected to exist)
+     */
+    void set_cache_dir(const QString& dirname);
+
+    /**
      * cached pocast source information in this file
      * @return file path
      */
@@ -100,12 +111,30 @@ public:
     }
 
     /**
-     * Logo Image of podcast
+     * Logo Image URL of podcast
      */
-    virtual const QUrl& get_image_uri() const {
-        return image_uri;
+    virtual const QUrl& get_image_url() const {
+        return icon_url;
     }
-    void set_image_uri(const QUrl& uri);
+    void set_image_url(const QUrl& uri);
+
+    /**
+     * Image file path to local cache of image uri
+     * @return local file if it exists
+     */
+    QString get_image_file_path() const {
+        return image_file_path;
+    }
+    void set_image_file_path(const QString& path);
+
+    /**
+     * Return the location of the icon.
+     * Either the image_uri if not yet cached or the path to local cache file
+     * @return image file path
+     */
+    QUrl get_icon(){
+    	return get_icon_impl();
+    }
 
     /**
      * show max_episodes in the list
@@ -204,6 +233,16 @@ public:
         return id;
     }
 
+    /**
+     * Remove local icon cache file
+     */
+    void purge_icon_cache();
+
+    /**
+     * clear local information on podcast episodes
+     */
+    void purge_episodes();
+
 public slots:
     /**
      * Triggers immediate update from web
@@ -241,6 +280,7 @@ signals:
 
     void descriptionChanged();
 
+    void icon_changed();
     /**
      * A new episodes has been added
      * @param count updated number of episodes
@@ -292,7 +332,17 @@ private:
     /**
      * Logo Image of podcast
      */
-    QUrl image_uri;
+    QUrl icon_url;
+
+    /**
+     * Path to local cache of logo pic
+     */
+    QString image_file_path;
+
+    /**
+     * Cache directory
+     */
+    const QDir& cache_dir;
 
     /**
      * show max_episodes in the list
@@ -309,6 +359,15 @@ private:
      * Optional UpdateTask
      */
     std::unique_ptr<UpdateTask> updater = nullptr;
+
+    /**
+     * Optional Icon Downloader - only used to refresh icon
+     */
+    std::unique_ptr<HttpClient> icon_downloader = nullptr;
+    /**
+     * temporary connection to receive signal form icon_downloader
+     */
+    QMetaObject::Connection  download_cnx;
 
     /**
      * implementation of get_cache_file_name() to allow for mocking
@@ -330,10 +389,24 @@ private:
     get_episodes_impl() const;
 
     /**
-     * implemetnation of \ref get_episode_count()
+     * Implementation of \ref get_episode_count()
      * return number of episodes
      */
     virtual int get_episode_count_impl() const;
+
+    /**
+     * Implementation  of \ref get_icon to get either URL or cached file
+     * @return icon url or file path
+     */
+    virtual QUrl get_icon_impl();
+
+private slots:
+	/**
+	 * save downloaded byte array in local image file
+	 * @param data
+	 */
+	void store_image(QByteArray data);
+
 };
 } // namespace DigitalRooster
 #endif // _PODCASTSOURCE_HPP_

@@ -12,9 +12,9 @@
 #ifndef QTGUI_IRADIOLISTMODEL_HPP_
 #define QTGUI_IRADIOLISTMODEL_HPP_
 
-#include <QUrl>
 #include <QAbstractListModel>
 #include <QObject>
+#include <QUrl>
 #include <memory>
 
 namespace DigitalRooster {
@@ -28,7 +28,7 @@ class ConfigurationManager;
 class IRadioListModel : public QAbstractListModel {
     Q_OBJECT
 public:
-    IRadioListModel(QObject* parent = nullptr);
+    explicit IRadioListModel(QObject* parent = nullptr);
 
     IRadioListModel(
         std::shared_ptr<DigitalRooster::ConfigurationManager> confman,
