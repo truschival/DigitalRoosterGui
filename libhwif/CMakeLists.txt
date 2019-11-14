@@ -43,10 +43,21 @@ else()
 endif()
 
 #------------------------------
+# QT MOC, UIC RCC input
+#------------------------------
+
+# Moc any classes derived from QObject
+SET(MOC_SRCS
+    ${PROJECT_INCLUDE_DIR}/hwif/hardware_control.hpp
+    )
+
+
+#------------------------------
 # Output a library
 #------------------------------
 ADD_LIBRARY(${LIBRARY_NAME} STATIC 
 	${SRCS} 
+	${MOC_SRCS}
 	)
 
 SET_TARGET_PROPERTIES(
@@ -58,7 +69,7 @@ SET_TARGET_PROPERTIES(
 TARGET_INCLUDE_DIRECTORIES(
   ${LIBRARY_NAME}
   PRIVATE
-  $<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>/hal
+  $<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>/hwif
   PUBLIC
   $<BUILD_INTERFACE:${PROJECT_INCLUDE_DIR}>
   )

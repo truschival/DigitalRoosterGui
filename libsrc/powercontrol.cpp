@@ -12,7 +12,6 @@
 #include <QAudio>
 #include <QLoggingCategory>
 
-#include "hwif/hal.h"
 #include "powercontrol.hpp"
 
 using namespace DigitalRooster;
@@ -23,13 +22,13 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.PowerControl");
 
 void PowerControl::power_off() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    ::system_poweroff();
+    emit shutdown_request();
 }
 
 /*****************************************************************************/
 void PowerControl::reboot() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    ::system_reboot();
+    emit reboot_request();
 }
 
 /*****************************************************************************/

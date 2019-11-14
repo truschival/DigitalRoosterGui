@@ -12,8 +12,8 @@
 
 #include "volume_button.hpp"
 #include "configuration_manager.hpp"
-#include "hwif/hal.h"
 #include <QLoggingCategory>
+#include <hwif/hardware_control.hpp>
 
 using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.VolumeButton");
@@ -21,25 +21,10 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.VolumeButton");
 using namespace DigitalRooster;
 
 /*****************************************************************************/
-DigitalRooster::VolumeButton::VolumeButton(QObject* parent) {
+DigitalRooster::VolumeButton::VolumeButton(QObject* parent)
+    : QObject(parent)
+    , enable_volume_changes(true) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-
-    /* connect notifier and handler for  rotary encoder */
-    rotary_notifier = std::make_unique<QSocketNotifier>(
-        get_rotary_button_handle(), QSocketNotifier::Read);
-
-    connect(rotary_notifier.get(), &QSocketNotifier::activated, this,
-        &VolumeButton::read_rotary);
-
-    /* connect notifier and handler for push button */
-    button_notifier = std::make_unique<QSocketNotifier>(
-        get_push_button_handle(), QSocketNotifier::Read);
-
-    connect(button_notifier.get(), &QSocketNotifier::activated, this,
-        &VolumeButton::read_button);
-
-    rotary_notifier->setEnabled(true);
-    button_notifier->setEnabled(true);
 }
 
 /*****************************************************************************/
@@ -48,9 +33,13 @@ VolumeButton::~VolumeButton() {
 }
 
 /*****************************************************************************/
-void DigitalRooster::VolumeButton::read_rotary(int filehandle) {
+void DigitalRooster::VolumeButton::process_rotary_event(const Hal::InputEvent& evt) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto evt = get_input_event(filehandle);
+
+    if(!enable_volume_changes){
+    	qCDebug(CLASS_LC) << "ignoring volume change events";
+    	return;
+    }
     // only react on -1 or 1 events
     if (evt.value < 0) {
         emit volume_incremented(-1);
@@ -63,13 +52,12 @@ void DigitalRooster::VolumeButton::read_rotary(int filehandle) {
 /*****************************************************************************/
 void DigitalRooster::VolumeButton::monitor_rotary_button(bool active) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    rotary_notifier->setEnabled(active);
+    enable_volume_changes =active;
 }
 
 /*****************************************************************************/
-void DigitalRooster::VolumeButton::read_button(int filehandle) {
+void DigitalRooster::VolumeButton::process_key_event(const Hal::InputEvent& evt) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto evt = get_input_event(filehandle);
     /*
      * Type=(0x01 EV_KEY), value=(1 pressed, 0 released), code=(102 KEY_HOME)
      * => only catch key events for key_home
@@ -87,12 +75,6 @@ void DigitalRooster::VolumeButton::read_button(int filehandle) {
         qCDebug(CLASS_LC) << "button released";
         emit button_released();
     }
-}
-
-/*****************************************************************************/
-bool DigitalRooster::VolumeButton::get_button_state() {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return button_state;
 }
 
 /*****************************************************************************/

@@ -24,6 +24,8 @@ class ConfigurationManager;
 
 /**
  * Controls display brightness settings
+ * mainly translates linear 0-100% brightness in logarithmic pwm value
+ * and stores current values in configuration manager
  */
 class BrightnessControl : public QObject {
     Q_OBJECT
@@ -75,6 +77,12 @@ signals:
      * @param brightness 0..100 (linear)
      */
     void brightness_changed(int brightness);
+
+    /**
+     * Request setting hardware PWM dutycycle (non linear)
+     * @param pwm value for dutycycle
+     */
+    void brightness_pwm_change(int pwm);
 
 private:
     /**
