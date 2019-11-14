@@ -125,7 +125,11 @@ int main(int argc, char* argv[]) {
     if (cmdline.isSet(logstdout)) {
         setup_logger_stdout(); // Write log to stdout
     } else if (cmdline.isSet(logfile)) {
-        setup_logger_file(cmdline.value(logfile));
+        try {
+            setup_logger_file(cmdline.value(logfile));
+        } catch (std::system_error& exc) {
+            setup_logger_stdout(); // Write log to stdout
+        }
     } else { // Default behavour as before
         setup_logger_file(DEFAULT_LOG_PATH);
     }

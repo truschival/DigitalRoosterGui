@@ -52,7 +52,13 @@ const QString DigitalRooster::DEFAULT_CACHE_DIR_PATH(
 
 int main(int argc, char** argv) {
     QCoreApplication app(argc, argv);
-    DigitalRooster::setup_logger_file(DigitalRooster::DEFAULT_LOG_PATH);
+
+    try {
+        DigitalRooster::setup_logger_file(DigitalRooster::DEFAULT_LOG_PATH);
+    } catch (std::system_error& exc) {
+        DigitalRooster::setup_logger_stdout(); // Write log to stdout
+    }
+
     QDir(DigitalRooster::TEST_FILE_PATH).mkdir("testcache");
     QDir(DigitalRooster::TEST_FILE_PATH).mkdir("testconfig");
 

@@ -45,7 +45,7 @@ public:
      * @param confman configuration
      * @param parent
      */
-    Weather(std::shared_ptr<ConfigurationManager> confman,
+    explicit Weather(std::shared_ptr<ConfigurationManager> confman,
         QObject* parent = nullptr);
     /**
      * Update Download interval
@@ -180,3 +180,4 @@ QUrl create_weather_uri(const WeatherConfig& cfg);
 
 } // namespace DigitalRooster
 #endif /* _WEATHER_HPP_ */
+

@@ -28,12 +28,12 @@ namespace Hal {
  * Simplified linux/input event to allow portable code
  */
 struct InputEvent {
-	/** Key code (if key-event) */
-    int code{0};
-	/** Value pressed/released increment etc. */
-    int value{0};
+    /** Key code (if key-event) */
+    int code;
+    /** Value pressed/released increment etc. */
+    int value;
     /** Type key event / mouse etc. ... (0x01 EV_KEY) */
-    int type{0};
+    int type;
 };
 
 /**
