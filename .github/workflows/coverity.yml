@@ -1,14 +1,12 @@
 name: Coverity
-on: [ push ]
-  # push:
-  #   branches:
-  #     - develop
-  #     - master
-  #   branches_ignore:
-  #     - 'test*'
-  # pull_request:
-  #   branches:
-  #     - develop
+on:
+  push:
+    branches:
+      - develop
+      - master
+  pull_request:
+    branches:
+      - develop
 jobs:
   run_coverity:
     runs-on: ubuntu-latest
