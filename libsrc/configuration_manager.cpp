@@ -397,8 +397,14 @@ void ConfigurationManager::store_current_config() {
     for (const auto& alarm : alarms) {
         QJsonObject alarmcfg;
         alarmcfg[KEY_ID] = alarm->get_id().toString();
-        alarmcfg[KEY_ALARM_PERIOD] =
-            alarm_period_to_json_string(alarm->get_period());
+        try {
+            alarmcfg[KEY_ALARM_PERIOD] =
+                alarm_period_to_json_string(alarm->get_period());
+        } catch (std::invalid_argument& exc) {
+            qCCritical(CLASS_LC) << " invalid period " << alarm->get_period()
+                                 << " using default " << KEY_ALARM_ONCE;
+            alarmcfg[KEY_ALARM_PERIOD] = KEY_ALARM_ONCE;
+        }
         alarmcfg[KEY_TIME] = alarm->get_time().toString("hh:mm");
         alarmcfg[KEY_VOLUME] = alarm->get_volume();
         alarmcfg[KEY_URI] = alarm->get_media()->get_url().toString();
