@@ -28,11 +28,10 @@ jobs:
         echo "host dir: $BUILD_DIR_HOST"
         echo "container build dir: $BUILD_DIR"
         echo "container src_dir: $SRC_DIR"
-        echo "Coverity tarball:" $COVERITY_TARBALL
-        echo "Coverity result:" $COVERITY_RESULT_DIR
     - name: Create build dir
       run: | 
         mkdir -p $BUILD_DIR_HOST
+        chmod o+w $BUILD_DIR_HOST
         touch $BUILD_DIR_HOST/created
         ls -la $BUILD_DIR_HOST
     - name: Pull docker container
@@ -40,7 +39,7 @@ jobs:
       timeout-minutes: 5
     - name: Start Docker
       run: >
-        docker run -itd -u $UID:$GID --privileged --name build_container
+        docker run -itd --privileged --name build_container
         -v$GITHUB_WORKSPACE:$SRC_DIR -v$BUILD_DIR_HOST:$BUILD_DIR
         ruschi/devlinuxqtquick2
     - name: Configure
