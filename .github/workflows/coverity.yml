@@ -53,7 +53,8 @@ jobs:
     - name: Configure (Release, No Tests)
       run: >
         docker exec build_container cmake
-        -DCMAKE_BUILD_TYPE=Debug
+        -DCMAKE_BUILD_TYPE=Release
+        -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY=On
         -H$SRC_DIR -B$BUILD_DIR
         -DBUILD_TESTS=Off -DTEST_COVERAGE=Off -DBUILD_GTEST_FROM_SRC=Off
     - name: Gather Coverity build info
@@ -66,7 +67,7 @@ jobs:
       run: >        
         curl --form token=$TOKEN
         --form email=thomas@ruschival.de 
-        --form file=$COVERITY_TARBALL
+        --form file=@$COVERITY_TARBALL
         --form version=$GITHUB_SHA
         --form description="Auto scan on $GITHUB_REF" 
         https://scan.coverity.com/builds?project=truschival%2FDigitalRoosterGui
