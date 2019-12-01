@@ -17,9 +17,9 @@ jobs:
       BUILD_DIR: /build
       SRC_DIR: /src
       COVERITY_INSTALL_DIR: /tmp/coverity
-      COVERITY_BUILD_CAPTURE: $COVERITY_INSTALL_DIR/bin/cov-build
-      COVERITY_RESULT_DIR: $BUILD_DIR_HOST/cov-int
-      COVERITY_TARBALL: DigitalRoosterGui.$GITHUB_SHA.tar.bz2
+      COVERITY_BUILD_CAPTURE: ${{ COVERITY_INSTALL_DIR }}/bin/cov-build
+      COVERITY_RESULT_DIR: ${{ BUILD_DIR_HOST }}/cov-int
+      COVERITY_TARBALL: DigitalRoosterGui.${{GITHUB_SHA}}.tar.bz2
     steps:
     - name: Clone Repository
       uses: actions/checkout@v1
@@ -42,7 +42,7 @@ jobs:
         ls -la $BUILD_DIR_HOST
     - name: Install Coverity
       run: |
-        wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "project=token=$TOKEN&truschival%2FDigitalRoosterGui"  -O cov-analysis-linux64.tar.gz
+        wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=truschival%2FDigitalRoosterGui"  -O cov-analysis-linux64.tar.gz
         tar xzf cov-analysis-linux64.tar.gz --strip 1 -C $COVERITY_INSTALL_DIR
       env:
           TOKEN: ${{ secrets.COVERITY_TOKEN }}
