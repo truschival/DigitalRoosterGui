@@ -23,7 +23,7 @@ jobs:
     - name: Check Environment
       run: |
         docker --version
-        echo "USER: $USER $UID:$GID"
+        echo "USER: $USER ($UID:$GID)"
         echo "github workspace: $GITHUB_WORKSPACE"
         echo "host dir: $BUILD_DIR_HOST"
         echo "container build dir: $BUILD_DIR"
@@ -39,7 +39,7 @@ jobs:
       timeout-minutes: 5
     - name: Start Docker
       run: >
-        docker run -itd --privileged --name build_container
+        docker run -itd -u $UID:$GID --privileged --name build_container
         -v$GITHUB_WORKSPACE:$SRC_DIR -v$BUILD_DIR_HOST:$BUILD_DIR
         ruschi/devlinuxqtquick2
     - name: Configure
