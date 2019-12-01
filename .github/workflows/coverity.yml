@@ -36,7 +36,9 @@ jobs:
         mkdir -p $COVERITY_INSTALL_DIR
     - name: Install Coverity
       run: |
-        wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=truschival%2FDigitalRoosterGui"  -O cov-analysis-linux64.tar.gz
+        wget -q https://scan.coverity.com/download/cxx/linux64  \
+          --post-data "token=$TOKEN&project=$GITHUB_REPOSITORY" \
+          -O cov-analysis-linux64.tar.gz
         tar xzf cov-analysis-linux64.tar.gz --strip 1 -C $COVERITY_INSTALL_DIR
       env:
           TOKEN: ${{ secrets.COVERITY_TOKEN }}
@@ -62,7 +64,7 @@ jobs:
         docker exec -w $BUILD_DIR build_container
         /coverity/bin/cov-build --dir $COVERITY_RESULT_DIR make -j 3
     - name: Package Coverity output
-      run:  tar cjvf $COVERITY_TARBALL -C $BUILD_DIR $COVERITY_RESULT_DIR
+      run:  tar cjvf $COVERITY_TARBALL -C $BUILD_DIR_HOST $COVERITY_RESULT_DIR
     - name: Upload Coverity Info
       run: >        
         curl --form token=$TOKEN
@@ -70,6 +72,6 @@ jobs:
         --form file=@$COVERITY_TARBALL
         --form version=$GITHUB_SHA
         --form description="Auto scan on $GITHUB_REF" 
-        https://scan.coverity.com/builds?project=truschival%2FDigitalRoosterGui
+        https://scan.coverity.com/builds?project=$GITHUB_REPOSITORY
       env:
         TOKEN: ${{ secrets.COVERITY_TOKEN }}
