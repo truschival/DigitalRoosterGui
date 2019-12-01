@@ -15,7 +15,7 @@ jobs:
       BUILD_DIR: /build
       SRC_DIR: /src
       COVERITY_INSTALL_DIR: /tmp/coverity
-      COVERITY_RESULT_DIR: /tmp/build/cov-int
+      COVERITY_RESULT_DIR: cov-int
       COVERITY_TARBALL: digitalrooster_coverity.tar.bz2
     steps:
     - name: Clone Repository
@@ -60,9 +60,9 @@ jobs:
     - name: Gather Coverity build info
       run: >
         docker exec -w $BUILD_DIR build_container
-        /coverity/bin/cov-build --dir cov-int make -j 3
+        /coverity/bin/cov-build --dir $COVERITY_RESULT_DIR make -j 3
     - name: Package Coverity output
-      run:  tar cjvf $COVERITY_TARBALL $COVERITY_RESULT_DIR
+      run:  tar cjvf $COVERITY_TARBALL -C $BUILD_DIR $COVERITY_RESULT_DIR
     - name: Upload Coverity Info
       run: >        
         curl --form token=$TOKEN

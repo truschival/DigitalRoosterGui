@@ -23,30 +23,31 @@ jobs:
     - name: Check Environment
       run: |
         docker --version
-        echo "USER: $USER "
-        id
+        echo "USER: $USER $UID:$GID"
         echo "github workspace: $GITHUB_WORKSPACE"
         echo "host dir: $BUILD_DIR_HOST"
         echo "container build dir: $BUILD_DIR"
-        echo "container src_dir: $SRC_DIR"  
+        echo "container src_dir: $SRC_DIR"
+        echo "Coverity tarball:" $COVERITY_TARBALL
+        echo "Coverity result:" $COVERITY_RESULT_DIR
     - name: Create build dir
       run: | 
         mkdir -p $BUILD_DIR_HOST
         touch $BUILD_DIR_HOST/created
-        chmod 777 $BUILD_DIR_HOST
         ls -la $BUILD_DIR_HOST
     - name: Pull docker container
       run: docker pull ruschi/devlinuxqtquick2:latest
       timeout-minutes: 5
     - name: Start Docker
       run: >
-        docker run -itd --privileged --name build_container
+        docker run -itd -u $UID:$GID --privileged --name build_container
         -v$GITHUB_WORKSPACE:$SRC_DIR -v$BUILD_DIR_HOST:$BUILD_DIR
         ruschi/devlinuxqtquick2
     - name: Configure
       run: >
         docker exec build_container cmake
         -DCMAKE_BUILD_TYPE=Debug
+        -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY=On
         -H$SRC_DIR -B$BUILD_DIR
         -DBUILD_TESTS=On -DTEST_COVERAGE=On -DBUILD_GTEST_FROM_SRC=On
     - name: Build
