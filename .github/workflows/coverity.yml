@@ -64,7 +64,7 @@ jobs:
         docker exec -w $BUILD_DIR build_container
         /coverity/bin/cov-build --dir cov-int make -j 3
     - name: Package Coverity output
-      run:  tar cjvf $COVERITY_TARBALL $COVERITY_INSTALL_DIR
+      run:  tar cjvf $COVERITY_TARBALL $COVERITY_RESULT_DIR
     - name: Upload Coverity Info
       run: >        
         curl --form token=$TOKEN
