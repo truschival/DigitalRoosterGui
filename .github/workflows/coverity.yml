@@ -17,7 +17,6 @@ jobs:
       BUILD_DIR: /build
       SRC_DIR: /src
       COVERITY_INSTALL_DIR: /tmp/coverity
-      COVERITY_BUILD_CAPTURE:  /tmp/coverity/bin/cov-build
       COVERITY_RESULT_DIR: /tmp/build/cov-int
       COVERITY_TARBALL: digitalrooster_coverity.tar.bz2
     steps:
@@ -65,7 +64,7 @@ jobs:
     - name: Gather Coverity build info
       run: >
         docker exec -w $BUILD_DIR build_container
-        $COVERITY_BUILD_CAPTURE --dir cov-int make
+        /coverity/bin/cov-build --dir cov-int make -j 3
     - name: Package Coverity output
       run:  tar cjvf $COVERITY_TARBALL $COVERITY_INSTALL_DIR
     - name: Upload Coverity Info
@@ -73,7 +72,7 @@ jobs:
         curl --form token=$TOKEN
         --form email=thomas@ruschival.de 
         --form file=$COVERITY_TARBALL
-        --form version="$GITHUB_SHA" 
+        --form version=$GITHUB_SHA
         --form description="Auto scan on $GITHUB_REF" 
         https://scan.coverity.com/builds?project=truschival%2FDigitalRoosterGui
       env:
