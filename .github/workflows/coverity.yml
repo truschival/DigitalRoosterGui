@@ -17,9 +17,9 @@ jobs:
       BUILD_DIR: /build
       SRC_DIR: /src
       COVERITY_INSTALL_DIR: /tmp/coverity
-      COVERITY_BUILD_CAPTURE: ${{ COVERITY_INSTALL_DIR }}/bin/cov-build
-      COVERITY_RESULT_DIR: ${{ BUILD_DIR_HOST }}/cov-int
-      COVERITY_TARBALL: DigitalRoosterGui.${{GITHUB_SHA}}.tar.bz2
+      COVERITY_BUILD_CAPTURE:  /tmp/coverity/bin/cov-build
+      COVERITY_RESULT_DIR: /tmp/build/cov-int
+      COVERITY_TARBALL: digitalrooster_coverity.tar.bz2
     steps:
     - name: Clone Repository
       uses: actions/checkout@v1
