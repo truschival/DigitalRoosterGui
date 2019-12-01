@@ -1,0 +1,80 @@
+name: Coverity
+on: [ push ]
+  # push:
+  #   branches:
+  #     - develop
+  #     - master
+  #   branches_ignore:
+  #     - 'test*'
+  # pull_request:
+  #   branches:
+  #     - develop
+jobs:
+  run_coverity:
+    runs-on: ubuntu-latest
+    env:
+      BUILD_DIR_HOST: /tmp/build
+      BUILD_DIR: /build
+      SRC_DIR: /src
+      COVERITY_INSTALL_DIR: /tmp/coverity
+      COVERITY_BUILD_CAPTURE: $COVERITY_INSTALL_DIR/bin/cov-build
+      COVERITY_RESULT_DIR: $BUILD_DIR_HOST/cov-int
+      COVERITY_TARBALL: DigitalRoosterGui.$GITHUB_SHA.tar.bz2
+    steps:
+    - name: Clone Repository
+      uses: actions/checkout@v1
+    - name: Check Environment
+      run: |
+        docker --version
+        echo "USER: $USER "
+        id
+        echo "github workspace: $GITHUB_WORKSPACE"
+        echo "host dir: $BUILD_DIR_HOST"
+        echo "container build dir: $BUILD_DIR"
+        echo "container src_dir: $SRC_DIR"
+        echo "Coverity tarball:" $COVERITY_TARBALL
+        echo "Coverity result:" $COVERITY_RESULT_DIR
+    - name: Create build dir
+      run: | 
+        mkdir -p $BUILD_DIR_HOST
+        mkdir -p $COVERITY_INSTALL_DIR
+        chmod 777 $BUILD_DIR_HOST
+        ls -la $BUILD_DIR_HOST
+    - name: Install Coverity
+      run: |
+        wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "project=token=$TOKEN&truschival%2FDigitalRoosterGui"  -O cov-analysis-linux64.tar.gz
+        tar xzf cov-analysis-linux64.tar.gz --strip 1 -C $COVERITY_INSTALL_DIR
+      env:
+          TOKEN: ${{ secrets.COVERITY_TOKEN }}
+    - name: Pull docker container
+      run: docker pull ruschi/devlinuxqtquick2:latest
+      timeout-minutes: 5
+    - name: Start Docker
+      run: >
+        docker run -itd --privileged --name build_container
+        -v$GITHUB_WORKSPACE:$SRC_DIR
+        -v$BUILD_DIR_HOST:$BUILD_DIR
+        -v$COVERITY_INSTALL_DIR:/coverity
+        ruschi/devlinuxqtquick2
+    - name: Configure (Release, No Tests)
+      run: >
+        docker exec build_container cmake
+        -DCMAKE_BUILD_TYPE=Debug
+        -H$SRC_DIR -B$BUILD_DIR
+        -DBUILD_TESTS=Off -DTEST_COVERAGE=Off -DBUILD_GTEST_FROM_SRC=Off
+    - name: Gather Coverity build info
+      run: >
+        docker exec -w $BUILD_DIR build_container
+        $COVERITY_BUILD_CAPTURE --dir cov-int make
+    - name: Package Coverity output
+      run:  tar cjvf $COVERITY_TARBALL $COVERITY_INSTALL_DIR
+    - name: Upload Coverity Info
+      run: >        
+        curl --form token=$TOKEN
+        --form email=thomas@ruschival.de 
+        --form file=$COVERITY_TARBALL
+        --form version="$GITHUB_SHA" 
+        --form description="Auto scan on $GITHUB_REF" 
+        https://scan.coverity.com/builds?project=truschival%2FDigitalRoosterGui
+      env:
+        TOKEN: ${{ secrets.COVERITY_TOKEN }}
