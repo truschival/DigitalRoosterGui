@@ -137,7 +137,7 @@ include_directories(${PROJECT_INCLUDE_DIR} ${GENERATED_DIR})
 # Output  configuration
 #-------------------------------------------------------------------------------
 #Since the "standard" cmake template works with component name set it
-SET(COMPONENT_NAME ${PROJECT_NAME})
+#SET(COMPONENT_NAME ${PROJECT_NAME})
 
 # Make debug libs visible per default ->  SET_TARGET_PROPERTIES
 SET(CMAKE_DEBUG_POSTFIX "d")
@@ -155,12 +155,9 @@ SET(INSTALL_INCLUDE_DIR include CACHE PATH
   "Installation directory for header files")
 SET(INSTALL_CMAKE_DIR ${INSTALL_LIB_DIR}/cmake/ CACHE PATH
     "Installation directory for CMake files")
-  SET(INSTALL_DOC_DIR "doc/${PROJECT_NAME}" CACHE PATH
+SET(INSTALL_DOC_DIR "doc/${PROJECT_NAME}" CACHE PATH
 	"Installation directory for doxygen docs")
 
-SET(version_config "${GENERATED_DIR}/${COMPONENT_NAME}ConfigVersion.cmake")
-SET(component_config "${GENERATED_DIR}/${COMPONENT_NAME}Config.cmake")
-SET(targets_export_name "${COMPONENT_NAME}Targets")
 export(PACKAGE ${PROJECT_NAME})
 
 #-------------------------------------------------------------------------------
@@ -279,7 +276,6 @@ SET(CPACK_COMPONENT_DEVELOP_DISPLAY_NAME "Libraries + Headers")
 SET(CPACK_COMPONENT_APIDOC_DISPLAY_NAME "API Documentation")
 SET(CPACK_COMPONENT_DEVELOP_DESCRIPTION "Components needed for development")
 SET(CPACK_COMPONENT_APIDOC_DESCRIPTION  "API Documentation")
-
 SET(CPACK_NSIS_CONTACT "thomas@ruschival.de")
 SET(CPACK_NSIS_MODIFY_PATH ON)
 

@@ -1,9 +1,13 @@
 MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
+
 SET(BINARY_NAME "DigitalRoosterGui")
+# Component name (what to build and install) used in add_executable or add_library
+set(COMPONENT_NAME ${BINARY_NAME})
+# Interface/binary version
+SET(COMPONENT_VERSION ${PROJECT_VERSION})
 
 # Gui has extra QT dependencies: QML and QTquick
 find_package(Qt5 COMPONENTS Qml Quick REQUIRED)
-
 #Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -61,34 +65,32 @@ LIST(APPEND CPP_DEFS "" )
 # Binary
 #------------------------------
 # Executable (for target)
-ADD_EXECUTABLE(${BINARY_NAME}
+ADD_EXECUTABLE(${COMPONENT_NAME}
   ${SRCS}
   ${UI_HDRS}
   ${MOC_SRC}
   ${QRC_SRC}
   )
 
-SET_TARGET_PROPERTIES(
-  ${BINARY_NAME}
+SET_TARGET_PROPERTIES(${COMPONENT_NAME}
   PROPERTIES
-  VERSION ${PROJECT_VERSION}
-  DEBUG_POSTFIX "_dbg"
+  VERSION ${COMPONENT_VERSION}
   )
 
-TARGET_COMPILE_DEFINITIONS(${BINARY_NAME}
+TARGET_COMPILE_DEFINITIONS(${COMPONENT_NAME}
   # no public flags, nobody should use the main app as dependency
   PRIVATE
   ${CPP_DEFS}
   )
 
-TARGET_COMPILE_OPTIONS(${BINARY_NAME} PRIVATE
+TARGET_COMPILE_OPTIONS(${COMPONENT_NAME} 
+  PRIVATE
   $<$<COMPILE_LANGUAGE:CXX>:${CUSTOM_CXX_FLAGS}>
   $<$<COMPILE_LANGUAGE:C>:${CUSTOM_C_FLAGS}>
   )
 
 # Linkage with gtest_main coverage etc.
-TARGET_LINK_LIBRARIES(
-  ${BINARY_NAME}
+TARGET_LINK_LIBRARIES(${COMPONENT_NAME}
   PRIVATE
   ${PROJECT_CORE_LIB}
   Qt5::Quick
@@ -99,13 +101,4 @@ TARGET_LINK_LIBRARIES(
 #-----
 # Install
 #-----
-MESSAGE(STATUS "** Generating Package Configurations **")
-
-INSTALL(TARGETS ${BINARY_NAME}
-  EXPORT ${targets_export_name}
-  COMPONENT APPLICATION
-  ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
-  LIBRARY DESTINATION ${INSTALL_LIB_DIR}
-  RUNTIME DESTINATION ${INSTALL_BIN_DIR}
-  INCLUDES DESTINATION ${INSTALL_INCLUDE_DIR}
-  )
+include(InstallLibraryComponents)
