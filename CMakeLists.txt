@@ -237,6 +237,7 @@ endif(DOXYGEN_FOUND)
 add_subdirectory(${PROJECT_SOURCE_DIR}/wpa_ctrl/)
 add_subdirectory(${PROJECT_SOURCE_DIR}/libhwif/)
 add_subdirectory(${PROJECT_SOURCE_DIR}/libsrc/) #libsrc depends on libhwif
+add_subdirectory(${PROJECT_SOURCE_DIR}/REST/)
 
 if(BUILD_EXE)
   add_subdirectory(${PROJECT_SOURCE_DIR}/qtgui/)
