@@ -18,8 +18,10 @@
 #include <QByteArray>
 #include <QtCore>
 #include <QtNetwork>
+#include <QNetworkAccessManager>
 
 class QSslError;
+class QNetworkReply;
 
 namespace DigitalRooster {
 

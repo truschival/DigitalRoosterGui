@@ -15,6 +15,7 @@
 #include <QTime>
 #include <QUrl>
 #include <QUuid>
+#include <QJsonDocument>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -30,7 +31,7 @@ using ::testing::AtLeast;
 /*****************************************************************************/
 TEST(Alarm, defaultVolume) {
     Alarm al;
-    ASSERT_EQ(al.get_volume(), 40);
+    ASSERT_EQ(al.get_volume(), DEFAULT_ALARM_VOLUME);
 }
 
 /*****************************************************************************/
@@ -79,7 +80,7 @@ TEST(Alarm, fullConstructorEnabled) {
 
 /*****************************************************************************/
 TEST(StringToPeriodEnum, mapping_bad) {
-    EXPECT_THROW(json_string_to_alarm_period("Foobar"), std::exception);
+    EXPECT_THROW(json_string_to_alarm_period("Foobar"), std::invalid_argument);
 }
 
 /*****************************************************************************/
@@ -93,6 +94,7 @@ TEST(Alarm, defaultTimeout) {
 TEST(Alarm, updatedTimeout) {
     Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
         QTime::currentTime().addSecs(-3600));
+    ASSERT_EQ(al.get_timeout(), DEFAULT_ALARM_TIMEOUT);
     al.set_timeout(std::chrono::minutes(5));
     ASSERT_EQ(al.get_timeout().count(), 5);
 }
@@ -113,4 +115,30 @@ TEST(Alarm, periodChangeEmits) {
 
     QList<QVariant> arguments = spy_period_string.takeFirst();
     ASSERT_EQ(arguments.at(0).toString(), QString("daily"));
+}
+/*****************************************************************************/
+TEST(Alarm, construct_from_json) {
+    QString json_string(R"(
+        {
+	        "id": "{247c4f9d-9626-4061-a8cc-1bd2249a0a20}",
+            "period": "workdays",
+            "time": "06:30",
+            "enabled": false,
+            "url": "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3",
+            "volume": 40,
+	        "alarmTimeout": 45
+        }
+	)");
+    auto jdoc = QJsonDocument::fromJson(json_string.toUtf8());
+    auto alarm = Alarm::from_json_object(jdoc.object());
+
+    ASSERT_EQ(alarm->get_id().toString(),
+        QString("{247c4f9d-9626-4061-a8cc-1bd2249a0a20}"));
+    ASSERT_EQ(alarm->get_period(), Alarm::Workdays);
+    ASSERT_EQ(alarm->get_time(), QTime::fromString("06:30", "hh:mm"));
+    ASSERT_FALSE(alarm->is_enabled());
+    ASSERT_EQ(alarm->get_media_url(),
+        QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"));
+    ASSERT_EQ(alarm->get_timeout(), std::chrono::minutes(45));
+    ASSERT_EQ(alarm->get_volume(), 40);
 }

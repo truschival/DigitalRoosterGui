@@ -84,9 +84,10 @@ const QTime& Alarm::get_time() const {
 
 /*****************************************************************************/
 
-static const std::vector<std::pair<Alarm::Period, QString>> period_to_string = {
-    {Alarm::Daily, KEY_ALARM_DAILY}, {Alarm::Workdays, KEY_ALARM_WORKDAYS},
-    {Alarm::Weekend, KEY_ALARM_WEEKEND}, {Alarm::Once, KEY_ALARM_ONCE}};
+static const std::vector<std::pair<Alarm::Period, QString>>
+    period_to_string = {{Alarm::Daily, KEY_ALARM_DAILY},
+        {Alarm::Workdays, KEY_ALARM_WORKDAYS},
+        {Alarm::Weekend, KEY_ALARM_WEEKEND}, {Alarm::Once, KEY_ALARM_ONCE}};
 
 /*****************************************************************************/
 void Alarm::update_media_url(const QUrl& url) {
@@ -97,29 +98,94 @@ void Alarm::update_media_url(const QUrl& url) {
 }
 
 /*****************************************************************************/
-
 Alarm::Period DigitalRooster::json_string_to_alarm_period(
     const QString& literal) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto res = std::find_if(period_to_string.begin(), period_to_string.end(),
         [&](const std::pair<Alarm::Period, QString>& item) {
             return item.second == literal;
         });
-    if (res == period_to_string.end())
-        throw(std::invalid_argument(std::string("can't resolve argument")));
-
+    if (res == period_to_string.end()) {
+        throw(std::invalid_argument(
+            std::string("Invalid value for AlarmPeriod! :") +
+            literal.toStdString()));
+    }
     return res->first;
 }
 /*****************************************************************************/
 
 QString DigitalRooster::alarm_period_to_json_string(
     const Alarm::Period period) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto res = std::find_if(period_to_string.begin(), period_to_string.end(),
         [&](const std::pair<Alarm::Period, QString>& item) {
             return item.first == period;
         });
-    if (res == period_to_string.end())
-        throw(std::invalid_argument(std::string("can't resolve argument")));
-
+    if (res == period_to_string.end()) {
+        qCWarning(CLASS_LC) << "Invalid Period passed (" << period << ")" <<
+        		"This should never happen - aborting";
+        abort();
+    }
     return res->second;
 }
+
+/*****************************************************************************/
+std::shared_ptr<Alarm> Alarm::from_json_object(
+    const QJsonObject& json_alarm) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    if (json_alarm.isEmpty()) {
+        throw std::invalid_argument("Empty Alarm JSON object!");
+    }
+
+    QUrl url(json_alarm[KEY_URI].toString());
+    if (!url.isValid()) {
+        qCWarning(CLASS_LC) << "Invalid URI " << json_alarm[KEY_URI].toString();
+        throw std::invalid_argument("Alarm URL invalid!");
+    }
+    auto period = json_string_to_alarm_period(
+        json_alarm[KEY_ALARM_PERIOD].toString(KEY_ALARM_DAILY));
+    auto timepoint =
+        QTime::fromString(json_alarm[KEY_TIME].toString(), "hh:mm");
+    if(!timepoint.isValid()){
+        qCWarning(CLASS_LC) << "Invalid Time " << json_alarm[KEY_TIME].toString();
+        throw std::invalid_argument("Alarm Time invalid!");
+    }
+
+    auto enabled = json_alarm[KEY_ENABLED].toBool(true);
+    auto media = QUrl(json_alarm[KEY_URI].toString());
+    auto id = QUuid::fromString(
+        json_alarm[KEY_ID].toString(QUuid::createUuid().toString()));
+    /*
+     * Create alarm with essential information
+     */
+    auto alarm = std::make_shared<Alarm>(media, timepoint, period, enabled, id);
+
+    /* Set volume if configured */
+    if (json_alarm.contains(KEY_VOLUME)) {
+        auto volume = json_alarm[KEY_VOLUME].toInt(DEFAULT_ALARM_VOLUME);
+        alarm->set_volume(volume);
+    }
+    /* if no specific alarm timeout is given take application default */
+    if (json_alarm.contains(KEY_ALARM_TIMEOUT)) {
+        auto timeout =
+            json_alarm[KEY_ALARM_TIMEOUT].toInt(DEFAULT_ALARM_TIMEOUT.count());
+        alarm->set_timeout(std::chrono::minutes(timeout));
+    }
+    return alarm;
+}
+
+/*****************************************************************************/
+QJsonObject Alarm::to_json_object() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    QJsonObject alarmcfg;
+    alarmcfg[KEY_ID] = this->get_id().toString();
+    alarmcfg[KEY_ALARM_PERIOD] =
+        alarm_period_to_json_string(this->get_period());
+    alarmcfg[KEY_TIME] = this->get_time().toString("hh:mm");
+    alarmcfg[KEY_VOLUME] = this->get_volume();
+    alarmcfg[KEY_URI] = this->get_media()->get_url().toString();
+    alarmcfg[KEY_ENABLED] = this->is_enabled();
+    return alarmcfg;
+}
+
 /*****************************************************************************/

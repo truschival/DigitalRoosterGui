@@ -130,7 +130,6 @@ configure_file(
   )
 
 #Find includes in corresponding build directories
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
 include_directories(${PROJECT_INCLUDE_DIR} ${GENERATED_DIR})
 
 #-------------------------------------------------------------------------------

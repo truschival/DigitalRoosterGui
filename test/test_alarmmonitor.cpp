@@ -66,7 +66,7 @@ TEST(AlarmMonitor, triggersFallbackForError) {
 
     EXPECT_CALL(*(player.get()), do_play()).Times(2);
     EXPECT_CALL(*(player.get()), do_set_media(_)).Times(1);
-    EXPECT_CALL(*(player.get()), do_set_volume(40)).Times(1);
+    EXPECT_CALL(*(player.get()), do_set_volume(DEFAULT_ALARM_VOLUME)).Times(1);
 
     // Fallback behavior
     EXPECT_CALL(*(player.get()), do_set_volume(50)).Times(1);
@@ -113,7 +113,7 @@ TEST(AlarmMonitor, noFallBackIfStoppedNormally) {
 
     EXPECT_CALL(*(player.get()), do_play()).Times(1);
     EXPECT_CALL(*(player.get()), do_set_media(_)).Times(1);
-    EXPECT_CALL(*(player.get()), do_set_volume(40)).Times(1);
+    EXPECT_CALL(*(player.get()), do_set_volume(DEFAULT_ALARM_VOLUME)).Times(1);
     EXPECT_CALL(*(player.get()), do_error()).Times(AtLeast(1)).WillRepeatedly(Return(QMediaPlayer::NoError));
 
     mon.alarm_triggered(alm);

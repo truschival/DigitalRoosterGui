@@ -29,23 +29,15 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.PodcastSource");
 
 /*****************************************************************************/
-PodcastSource::PodcastSource(const QUrl& url, const QDir& cache_dir, QUuid uid)
+PodcastSource::PodcastSource(const QUrl& url, QUuid uid)
     : id(uid)
-    , rss_feed_uri(url)
-    , cache_dir(cache_dir) {
+    , rss_feed_uri(url) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    // read initial settings from file if it exists
-    restore();
-    // write timer will take care for delayed writes
-    writeTimer.setInterval(std::chrono::seconds(5));
-    writeTimer.setSingleShot(true);
-    connect(&writeTimer, SIGNAL(timeout()), this, SLOT(store()));
 }
 
 /*****************************************************************************/
 PodcastSource::~PodcastSource() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    writeTimer.stop();
 
     if (download_cnx)
         disconnect(download_cnx);
@@ -55,7 +47,6 @@ PodcastSource::~PodcastSource() {
         icon_downloader.release();
     }
 }
-
 
 /*****************************************************************************/
 void PodcastSource::add_episode(std::shared_ptr<PodcastEpisode> newep) {
@@ -80,7 +71,6 @@ void PodcastSource::add_episode(std::shared_ptr<PodcastEpisode> newep) {
         /* get notified if any data changes */
         connect(newep.get(), SIGNAL(data_changed()), this,
             SLOT(episode_info_changed()));
-        writeTimer.start(); // start delayed write
         emit episodes_count_changed(episodes.size());
     } else {
         qCDebug(CLASS_LC) << " > " << newep->get_guid() << "already in list";
@@ -101,14 +91,13 @@ void PodcastSource::set_description(QString newVal) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     description = newVal;
     emit descriptionChanged();
-    writeTimer.start(); // start delayed write
+    emit dataChanged();
 }
 
 /*****************************************************************************/
 void PodcastSource::set_last_updated(QDateTime newVal) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     last_updated = newVal;
-    writeTimer.start(); // start delayed write
 }
 
 /*****************************************************************************/
@@ -116,7 +105,6 @@ void PodcastSource::set_link(QUrl newVal) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     link = newVal;
     emit dataChanged();
-    writeTimer.start(); // start delayed write
 }
 
 /*****************************************************************************/
@@ -131,7 +119,7 @@ void PodcastSource::set_title(QString newTitle) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     title = newTitle;
     emit titleChanged();
-    writeTimer.start(); // start delayed write
+    emit dataChanged();
 }
 
 /*****************************************************************************/
@@ -143,7 +131,7 @@ QString PodcastSource::get_cache_file_name() const {
 /*****************************************************************************/
 QString PodcastSource::get_cache_file_impl() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return cache_dir.filePath(get_id().toString());
+    return get_id().toString();
 }
 
 /*****************************************************************************/
@@ -156,6 +144,17 @@ void PodcastSource::set_update_task(std::unique_ptr<UpdateTask>&& ut) {
 }
 
 /*****************************************************************************/
+void PodcastSource::set_serializer(std::unique_ptr<PodcastSerializer>&& pser) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    // We just take ownership
+    serializer = std::move(pser);
+    serializer->set_podcast_source(this);
+    // Setup connections
+    connect(this, &PodcastSource::dataChanged, serializer.get(),
+        &PodcastSerializer::delayed_write);
+}
+
+/*****************************************************************************/
 QVector<QString> PodcastSource::get_episodes_names() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto ret = QVector<QString>();
@@ -163,28 +162,6 @@ QVector<QString> PodcastSource::get_episodes_names() {
         ret.push_back(e->get_display_name());
     }
     return ret;
-}
-
-/*****************************************************************************/
-void DigitalRooster::PodcastSource::restore() {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    PodcastSerializer serializer;
-    try {
-        serializer.read_from_file(this);
-    } catch (std::exception& exc) {
-        qCWarning(CLASS_LC) << "restore failed" << exc.what();
-    }
-}
-
-/*****************************************************************************/
-void DigitalRooster::PodcastSource::store() {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    PodcastSerializer serializer;
-    try {
-        serializer.store_to_file(this);
-    } catch (std::exception& exc) {
-        qCWarning(CLASS_LC) << "store failed" << exc.what();
-    }
 }
 
 /*****************************************************************************/
@@ -211,13 +188,6 @@ void PodcastSource::purge_icon_cache() {
 /*****************************************************************************/
 void PodcastSource::purge_episodes() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-
-    QFile cache_file(get_cache_file_name());
-    if (!cache_file.remove()) {
-        qCWarning(CLASS_LC)
-            << " removing cache_file failed " << get_cache_file_name() << ":"
-            << cache_file.errorString();
-    }
     episodes.clear();
     emit episodes_count_changed(episodes.size());
 }
@@ -227,12 +197,16 @@ void PodcastSource::purge() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     purge_episodes();
     purge_icon_cache();
+    // Remove cache file
+    if(serializer){
+    	serializer->delete_cached_info();
+    }
 }
 
 /*****************************************************************************/
 void PodcastSource::episode_info_changed() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    writeTimer.start(); // start delayed write
+    emit dataChanged();
 }
 
 /*****************************************************************************/
@@ -276,6 +250,7 @@ void PodcastSource::set_image_url(const QUrl& uri) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     icon_url = uri;
     emit icon_changed();
+    emit dataChanged();
 }
 /*****************************************************************************/
 void PodcastSource::set_image_file_path(const QString& path) {
@@ -314,7 +289,46 @@ void PodcastSource::store_image(QByteArray data) {
     disconnect(download_cnx);
     icon_downloader.get()->deleteLater();
     icon_downloader.release(); // let QT manage the object
-    writeTimer.start();        // start delayed write
+}
+
+/*****************************************************************************/
+std::shared_ptr<PodcastSource> PodcastSource::from_json_object(
+    const QJsonObject& json) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+
+    auto uid = QUuid::fromString(
+        json[KEY_ID].toString(QUuid::createUuid().toString()));
+    QUrl url(json[KEY_URI].toString());
+    if (!url.isValid()) {
+        throw std::invalid_argument("invalid URL for podcast");
+    }
+
+    auto ps = std::make_shared<PodcastSource>(url, uid);
+
+    auto title = json[KEY_TITLE].toString();
+    auto desc = json[KEY_DESCRIPTION].toString();
+    auto img_url = json[KEY_ICON_URL].toString();
+    auto img_cached = json[KEY_IMAGE_CACHE].toString();
+    ps->set_title(title);
+    ps->set_description(desc);
+    ps->set_image_url(img_url);
+
+    ps->set_update_interval(
+        std::chrono::seconds(json[KEY_UPDATE_INTERVAL].toInt(3600)));
+    ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
+    return ps;
+}
+
+/*****************************************************************************/
+QJsonObject PodcastSource::to_json_object() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    QJsonObject json;
+    json[KEY_ID] = get_id().toString();
+    json[KEY_URI] = get_url().toString();
+    json[KEY_TITLE] = get_title();
+    json[KEY_UPDATE_INTERVAL] =
+        static_cast<qint64>(get_update_interval().count());
+    return json;
 }
 
 /*****************************************************************************/

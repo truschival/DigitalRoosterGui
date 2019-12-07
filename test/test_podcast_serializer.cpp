@@ -24,6 +24,7 @@
 #include "PodcastSource.hpp"
 #include "appconstants.hpp"
 #include "podcast_serializer.hpp"
+#include "serializer_mock.hpp"
 
 using namespace DigitalRooster;
 using namespace ::testing;
@@ -33,8 +34,8 @@ using ::testing::Invoke;
 /******************************************************************************/
 class PodcastSourceMock : public DigitalRooster::PodcastSource {
 public:
-    explicit PodcastSourceMock(const QDir& cachedir)
-        : PodcastSource(QUrl(), cachedir){};
+    explicit PodcastSourceMock()
+        : PodcastSource(QUrl()){};
 
     MOCK_CONST_METHOD0(get_cache_file_impl, QString());
     MOCK_CONST_METHOD0(get_description, const QString&());
@@ -50,9 +51,7 @@ public:
 /******************************************************************************/
 class PodcastSourceMock_episodes : public PodcastSourceMock {
 public:
-    explicit PodcastSourceMock_episodes(const QDir& cachedir)
-        : PodcastSourceMock(cachedir){};
-
+    explicit PodcastSourceMock_episodes(){};
     MOCK_CONST_METHOD0(
         get_episodes_impl, const QVector<std::shared_ptr<PodcastEpisode>>&());
 };
@@ -62,15 +61,15 @@ class SerializerFixture : public ::testing::Test {
 public:
     SerializerFixture()
         : cache_dir(DEFAULT_CACHE_DIR_PATH)
-        , psmock(cache_dir)
-        , ps(QUrl(), cache_dir){};
+        , ps(QUrl()){};
 
     // Make our own clock to be the wallclock
     void SetUp() {
         mc = std::make_shared<MockClock>();
         DigitalRooster::wallclock =
             std::static_pointer_cast<TimeProvider, MockClock>(mc);
-
+        // Make sure cache path exists
+        cache_dir.mkpath(".");
         episode1_json[KEY_URI] = episode1_url.toString();
         episode1_json[KEY_TITLE] = episode1_title;
         episode1_json[KEY_DURATION] = episode1_duration;
@@ -120,16 +119,12 @@ protected:
 
 /******************************************************************************/
 TEST_F(SerializerFixture, FileNotFoundThrows) {
-    PodcastSerializer dut;
-    EXPECT_CALL(psmock, get_cache_file_impl())
-        .Times(1)
-        .WillOnce(Return(QString("/tmp/some_non_existent_file")));
-    ASSERT_THROW(dut.read_from_file(&psmock), std::system_error);
+    QString test_file_name("/tmp/some_non_existent_file");
+    ASSERT_THROW(read_from_file(&psmock, test_file_name), std::system_error);
 }
 
 /******************************************************************************/
 TEST_F(SerializerFixture, PodcastSourceSerialization) {
-    PodcastSerializer dut;
     EXPECT_CALL(psmock, get_description())
         .Times(1)
         .WillOnce(ReturnRef(expected_desc));
@@ -143,24 +138,22 @@ TEST_F(SerializerFixture, PodcastSourceSerialization) {
         .Times(1)
         .WillOnce(Return(expected_timestamp));
 
-    auto json_obj = dut.json_from_podcast_source(&psmock);
+    auto json_obj = json_from_podcast_source(&psmock);
     ASSERT_EQ(json_obj[KEY_DESCRIPTION].toString(), expected_desc);
     ASSERT_EQ(
         json_obj[KEY_TIMESTAMP].toString(), expected_timestamp.toString());
-    ASSERT_EQ(
-        json_obj[KEY_ICON_URL].toString(), expected_image_url.toString());
+    ASSERT_EQ(json_obj[KEY_ICON_URL].toString(), expected_image_url.toString());
     ASSERT_EQ(json_obj[KEY_TITLE].toString(), expected_title);
 }
 
 /******************************************************************************/
 TEST_F(SerializerFixture, PodcastEpisodeSerialization) {
-    PodcastSerializer dut;
     PodcastEpisode episode(episode1_title, episode1_url);
     episode.set_duration(episode1_duration); // duration before position
     episode.set_position(episode1_position); // can't set position if duration=0
     episode.set_guid(episode1_guid);
 
-    auto json_obj = dut.json_from_episode(&episode);
+    auto json_obj = episode.to_json_object();
     ASSERT_EQ(json_obj[KEY_TITLE].toString(), episode1_title);
     ASSERT_EQ(json_obj[KEY_URI].toString(), episode1_url.toString());
     ASSERT_EQ(json_obj[KEY_POSITION].toInt(), episode1_position);
@@ -170,7 +163,6 @@ TEST_F(SerializerFixture, PodcastEpisodeSerialization) {
 
 /******************************************************************************/
 TEST_F(SerializerFixture, PodcastSourceFromJson_PsWasNeverUpdated) {
-    PodcastSerializer dut;
     QDateTime invalid_date;
 
     EXPECT_CALL(psmock, get_last_updated())
@@ -180,7 +172,7 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_PsWasNeverUpdated) {
     QJsonObject json_ps;
     json_ps[KEY_TITLE] = expected_title;
     json_ps[KEY_TIMESTAMP] = expected_timestamp.toString();
-    dut.parse_podcast_source_from_json(json_ps, &psmock);
+    parse_podcast_source_from_json(json_ps, &psmock);
 
     ASSERT_EQ(psmock.get_title_nonmock(), expected_title);
 }
@@ -188,7 +180,6 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_PsWasNeverUpdated) {
 
 /******************************************************************************/
 TEST_F(SerializerFixture, PodcastSourceFromJson_PsRecentlyUpdated) {
-    PodcastSerializer dut;
     // Recently updated PodcastSource with title should not be changed if
     // file is older
     psmock.set_title(expected_title);
@@ -202,7 +193,7 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_PsRecentlyUpdated) {
     QJsonObject json_ps;
     json_ps[KEY_TITLE] = QString("some_old_title");
     json_ps[KEY_TIMESTAMP] = expected_timestamp.toString();
-    dut.parse_podcast_source_from_json(json_ps, &psmock);
+    parse_podcast_source_from_json(json_ps, &psmock);
 
     ASSERT_EQ(psmock.get_title_nonmock(), expected_title);
     ASSERT_EQ(psmock.get_episode_count(), 0); // nothing added
@@ -210,7 +201,6 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_PsRecentlyUpdated) {
 
 /******************************************************************************/
 TEST_F(SerializerFixture, PodcastSourceFromJson_Add2Episodes) {
-    PodcastSerializer dut;
     QDateTime invalid_date;
 
     EXPECT_CALL(psmock, get_last_updated())
@@ -220,12 +210,15 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_Add2Episodes) {
     QJsonObject json_ps;
     json_ps[KEY_TITLE] = expected_title;
     json_ps[KEY_TIMESTAMP] = expected_timestamp.toString();
+
     QJsonArray episodes_array;
     episodes_array.append(episode1_json);
     episodes_array.append(episode2_json);
     json_ps[KEY_EPISODES] = episodes_array;
 
-    dut.parse_podcast_source_from_json(json_ps, &psmock);
+    parse_podcast_source_from_json(json_ps, &psmock);
+    read_episodes_cache(json_ps, &psmock);
+
     ASSERT_EQ(psmock.get_episode_count(), 2);
     ASSERT_EQ(
         psmock.get_episode_by_id(episode1_guid)->get_title(), episode1_title);
@@ -235,7 +228,6 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_Add2Episodes) {
 
 /******************************************************************************/
 TEST_F(SerializerFixture, PodcastSourceFromJson_UpdateEpisodePosition) {
-    PodcastSerializer dut;
     QDateTime invalid_date;
 
     EXPECT_CALL(psmock, get_last_updated())
@@ -251,14 +243,14 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_UpdateEpisodePosition) {
     episodes_array.append(episode1_json);
     json_ps[KEY_EPISODES] = episodes_array;
 
-    dut.parse_podcast_source_from_json(json_ps, &psmock);
+    parse_podcast_source_from_json(json_ps, &psmock);
+    read_episodes_cache(json_ps, &psmock);
     ASSERT_EQ(psmock.get_episode_count(), 1);
     ASSERT_EQ(psmock.get_episode_by_id(episode1_guid)->get_position(), 130);
 }
 
 /******************************************************************************/
 TEST_F(SerializerFixture, ReadFromFileInvalidTimestamp) {
-    PodcastSerializer dut;
     QString test_file_name("some_test_file.json");
     /* create file to read */
     QFile test_file(test_file_name);
@@ -278,17 +270,12 @@ TEST_F(SerializerFixture, ReadFromFileInvalidTimestamp) {
               " ] \n"
               "} \n";
     test_file.close();
-
-    EXPECT_CALL(psmock, get_cache_file_impl())
-        .Times(1)
-        .WillOnce(Return(test_file_name));
-    ASSERT_THROW(dut.read_from_file(&psmock),
+    ASSERT_THROW(read_from_file(&psmock, test_file_name),
         DigitalRooster::PodcastSourceJSonCorrupted);
 }
 
 /******************************************************************************/
 TEST_F(SerializerFixture, ReadFromFileDocumentEmpty) {
-    PodcastSerializer dut;
     QString test_file_name("some_test_file.json");
     /* create file to read */
     QFile test_file(test_file_name);
@@ -300,11 +287,11 @@ TEST_F(SerializerFixture, ReadFromFileDocumentEmpty) {
     EXPECT_CALL(psmock, get_cache_file_impl())
         .WillRepeatedly(Return(test_file_name));
 
-    ASSERT_THROW(dut.read_from_file(&psmock),
+    ASSERT_THROW(read_from_file(&psmock, test_file_name),
         DigitalRooster::PodcastSourceJSonCorrupted);
 
     try {
-        dut.read_from_file(&psmock);
+        read_from_file(&psmock, test_file_name);
     } catch (PodcastSourceJSonCorrupted& exc) {
         EXPECT_STREQ(exc.what(), "Document empty!");
     }
@@ -312,7 +299,6 @@ TEST_F(SerializerFixture, ReadFromFileDocumentEmpty) {
 
 /******************************************************************************/
 TEST_F(SerializerFixture, ReadFromFile) {
-    PodcastSerializer dut;
     QString test_file_name("some_test_file.json");
     /* create file to read */
     QFile test_file(test_file_name);
@@ -322,7 +308,7 @@ TEST_F(SerializerFixture, ReadFromFile) {
               " \"title\": \"foo\", \n"
               " \"description\": \"some fancy description\", \n"
               " \"icon-cached\": \"/foo/bar/baz.jpg\",\n"
-    		  " \"icon\": \"http://some.remote.com/baz.jpg\",\n"
+              " \"icon\": \"http://some.remote.com/baz.jpg\",\n"
               " \"timestamp\": \"Fr Feb 15 14:21:57 2019\", \n"
               " \"Episodes\": [ \n"
               "   { \n"
@@ -343,12 +329,12 @@ TEST_F(SerializerFixture, ReadFromFile) {
               "} \n";
     test_file.close();
 
-    dut.read_from_file(&ps, test_file_name);
+    read_from_file(&ps, test_file_name);
 
     ASSERT_EQ(ps.get_description(), QString("some fancy description"));
     ASSERT_EQ(ps.get_title(), QString("foo"));
     ASSERT_EQ(ps.get_image_url(), QUrl("http://some.remote.com/baz.jpg"));
-    ASSERT_EQ(ps.get_image_file_path(),QString("/foo/bar/baz.jpg"));
+    ASSERT_EQ(ps.get_image_file_path(), QString("/foo/bar/baz.jpg"));
     ASSERT_EQ(ps.get_episode_count(), 2);
     auto ep = ps.get_episode_by_id("ZZ-XX-ABV");
     ASSERT_TRUE(ep);
@@ -358,8 +344,7 @@ TEST_F(SerializerFixture, ReadFromFile) {
 
 /******************************************************************************/
 TEST_F(SerializerFixture, FullRoundTrip) {
-    PodcastSerializer dut;
-    PodcastSourceMock_episodes psmock_episodes(cache_dir);
+    PodcastSourceMock_episodes psmock_episodes;
     QString test_file_name("FullRoundTrip_test_file.json");
     QVector<std::shared_ptr<PodcastEpisode>> ep_vec;
     for (int i = 0; i < 3; i++) {
@@ -392,8 +377,8 @@ TEST_F(SerializerFixture, FullRoundTrip) {
         .WillOnce(Return(expected_timestamp))
         .WillRepeatedly(Return(expected_timestamp.addSecs(3)));
 
-    dut.store_to_file(&psmock_episodes);
-    dut.read_from_file(&ps, test_file_name);
+    store_to_file(&psmock_episodes, test_file_name);
+    read_from_file(&ps, test_file_name);
 
     ASSERT_EQ(ps.get_title(), expected_title);
     ASSERT_EQ(ps.get_description(), expected_desc);
@@ -403,4 +388,67 @@ TEST_F(SerializerFixture, FullRoundTrip) {
         QString("Title_1"));
 }
 
+/******************************************************************************/
+TEST_F(SerializerFixture, purge_deletes_cache_file) {
+    QString test_file_name =
+        cache_dir.filePath("{5c81821d-17fc-44d5-ae45-5ab24ffd1d50}");
+    /* create file to read */
+    QFile test_file(test_file_name);
+    test_file.open(QIODevice::ReadWrite | QIODevice::Text);
+    QTextStream stream(&test_file);
+    stream << R"(
+    {
+    "id": "{5c81821d-17fc-44d5-ae45-5ab24ffd1d50}",
+    "description": "Some Description",
+	"icon": "https://some.remote.url/test.jpg",
+    "icon-cached": "/tmp/local_cache/foo.jpg",
+    "timestamp": "Thu Nov 14 19:48:55 2019",
+	"url": "https://alternativlos.org/alternativlos.rss",
+    "title": "MyTitle"
+	})";
+    test_file.close();
+    ASSERT_TRUE(test_file.exists());
+
+    PodcastSource source(QUrl("https://alternativlos.org/alternativlos.rss"),
+        QUuid::fromString(QString("{5c81821d-17fc-44d5-ae45-5ab24ffd1d50}")));
+    auto serializer = std::make_unique<PodcastSerializer>(
+        cache_dir, &source, std::chrono::milliseconds(50));
+
+    serializer->restore_info(); // populate podcastSource
+    source.set_serializer(std::move(serializer));
+    ASSERT_EQ(source.get_title(), QString("MyTitle"));
+    ASSERT_TRUE(test_file.exists());
+    source.purge();
+    ASSERT_FALSE(test_file.exists());
+}
+
+/******************************************************************************/
+TEST_F(SerializerFixture, bad_cache_nothrow) {
+    EXPECT_CALL(*(mc.get()), get_time())
+        .Times(1)
+        .WillOnce(Return(expected_timestamp));
+
+    QDir cache_dir_bad("/some/nonexistent/cache/dir");
+    auto serializer = std::make_unique<PodcastSerializer>(
+        cache_dir_bad, &ps, std::chrono::seconds(1));
+    ASSERT_NO_THROW(serializer->restore_info());
+    ps.set_title("NewTitle");
+    ASSERT_NO_THROW(serializer->write());
+}
+/******************************************************************************/
+TEST(Serializer, parse_bad_timestamp) {
+    QString json_string(R"(
+	{
+    "id": "{5c81821d-17fc-44d5-ae45-5ab24ffd1d50}",
+    "description": "Some Description",
+	"icon": "https://some.remote.url/test.jpg",
+    "icon-cached": "/tmp/local_cache/foo.jpg",
+    "timestamp": "19:48:55 13.05.2019",
+    "title": "MyTitle"
+	})");
+    PodcastSource ps(QUrl("http://some.url"));
+    auto jdoc = QJsonDocument::fromJson(json_string.toUtf8());
+    EXPECT_THROW(parse_podcast_source_from_json(jdoc.object(), &ps),
+        PodcastSourceJSonCorrupted);
+}
 /******************************************************************************/

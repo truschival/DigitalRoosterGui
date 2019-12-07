@@ -105,6 +105,7 @@ protected:
         al1[KEY_ALARM_PERIOD] = "daily";
         al1[KEY_ENABLED] = true;
         al1[KEY_ID] = "1a4bf6bd-7e67-4b40-80fd-b13e2524fc74";
+        alarms.append(al1);
 
         QJsonObject al2;
         al2[KEY_TIME] = "07:00";
@@ -112,6 +113,7 @@ protected:
         al2[KEY_ALARM_PERIOD] = "workdays";
         al2[KEY_ENABLED] = true;
         al2[KEY_ID] = "12eb4390-6abf-4626-be48-f11fe20f45cf";
+        alarms.append(al2);
 
         QJsonObject al3;
         al3[KEY_TIME] = "09:00";
@@ -119,6 +121,7 @@ protected:
         al3[KEY_ALARM_PERIOD] = "weekend";
         al3[KEY_ENABLED] = false;
         al3[KEY_ID] = "62ab05d7-d9ab-4254-8bfd-47bfdc74417a";
+        alarms.append(al3);
 
         QJsonObject al4;
         al4[KEY_TIME] = "13:00";
@@ -126,6 +129,7 @@ protected:
         al4[KEY_ALARM_PERIOD] = "once";
         al4[KEY_ENABLED] = true;
         al4[KEY_ID] = "fa3ce587-ab02-4328-9c68-4ee5e3626c86";
+        alarms.append(al4);
 
         QJsonObject al5;
         al5[KEY_TIME] = "17:00";
@@ -133,12 +137,23 @@ protected:
         al5[KEY_ALARM_PERIOD] = "Manchmal";
         al5[KEY_ENABLED] = true;
         al5[KEY_ID] = "694485e9-ac44-46f5-bc45-730a7a0ac387";
-
-        alarms.append(al1);
-        alarms.append(al2);
-        alarms.append(al3);
-        alarms.append(al4);
         alarms.append(al5);
+
+        QJsonObject al6;
+        al6[KEY_TIME] = "25:34";
+        al6[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
+        al6[KEY_ALARM_PERIOD] = "once";
+        al6[KEY_ENABLED] = true;
+        al6[KEY_ID] = "694485e9-ac44-46f5-bc45-730a7a0a2387";
+        alarms.append(al6);
+
+        QJsonObject al7;
+        al7[KEY_TIME] = "12:34";
+        al7[KEY_URI] = "";
+        al7[KEY_ALARM_PERIOD] = "once";
+        al7[KEY_ENABLED] = true;
+        al7[KEY_ID] = "694485e9-ac44-46f5-bc45-730a7a0a2387";
+        alarms.append(al7);
 
         root[KEY_GROUP_ALARMS] = alarms;
     }
@@ -194,8 +209,7 @@ TEST_F(SettingsFixture, add_podcast_source) {
     QSignalSpy spy(cm.get(), SIGNAL(podcast_sources_changed()));
     ASSERT_TRUE(spy.isValid());
     auto ps = std::make_shared<PodcastSource>(
-        QUrl("https://alternativlos.org/alternativlos.rss"),
-        QDir(cm->get_cache_path()));
+        QUrl("https://alternativlos.org/alternativlos.rss"));
     auto size_before = cm->get_podcast_sources().size();
     cm->add_podcast_source(ps);
     ASSERT_EQ(spy.count(), 1);
@@ -357,7 +371,10 @@ TEST(StringToPeriodEnum, mapping_good) {
 /*****************************************************************************/
 TEST_F(SettingsFixture, alarm_count) {
     auto& v = cm->get_alarms();
-    ASSERT_EQ(v.size(), 5);
+    // Alarm 5 has an unknown peridicity string "Manchmal"
+    // Alarm 6 has an invalid Timestamp string "25:34"
+    // Alarm 7 has an invalid URL
+    ASSERT_EQ(v.size(), 4);
 }
 
 /*****************************************************************************/
@@ -432,14 +449,6 @@ TEST_F(SettingsFixture, alarm_once) {
 }
 
 /*****************************************************************************/
-TEST_F(SettingsFixture, alarm_once_default) {
-    auto& v = cm->get_alarms();
-    // Alarm 5 has an unknown peridicity string "Manchmal" it should default to
-    // Daily
-    ASSERT_EQ(v[4]->get_period(), Alarm::Daily);
-}
-
-/*****************************************************************************/
 TEST_F(SettingsFixture, emitConfigChanged) {
     auto number_of_alarms = cm->get_alarms().size();
     QSignalSpy spy(cm.get(), SIGNAL(configuration_changed()));
@@ -492,7 +501,8 @@ TEST(ConfigManager, DefaultForNotWritableCache) {
 /*****************************************************************************/
 TEST(ConfigManager, DefaultForNotWritableConfig) {
     QFile default_conf_file(DEFAULT_CONFIG_FILE_PATH);
-    ASSERT_TRUE(default_conf_file.remove());
+    // Delete it should it exist..
+    default_conf_file.remove();
     ConfigurationManager cm(
         QString("/dev/foobar.json"), DEFAULT_CACHE_DIR_PATH);
     ASSERT_TRUE(default_conf_file.exists());
@@ -501,13 +511,13 @@ TEST(ConfigManager, DefaultForNotWritableConfig) {
 /*****************************************************************************/
 TEST_F(SettingsFixture, GetweatherConfigApiToken) {
     auto cfg = cm->get_weather_config();
-    ASSERT_EQ(cfg.apikey, QString("d77bd1ca2fd77ce4e1cdcdd5f8b7206c"));
+    ASSERT_EQ(cfg->get_api_token(), QString("d77bd1ca2fd77ce4e1cdcdd5f8b7206c"));
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, GetweatherConfigCityId) {
     auto cfg = cm->get_weather_config();
-    ASSERT_EQ(cfg.cityid, QString("3452925"));
+    ASSERT_EQ(cfg->get_location_id(), QString("3452925"));
 }
 
 /*****************************************************************************/
