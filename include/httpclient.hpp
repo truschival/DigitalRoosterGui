@@ -14,10 +14,10 @@
 #ifndef _HTTPCLIENT_HPP_
 #define _HTTPCLIENT_HPP_
 
+#include <QObject>
 #include <QByteArray>
 #include <QtCore>
 #include <QtNetwork>
-#include <cstdio>
 
 class QSslError;
 
