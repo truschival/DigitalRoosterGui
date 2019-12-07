@@ -28,7 +28,7 @@ using namespace DigitalRooster;
 class SettingsFixture : public virtual ::testing::Test {
 public:
     SettingsFixture()
-        : filename(DEFAULT_CONFIG_FILE_PATH+"_SettingsFixture")
+        : filename(DEFAULT_CONFIG_FILE_PATH + "_SettingsFixture")
         , cache_dir(DEFAULT_CACHE_DIR_PATH) {
     }
 
@@ -190,13 +190,140 @@ TEST_F(SettingsFixture, addRadioStation_write) {
 }
 
 /*****************************************************************************/
+TEST_F(SettingsFixture, add_podcast_source) {
+    QSignalSpy spy(cm.get(), SIGNAL(podcast_sources_changed()));
+    ASSERT_TRUE(spy.isValid());
+    auto ps = std::make_shared<PodcastSource>(
+        QUrl("https://alternativlos.org/alternativlos.rss"),
+        QDir(cm->get_cache_path()));
+    auto size_before = cm->get_podcast_sources().size();
+    cm->add_podcast_source(ps);
+    ASSERT_EQ(spy.count(), 1);
+    ASSERT_EQ(cm->get_podcast_sources().size(), size_before+1);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, get_podcast_source_throws) {
+    EXPECT_THROW(
+        cm->get_podcast_source(QUuid::createUuid()), std::out_of_range);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, get_podcast_source_ok) {
+	auto& v = cm->get_podcast_sources();
+	auto uid = v[0]->get_id();
+	auto item = cm->get_podcast_source(uid);
+	ASSERT_EQ(item,v[0].get());
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, delete_podcast_source) {
+	auto& v = cm->get_podcast_sources();
+	auto size_before=v.size();
+	auto uid = v[0]->get_id();
+	cm->delete_podcast_source(uid);
+	ASSERT_EQ(cm->get_podcast_sources().size(), size_before-1);
+	EXPECT_THROW(
+	        cm->get_podcast_source(uid), std::out_of_range);
+}
+/*****************************************************************************/
+TEST_F(SettingsFixture, delete_podcast_throws) {
+	EXPECT_THROW(
+	        cm->delete_podcast_source(QUuid::createUuid()), std::out_of_range);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, add_radio_station) {
+    QSignalSpy spy(cm.get(), SIGNAL(stations_changed()));
+    ASSERT_TRUE(spy.isValid());
+    auto radio = std::make_shared<PlayableItem>();
+    auto size_before = cm->get_stream_sources().size();
+    cm->add_radio_station(radio);
+    ASSERT_EQ(spy.count(), 1);
+    ASSERT_EQ(cm->get_stream_sources().size(), size_before+1);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, get_radio_station_throws) {
+    EXPECT_THROW(
+        cm->get_stream_source(QUuid::createUuid()), std::out_of_range);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, get_radio_station_ok) {
+	auto& v = cm->get_stream_sources();
+	auto uid = v[0]->get_id();
+	auto item = cm->get_stream_source(uid);
+	ASSERT_EQ(item,v[0].get());
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, delete_radio_station) {
+	auto& v = cm->get_stream_sources();
+	auto size_before=v.size();
+	auto uid = v[0]->get_id();
+	cm->delete_radio_station(uid);
+	ASSERT_EQ(cm->get_stream_sources().size(), size_before-1);
+	EXPECT_THROW(
+	        cm->get_stream_source(uid), std::out_of_range);
+}
+/*****************************************************************************/
+TEST_F(SettingsFixture, delete_radio_throws) {
+	EXPECT_THROW(
+	        cm->delete_radio_station(QUuid::createUuid()), std::out_of_range);
+}
+
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, add_alarm) {
+    QSignalSpy spy(cm.get(), SIGNAL(alarms_changed()));
+    ASSERT_TRUE(spy.isValid());
+    auto alm = std::make_shared<Alarm>();
+    auto size_before = cm->get_alarms().size();
+    cm->add_alarm(alm);
+    ASSERT_EQ(spy.count(), 1);
+    ASSERT_EQ(cm->get_alarms().size(), size_before+1);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, get_alarm_throws) {
+    EXPECT_THROW(
+        cm->get_alarm(QUuid::createUuid()), std::out_of_range);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, get_alarm_ok) {
+	auto& v = cm->get_alarms();
+	auto uid = v[0]->get_id();
+	auto item = cm->get_alarm(uid);
+	ASSERT_EQ(item,v[0].get());
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, delete_alarm) {
+	auto& v = cm->get_alarms();
+	auto size_before=v.size();
+	auto uid = v[0]->get_id();
+	cm->delete_alarm(uid);
+	ASSERT_EQ(cm->get_alarms().size(), size_before-1);
+	EXPECT_THROW(
+	        cm->get_alarm(uid), std::out_of_range);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, delete_alarm_throws) {
+	EXPECT_THROW(
+	        cm->delete_alarm(QUuid::createUuid()), std::out_of_range);
+}
+
+/*****************************************************************************/
 TEST_F(SettingsFixture, read_2podcasts) {
     auto& v = cm->get_podcast_sources();
     ASSERT_EQ(2, v.size());
 }
 
 /*****************************************************************************/
-TEST_F(SettingsFixture, deletePodcastById) {
+TEST_F(SettingsFixture, deletePodcastByIndex) {
     auto& v = cm->get_podcast_sources();
     ASSERT_EQ(2, v.size());
     cm->remove_podcast_source_by_index(0);
@@ -269,31 +396,6 @@ TEST_F(SettingsFixture, streamsourceid) {
         });
     ASSERT_NE(res, v.end());
     ASSERT_EQ((*res)->get_url(), QString("http://swr2.de"));
-}
-
-/*****************************************************************************/
-TEST_F(SettingsFixture, addAlarm) {
-    auto al = std::make_shared<Alarm>();
-    auto size_before = cm->get_alarms().size();
-    cm->add_alarm(al);
-    ASSERT_EQ(cm->get_alarms().size(), size_before + 1);
-}
-
-/*****************************************************************************/
-TEST_F(SettingsFixture, deleteAlarm) {
-    auto al = std::make_shared<Alarm>();
-    auto id = al->get_id();
-    auto size_before = cm->get_alarms().size();
-    cm->add_alarm(al);
-    cm->delete_alarm(id);
-    ASSERT_EQ(cm->get_alarms().size(), size_before);
-}
-
-/*****************************************************************************/
-TEST_F(SettingsFixture, deleteAlarmNonExist) {
-    auto size_before = cm->get_alarms().size();
-    ASSERT_EQ(cm->delete_alarm(QUuid("XXX")), -1);
-    ASSERT_EQ(cm->get_alarms().size(), size_before);
 }
 
 /*****************************************************************************/
@@ -391,8 +493,8 @@ TEST(ConfigManager, DefaultForNotWritableCache) {
 TEST(ConfigManager, DefaultForNotWritableConfig) {
     QFile default_conf_file(DEFAULT_CONFIG_FILE_PATH);
     ASSERT_TRUE(default_conf_file.remove());
-    ConfigurationManager cm(QString("/dev/foobar.json"),
-        DEFAULT_CACHE_DIR_PATH);
+    ConfigurationManager cm(
+        QString("/dev/foobar.json"), DEFAULT_CACHE_DIR_PATH);
     ASSERT_TRUE(default_conf_file.exists());
 }
 
