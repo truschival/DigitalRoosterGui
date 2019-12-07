@@ -69,9 +69,7 @@ public:
      * @param configpath path to application configuration
      * @param cachedir directory to cache data (podcastlist etc)
      */
-    ConfigurationManager(
-        const QString& configpath,
-        const QString& cachedir);
+    ConfigurationManager(const QString& configpath, const QString& cachedir);
 
     virtual ~ConfigurationManager() = default;
 
@@ -124,6 +122,14 @@ public:
     }
 
     /**
+     * Get a internet radio station identified by ID
+     * @throws 	 std::out_of_range if not found
+     * @param id unique ID of podcast
+     * @return station
+     */
+    const PlayableItem* get_stream_source(const QUuid& id) const;
+
+    /**
      * get all podcast sources
      */
     const QVector<std::shared_ptr<PodcastSource>>& get_podcast_sources() {
@@ -139,6 +145,14 @@ public:
     PodcastSource* get_podcast_source_by_index(int index) const;
 
     /**
+     * Get a single podcast source identified by ID
+     * @throws 	 std::out_of_range if not found
+     * @param id unique ID of podcast
+     * @return source
+     */
+    const PodcastSource* get_podcast_source(const QUuid& id) const;
+
+    /**
      * Removes a podcast source entry form list
      * @throws 	 std::out_of_range if not found
      * @param index in vector
@@ -151,6 +165,14 @@ public:
     const QVector<std::shared_ptr<Alarm>>& get_alarms() {
         return get_alarm_list();
     }
+
+    /**
+     * Get a alarm identified by ID
+     * @throws 	 std::out_of_range if not found
+     * @param id unique ID of podcast
+     * @return station
+     */
+    const Alarm* get_alarm(const QUuid& id) const;
 
     /**
      * Weather configuration object
@@ -195,8 +217,8 @@ public:
      * Where to store cache files
      * @return application_cache_dir.dirName()
      */
-    QString get_cache_path(){
-    	return get_cache_dir_name();
+    QString get_cache_path() {
+        return get_cache_dir_name();
     };
 
     /**
@@ -204,6 +226,12 @@ public:
      * @param src the new stream source - we take ownership
      */
     void add_radio_station(std::shared_ptr<PlayableItem> src);
+
+    /**
+     * Append new PodcastSource to list
+     * @param podcast source
+     */
+    void add_podcast_source(std::shared_ptr<PodcastSource> podcast);
 
     /**
      * Append new alarm to list
@@ -214,9 +242,23 @@ public:
     /**
      * Delete an alarm identified by ID from the list of alarms
      * @param id of alarm
-     * @return 0 if alarm was deleted, -1 otherwise
+     * @throws 	 std::out_of_range if not found
      */
-    int delete_alarm(const QUuid& id);
+    void delete_alarm(const QUuid& id);
+
+    /**
+     * Delete a internet radio station identified by id form the list
+     * @param id unique id of radio station
+     * @throws 	 std::out_of_range if not found
+     */
+    void delete_radio_station(const QUuid& id);
+
+    /**
+     * Delete a podcast source identified by id form the list of sources
+     * @param id unique id of podcast source
+     * @throws 	 std::out_of_range if not found
+     */
+    void delete_podcast_source(const QUuid& id);
 
 public slots:
     /**
@@ -260,7 +302,22 @@ public slots:
     }
 
 signals:
+    /**
+     * Any configuration item changed
+     */
     void configuration_changed();
+    /**
+     * podcast list was changed (added/deleted items)
+     */
+    void podcast_sources_changed();
+    /**
+     * alarm list was changed (added/deleted items)
+     */
+    void alarms_changed();
+    /**
+     * radio list was changed (added/deleted items)
+     */
+    void stations_changed();
 
 private:
     /**
