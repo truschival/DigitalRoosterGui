@@ -82,6 +82,7 @@ ConfigurationManager::ConfigurationManager(
     , volume(DEFAULT_VOLUME)
     , brightness_sb(DEFAULT_BRIGHTNESS)
     , brightness_act(DEFAULT_BRIGHTNESS)
+    , weather_cfg(new WeatherConfig)
     , config_file(configpath)
     , application_cache_dir(cachedir)
     , wpa_socket_name(WPA_CONTROL_SOCKET_PATH) {
@@ -201,19 +202,16 @@ void ConfigurationManager::read_radio_streams_from_file(
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonArray stations =
         appconfig[DigitalRooster::KEY_GROUP_IRADIO_SOURCES].toArray();
-    for (const auto json_station : stations) {
-        auto station = json_station.toObject();
-        QString name(station[KEY_NAME].toString());
-        QUrl url(station[KEY_URI].toString());
-        auto uid = QUuid::fromString(
-            station[KEY_ID].toString(QUuid::createUuid().toString()));
-        if (!url.isValid()) {
+    for (const auto& json_station : stations) {
+        try {
+            auto station =
+                PlayableItem::from_json_object(json_station.toObject());
+            stream_sources.push_back(station);
+        } catch (std::invalid_argument& exc) {
             qCWarning(CLASS_LC)
-                << "Invalid URI " << station[KEY_URI].toString();
+                << "cannot create station form JSON " << exc.what();
             continue;
         }
-        stream_sources.push_back(
-            std::make_shared<PlayableItem>(name, url, uid));
     }
     /* Sort alphabetically */
     std::sort(stream_sources.begin(), stream_sources.end(),
@@ -231,27 +229,19 @@ void ConfigurationManager::read_podcasts_from_file(
     QJsonArray podcasts =
         appconfig[DigitalRooster::KEY_GROUP_PODCAST_SOURCES].toArray();
     for (const auto pc : podcasts) {
-        auto jo = pc.toObject();
+        auto ps = PodcastSource::from_json_object(pc.toObject());
+        auto serializer = std::make_unique<PodcastSerializer>(
+                application_cache_dir, ps.get());
+        // populate podcast source from cached info
+        serializer->restore_info();
+        // Move ownership to Podcast Source and setup signal/slot connections
+        ps->set_serializer(std::move(serializer));
 
-        QUrl url(jo[KEY_URI].toString());
-        if (!url.isValid()) {
-            qCWarning(CLASS_LC) << "Invalid URI " << jo[KEY_URI].toString();
-            continue;
-        }
-        auto uid = QUuid::fromString(
-            jo[KEY_ID].toString(QUuid::createUuid().toString()));
-        auto ps =
-            std::make_shared<PodcastSource>(url, application_cache_dir, uid);
-        auto title = jo[KEY_NAME].toString();
-        ps->set_title(title);
-        ps->set_update_interval(
-            std::chrono::seconds(jo[KEY_UPDATE_INTERVAL].toInt(3600)));
         ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
 
         // Get notifications if name etc. changes
         connect(ps.get(), &PodcastSource::dataChanged, this,
             &ConfigurationManager::dataChanged);
-
         podcast_sources.push_back(ps);
     }
     std::sort(podcast_sources.begin(), podcast_sources.end(),
@@ -268,44 +258,15 @@ void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
     QJsonArray alarm_config =
         appconfig[DigitalRooster::KEY_GROUP_ALARMS].toArray();
     for (const auto al : alarm_config) {
-        auto json_alarm = al.toObject();
-        QUrl url(json_alarm[KEY_URI].toString());
-        if (!url.isValid()) {
-            qCWarning(CLASS_LC)
-                << "Invalid URI " << json_alarm[KEY_URI].toString();
-            continue;
-        }
-        // sane default for periodicity
-        auto period = Alarm::Daily;
         try {
-            period = json_string_to_alarm_period(
-                json_alarm[KEY_ALARM_PERIOD].toString(KEY_ALARM_DAILY));
+            auto alarm = Alarm::from_json_object(al.toObject());
+            connect(
+                alarm.get(), SIGNAL(dataChanged()), this, SLOT(dataChanged()));
+            alarms.push_back(alarm);
         } catch (std::invalid_argument& exc) {
-            qCWarning(CLASS_LC) << "invalid periodicity entry! " << exc.what();
+            qCWarning(CLASS_LC)
+                << "Invalid JSON values for Alarm" << exc.what();
         }
-
-        auto enabled = json_alarm[KEY_ENABLED].toBool(true);
-        auto media = QUrl(json_alarm[KEY_URI].toString());
-
-        auto timepoint =
-            QTime::fromString(json_alarm[KEY_TIME].toString(), "hh:mm");
-        auto id = QUuid::fromString(
-            json_alarm[KEY_ID].toString(QUuid::createUuid().toString()));
-        /*
-         * Create alarm with essential information
-         */
-        auto alarm =
-            std::make_shared<Alarm>(media, timepoint, period, enabled, id);
-
-        auto volume = json_alarm[KEY_VOLUME].toInt(DEFAULT_ALARM_VOLUME);
-        alarm->set_volume(volume);
-        /* if no specific alarm timeout is given take application default */
-        auto timeout =
-            json_alarm[KEY_ALARM_TIMEOUT].toInt(global_alarm_timeout.count());
-        alarm->set_timeout(std::chrono::minutes(timeout));
-
-        connect(alarm.get(), SIGNAL(dataChanged()), this, SLOT(dataChanged()));
-        alarms.push_back(alarm);
     }
     qCDebug(CLASS_LC) << "read" << alarms.size() << "alarms";
 }
@@ -318,17 +279,10 @@ void ConfigurationManager::read_weather_from_file(
         return;
     }
     QJsonObject json_weather = appconfig[KEY_WEATHER].toObject();
-    if (!json_weather[KEY_WEATHER_API_KEY].isNull()) {
-        weather_cfg.apikey = json_weather[KEY_WEATHER_API_KEY].toString();
-    } else {
-        qCWarning(CLASS_LC) << "No openweathermaps API Key configured goto "
-                               "https://openweathermap.org and get one!";
-    }
-
-    if (!json_weather[KEY_WEATHER_LOCATION_ID].isNull()) {
-        weather_cfg.cityid = json_weather[KEY_WEATHER_LOCATION_ID].toString();
-    } else {
-        qCWarning(CLASS_LC) << "No weather location ID configured!";
+    try {
+        weather_cfg = WeatherConfig::from_json_object(json_weather);
+    } catch (std::invalid_argument& exc) {
+        qCWarning(CLASS_LC) << "cannot parse weather config!";
     }
 }
 
@@ -346,7 +300,7 @@ const PlayableItem* ConfigurationManager::get_stream_source(
     const QUuid& id) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     /* Find by id throws - just pass it on to the client */
-    return find_by_id(stream_sources,id);
+    return find_by_id(stream_sources, id);
 }
 
 /*****************************************************************************/
@@ -363,7 +317,7 @@ const PodcastSource* ConfigurationManager::get_podcast_source(
     const QUuid& id) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     /* Find by id throws - just pass it on to the client */
-    return find_by_id(podcast_sources,id);
+    return find_by_id(podcast_sources, id);
 }
 
 /*****************************************************************************/
@@ -378,7 +332,7 @@ void ConfigurationManager::add_alarm(std::shared_ptr<Alarm> alm) {
 const Alarm* ConfigurationManager::get_alarm(const QUuid& id) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     /* Find by id throws - just pass it on to the client */
-    return find_by_id(alarms,id);
+    return find_by_id(alarms, id);
 }
 
 /*****************************************************************************/
@@ -439,49 +393,27 @@ void ConfigurationManager::store_current_config() {
 
     QJsonArray podcasts;
     for (const auto& ps : podcast_sources) {
-        QJsonObject psconfig;
-        psconfig[KEY_NAME] = ps->get_title();
-        psconfig[KEY_URI] = ps->get_url().toString();
-        psconfig[KEY_ID] = ps->get_id().toString();
+        QJsonObject psconfig = ps->to_json_object();
         podcasts.append(psconfig);
     }
     appconfig[KEY_GROUP_PODCAST_SOURCES] = podcasts;
 
     QJsonArray iradios;
     for (const auto& iradiostream : stream_sources) {
-        QJsonObject irconfig;
-        irconfig[KEY_NAME] = iradiostream->get_display_name();
-        irconfig[KEY_URI] = iradiostream->get_url().toString();
-        irconfig[KEY_ID] = iradiostream->get_id().toString();
+        auto irconfig = iradiostream->to_json_object();
         iradios.append(irconfig);
     }
     appconfig[KEY_GROUP_IRADIO_SOURCES] = iradios;
 
     QJsonArray alarms_json;
     for (const auto& alarm : alarms) {
-        QJsonObject alarmcfg;
-        alarmcfg[KEY_ID] = alarm->get_id().toString();
-        try {
-            alarmcfg[KEY_ALARM_PERIOD] =
-                alarm_period_to_json_string(alarm->get_period());
-        } catch (std::invalid_argument& exc) {
-            qCCritical(CLASS_LC) << " invalid period " << alarm->get_period()
-                                 << " using default " << KEY_ALARM_ONCE;
-            alarmcfg[KEY_ALARM_PERIOD] = KEY_ALARM_ONCE;
-        }
-        alarmcfg[KEY_TIME] = alarm->get_time().toString("hh:mm");
-        alarmcfg[KEY_VOLUME] = alarm->get_volume();
-        alarmcfg[KEY_URI] = alarm->get_media()->get_url().toString();
-        alarmcfg[KEY_ENABLED] = alarm->is_enabled();
+        QJsonObject alarmcfg = alarm->to_json_object();
         alarms_json.append(alarmcfg);
     }
     appconfig[KEY_GROUP_ALARMS] = alarms_json;
 
     /* Store Weather information*/
-    QJsonObject json_weather;
-    json_weather[KEY_WEATHER_API_KEY] = weather_cfg.apikey;
-    json_weather[KEY_WEATHER_LOCATION_ID] = weather_cfg.cityid;
-    appconfig[KEY_WEATHER] = json_weather;
+    appconfig[KEY_WEATHER] = weather_cfg->to_json_object();
 
     /* global application configuration */
     appconfig[KEY_ALARM_TIMEOUT] =
@@ -530,6 +462,7 @@ void ConfigurationManager::write_config_file(const QJsonObject& appconfig) {
 /*****************************************************************************/
 void ConfigurationManager::create_default_configuration() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    /* Alarm */
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
         QTime::fromString("06:30", "hh:mm"), Alarm::Workdays);
@@ -537,18 +470,16 @@ void ConfigurationManager::create_default_configuration() {
 
     /* Podcasts */
     podcast_sources.push_back(std::make_shared<PodcastSource>(
-        QUrl("http://armscontrolwonk.libsyn.com/rss"), application_cache_dir));
+        QUrl("http://armscontrolwonk.libsyn.com/rss")));
 
     podcast_sources.push_back(std::make_shared<PodcastSource>(
-        QUrl("https://rss.acast.com/mydadwroteaporno"), application_cache_dir));
+        QUrl("https://rss.acast.com/mydadwroteaporno")));
 
     podcast_sources.push_back(std::make_shared<PodcastSource>(
-        QUrl("https://alternativlos.org/alternativlos.rss"),
-        application_cache_dir));
+        QUrl("https://alternativlos.org/alternativlos.rss")));
 
     podcast_sources.push_back(std::make_shared<PodcastSource>(
-        QUrl("http://www.podcastone.com/podcast?categoryID2=1225"),
-        application_cache_dir));
+        QUrl("http://www.podcastone.com/podcast?categoryID2=1225")));
 
     /* Radio Streams */
     stream_sources.push_back(std::make_shared<PlayableItem>("Deutschlandfunk",
@@ -618,7 +549,7 @@ void ConfigurationManager::remove_podcast_source_by_index(int index) {
 void ConfigurationManager::delete_alarm(const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     /* delete may throw - just pass it on to the client */
-    delete_by_id(alarms,id);
+    delete_by_id(alarms, id);
     dataChanged();
     emit alarms_changed();
 };
@@ -627,7 +558,7 @@ void ConfigurationManager::delete_alarm(const QUuid& id) {
 void ConfigurationManager::delete_podcast_source(const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     /* delete may throw - just pass it on to the client */
-    delete_by_id(podcast_sources,id);
+    delete_by_id(podcast_sources, id);
     dataChanged();
     emit alarms_changed();
 };
@@ -636,7 +567,7 @@ void ConfigurationManager::delete_podcast_source(const QUuid& id) {
 void ConfigurationManager::delete_radio_station(const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     /* delete may throw - just pass it on to the client */
-    delete_by_id(stream_sources,id);
+    delete_by_id(stream_sources, id);
     dataChanged();
     emit alarms_changed();
 };

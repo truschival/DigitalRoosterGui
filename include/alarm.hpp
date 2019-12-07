@@ -17,6 +17,9 @@
 #include <QObject>
 #include <QUrl>
 #include <QUuid>
+#include <QJsonDocument>
+#include <QJsonObject>
+
 #include <chrono>
 #include <memory>
 
@@ -114,7 +117,7 @@ public:
      * Volume for this Alarm
      * @return
      */
-    int get_volume() {
+    int get_volume() const {
         return volume;
     }
     /**
@@ -129,7 +132,7 @@ public:
      * Duration for alarm to stop automatically
      * @return time in minutes
      */
-    std::chrono::minutes get_timeout() {
+    std::chrono::minutes get_timeout() const{
         return timeout;
     }
     /**
@@ -164,6 +167,21 @@ public:
      */
     void update_media_url(const QUrl& url);
     QUrl get_media_url() const;
+
+    /**
+     * JSon Representation of Alarm
+     * @param alarm object to serialize
+     * @return
+     */
+    QJsonObject to_json_object() const;
+
+    /**
+     * Create alarm from JSON JSonObject
+     * @param json json representation
+     * @return Alarm object - default initialized if fields are missing
+     */
+    static std::shared_ptr<Alarm> from_json_object(
+        const QJsonObject& json_alarm);
 
 public slots:
     /**
@@ -227,7 +245,7 @@ private:
     /**
      * Default volume for alarm
      */
-    int volume = 40;
+    int volume = DEFAULT_ALARM_VOLUME;
 };
 
 /**

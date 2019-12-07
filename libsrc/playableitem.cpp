@@ -16,6 +16,7 @@
 #include <QUuid>
 
 #include "PlayableItem.hpp"
+#include "appconstants.hpp"
 
 using namespace DigitalRooster;
 
@@ -87,6 +88,30 @@ void PlayableItem::set_seekable(bool seek) {
 }
 
 
+
+/***********************************************************************/
+std::shared_ptr<PlayableItem> PlayableItem::from_json_object(
+    const QJsonObject& json_radio) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    QString name(json_radio[KEY_NAME].toString());
+    QUrl url(json_radio[KEY_URI].toString());
+    auto uid = QUuid::fromString(
+        json_radio[KEY_ID].toString(QUuid::createUuid().toString()));
+    if (!url.isValid()) {
+        throw std::invalid_argument("invalid URL for RadioStation");
+    }
+    return std::make_shared<PlayableItem>(name, url, uid);
+}
+
+/***********************************************************************/
+QJsonObject PlayableItem::to_json_object() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    QJsonObject irconfig;
+    irconfig[KEY_NAME] = this->get_display_name();
+    irconfig[KEY_URI] = this->get_url().toString();
+    irconfig[KEY_ID] = this->get_id().toString();
+    return irconfig;
+}
 
 /***********************************************************************/
 QString PodcastEpisode::do_get_display_name() const {
@@ -185,7 +210,6 @@ bool PodcastEpisode::already_listened() const {
 /***********************************************************************/
 void PodcastEpisode::set_publication_date(const QDateTime& date) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-
     if (!date.isValid()) {
         qCCritical(CLASS_LC) << "invalid QDateTime!";
         return;
@@ -196,3 +220,38 @@ void PodcastEpisode::set_publication_date(const QDateTime& date) {
 }
 
 /***********************************************************************/
+std::shared_ptr<PodcastEpisode> PodcastEpisode::from_json_object(
+    const QJsonObject& json_episode) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+
+    auto title = json_episode[KEY_TITLE].toString();
+    auto media_url = QUrl(json_episode[KEY_URI].toString());
+    auto ep = std::make_shared<PodcastEpisode>(title, media_url);
+    auto duration = json_episode[KEY_DURATION].toInt(1);
+    ep->set_duration(duration);
+    auto position = json_episode[KEY_POSITION].toInt(0);
+    ep->set_position(position);
+
+    ep->set_publication_date(
+        QDateTime::fromString(json_episode[KEY_PUBLISHED].toString()));
+    ep->set_publisher(json_episode[KEY_PUBLISHER].toString());
+    ep->set_description(json_episode[KEY_DESCRIPTION].toString());
+    /* pubisher assinged id, can be url format hence a string not a QUuid */
+    ep->set_guid(json_episode[KEY_ID].toString());
+    return ep;
+}
+
+/***********************************************************************/
+QJsonObject PodcastEpisode::to_json_object() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    QJsonObject ep_obj;
+    ep_obj[KEY_TITLE] = get_title();
+    ep_obj[KEY_URI] = get_url().toString();
+    ep_obj[KEY_DURATION] = get_duration();
+    ep_obj[KEY_POSITION] = get_position();
+    ep_obj[KEY_ID] = get_guid();
+    ep_obj[KEY_PUBLISHED] = get_publication_date().toString();
+    ep_obj[KEY_DESCRIPTION] = get_description();
+    ep_obj[KEY_PUBLISHER] = get_publisher();
+    return ep_obj;
+}
