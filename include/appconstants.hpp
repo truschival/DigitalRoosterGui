@@ -71,7 +71,7 @@ const QString KEY_ID("id");
 /**
  *  property key for all URIs
  */
-const QString KEY_URI("uri");
+const QString KEY_URI("url");
 
 /**
  * property key for all nice names

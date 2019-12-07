@@ -9,19 +9,22 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
-#include <appconstants.hpp>
+#include <chrono>
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <memory>
 #include <iostream>
+#include <memory>
 #include <stdexcept> // std::system_error
 
 #include <QSignalSpy>
 #include <QString>
 #include <QUrl>
 
-#include "appconstants.hpp"
 #include "PlayableItem.hpp"
 #include "PodcastSource.hpp"
+#include "appconstants.hpp"
+
+#include "serializer_mock.hpp"
 
 using namespace DigitalRooster;
 
@@ -32,8 +35,7 @@ public:
     PodcastSourceFixture()
         : cache_dir(DEFAULT_CACHE_DIR_PATH)
         , uid(QUuid::createUuid())
-        , ps(QUrl("https://alternativlos.org/alternativlos.rss"), cache_dir,
-              uid) {
+        , ps(QUrl("https://alternativlos.org/alternativlos.rss"), uid) {
     }
 
     ~PodcastSourceFixture() {
@@ -52,6 +54,7 @@ protected:
     QUuid uid;
     PodcastSource ps;
 };
+
 
 /******************************************************************************/
 TEST_F(PodcastSourceFixture, dont_add_twice) {
@@ -79,10 +82,14 @@ TEST_F(PodcastSourceFixture, add_episodeEmitsCountChanged) {
     auto pi1 =
         std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
     QSignalSpy spy(&ps, SIGNAL(episodes_count_changed(int)));
+    QSignalSpy spy_data(&ps, SIGNAL(dataChanged()));
+    ASSERT_TRUE(spy.isValid());
+    ASSERT_TRUE(spy_data.isValid());
+
     ps.add_episode(pi1);
 
-    spy.wait(300);
     ASSERT_EQ(spy.count(), 1);
+    ASSERT_EQ(spy_data.count(), 0); // should not emit dataChanged
     // arguments of first signal, here only 1 int
     // QSignalSpy inherits from QList<QList<QVariant>>
     QList<QVariant> arguments = spy.takeFirst();
@@ -133,26 +140,27 @@ TEST_F(PodcastSourceFixture, set_updater) {
 /******************************************************************************/
 TEST_F(PodcastSourceFixture, getFileName) {
     auto filename = ps.get_cache_file_name();
-    QString expected_filename(cache_dir.filePath(uid.toString()));
-
+    QString expected_filename(uid.toString());
     ASSERT_EQ(filename, expected_filename);
 }
 
 /******************************************************************************/
-TEST_F(PodcastSourceFixture, storeAndPurgeworks) {
-    auto filename = ps.get_cache_file_name();
-    QFile cachefile(filename);
-    ASSERT_FALSE(cachefile.exists());
+TEST_F(PodcastSourceFixture, emit_Description_Title_Changed) {
+    QSignalSpy spy_desc(&ps, SIGNAL(descriptionChanged()));
+    QSignalSpy spy_data(&ps, SIGNAL(dataChanged()));
+    QSignalSpy spy_title(&ps, SIGNAL(titleChanged()));
+    ASSERT_TRUE(spy_desc.isValid());
+    ASSERT_TRUE(spy_data.isValid());
+    ASSERT_TRUE(spy_title.isValid());
+
+    ps.set_title("NewTitle");
     ps.set_description("MyDescription");
-    auto first =
-        std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
-    ps.add_episode(first);
-    ps.store();
-    ASSERT_TRUE(cachefile.exists());
-    ps.purge();
-    ASSERT_FALSE(cachefile.exists());
-    ASSERT_EQ(ps.get_episode_count(), 0);
+
+    ASSERT_EQ(spy_desc.count(), 1);
+    ASSERT_EQ(spy_data.count(), 2);
+    ASSERT_EQ(spy_title.count(), 1);
 }
+
 /******************************************************************************/
 TEST_F(PodcastSourceFixture, storeIconCache) {
     auto image_url = QUrl(
@@ -168,7 +176,7 @@ TEST_F(PodcastSourceFixture, storeIconCache) {
     ASSERT_EQ(spy.count(), 1);
     // Second time the local cache should be returned
     auto expeced_local_url = QUrl::fromLocalFile(cache_dir.filePath(file_name));
-    ASSERT_EQ(ps.get_icon(),expeced_local_url);
+    ASSERT_EQ(ps.get_icon(), expeced_local_url);
 
     ASSERT_TRUE(cache_file.exists());
     ASSERT_TRUE(cache_file.remove());
@@ -196,12 +204,67 @@ TEST_F(PodcastSourceFixture, purgeIconCache) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, store_bad_nothrow) {
-    QDir cache_dir_bad("/some/nonexistent/cache/dir");
-    PodcastSource ps(QUrl("http://foo.bar"), cache_dir_bad);
-    ps.set_description("MyDescription");
-    auto first =
-        std::make_shared<PodcastEpisode>("TheName", QUrl("http://foo.bar"));
-    ps.add_episode(first);
-    ASSERT_NO_THROW(ps.store());
+TEST_F(PodcastSourceFixture, purge_with_serializer) {
+    auto serializer = std::make_unique<SerializerMock>(cache_dir, &ps);
+    EXPECT_CALL(*(serializer.get()), delete_cache()).Times(1);
+    QSignalSpy spy(&ps, SIGNAL(episodes_count_changed(int)));
+    ps.set_serializer(std::move(serializer));
+    ps.purge();
+    EXPECT_EQ(spy.count(), 1);
+    auto argslist = spy.takeFirst();
+    EXPECT_EQ(argslist[0].toInt(), 0);
+}
+
+/******************************************************************************/
+TEST_F(PodcastSourceFixture, episode_position_triggers_delayed_write) {
+    auto serializer = std::make_unique<SerializerMock>(
+        cache_dir, &ps, std::chrono::milliseconds(50));
+    EXPECT_CALL(*(serializer.get()), write_cache()).Times(1);
+    QSignalSpy spy(&ps, SIGNAL(dataChanged()));
+    ps.set_serializer(std::move(serializer));
+    auto episode = std::make_shared<PodcastEpisode>(
+        "TestEpisode", QUrl("http://some.url"));
+    episode->set_duration(100000);
+    ps.add_episode(episode);
+    episode->set_position(4000);
+    spy.wait(1000);
+    EXPECT_EQ(spy.count(), 1);
+}
+
+/******************************************************************************/
+TEST(PodcastSource, from_json_object_good) {
+    QString json_string(R"(
+	{
+    "id": "{5c81821d-17fc-44d5-ae45-5ab24ffd1d50}",
+    "description": "Some Description",
+	"icon": "https://some.remote.url/test.jpg",
+    "icon-cached": "/tmp/local_cache/foo.jpg",
+    "timestamp": "Thu Nov 14 19:48:55 2019",
+	"url": "https://alternativlos.org/alternativlos.rss",
+    "title": "MyTitle"
+	})");
+    auto jdoc = QJsonDocument::fromJson(json_string.toUtf8());
+    auto ps = PodcastSource::from_json_object(jdoc.object());
+    EXPECT_EQ(ps->get_id(), QString("5c81821d-17fc-44d5-ae45-5ab24ffd1d50}"));
+    EXPECT_EQ(ps->get_title(), QString("MyTitle"));
+    EXPECT_EQ(
+        ps->get_url(), QUrl("https://alternativlos.org/alternativlos.rss"));
+    EXPECT_EQ(ps->get_description(), QString("Some Description"));
+    EXPECT_EQ(ps->get_icon(), QString("https://some.remote.url/test.jpg"));
+}
+
+/******************************************************************************/
+TEST(PodcastSource, from_json_object_bad_url) {
+    QString json_string(R"(
+	{
+    "id": "{5c81821d-17fc-44d5-ae45-5ab24ffd1d50}",
+    "description": "Some Description",
+	"icon": "https://some.remote.url/test.jpg",
+    "icon-cached": "/tmp/local_cache/foo.jpg",
+    "timestamp": "Thu Nov 14 19:48:55 2019",
+    "title": "MyTitle"
+	})");
+    auto jdoc = QJsonDocument::fromJson(json_string.toUtf8());
+    EXPECT_THROW(
+        PodcastSource::from_json_object(jdoc.object()), std::invalid_argument);
 }

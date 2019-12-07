@@ -16,9 +16,12 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QObject>
+#include <QJsonObject>
 #include <QString>
 #include <QUrl>
 #include <QUuid>
+
+#include <memory>
 
 namespace DigitalRooster {
 
@@ -121,7 +124,19 @@ public:
     QUuid get_id() const {
         return id;
     }
+    /**
+     * Create PlayableItem/Radio Station from JSON JSonObject
+     * @param json_radio json representation
+     * @return Station object - default initialized if fields are missing
+     */
+    static std::shared_ptr<PlayableItem> from_json_object(
+        const QJsonObject& json_radio);
 
+    /**
+     * JSon Representation of Internet Radio station
+     * @return
+     */
+    QJsonObject to_json_object();
 signals:
     /**
      * Human readable identifier changed (title, name, publisher etc)
@@ -243,6 +258,20 @@ public:
      * @param len >= 0
      */
     void set_duration(qint64 len);
+    /**
+     * Create PlayableItem/Radio Station from JSON JSonObject
+     * @param json_episode episode as json object
+     * @return Station object - default initialized if fields are missing
+     */
+    static std::shared_ptr<PodcastEpisode> from_json_object(
+        const QJsonObject& json_episode);
+
+    /**
+     * JSon Representation of Internet Radio station
+     * @param episode to serialize
+     * @return
+     */
+    QJsonObject to_json_object() const;
 
 signals:
     void description_changed(const QString& desc);
