@@ -132,9 +132,13 @@ bool AlarmListModel::removeRows(
 int AlarmListModel::delete_alarm(qint64 row) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << row;
     beginRemoveRows(QModelIndex(), row, row);
-    auto alarm = cm->get_alarms().at(row);
-    if(alarm){
-    	cm->delete_alarm(alarm->get_id());
+    try {
+        auto alarm = cm->get_alarms().at(row);
+        if (alarm) {
+            cm->delete_alarm(alarm->get_id());
+        }
+    } catch (std::out_of_range& exc) {
+        qCWarning(CLASS_LC) << Q_FUNC_INFO << " Alarm not found! ";
     }
     endRemoveRows();
     return 0;

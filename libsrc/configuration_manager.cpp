@@ -66,8 +66,9 @@ ConfigurationManager::ConfigurationManager(
      */
     if (!is_writable_directory(cachedir) &&
         !create_writable_directory(cachedir)) {
-        qCWarning(CLASS_LC) << "Failed using " << get_cache_dir_name()
-                            << "as cache using default:" << DEFAULT_CACHE_DIR_PATH;
+        qCWarning(CLASS_LC)
+            << "Failed using " << get_cache_dir_name()
+            << "as cache using default:" << DEFAULT_CACHE_DIR_PATH;
         application_cache_dir.setPath(DEFAULT_CACHE_DIR_PATH);
         QDir().mkpath(DEFAULT_CACHE_DIR_PATH);
     }
@@ -309,12 +310,66 @@ void ConfigurationManager::add_radio_station(
     std::shared_ptr<PlayableItem> src) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     this->stream_sources.push_back(src);
+    dataChanged();
+    emit stations_changed();
 }
+
+/*****************************************************************************/
+const PlayableItem* ConfigurationManager::get_stream_source(
+    const QUuid& id) const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto item = std::find_if(stream_sources.begin(), stream_sources.end(),
+        [&](const std::shared_ptr<PlayableItem> item) {
+            return item->get_id() == id;
+        });
+    if (item == stream_sources.end()) {
+    	throw std::out_of_range("");
+    }
+    return item->get();
+}
+
+/*****************************************************************************/
+void ConfigurationManager::add_podcast_source(
+    std::shared_ptr<PodcastSource> src) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    this->podcast_sources.push_back(src);
+    dataChanged();
+    emit podcast_sources_changed();
+}
+
+/*****************************************************************************/
+const PodcastSource* ConfigurationManager::get_podcast_source(
+    const QUuid& id) const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto item = std::find_if(podcast_sources.begin(), podcast_sources.end(),
+        [&](const std::shared_ptr<PodcastSource> item) {
+            return item->get_id() == id;
+        });
+    if (item == podcast_sources.end()) {
+        throw std::out_of_range("");
+    }
+    return item->get();
+}
+
 /*****************************************************************************/
 void ConfigurationManager::add_alarm(std::shared_ptr<Alarm> alm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     this->alarms.push_back(alm);
     dataChanged();
+    emit alarms_changed();
+}
+
+/*****************************************************************************/
+const Alarm* ConfigurationManager::get_alarm(const QUuid& id) const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto item = std::find_if(
+        alarms.begin(), alarms.end(), [&](const std::shared_ptr<Alarm> item) {
+            return item->get_id() == id;
+        });
+    if (item == alarms.end()) {
+    	throw std::out_of_range("");
+    }
+    return item->get();
 }
 
 /*****************************************************************************/
@@ -551,7 +606,7 @@ void ConfigurationManager::remove_podcast_source_by_index(int index) {
 }
 
 /*****************************************************************************/
-int ConfigurationManager::delete_alarm(const QUuid& id) {
+void ConfigurationManager::delete_alarm(const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto old_end = alarms.end();
     alarms.erase(std::remove_if(alarms.begin(), alarms.end(),
@@ -560,10 +615,44 @@ int ConfigurationManager::delete_alarm(const QUuid& id) {
                      }),
         alarms.end());
     if (old_end == alarms.end()) {
-        return -1;
+    	throw std::out_of_range("");
     }
     dataChanged();
-    return 0;
+    emit alarms_changed();
+};
+
+/*****************************************************************************/
+void ConfigurationManager::delete_podcast_source(const QUuid& id) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto old_end = podcast_sources.end();
+    podcast_sources.erase(
+        std::remove_if(podcast_sources.begin(), podcast_sources.end(),
+            [&](const std::shared_ptr<PodcastSource> item) {
+                return item->get_id() == id;
+            }),
+        podcast_sources.end());
+    if (old_end == podcast_sources.end()) {
+        throw std::out_of_range("");
+    }
+    dataChanged();
+    emit podcast_sources_changed();
+};
+
+/*****************************************************************************/
+void ConfigurationManager::delete_radio_station(const QUuid& id) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto old_end = stream_sources.end();
+    stream_sources.erase(
+        std::remove_if(stream_sources.begin(), stream_sources.end(),
+            [&](const std::shared_ptr<PlayableItem> item) {
+                return item->get_id() == id;
+            }),
+        stream_sources.end());
+    if (old_end == stream_sources.end()) {
+    	throw std::out_of_range("");
+    }
+    dataChanged();
+    emit stations_changed();
 };
 
 /*****************************************************************************/
