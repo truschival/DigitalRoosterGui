@@ -1,6 +1,7 @@
 /******************************************************************************
  * \filename
- * \brief writes a podcast source to filesystem or restores its configuration
+ * \brief  Serialization/Deserialization of PodcastSources and PodcastEpisodes
+ * from filesystem and/or JSON
  *
  * \details
  *
@@ -13,90 +14,137 @@
 #ifndef _PODCASTSERIALIZER_HPP_
 #define _PODCASTSERIALIZER_HPP_
 
+#include <QDir>
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QObject>
+#include <QTimer>
 
 #include <exception>
+#include <memory>
+
+#include "PlayableItem.hpp"
 
 namespace DigitalRooster {
 class PodcastSource;
+
 
 /**
  * Serialization/Deserialization of PodcastSources and PodcastEpisodes
  * from filesystem
  */
-class PodcastSerializer : QObject {
+class PodcastSerializer : public QObject {
     Q_OBJECT
 public:
     /**
-     * serializes podcast source to filesystem
-     * @param ps podcastsource to write
-     * @param file_path file to write
+     * Constructor
+     * @param app_cache_dir
+     * @param source optional PodcastSource can be set by
+     *        \ref set_podcast_source later
+     * @param delay duration after which write occurs
      */
-    void store_to_file(PodcastSource* ps, const QString& file_path);
+    explicit PodcastSerializer(const QDir& app_cache_dir,
+        PodcastSource* source = nullptr,
+        std::chrono::milliseconds delay = std::chrono::milliseconds(1000));
 
     /**
-     * serializes podcast source to filesystem using
-     * default file path
-     * @param ps podcastsource to write
+     * Update PodcastSource
      */
-    void store_to_file(PodcastSource* ps);
+    void set_podcast_source(PodcastSource* source);
 
     /**
-     * restore configuration of podcastsource form filesystem
-     * @param ps podcastsource to restore
-     * @param file_path file to read
+     * Need destructor to stop timer
      */
-    void read_from_file(PodcastSource* ps, const QString& file_path);
+    ~PodcastSerializer();
+    PodcastSerializer(const PodcastSerializer&) = delete;
+    PodcastSerializer(PodcastSerializer&&) = delete;
+    PodcastSerializer& operator=(const PodcastSerializer&) = delete;
+    PodcastSerializer& operator=(PodcastSerializer&&) = delete;
+
+public slots:
+    /**
+     * Delete local cache file
+     */
+    void delete_cached_info();
 
     /**
-     * read configuration of podcast source to filesystem using
-     * default file path
-     * @param ps podcastsource to write
+     * Triggers a delayed write
      */
-    void read_from_file(PodcastSource* ps);
+    void delayed_write();
 
     /**
-     * parse file and configure podcastsource accordingly
-     * @param tl_obj top level object = PodcastSource representation
-     * @param ps podcast source to configure
+     * Restore data in podcast source form file
+     * if data in file is more recent/complete
      */
-    void parse_podcast_source_from_json(QJsonObject& tl_obj, PodcastSource* ps);
-
+    void restore_info();
     /**
-     * Read a single podcast episode object from file
-     * NVI to allow for test-mocking
-     * @param ep_obj JSON representation of a podcast Episode
-     * @return PodcastEpisode object
+     * Immediately write data to cache file
      */
-    std::shared_ptr<PodcastEpisode> parse_episode_from_json(
-        const QJsonObject& ep_obj);
-
-    /**
-     * Create a JSON Object representation of a \ref PodcastEpisode
-     * @param episode PodcastEpisode to serialize
-     * @return JSON Object representation
-     */
-    QJsonObject json_from_episode(const PodcastEpisode* episode);
-
-    /**
-     * Create a JSON Object representation of a PodcastSource
-     * @param ps the PodcastSource to serialize
-     * @return JSON Object representation
-     */
-    QJsonObject json_from_podcast_source(const PodcastSource* ps);
+    void write();
 
 private:
     /**
-     * Implementation of parse_episode_from_json
-     * @param ep_obj JSON representation of a podcast Episode
-     * @return PodcastEpisode object
+     * Podcast Source to serialize/de-serialize
      */
-    std::shared_ptr<PodcastEpisode> parse_episode_json_impl(
-        const QJsonObject& ep_obj);
+    PodcastSource* ps;
+
+    /**
+     * Timer for delayed write operations
+     */
+    QTimer writeTimer;
+
+    /**
+     * Cache directory
+     */
+    const QDir& cache_dir;
+
+    /**
+     * NVI implementation of delete_cached_info()
+     */
+    virtual void delete_cache();
+    /**
+     * NVI implementation of write()
+     */
+    virtual void write_cache();
 };
+
+/**
+ * serializes podcast source to filesystem
+ * @param ps podcastsource to write
+ * @param file_path file to write
+ */
+void store_to_file(PodcastSource* ps, const QString& file_path);
+
+/**
+ * restore configuration of podcastsource form filesystem
+ * @param ps podcastsource to restore
+ * @param file_path file to read
+ */
+void read_from_file(PodcastSource* ps, const QString& file_path);
+
+/**
+ * parse file and configure podcastsource accordingly
+ * @param tl_obj top level object = PodcastSource representation
+ * @param ps podcast source to configure
+ */
+void parse_podcast_source_from_json(const QJsonObject& tl_obj, PodcastSource* ps);
+
+/**
+ * Reads episodes array from \ref json and updates \ref ps
+ * if episode already exists we update the position information
+ * @param json object with cached information of podcast source and episodes
+ * @param ps PodcastSource to update
+ */
+void read_episodes_cache(const QJsonObject& json, PodcastSource* ps);
+
+/**
+ * Create a JSON Object representation of a PodcastSource
+ * including all cached/dynamic information form RSS feed
+ * @param ps the PodcastSource to serialize
+ * @return JSON Object representation
+ */
+QJsonObject json_from_podcast_source(const PodcastSource* ps);
 
 /**
  * Exception thrown if serialized podcast source is corrupted,

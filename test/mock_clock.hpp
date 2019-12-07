@@ -10,6 +10,8 @@
  *
  ******************************************************************************/
 
+#ifndef _INCLUDE_MOCK_CLOCK_
+#define _INCLUDE_MOCK_CLOCK_
 // Mock Wallclock to test weekends & workdays
 #include "timeprovider.hpp"
 
@@ -18,3 +20,5 @@ public:
     MOCK_METHOD0(get_time, QDateTime());
 };
 /*****************************************************************************/
+
+#endif /*_INCLUDE_MOCK_CLOCK_*/

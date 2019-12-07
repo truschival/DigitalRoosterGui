@@ -24,31 +24,10 @@
 #include "PodcastSource.hpp"
 #include "alarm.hpp"
 #include "appconstants.hpp"
+#include "weather.hpp"
 
 namespace DigitalRooster {
 
-/**
- * Simple POD for openweathermaps configuration
- * with sensible default values
- */
-struct WeatherConfig {
-    /* Base uri for OpenWeatherMaps API */
-    QString base_uri{"http://api.openweathermap.org/data/2.5/weather?"};
-    /**
-     *  location id
-     * from http://bulk.openweathermap.org/sample/city.list.json.gz
-     * e.g. 'Esslingen,de' = id 2928751, Porto Alegre=3452925
-     */
-    QString cityid = {"2928751"};
-    /** Openweathermap API Key */
-    QString apikey = {"a904431b4e0eae431bcc1e075c761abb"};
-    /** metric, imperial, */
-    QString units = {"metric"};
-    /* language for description 'en', 'de'...*/
-    QString language = {"en"};
-    /** Update Interval for wheather information */
-    std::chrono::seconds update_interval{3600LL};
-};
 
 /**
  * Reads JSON configuration
@@ -177,7 +156,7 @@ public:
     /**
      * Weather configuration object
      */
-    const WeatherConfig& get_weather_config() {
+    const WeatherConfig* get_weather_config() {
         return get_weather_cfg();
     }
 
@@ -336,11 +315,6 @@ private:
     QVector<std::shared_ptr<Alarm>> alarms;
 
     /**
-     * Weather configuration
-     */
-    WeatherConfig weather_cfg;
-
-    /**
      * Duration for alarm to stop automatically
      */
     std::chrono::minutes global_alarm_timeout;
@@ -372,6 +346,11 @@ private:
      * file changed connection stored to disconnect & reconnect
      */
     QMetaObject::Connection fwConn;
+
+    /**
+     * Weather configuration
+     */
+    std::unique_ptr<WeatherConfig> weather_cfg;
 
     /**
      * Configuration directory, writable, created if it doesn't exist
@@ -478,8 +457,8 @@ private:
     /**
      * Weather configuration object
      */
-    virtual WeatherConfig& get_weather_cfg() {
-        return weather_cfg;
+    virtual const WeatherConfig* get_weather_cfg() {
+        return weather_cfg.get();
     }
 
     /**

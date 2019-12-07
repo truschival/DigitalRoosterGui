@@ -79,17 +79,16 @@ void Weather::parse_response(QByteArray content) {
 }
 /*****************************************************************************/
 
-QUrl DigitalRooster::create_weather_uri(const WeatherConfig& cfg) {
+QUrl DigitalRooster::create_weather_uri(const WeatherConfig* cfg) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    QString uri_str(cfg.base_uri);
-    uri_str += "id=";
-    uri_str += cfg.cityid;
-    uri_str += "&units=";
-    uri_str += cfg.units;
-    uri_str += "&appid=";
-    uri_str += cfg.apikey;
-    //    qDebug() << uri_str;
-    return QUrl(uri_str);
+    QString request_str({"http://api.openweathermap.org/data/2.5/weather?"});
+    request_str.reserve(512);
+    request_str += "id=";
+    request_str += cfg->get_location_id();
+    request_str += "&units=metric";
+    request_str += "&appid=";
+    request_str += cfg->get_api_token();
+    return QUrl(request_str);
 }
 /*****************************************************************************/
 void Weather::parse_city(const QJsonObject& o) {
@@ -121,5 +120,39 @@ void Weather::parse_condition(const QJsonObject& o) {
     icon_id = weather["icon"].toString();
     emit condition_changed(condition);
     emit icon_changed(icon_id);
+}
+
+/*****************************************************************************/
+WeatherConfig::WeatherConfig(const QString& token, const QString& location,
+    const std::chrono::seconds& interval)
+    : api_token(token)
+    , location_id(location)
+    , update_interval(interval) {
+}
+
+/*****************************************************************************/
+QJsonObject WeatherConfig::to_json_object() const{
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    QJsonObject j;
+    j[KEY_UPDATE_INTERVAL] = static_cast<qint64>(update_interval.count());
+    j[KEY_WEATHER_LOCATION_ID] = location_id;
+    j[KEY_WEATHER_API_KEY] = api_token;
+    return j;
+}
+
+/*****************************************************************************/
+std::unique_ptr<WeatherConfig> WeatherConfig::from_json_object(const QJsonObject& json) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    if (json[KEY_WEATHER_LOCATION_ID].toString().isEmpty()) {
+        throw std::invalid_argument("Json Weather has no location id");
+    }
+    if (json[KEY_WEATHER_API_KEY].toString().isEmpty()) {
+        throw std::invalid_argument("Json Weather has no API key !");
+    }
+    auto interval =
+        std::chrono::seconds(json[KEY_UPDATE_INTERVAL].toInt(3600LL));
+
+    return std::make_unique<WeatherConfig>(json[KEY_WEATHER_API_KEY].toString(),
+        json[KEY_WEATHER_LOCATION_ID].toString(), interval);
 }
 /*****************************************************************************/
