@@ -73,14 +73,14 @@ MediaPlayerProxy::MediaPlayerProxy()
                     backend->metaData(QMediaMetaData::Publisher).toString();
 
                 qCDebug(CLASS_LC)
-                    << "\n\tTitle:" << title
-					<< "\n\tPublisher:" << publisher
+                    << "\n\tTitle:" << title << "\n\tPublisher:" << publisher
                     << "\n\tAlbumArtist:"
                     << backend->metaData(QMediaMetaData::AlbumArtist).toString()
                     << "\n\tAuthor:"
                     << backend->metaData(QMediaMetaData::Author).toString()
-					<< "\n\tDescription:"
-                    << backend->metaData(QMediaMetaData::Description).toString();
+                    << "\n\tDescription:"
+                    << backend->metaData(QMediaMetaData::Description)
+                           .toString();
 
                 if (title != "") {
                     current_item->set_title(title);
@@ -158,7 +158,7 @@ void MediaPlayerProxy::do_set_media(
 
     backend->setMedia(QMediaContent(media->get_url()));
     if (previous_position != 0) {
-        qDebug() << "restarting from position" << previous_position;
+        qCDebug(CLASS_LC) << "restarting from position" << previous_position;
         set_position(previous_position);
     }
 }

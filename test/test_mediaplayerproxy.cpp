@@ -28,30 +28,34 @@ using namespace DigitalRooster;
 class PlayerFixture : public virtual ::testing::Test {
 public:
     PlayerFixture()
-        : podcast(
-              std::make_unique<DigitalRooster::PodcastEpisode>("TestEpisode",
-                  QUrl::fromLocalFile(TEST_FILE_PATH + "/testaudio.mp3"))) {
+        : local_audio(
+              std::make_shared<DigitalRooster::PodcastEpisode>("TestEpisode",
+                  QUrl::fromLocalFile(TEST_FILE_PATH + "/testaudio.mp3")))
+        , remote_audio(
+              std::make_shared<DigitalRooster::PodcastEpisode>("Remote",
+                  QUrl("http://traffic.libsyn.com/armscontrolwonk/138.mp3"))) {
     }
 
 protected:
-    std::shared_ptr<PodcastEpisode> podcast;
+    std::shared_ptr<PodcastEpisode> local_audio;
+    std::shared_ptr<PodcastEpisode> remote_audio;
     const qint64 desired_pos = 10000; // 10 seconds
     MediaPlayerProxy dut;
 };
+
 /*****************************************************************************/
 TEST_F(PlayerFixture, emitMediaChanged) {
     QSignalSpy spy(&dut, SIGNAL(media_changed(const QMediaContent&)));
     ASSERT_TRUE(spy.isValid());
-    dut.set_media(podcast);
+    dut.set_media(local_audio);
     ASSERT_EQ(spy.count(), 1);
 }
-
 
 /*****************************************************************************/
 TEST_F(PlayerFixture, emitStateChanged) {
     QSignalSpy spy(&dut, SIGNAL(playback_state_changed(QMediaPlayer::State)));
     ASSERT_TRUE(spy.isValid());
-    dut.set_media(podcast);
+    dut.set_media(local_audio);
     dut.play();
     spy.wait(500);
     dut.pause();
@@ -62,7 +66,7 @@ TEST_F(PlayerFixture, emitStateChanged) {
 TEST_F(PlayerFixture, stop) {
     QSignalSpy spy(&dut, SIGNAL(playback_state_changed(QMediaPlayer::State)));
     ASSERT_TRUE(spy.isValid());
-    dut.set_media(podcast);
+    dut.set_media(local_audio);
     dut.play();
     spy.wait(500);
     ASSERT_EQ(dut.playback_state(), QMediaPlayer::PlayingState);
@@ -76,7 +80,7 @@ TEST_F(PlayerFixture, setMuted) {
     QSignalSpy spy(&dut, SIGNAL(muted_changed(bool)));
     ASSERT_TRUE(spy.isValid());
 
-    dut.set_media(podcast);
+    dut.set_media(local_audio);
     dut.play();
     dut.set_muted(true);
     dut.pause();
@@ -124,7 +128,7 @@ TEST_F(PlayerFixture, incrementVolume) {
 TEST_F(PlayerFixture, checkSeekable) {
 	QSignalSpy seekspy(&dut, SIGNAL(seekable_changed(bool)));
 	ASSERT_TRUE(seekspy.isValid());
-    dut.set_media(podcast);
+    dut.set_media(local_audio);
 
     dut.play();
     seekspy.wait(1000);
@@ -142,7 +146,7 @@ TEST_F(PlayerFixture, checkSeekable) {
 
 /*****************************************************************************/
 TEST_F(PlayerFixture, setPositionForward) {
-    dut.set_media(podcast);
+    dut.set_media(local_audio);
     dut.play();
 
     QSignalSpy spy(&dut, SIGNAL(position_changed(qint64)));
@@ -159,7 +163,7 @@ TEST_F(PlayerFixture, setPositionForward) {
 TEST_F(PlayerFixture, getDuration) {
    ASSERT_EQ(dut.error(), QMediaPlayer::NoError);
    ASSERT_EQ(dut.media_status(), QMediaPlayer::NoMedia);
-   dut.set_media(podcast);
+   dut.set_media(local_audio);
    // we have to wait until media is loaded
    QSignalSpy spy(
        &dut, SIGNAL(media_status_changed(QMediaPlayer::MediaStatus)));
@@ -183,7 +187,7 @@ TEST_F(PlayerFixture, getDuration) {
 /*****************************************************************************/
 TEST_F(PlayerFixture, getStatus) {
    ASSERT_EQ(dut.media_status(), QMediaPlayer::NoMedia);
-   dut.set_media(podcast);
+   dut.set_media(local_audio);
    // we have to wait until media is loaded
    QSignalSpy spy(
        &dut, SIGNAL(media_status_changed(QMediaPlayer::MediaStatus)));
@@ -226,6 +230,33 @@ TEST_F(PlayerFixture, checkErrorStates) {
    EXPECT_EQ(dut.error(), QMediaPlayer::NoMedia);
 }
 /*****************************************************************************/
+TEST_F(PlayerFixture, setPositionRemote) {
+    remote_audio->set_position(10000);
+    QSignalSpy spy(
+        &dut, SIGNAL(media_status_changed(QMediaPlayer::MediaStatus)));
+    QSignalSpy spy_playing(
+        &dut, SIGNAL(playback_state_changed(QMediaPlayer::State)));
+    ASSERT_TRUE(spy.isValid());
+    ASSERT_TRUE(spy_playing.isValid());
 
-
-
+    dut.set_media(remote_audio);
+    spy.wait(200);
+    ASSERT_EQ(spy.takeFirst().at(0).toInt(), QMediaPlayer::LoadingMedia);
+    spy.wait(500);
+    ASSERT_EQ(spy.takeFirst().at(0).toInt(), QMediaPlayer::LoadedMedia);
+    dut.set_position(12500);
+    dut.play();
+    spy_playing.wait(200);
+    ASSERT_EQ(
+        spy_playing.takeFirst().at(0).toInt(), QMediaPlayer::PlayingState);
+    dut.pause();
+    spy_playing.wait(200);
+    ASSERT_EQ(spy_playing.takeFirst().at(0).toInt(), QMediaPlayer::PausedState);
+    EXPECT_GE(dut.get_position(), 12500);
+    dut.play();
+    spy_playing.wait(200);
+    ASSERT_EQ(
+        spy_playing.takeFirst().at(0).toInt(), QMediaPlayer::PlayingState);
+    EXPECT_GT(dut.get_position(), 12500);
+}
+/*****************************************************************************/
