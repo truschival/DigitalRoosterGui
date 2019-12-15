@@ -22,8 +22,12 @@ using namespace DigitalRooster;
 
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.MediaPlayerProxy");
 
+<<<<<<< HEAD
 /***********************************************************************/
 
+=======
+/****************************************************************************/
+>>>>>>> Fix set_positon on remote media
 MediaPlayerProxy::MediaPlayerProxy()
     : backend(std::make_unique<QMediaPlayer>()) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
@@ -43,9 +47,14 @@ MediaPlayerProxy::MediaPlayerProxy()
             qCDebug(CLASS_LC)
                 << "MediaPlayerProxy position_changed()" << position;
             emit position_changed(position);
+<<<<<<< HEAD
 
             /** Only update position */
             if (current_item.get() != nullptr && position_updateable) {
+=======
+            /** Only update position of seekable media */
+            if (current_item.get() != nullptr && current_item->is_seekable()) {
+>>>>>>> Fix set_positon on remote media
                 current_item->set_position(position);
             }
         });
@@ -77,11 +86,17 @@ MediaPlayerProxy::MediaPlayerProxy()
             qCDebug(CLASS_LC)
                 << "MediaPlayerProxy seekable_changed()" << seekable;
             current_item->set_seekable(seekable);
+<<<<<<< HEAD
             enable_position_update(seekable);
             emit seekable_changed(seekable);
 
             /* jump to previously saved position once we know we can seek */
             if (seekable) {
+=======
+            emit seekable_changed(seekable);
+            /* jump to previously saved position once we know we can seek */
+            if (current_item->is_seekable()) {
+>>>>>>> Fix set_positon on remote media
                 /* update backend position */
                 set_position(current_item->get_position());
             }
