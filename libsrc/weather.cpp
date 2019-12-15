@@ -88,6 +88,7 @@ QUrl DigitalRooster::create_weather_uri(const WeatherConfig* cfg) {
     request_str += "&units=metric";
     request_str += "&appid=";
     request_str += cfg->get_api_token();
+    request_str += "&lang=en"; //default english
     return QUrl(request_str);
 }
 /*****************************************************************************/

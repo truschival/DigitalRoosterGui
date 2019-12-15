@@ -51,7 +51,7 @@ public:
      * @param url Feed URL
      * @param uid unique id for this podcast
      */
-    PodcastSource(const QUrl& url, QUuid uid = QUuid::createUuid());
+    explicit PodcastSource(const QUrl& url, QUuid uid = QUuid::createUuid());
 
     /**
      * Destructor to delete icon_downloader nicely
