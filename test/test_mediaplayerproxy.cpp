@@ -214,6 +214,7 @@ TEST_F(PlayerFixture, checkErrorStates) {
     EXPECT_EQ(signal_params.at(0).toInt(), QMediaPlayer::NoMedia);
     EXPECT_EQ(dut.error(), QMediaPlayer::NoMedia);
 }
+
 /*****************************************************************************/
 TEST_F(PlayerFixture, setPositionRemote) {
     remote_audio->set_position(10000);
@@ -250,15 +251,8 @@ TEST_F(PlayerFixture, setPositionRemote) {
      * available */
     EXPECT_GE(remote_audio->get_position(), 10000);
     dut.stop();
-<<<<<<< HEAD
-    spy_playing.wait(100);
     /* Media position should not have been reset to < 10000 when media was not
      * available */
-=======
-    spy_playing.wait(200);
-    ASSERT_EQ(
-        spy_playing.takeFirst().at(0).toInt(), QMediaPlayer::StoppedState);
->>>>>>> Fix set_positon on remote media
     EXPECT_GE(remote_audio->get_position(), 10000);
 }
 /*****************************************************************************/
