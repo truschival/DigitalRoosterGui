@@ -404,24 +404,24 @@ private:
     virtual void parse_json(const QByteArray& json);
 
     /**
-     * Fills the vector stream_sources with entries form settings file
+     * Fills the vector stream_sources
      */
-    virtual void read_radio_streams_from_file(const QJsonObject& appconfig);
+    virtual void read_radio_streams(const QJsonObject& appconfig);
 
     /**
      * Read all podcast sources form configuration file
      */
-    virtual void read_podcasts_from_file(const QJsonObject& appconfig);
+    virtual void read_podcasts(const QJsonObject& appconfig);
 
     /**
      * Read Alarm objects
      */
-    virtual void read_alarms_from_file(const QJsonObject& appconfig);
+    virtual void read_alarms(const QJsonObject& appconfig);
 
     /**
      * Read weatherconfig
      */
-    virtual void read_weather_from_file(const QJsonObject& appconfig);
+    virtual void read_weather(const QJsonObject& appconfig);
 
     /**
      * Store settings permanently to file

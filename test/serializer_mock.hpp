@@ -21,7 +21,7 @@
 /******************************************************************************/
 class SerializerMock : public DigitalRooster::PodcastSerializer {
 public:
-    SerializerMock(const QDir& app_cache_dir,
+    explicit SerializerMock(const QDir& app_cache_dir,
         DigitalRooster::PodcastSource* source = nullptr,
         std::chrono::milliseconds delay = std::chrono::milliseconds(100))
         : PodcastSerializer(app_cache_dir, source, delay){};

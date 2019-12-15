@@ -15,13 +15,13 @@
 #include <QStandardPaths>
 #include <QString>
 #include <QTime>
+
 #include <chrono>
 #include <iostream>
 #include <stdexcept>
 
 #include "alarm.hpp"
 #include "appconstants.hpp"
-
 #include "UpdateTask.hpp"
 #include "configuration_manager.hpp"
 
@@ -190,14 +190,14 @@ void ConfigurationManager::parse_json(const QByteArray& json) {
 
     auto wpa_sock = appconfig[KEY_WPA_SOCKET_NAME];
     wpa_socket_name = wpa_sock.toString(WPA_CONTROL_SOCKET_PATH);
-    read_radio_streams_from_file(appconfig);
-    read_podcasts_from_file(appconfig);
-    read_alarms_from_file(appconfig);
-    read_weather_from_file(appconfig);
+    read_radio_streams(appconfig);
+    read_podcasts(appconfig);
+    read_alarms(appconfig);
+    read_weather(appconfig);
 }
 
 /*****************************************************************************/
-void ConfigurationManager::read_radio_streams_from_file(
+void ConfigurationManager::read_radio_streams(
     const QJsonObject& appconfig) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonArray stations =
@@ -223,7 +223,7 @@ void ConfigurationManager::read_radio_streams_from_file(
 }
 
 /*****************************************************************************/
-void ConfigurationManager::read_podcasts_from_file(
+void ConfigurationManager::read_podcasts(
     const QJsonObject& appconfig) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonArray podcasts =
@@ -253,7 +253,7 @@ void ConfigurationManager::read_podcasts_from_file(
 }
 
 /*****************************************************************************/
-void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
+void ConfigurationManager::read_alarms(const QJsonObject& appconfig) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonArray alarm_config =
         appconfig[DigitalRooster::KEY_GROUP_ALARMS].toArray();
@@ -272,7 +272,7 @@ void ConfigurationManager::read_alarms_from_file(const QJsonObject& appconfig) {
 }
 
 /*****************************************************************************/
-void ConfigurationManager::read_weather_from_file(
+void ConfigurationManager::read_weather(
     const QJsonObject& appconfig) {
     if (appconfig[KEY_WEATHER].isNull()) {
         qCWarning(CLASS_LC) << "no weather configuration found!";
