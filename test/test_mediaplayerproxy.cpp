@@ -33,7 +33,8 @@ public:
                   QUrl::fromLocalFile(TEST_FILE_PATH + "/testaudio.mp3")))
         , remote_audio(
               std::make_shared<DigitalRooster::PodcastEpisode>("Remote",
-                  QUrl("http://traffic.libsyn.com/armscontrolwonk/138.mp3"))) {
+                  QUrl("http://www.ruschival.de/wp-content/uploads/2019/12/"
+                       "sample-128k.mp3"))) {
     }
 
 protected:
@@ -145,21 +146,6 @@ TEST_F(PlayerFixture, checkSeekable) {
 }
 
 /*****************************************************************************/
-TEST_F(PlayerFixture, setPositionForward) {
-    dut.set_media(local_audio);
-    dut.play();
-
-    QSignalSpy spy(&dut, SIGNAL(position_changed(qint64)));
-    ASSERT_TRUE(spy.isValid());
-    auto pos = dut.get_position();
-    dut.set_position(pos+500);
-    spy.wait(1000);
-    spy.wait(1000);
-    ASSERT_GE(spy.count(), 2); // some times position changed was emitted
-    ASSERT_GE(dut.get_position(),500); // less than 50ms delta
-}
-
-/*****************************************************************************/
 TEST_F(PlayerFixture, getDuration) {
    ASSERT_EQ(dut.error(), QMediaPlayer::NoError);
    ASSERT_EQ(dut.media_status(), QMediaPlayer::NoMedia);
@@ -240,23 +226,23 @@ TEST_F(PlayerFixture, setPositionRemote) {
     ASSERT_TRUE(spy_playing.isValid());
 
     dut.set_media(remote_audio);
-    spy.wait(200);
+    ASSERT_FALSE(remote_audio->is_seekable()); // not seekable
+    spy.wait(500);
+    ASSERT_FALSE(spy.isEmpty());
     ASSERT_EQ(spy.takeFirst().at(0).toInt(), QMediaPlayer::LoadingMedia);
     spy.wait(500);
+    ASSERT_FALSE(spy.isEmpty());
     ASSERT_EQ(spy.takeFirst().at(0).toInt(), QMediaPlayer::LoadedMedia);
-    dut.set_position(12500);
     dut.play();
     spy_playing.wait(200);
     ASSERT_EQ(
         spy_playing.takeFirst().at(0).toInt(), QMediaPlayer::PlayingState);
-    dut.pause();
+    ASSERT_TRUE(remote_audio->is_seekable()); // playing, should be seekable
+    dut.stop();
     spy_playing.wait(200);
-    ASSERT_EQ(spy_playing.takeFirst().at(0).toInt(), QMediaPlayer::PausedState);
-    EXPECT_GE(dut.get_position(), 12500);
-    dut.play();
-    spy_playing.wait(200);
-    ASSERT_EQ(
-        spy_playing.takeFirst().at(0).toInt(), QMediaPlayer::PlayingState);
-    EXPECT_GT(dut.get_position(), 12500);
+    ASSERT_EQ(spy_playing.takeFirst().at(0).toInt(), QMediaPlayer::StoppedState);
+    EXPECT_GE(remote_audio->get_position(), 10000);
+}
+/*****************************************************************************/
 }
 /*****************************************************************************/
