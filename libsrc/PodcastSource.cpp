@@ -302,9 +302,7 @@ std::shared_ptr<PodcastSource> PodcastSource::from_json_object(
     if (!url.isValid()) {
         throw std::invalid_argument("invalid URL for podcast");
     }
-
     auto ps = std::make_shared<PodcastSource>(url, uid);
-
     auto title = json[KEY_TITLE].toString();
     auto desc = json[KEY_DESCRIPTION].toString();
     auto img_url = json[KEY_ICON_URL].toString();
@@ -312,7 +310,7 @@ std::shared_ptr<PodcastSource> PodcastSource::from_json_object(
     ps->set_title(title);
     ps->set_description(desc);
     ps->set_image_url(img_url);
-
+    ps->set_image_file_path(img_cached);
     ps->set_update_interval(
         std::chrono::seconds(json[KEY_UPDATE_INTERVAL].toInt(3600)));
     ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
