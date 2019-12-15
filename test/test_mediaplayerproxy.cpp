@@ -214,6 +214,7 @@ TEST_F(PlayerFixture, checkErrorStates) {
     EXPECT_EQ(signal_params.at(0).toInt(), QMediaPlayer::NoMedia);
     EXPECT_EQ(dut.error(), QMediaPlayer::NoMedia);
 }
+
 /*****************************************************************************/
 TEST_F(PlayerFixture, setPositionRemote) {
     remote_audio->set_position(10000);
