@@ -20,84 +20,75 @@
 #include <QMediaMetaData>
 using namespace DigitalRooster;
 
-static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.MediaPlayerProxy")
-;
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.MediaPlayerProxy");
 
-/***********************************************************************/
+/****************************************************************************/
+MediaPlayerProxy::MediaPlayerProxy()
+    : backend(std::make_unique<QMediaPlayer>()) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    QObject::connect(backend.get(), &QMediaPlayer::mediaChanged,
+        [=](const QMediaContent& media) {
+            qCDebug(CLASS_LC) << "MediaPlayerProxy media_changed()";
+            /*
+             * We know nothing of new media, assume it is not seekable
+             * otherwise we might overwrite/lose saved position
+             */
+            current_item->set_seekable(false);
+            emit media_changed(media);
+        });
 
-MediaPlayerProxy::MediaPlayerProxy() :
-		backend(std::make_unique<QMediaPlayer>()) {
-	qCDebug(CLASS_LC)
-	<< Q_FUNC_INFO;
-	QObject::connect(backend.get(), &QMediaPlayer::mediaChanged,
-			[=](const QMediaContent &media) {
-				qCDebug(CLASS_LC)
-				<< "MediaPlayerProxy media_changed()";
-				/*
-				 * We know nothing of new media, assume it is not seekable
-				 * otherwise we might overwrite/lose saved position
-				 */
-				current_item->set_seekable(false);
-				emit media_changed(media);
-			});
+    QObject::connect(
+        backend.get(), &QMediaPlayer::positionChanged, [=](qint64 position) {
+            qCDebug(CLASS_LC)
+                << "MediaPlayerProxy position_changed()" << position;
+            emit position_changed(position);
+            /** Only update position of seekable media */
+            if (current_item.get() != nullptr && current_item->is_seekable()) {
+                current_item->set_position(position);
+            }
+        });
 
-	QObject::connect(backend.get(), &QMediaPlayer::positionChanged,
-			[=](qint64 position) {
-				qCDebug(CLASS_LC)
-				<< "MediaPlayerProxy position_changed()" << position;
-				emit position_changed(position);
-				/** Only update position of seekable media */
-				if (current_item.get() != nullptr
-						&& current_item->is_seekable()) {
-					current_item->set_position(position);
-				}
-			});
+    QObject::connect(backend.get(),
+        static_cast<void (QMediaPlayer::*)(QMediaPlayer::Error)>(
+            &QMediaPlayer::error),
+        [=](QMediaPlayer::Error err) {
+            qCWarning(CLASS_LC) << "MediaPlayerProxy Error" << err;
+            emit error(err);
+        });
 
-	QObject::connect(backend.get(),
-			static_cast<void (QMediaPlayer::*)(QMediaPlayer::Error)>(&QMediaPlayer::error),
-			[=](QMediaPlayer::Error err) {
-				qCWarning(CLASS_LC)
-				<< "MediaPlayerProxy Error" << err;
-				emit error(err);
-			});
+    QObject::connect(backend.get(), &QMediaPlayer::mutedChanged,
+        [=](bool muted) { emit muted_changed(muted); });
 
-	QObject::connect(backend.get(), &QMediaPlayer::mutedChanged,
-			[=](bool muted) {
-				emit muted_changed(muted);
-			});
+    QObject::connect(backend.get(), &QMediaPlayer::stateChanged,
+        [=](QMediaPlayer::State state) {
+            qCDebug(CLASS_LC)
+                << "MediaPlayerProxy playback_state_changed()" << state;
 
-	QObject::connect(backend.get(), &QMediaPlayer::stateChanged,
-			[=](QMediaPlayer::State state) {
-				qCDebug(CLASS_LC)
-				<< "MediaPlayerProxy playback_state_changed()" << state;
+            emit playback_state_changed(state);
+        });
 
-				emit playback_state_changed(state);
-			});
+    QObject::connect(backend.get(), &QMediaPlayer::durationChanged,
+        [=](qint64 duration) { emit duration_changed(duration); });
 
-	QObject::connect(backend.get(), &QMediaPlayer::durationChanged,
-			[=](qint64 duration) {
-				emit duration_changed(duration);
-			});
+    QObject::connect(
+        backend.get(), &QMediaPlayer::seekableChanged, [=](bool seekable) {
+            qCDebug(CLASS_LC)
+                << "MediaPlayerProxy seekable_changed()" << seekable;
+            current_item->set_seekable(seekable);
+            emit seekable_changed(seekable);
+            /* jump to previously saved position once we know we can seek */
+            if (current_item->is_seekable()) {
+                /* update backend position */
+                set_position(current_item->get_position());
+            }
+        });
 
-	QObject::connect(backend.get(), &QMediaPlayer::seekableChanged,
-			[=](bool seekable) {
-				qCDebug(CLASS_LC)
-				<< "MediaPlayerProxy seekable_changed()" << seekable;
-				current_item->set_seekable(seekable);
-				emit seekable_changed(seekable);
-				/* jump to previously saved position once we know we can seek */
-				if(current_item->is_seekable()){
-					/* update backend position */
-					set_position(current_item->get_position());
-				}
-		});
-
-	QObject::connect(backend.get(), &QMediaPlayer::mediaStatusChanged,
-			[=](QMediaPlayer::MediaStatus status) {
-				qCDebug(CLASS_LC)
-				<< "MediaPlayerProxy media_status_changed()" << status;
-				emit media_status_changed(status);
-			});
+    QObject::connect(backend.get(), &QMediaPlayer::mediaStatusChanged,
+        [=](QMediaPlayer::MediaStatus status) {
+            qCDebug(CLASS_LC)
+                << "MediaPlayerProxy media_status_changed()" << status;
+            emit media_status_changed(status);
+        });
 
     QObject::connect(backend.get(), &QMediaPlayer::metaDataAvailableChanged,
         [=](bool available) {
@@ -110,7 +101,7 @@ MediaPlayerProxy::MediaPlayerProxy() :
 
                 qCDebug(CLASS_LC)
                     << "\n\tTitle:" << title << "\n\tPublisher:" << publisher
-                    << "\n\tAlbumArtist:"
+                    << "\n\tPublisher:" << publisher << "\n\tAlbumArtist:"
                     << backend->metaData(QMediaMetaData::AlbumArtist).toString()
                     << "\n\tAuthor:"
                     << backend->metaData(QMediaMetaData::Author).toString()
