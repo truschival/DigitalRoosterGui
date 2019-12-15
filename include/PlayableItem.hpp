@@ -87,6 +87,16 @@ public:
     virtual void set_position(qint64 newVal);
 
     /**
+     * Mark as seekable: position can be updated
+     */
+    void set_seekable(bool seek){
+    	seekable = seek;
+    }
+    bool is_seekable() const{
+    	return seekable;
+    };
+
+    /**
      * Title for Playable item
      * @return title
      */
@@ -150,6 +160,9 @@ private:
 
     /** Current position in stream */
     qint64 position = 0;
+
+    /** Can ressource positon be set ?*/
+    bool seekable{false};
 
 protected:
     /**
