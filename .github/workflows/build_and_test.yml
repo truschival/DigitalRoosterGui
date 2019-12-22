@@ -5,7 +5,7 @@ on:
       - develop
       - master
       - 'features/**'
-    branches_ignore:
+    branches-ignore:
       - 'test*'
   pull_request:
     branches:
@@ -58,7 +58,7 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: tests.log
-        path: $BUILD_DIR_HOST/Digitalrooster_tests.log
+        path: /tmp/build/Digitalrooster_tests.log
     - name: Collect coverage
       run: >
         docker exec -w $BUILD_DIR build_container
