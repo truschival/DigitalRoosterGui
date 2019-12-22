@@ -33,8 +33,8 @@ public:
                   QUrl::fromLocalFile(TEST_FILE_PATH + "/testaudio.mp3")))
         , remote_audio(
               std::make_shared<DigitalRooster::PodcastEpisode>("Remote",
-                  QUrl("http://www.ruschival.de/wp-content/uploads/2019/12/"
-                       "sample-128k.mp3"))) {
+                  QUrl("https://github.com/truschival/DigitalRoosterGui/raw/"
+                       "develop/test/testaudio.mp3"))) {
     }
 
 protected:
@@ -221,7 +221,9 @@ TEST_F(PlayerFixture, setPositionRemote) {
         &dut, SIGNAL(media_status_changed(QMediaPlayer::MediaStatus)));
     QSignalSpy spy_playing(
         &dut, SIGNAL(playback_state_changed(QMediaPlayer::State)));
+    QSignalSpy spy_seekable(&dut, SIGNAL(seekable_changed(bool)));
     ASSERT_TRUE(spy.isValid());
+    ASSERT_TRUE(spy_seekable.isValid());
     ASSERT_TRUE(spy_playing.isValid());
 
     dut.set_media(remote_audio);
@@ -236,16 +238,12 @@ TEST_F(PlayerFixture, setPositionRemote) {
     spy_playing.wait(200);
     ASSERT_EQ(
         spy_playing.takeFirst().at(0).toInt(), QMediaPlayer::PlayingState);
-    dut.pause();
-    spy_playing.wait(200);
-    dut.play();
-    spy_playing.wait(200);
-    spy_playing.wait(200); // just to make sure we have enought time to load media
-        ASSERT_TRUE(remote_audio->is_seekable()); // playing, should be seekable
+    spy_seekable.wait(100);
+    spy_seekable.wait(400);
+    ASSERT_GE(spy_seekable.count(), 1);
+    ASSERT_TRUE(remote_audio->is_seekable()); // playing, should be seekable
     dut.stop();
-    spy_playing.wait(200);
-    ASSERT_EQ(
-        spy_playing.takeFirst().at(0).toInt(), QMediaPlayer::StoppedState);
+    spy_playing.wait(100);
     EXPECT_GE(remote_audio->get_position(), 10000);
 }
 /*****************************************************************************/
