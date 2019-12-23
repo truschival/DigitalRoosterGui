@@ -217,23 +217,25 @@ TEST_F(PlayerFixture, checkErrorStates) {
 /*****************************************************************************/
 TEST_F(PlayerFixture, setPositionRemote) {
     remote_audio->set_position(10000);
-    QSignalSpy spy(
+    QSignalSpy spy_status(
         &dut, SIGNAL(media_status_changed(QMediaPlayer::MediaStatus)));
     QSignalSpy spy_playing(
         &dut, SIGNAL(playback_state_changed(QMediaPlayer::State)));
     QSignalSpy spy_seekable(&dut, SIGNAL(seekable_changed(bool)));
-    ASSERT_TRUE(spy.isValid());
+    ASSERT_TRUE(spy_status.isValid());
     ASSERT_TRUE(spy_seekable.isValid());
     ASSERT_TRUE(spy_playing.isValid());
 
     dut.set_media(remote_audio);
     ASSERT_FALSE(remote_audio->is_seekable()); // not seekable
-    spy.wait(500);
-    ASSERT_FALSE(spy.isEmpty());
-    ASSERT_EQ(spy.takeFirst().at(0).toInt(), QMediaPlayer::LoadingMedia);
-    spy.wait(500);
-    ASSERT_FALSE(spy.isEmpty());
-    ASSERT_EQ(spy.takeFirst().at(0).toInt(), QMediaPlayer::LoadedMedia);
+    /* normal media-loading cycle: loading->loaded */
+    spy_status.wait(600);
+    ASSERT_FALSE(spy_status.isEmpty());
+    ASSERT_EQ(spy_status.takeFirst().at(0).toInt(), QMediaPlayer::LoadingMedia);
+    spy_status.wait(1000);
+    ASSERT_FALSE(spy_status.isEmpty());
+    ASSERT_EQ(spy_status.takeFirst().at(0).toInt(), QMediaPlayer::LoadedMedia);
+    /* now start playing */
     dut.play();
     spy_playing.wait(200);
     ASSERT_EQ(
@@ -242,8 +244,15 @@ TEST_F(PlayerFixture, setPositionRemote) {
     spy_seekable.wait(400);
     ASSERT_GE(spy_seekable.count(), 1);
     ASSERT_TRUE(remote_audio->is_seekable()); // playing, should be seekable
+    dut.pause();
+    spy_playing.wait(100);
+    /* Media position should not have been reset to < 10000 when media was not
+     * available */
+    EXPECT_GE(remote_audio->get_position(), 10000);
     dut.stop();
     spy_playing.wait(100);
+    /* Media position should not have been reset to < 10000 when media was not
+     * available */
     EXPECT_GE(remote_audio->get_position(), 10000);
 }
 /*****************************************************************************/

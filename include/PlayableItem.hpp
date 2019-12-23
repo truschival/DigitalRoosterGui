@@ -87,13 +87,12 @@ public:
     virtual void set_position(qint64 newVal);
 
     /**
-     * Mark as seekable: position can be updated
+     * Mark as seekable: position can arbitrarily set
+     * property of media, assinged by QMediaPlayer
      */
-    void set_seekable(bool seek){
-    	seekable = seek;
-    }
-    bool is_seekable() const{
-    	return seekable;
+    void set_seekable(bool seek);
+    bool is_seekable() const {
+        return seekable;
     };
 
     /**
@@ -161,7 +160,7 @@ private:
     /** Current position in stream */
     qint64 position = 0;
 
-    /** Can ressource positon be set ?*/
+    /** Media itself is seekable (not a stream)*/
     bool seekable{false};
 
 protected:

@@ -35,6 +35,17 @@ public:
     MediaPlayerProxy(const MediaPlayerProxy& rhs) = delete;
     MediaPlayerProxy& operator=(const MediaPlayerProxy& rhs) = delete;
 
+    /**
+     * Enable/Disable updates of position
+     * QMediaPlayer stop for instance resets the media position to 0
+     * before anything else in which case we lose the previous position.
+     * @param enable
+     */
+    void enable_position_update(bool enable);
+    bool is_position_updateable() const {
+        return position_updateable;
+    }
+
 private:
     virtual bool is_seekable() const override;
     virtual bool is_muted() const;
@@ -56,6 +67,12 @@ private:
     virtual void do_play() override;
     virtual void do_stop() override;
 
+    /**
+     * Position should be updated periodically
+     * fixes the unwanted behavior that QMediaPlayer emits a postionChanged() to 0
+     * before anything else when stop is called
+     */
+    bool position_updateable{false};
     /**
      * Linear volume 0..100%
      * Initialized because increment/decrement has to work with some value

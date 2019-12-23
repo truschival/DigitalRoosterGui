@@ -81,6 +81,14 @@ QString PlayableItem::do_get_display_name() const {
 }
 
 /***********************************************************************/
+void PlayableItem::set_seekable(bool seek) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << seek;
+    seekable = seek;
+}
+
+
+
+/***********************************************************************/
 QString PodcastEpisode::do_get_display_name() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto publisher = get_publisher();
