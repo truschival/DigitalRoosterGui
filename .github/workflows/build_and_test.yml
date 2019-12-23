@@ -5,8 +5,6 @@ on:
       - develop
       - master
       - 'features/**'
-    branches_ignore:
-      - 'test*'
   pull_request:
     branches:
       - develop
@@ -53,6 +51,12 @@ jobs:
       run: docker exec build_container cmake --build $BUILD_DIR --parallel
     - name: Run tests
       run: docker exec -w $BUILD_DIR build_container  bin/DigitalRooster_gtest
+    - name: Upload test results
+      if: failure()
+      uses: actions/upload-artifact@v1
+      with:
+        name: tests.log
+        path: /tmp/build/Digitalrooster_tests.log
     - name: Collect coverage
       run: >
         docker exec -w $BUILD_DIR build_container
