@@ -12,6 +12,9 @@ SET(COMPONENT_PATH ${LIBRARY_NAME})
 # Check if Pistache is installed
 find_package(Pistache)
 
+# QT5 Components used in library
+find_package(Qt5 COMPONENTS Core  Network REQUIRED)
+
 # Threading library for gtest
 # Use ${CMAKE_THREAD_LIBS_INIT} for the library
 find_package(Threads REQUIRED)
@@ -75,7 +78,7 @@ endif(NOT PISTACHE_found)
 # Input sources
 #-------------------------------------------------------------------------------
 SET(SRCS
-  ${CMAKE_CURRENT_SOURCE_DIR}/rest_adapter.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/RestAdapter.cpp
   ) 
 
 #------------------------------
@@ -109,8 +112,13 @@ TARGET_COMPILE_OPTIONS(${COMPONENT_NAME}
   )
 
 TARGET_LINK_LIBRARIES(${COMPONENT_NAME}
+  	PUBLIC
+ 	Qt5::Core
+ 	Qt5::Network
+ 	${CMAKE_THREAD_LIBS_INIT}
     PRIVATE
     pistache
+    ${CMAKE_THREAD_LIBS_INIT}
     )
 #-----
 # Install

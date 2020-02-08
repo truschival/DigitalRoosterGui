@@ -6,6 +6,7 @@ set(COMPONENT_NAME ${BINARY_NAME})
 # Interface/binary version
 SET(COMPONENT_VERSION ${PROJECT_VERSION})
 
+find_package(pistache)
 # Gui has extra QT dependencies: QML and QTquick
 find_package(Qt5 COMPONENTS Qml Quick REQUIRED)
 #Find includes in corresponding build directories
@@ -95,6 +96,7 @@ TARGET_LINK_LIBRARIES(${COMPONENT_NAME}
   ${PROJECT_CORE_LIB}
   Qt5::Quick
   Qt5::Qml
+  pistache
   ${CUSTOM_LINK_FLAGS}
   )
 
