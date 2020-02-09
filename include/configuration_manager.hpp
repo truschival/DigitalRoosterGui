@@ -24,15 +24,26 @@
 #include "PodcastSource.hpp"
 #include "alarm.hpp"
 #include "appconstants.hpp"
-#include "weather.hpp"
+
+/* Implemented Interfaces */
+#include "IAlarmStore.hpp"
+#include "IBrightnessStore.hpp"
+#include "IPodcastStore.hpp"
+#include "IStationStore.hpp"
+#include "ITimeoutStore.hpp"
+#include "IWeatherConfigStore.hpp"
 
 namespace DigitalRooster {
-
-
 /**
- * Reads JSON configuration
+ * Reads JSON configuration and provides API to configuration objects
  */
-class ConfigurationManager : public QObject {
+class ConfigurationManager : public QObject,
+                             public IAlarmStore,
+                             public IStationStore,
+                             public IPodcastStore,
+                             public ITimeOutStore,
+                             public IBrightnessStore,
+                             public IWeatherConfigStore {
     Q_OBJECT
     Q_PROPERTY(QString revision READ get_revision CONSTANT)
     Q_PROPERTY(QString buildtime READ get_build CONSTANT)
@@ -77,108 +88,54 @@ public:
         return do_get_volume();
     }
 
-    /**
-     * User set and stored brightness for standby mode (form config file)
-     * @return brightness
+    /*
+     * Implementation of IAlarmStore
      */
-    int get_standby_brightness() const {
-        return do_get_brightness_sb();
-    }
+    void add_alarm(std::shared_ptr<Alarm> alarm) override;
+    void delete_alarm(const QUuid& id) override;
+    const Alarm* get_alarm(const QUuid& id) const override;
+    const QVector<std::shared_ptr<Alarm>>& get_alarms() const override;
 
-    /**
-     * User set and stored brightness for standby mode (form config file)
-     * @return brightness
+    /*
+     * Implementation of IStationStore
      */
-    int get_active_brightness() const {
-        return do_get_brightness_act();
-    }
+    virtual void add_radio_station(std::shared_ptr<PlayableItem> src) override;
+    virtual void delete_radio_station(const QUuid& id) override;
+    const PlayableItem* get_station(const QUuid& id) const override;
+    virtual const QVector<std::shared_ptr<PlayableItem>>&
+    get_stations() const override;
 
-    /**
-     * get all radio stream sources
+    /*
+     * Implementation of IPodcastStore
      */
-    const QVector<std::shared_ptr<PlayableItem>>& get_stream_sources() {
-        return get_iradio_list();
-    }
+    virtual void add_podcast_source(
+        std::shared_ptr<PodcastSource> podcast) override;
+    virtual void delete_podcast_source(const QUuid& id) override;
+    virtual const PodcastSource* get_podcast_source(
+        const QUuid& id) const override;
+    virtual const QVector<std::shared_ptr<PodcastSource>>&
+    get_podcast_sources() const override;
+    virtual PodcastSource* get_podcast_source_by_index(
+        int index) const override;
+    virtual void remove_podcast_source_by_index(int index) override;
 
-    /**
-     * Get a internet radio station identified by ID
-     * @throws 	 std::out_of_range if not found
-     * @param id unique ID of podcast
-     * @return station
+    /*
+     * Implementation of ITimeoutStore
      */
-    const PlayableItem* get_stream_source(const QUuid& id) const;
+    virtual std::chrono::minutes get_alarm_timeout() const override;
+    virtual std::chrono::minutes get_sleep_timeout() const override;
+    virtual void set_sleep_timeout(std::chrono::minutes timeout) override;
 
-    /**
-     * get all podcast sources
+    /*
+     * Implementation of IBrightnessStore
      */
-    const QVector<std::shared_ptr<PodcastSource>>& get_podcast_sources() {
-        return get_podcast_list();
-    }
+    virtual int get_standby_brightness() const override;
+    virtual int get_active_brightness() const override;
 
-    /**
-     * Get a single podcast source identified by index
-     * @throws 	 std::out_of_range if not found
-     * @param index in vector
-     * @return PodastSource
+    /*
+     * Implementation of IWeatherConfigStore
      */
-    PodcastSource* get_podcast_source_by_index(int index) const;
-
-    /**
-     * Get a single podcast source identified by ID
-     * @throws 	 std::out_of_range if not found
-     * @param id unique ID of podcast
-     * @return source
-     */
-    const PodcastSource* get_podcast_source(const QUuid& id) const;
-
-    /**
-     * Removes a podcast source entry form list
-     * @throws 	 std::out_of_range if not found
-     * @param index in vector
-     */
-    void remove_podcast_source_by_index(int index);
-
-    /**
-     * get all radio stream sources
-     */
-    const QVector<std::shared_ptr<Alarm>>& get_alarms() {
-        return get_alarm_list();
-    }
-
-    /**
-     * Get a alarm identified by ID
-     * @throws 	 std::out_of_range if not found
-     * @param id unique ID of podcast
-     * @return station
-     */
-    const Alarm* get_alarm(const QUuid& id) const;
-
-    /**
-     * Weather configuration object
-     */
-    const WeatherConfig* get_weather_config() {
-        return get_weather_cfg();
-    }
-
-    /**
-     * Access configuration when Alarm should stop automatically
-     * @return default alarm timeout
-     */
-    virtual std::chrono::minutes get_alarm_timeout() const {
-        return global_alarm_timeout;
-    }
-
-    /**
-     * Minutes after which DigitalRooster goes in standby
-     * @return \ref sleep_timeout
-     */
-    virtual std::chrono::minutes get_sleep_timeout() const;
-
-    /**
-     * Update sleep timeout Minutes after which DigitalRooster goes in standby
-     * @param timeout \ref sleep_timeout
-     */
-    void set_sleep_timeout(std::chrono::minutes timeout);
+    virtual const WeatherConfig& get_weather_config() const override;
 
     /**
      * Path to wpa_supplicant control socket
@@ -200,45 +157,6 @@ public:
         return get_cache_dir_name();
     };
 
-    /**
-     * Append the radio stream to list - duplicates will not be checked
-     * @param src the new stream source - we take ownership
-     */
-    void add_radio_station(std::shared_ptr<PlayableItem> src);
-
-    /**
-     * Append new PodcastSource to list
-     * @param podcast source
-     */
-    void add_podcast_source(std::shared_ptr<PodcastSource> podcast);
-
-    /**
-     * Append new alarm to list
-     * @param alarm
-     */
-    void add_alarm(std::shared_ptr<Alarm> alarm);
-
-    /**
-     * Delete an alarm identified by ID from the list of alarms
-     * @param id of alarm
-     * @throws 	 std::out_of_range if not found
-     */
-    void delete_alarm(const QUuid& id);
-
-    /**
-     * Delete a internet radio station identified by id form the list
-     * @param id unique id of radio station
-     * @throws 	 std::out_of_range if not found
-     */
-    void delete_radio_station(const QUuid& id);
-
-    /**
-     * Delete a podcast source identified by id form the list of sources
-     * @param id unique id of podcast source
-     * @throws 	 std::out_of_range if not found
-     */
-    void delete_podcast_source(const QUuid& id);
-
 public slots:
     /**
      * Any Item (Alarm, PodcastSource...) changed
@@ -256,13 +174,13 @@ public slots:
      * user changed standby brightness
      * @param brightness new volume settings (0..100)
      */
-    void set_standby_brightness(int brightness);
+    void set_standby_brightness(int brightness) override;
 
     /**
      * user changed standby brightness
      * @param brightness new volume settings (0..100)
      */
-    void set_active_brightness(int brightness);
+    void set_active_brightness(int brightness) override;
 
     /**
      * Write memory config to file - will overwrite changes in file
@@ -289,10 +207,12 @@ signals:
      * podcast list was changed (added/deleted items)
      */
     void podcast_sources_changed();
+
     /**
      * alarm list was changed (added/deleted items)
      */
     void alarms_changed();
+
     /**
      * radio list was changed (added/deleted items)
      */
@@ -350,7 +270,7 @@ private:
     /**
      * Weather configuration
      */
-    std::unique_ptr<WeatherConfig> weather_cfg;
+    WeatherConfig weather_cfg;
 
     /**
      * Configuration directory, writable, created if it doesn't exist
@@ -432,34 +352,6 @@ private:
      * Update all configuration items
      */
     void refresh_configuration();
-
-    /**
-     * get all radio stream sources
-     */
-    virtual QVector<std::shared_ptr<PlayableItem>>& get_iradio_list() {
-        return stream_sources;
-    }
-
-    /**
-     * get all podcast sources
-     */
-    virtual QVector<std::shared_ptr<PodcastSource>>& get_podcast_list() {
-        return podcast_sources;
-    }
-
-    /**
-     * get all radio stream sources
-     */
-    virtual QVector<std::shared_ptr<Alarm>>& get_alarm_list() {
-        return alarms;
-    }
-
-    /**
-     * Weather configuration object
-     */
-    virtual const WeatherConfig* get_weather_cfg() {
-        return weather_cfg.get();
-    }
 
     /**
      * Private virtual interface for brightness settings

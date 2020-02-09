@@ -18,7 +18,6 @@
 
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
-#include "configuration_manager.hpp"
 #include "mediaplayerproxy.hpp"
 #include "timeprovider.hpp"
 
@@ -30,9 +29,9 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.AlarmDispatcher");
 /*****************************************************************************/
 
 AlarmDispatcher::AlarmDispatcher(
-    std::shared_ptr<ConfigurationManager> confman, QObject* parent)
+    IAlarmStore& store, QObject* parent)
     : QObject(parent)
-    , cm(confman)
+    , cm(store)
     , interval(std::chrono::seconds(30)) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     interval_timer.setInterval(duration_cast<milliseconds>(interval));
@@ -46,15 +45,15 @@ void AlarmDispatcher::check_alarms() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto now = wallclock->now();
     auto dow = now.date().dayOfWeek();
-    for (const auto& alarm : cm->get_alarms()) {
+    for (const auto& alarm : cm.get_alarms()) {
         /* skip if alarm is disabled */
         if (!alarm->is_enabled()) {
-            continue; 
-		}
-        /* 
-		 * skip if now is not near the alarm_time, i.e. less than interval
-		 * delta is negative if alarm_time is in the past 
-		 */
+            continue;
+        }
+        /*
+         * skip if now is not near the alarm_time, i.e. less than interval
+         * delta is negative if alarm_time is in the past
+         */
         auto delta = now.time().secsTo(alarm->get_time());
         if (delta < 0 || delta > interval.count()) {
             continue;

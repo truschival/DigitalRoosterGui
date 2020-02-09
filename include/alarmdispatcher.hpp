@@ -19,10 +19,10 @@
 #include <memory>
 
 #include "alarm.hpp"
+#include "IAlarmStore.hpp"
 #include "mediaplayerproxy.hpp"
 
 namespace DigitalRooster {
-class ConfigurationManager;
 
 /**
  * Monitors changes in alarm configuration and dispatches alarms when due
@@ -32,10 +32,10 @@ class AlarmDispatcher : public QObject {
 public:
     /**
      * Constructor for AlarmDispatcher
-     * @param confman
-     * @param parent
+     * @param store Interface to get/update/delete alarms
+     * @param parent QObject hierarchy manage lifetime
      */
-    AlarmDispatcher(std::shared_ptr<ConfigurationManager> confman,
+    AlarmDispatcher(IAlarmStore& store,
         QObject* parent = nullptr);
 
     /**
@@ -72,7 +72,7 @@ private:
     /**
      * Central configuration and data handler
      */
-    std::shared_ptr<ConfigurationManager> cm;
+    IAlarmStore& cm;
     /**
      * Timer for periodic polling
      */

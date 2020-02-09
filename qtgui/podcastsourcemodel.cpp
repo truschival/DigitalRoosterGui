@@ -8,7 +8,7 @@
  * \copyright 2018 Thomas Ruschival <thomas@ruschival.de>
  * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
  * 			  SPDX-License-Identifier: GPL-3.0-or-later
-******************************************************************************/
+ ******************************************************************************/
 #include <QByteArray>
 #include <QDebug>
 #include <QHash>
@@ -16,7 +16,6 @@
 
 
 #include "PodcastSource.hpp"
-#include "configuration_manager.hpp"
 #include "mediaplayerproxy.hpp"
 #include "podcastepisodemodel.hpp"
 #include "podcastsourcemodel.hpp"
@@ -27,10 +26,10 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.PodcastSourceModel");
 
 /*****************************************************************************/
 PodcastSourceModel::PodcastSourceModel(
-    std::shared_ptr<ConfigurationManager> confman,
+    std::shared_ptr<DigitalRooster::IPodcastStore> store,
     std::shared_ptr<MediaPlayerProxy> pp, QObject* parent)
     : QAbstractListModel(parent)
-    , cm(confman)
+    , cm(store)
     , mpp(pp) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto v = cm->get_podcast_sources();
@@ -92,8 +91,8 @@ QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
     case DisplayCountRole:
         return ps->get_episodes().size();
     case DescriptionRole:
-    	desc = ps->get_description();
-    	desc.remove(QRegExp("<[^>]*>")); //Strip HTML tags
+        desc = ps->get_description();
+        desc.remove(QRegExp("<[^>]*>")); // Strip HTML tags
         return QVariant(desc);
     case ImageRole:
         return ps->get_icon();

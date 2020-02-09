@@ -11,25 +11,21 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  ******************************************************************************/
 #include <QByteArray>
-#include <QDebug>
 #include <QHash>
+#include <QLoggingCategory>
 #include <QQmlEngine>
 
 #include "alarm.hpp"
 #include "alarmlistmodel.hpp"
-#include "configuration_manager.hpp"
 
 using namespace DigitalRooster;
 
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.AlarmListModel");
 
 /******************************************************************************/
-
-AlarmListModel::AlarmListModel(
-    std::shared_ptr<DigitalRooster::ConfigurationManager> confman,
-    QObject* parent)
+AlarmListModel::AlarmListModel(std::shared_ptr<IAlarmStore>, QObject* parent)
     : QAbstractListModel(parent)
-    , cm(confman) {
+    , cm(store) {
 }
 
 /******************************************************************************/
@@ -40,7 +36,6 @@ AlarmListModel::AlarmListModel(QObject* parent)
 }
 
 /******************************************************************************/
-
 QHash<int, QByteArray> AlarmListModel::roleNames() const {
     QHash<int, QByteArray> roles;
 
@@ -51,8 +46,8 @@ QHash<int, QByteArray> AlarmListModel::roleNames() const {
     roles[EnabledRole] = "alarmEnabled";
     return roles;
 }
-/******************************************************************************/
 
+/******************************************************************************/
 int AlarmListModel::rowCount(const QModelIndex& /*parent */) const {
     if (cm->get_alarms().size() <= 0) {
         qWarning() << " alarms configured ";
@@ -122,10 +117,10 @@ void AlarmListModel::update_row(int row) {
 /*****************************************************************************/
 
 bool AlarmListModel::removeRows(
-        int row, int count, const QModelIndex& /*parent */){
-	 qCWarning(CLASS_LC) << Q_FUNC_INFO << "is not implemented!";
-	//cm->delete_alarm(id);
-	return true;
+    int row, int count, const QModelIndex& /*parent */) {
+    qCWarning(CLASS_LC) << Q_FUNC_INFO << "is not implemented!";
+    // cm->delete_alarm(id);
+    return true;
 }
 
 /*****************************************************************************/
@@ -148,8 +143,10 @@ int AlarmListModel::delete_alarm(qint64 row) {
 DigitalRooster::Alarm* AlarmListModel::create_alarm() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto new_alarm = std::make_shared<Alarm>();
-    new_alarm->set_media(cm->get_stream_sources().at(0));
-    new_alarm->set_time(QTime::fromString("06:30","hh:mm"));
+    // TODO: Can we do without access to streamsources?
+    // new_alarm->set_media(cm->get_stream_sources().at(0));
+
+    new_alarm->set_time(QTime::fromString("06:30", "hh:mm"));
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     QQmlEngine::setObjectOwnership(new_alarm.get(), QQmlEngine::CppOwnership);
     cm->add_alarm(new_alarm);

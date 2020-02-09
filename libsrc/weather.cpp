@@ -17,7 +17,7 @@
 #include <memory>
 #include <stdexcept> // std::system_error
 
-#include "configuration_manager.hpp"
+#include "IWeatherConfigStore.hpp"
 #include "weather.hpp"
 
 using namespace DigitalRooster;
@@ -27,8 +27,8 @@ using namespace std::chrono;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.Weather");
 
 /*****************************************************************************/
-Weather::Weather(std::shared_ptr<ConfigurationManager> confman, QObject* parent)
-    : cm(confman) {
+Weather::Weather(const IWeatherConfigStore& store, QObject* parent)
+    : cm(store) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     // timer starts refresh, refresh calls downloader
     connect(&timer, SIGNAL(timeout()), this, SLOT(refresh()));
@@ -39,7 +39,7 @@ Weather::Weather(std::shared_ptr<ConfigurationManager> confman, QObject* parent)
     timer.setInterval(duration_cast<milliseconds>(update_interval));
     timer.setSingleShot(false);
     timer.start();
-    downloader.doDownload(create_weather_uri(cm->get_weather_config()));
+    downloader.doDownload(create_weather_uri(cm.get_weather_config()));
 }
 
 /*****************************************************************************/
@@ -59,7 +59,7 @@ std::chrono::seconds Weather::get_update_interval() const {
 /*****************************************************************************/
 void Weather::refresh() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    downloader.doDownload(create_weather_uri(cm->get_weather_config()));
+    downloader.doDownload(create_weather_uri(cm.get_weather_config()));
 }
 
 /*****************************************************************************/
@@ -79,15 +79,15 @@ void Weather::parse_response(QByteArray content) {
 }
 /*****************************************************************************/
 
-QUrl DigitalRooster::create_weather_uri(const WeatherConfig* cfg) {
+QUrl DigitalRooster::create_weather_uri(const WeatherConfig& cfg) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QString request_str({"http://api.openweathermap.org/data/2.5/weather?"});
     request_str.reserve(512);
     request_str += "id=";
-    request_str += cfg->get_location_id();
+    request_str += cfg.get_location_id();
     request_str += "&units=metric";
     request_str += "&appid=";
-    request_str += cfg->get_api_token();
+    request_str += cfg.get_api_token();
     request_str += "&lang=en"; //default english
     return QUrl(request_str);
 }
@@ -142,7 +142,7 @@ QJsonObject WeatherConfig::to_json_object() const{
 }
 
 /*****************************************************************************/
-std::unique_ptr<WeatherConfig> WeatherConfig::from_json_object(const QJsonObject& json) {
+WeatherConfig WeatherConfig::from_json_object(const QJsonObject& json) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (json[KEY_WEATHER_LOCATION_ID].toString().isEmpty()) {
         throw std::invalid_argument("Json Weather has no location id");
@@ -153,7 +153,7 @@ std::unique_ptr<WeatherConfig> WeatherConfig::from_json_object(const QJsonObject
     auto interval =
         std::chrono::seconds(json[KEY_UPDATE_INTERVAL].toInt(3600LL));
 
-    return std::make_unique<WeatherConfig>(json[KEY_WEATHER_API_KEY].toString(),
+    return WeatherConfig(json[KEY_WEATHER_API_KEY].toString(),
         json[KEY_WEATHER_LOCATION_ID].toString(), interval);
 }
 /*****************************************************************************/

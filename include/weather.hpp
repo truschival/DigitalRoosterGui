@@ -22,74 +22,11 @@
 #include <chrono>
 #include <httpclient.hpp>
 
+#include "IWeatherConfigStore.hpp"
 
 namespace DigitalRooster {
 
 class ConfigurationManager;
-/**
- * Configuration of weather source as found in application config file
- * read by ConfigurationManager \ref ConfigurationManager::get_weather_cfg
- */
-class WeatherConfig {
-public:
-    /**
-     * Constructor with 'relevant' information
-     * @param token
-     * @param cityid
-     * @param interval 1hour
-     */
-    WeatherConfig(
-        const QString& token =QString() ,
-        const QString& cityid =QString() ,
-        const std::chrono::seconds& interval = std::chrono::seconds(3600));
-
-    /**
-     * create Weatherconfig form Json configuration
-     * @param json jobject
-     * @return
-     */
-    static std::unique_ptr<WeatherConfig> from_json_object(const QJsonObject& json);
-    /**
-     * Serialize as JSON Object - only contains information that is not
-     * updated through RSS feed and cached.
-     * @return QJsonObject
-     */
-    QJsonObject to_json_object() const;
-
-    /**
-     * Openweather City id / location id
-     * @return \ref location_id
-     */
-    const QString& get_location_id() const {
-        return location_id;
-    }
-    /**
-     * 'Secret' api-token for openweather api
-     * @return token string
-     */
-    const QString& get_api_token() const{
-        return api_token;
-    }
-    /**
-     * update interval to poll openweather api
-     * @return seconds
-     */
-    const std::chrono::seconds get_update_interval() {
-        return update_interval;
-    }
-private:
-    /** Openweathermap API Key */
-    QString api_token;
-    /**
-     *  location id
-     * from http://bulk.openweathermap.org/sample/city.list.json.gz
-     * e.g. 'Esslingen,de' = id 2928751, Porto Alegre=3452925
-     */
-    QString location_id;
-    /** Update Interval for wheather information */
-    std::chrono::seconds update_interval;
-};
-
 
 /**
  * Periodically downloads weather info from Openweathermaps
@@ -105,10 +42,10 @@ class Weather : public QObject {
 public:
     /**
      * Constructor for Weather provider
-     * @param confman configuration
+     * @param store access to current weather configuration
      * @param parent
      */
-    explicit Weather(std::shared_ptr<ConfigurationManager> confman,
+    explicit Weather(const IWeatherConfigStore& store,
         QObject* parent = nullptr);
     /**
      * Update Download interval
@@ -188,7 +125,7 @@ private:
     /**
      * Central configuration and data handler
      */
-    std::shared_ptr<ConfigurationManager> cm;
+    const IWeatherConfigStore& cm;
 
     /**
      * Interval in ms for auto refresh of content
@@ -238,7 +175,7 @@ private:
  * @param cfg configuration with location, units etc.
  * @return uri e.g. api.openweathermap.org/data/2.5/weather?zip=94040,us
  */
-QUrl create_weather_uri(const WeatherConfig* cfg);
+QUrl create_weather_uri(const WeatherConfig& cfg);
 
 
 } // namespace DigitalRooster

@@ -16,8 +16,9 @@
 #include <QStringList>
 #include <memory>
 
+#include "IPodcastStore.hpp"
+
 namespace DigitalRooster {
-class ConfigurationManager;
 class MediaPlayerProxy;
 } // namespace DigitalRooster
 
@@ -26,8 +27,7 @@ class PodcastEpisodeModel;
 class PodcastSourceModel : public QAbstractListModel {
     Q_OBJECT
 public:
-    PodcastSourceModel(
-        std::shared_ptr<DigitalRooster::ConfigurationManager> confman,
+    PodcastSourceModel(DigitalRooster::IPodcastStore&  store,
         std::shared_ptr<DigitalRooster::MediaPlayerProxy> pp,
         QObject* parent = nullptr);
 
@@ -56,7 +56,7 @@ protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
-    std::shared_ptr<DigitalRooster::ConfigurationManager> cm;
+    DigitalRooster::IPodcastStore&  cm;
     std::shared_ptr<DigitalRooster::MediaPlayerProxy> mpp;
 };
 

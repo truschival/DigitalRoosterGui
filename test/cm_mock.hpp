@@ -32,10 +32,10 @@ public:
 
 
     };
-    MOCK_METHOD0(
-        get_alarm_list, QVector<std::shared_ptr<DigitalRooster::Alarm>>&());
+    MOCK_CONST_METHOD0(
+        get_alarms, QVector<std::shared_ptr<DigitalRooster::Alarm>>&());
 
-    MOCK_METHOD0(get_weather_cfg, const DigitalRooster::WeatherConfig*());
+    MOCK_METHOD0(get_weather_config, const DigitalRooster::WeatherConfig&());
 
     MOCK_CONST_METHOD0(do_get_brightness_sb, int());
     MOCK_CONST_METHOD0(do_get_brightness_act, int());

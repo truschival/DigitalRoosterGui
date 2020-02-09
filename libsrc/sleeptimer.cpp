@@ -12,11 +12,13 @@
 
 #include <QDebug>
 #include <QLoggingCategory>
+#include <QTimerEvent>
 #include <QMediaPlayer>
 #include <chrono>
 #include <memory>
 
 #include "sleeptimer.hpp"
+#include "alarm.hpp"
 
 using namespace DigitalRooster;
 using namespace std::chrono;
@@ -25,15 +27,15 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.SleepTimer");
 
 /*****************************************************************************/
 SleepTimer::SleepTimer(
-    std::shared_ptr<ConfigurationManager> cm, QObject* parent)
+    ITimeOutStore& store, QObject* parent)
     : QObject(parent)
-    , cm(cm)
+    , cm(store)
     , evt_timer_id(0)
-    , remaining_time(cm->get_sleep_timeout())
+    , remaining_time(cm.get_sleep_timeout())
     , activity(SleepTimer::Idle) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
-    sleep_timer.setInterval(cm->get_sleep_timeout());
+    sleep_timer.setInterval(cm.get_sleep_timeout());
     sleep_timer.setSingleShot(true);
 
     connect(
@@ -53,7 +55,7 @@ void SleepTimer::playback_state_changed(QMediaPlayer::State state) {
         /* Check if alarm was dispatched do not set normal sleep_timeout */
         if (activity != SleepTimer::Alarm) {
             qCDebug(CLASS_LC) << " restarting timer";         
-            sleep_timer.setInterval(cm->get_sleep_timeout());
+            sleep_timer.setInterval(cm.get_sleep_timeout());
             sleep_timer.start();
             emit remaining_time_changed(get_remaining_time());
         }
@@ -107,13 +109,13 @@ int SleepTimer::get_remaining_time() {
 
 /*****************************************************************************/
 std::chrono::minutes SleepTimer::get_sleep_timeout() const {
-    return cm->get_sleep_timeout();
+    return cm.get_sleep_timeout();
 }
 
 /*****************************************************************************/
 void SleepTimer::set_sleep_timeout(std::chrono::minutes timeout) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    cm->set_sleep_timeout(timeout);
+    cm.set_sleep_timeout(timeout);
     // also update running timeouts
     timeout_changed(timeout);
     emit sleep_timeout_changed(timeout);
@@ -129,7 +131,7 @@ void SleepTimer::set_sleep_timeout(int timeout) {
 /*****************************************************************************/
 int SleepTimer::get_sleep_timeout_minutes_count() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return cm->get_sleep_timeout().count();
+    return cm.get_sleep_timeout().count();
 }
 
 /*****************************************************************************/

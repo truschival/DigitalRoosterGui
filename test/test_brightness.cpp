@@ -23,10 +23,17 @@ using ::testing::AtLeast;
 /* log_100 values for 0:5:100 */
 const int log_ref[] = {0, 1, 2, 4, 5, 6, 8, 9, 11, 13, 15, 17, 20, 23, 26, 30,
     35, 41, 50, 65, 100};
+/*****************************************************************************/
+class BrightnessFixture : public ::testing::Test{
+public:
+	BrightnessFixture():dut(cm){};
+protected:
+	CmMock cm;
+	BrightnessControl dut;
+};
 
 /*****************************************************************************/
-TEST(Brightness, lin2log) {
-    auto cm = std::make_shared<CmMock>();
+TEST_F(BrightnessFixture, lin2log) {
     BrightnessControl dut(cm);
     for (int i = 0; i <= 100;) {
         // cout << dut.lin2log(i) << ", " << endl;
@@ -36,36 +43,33 @@ TEST(Brightness, lin2log) {
 }
 
 /*****************************************************************************/
-TEST(Brightness, RestoreActive) {
-    auto cm = std::make_shared<CmMock>();
+TEST_F(BrightnessFixture,RestoreActive) {
     // active brightness is read in constructor
-    EXPECT_CALL(*cm.get(), do_get_brightness_act())
+    EXPECT_CALL(cm, do_get_brightness_act())
         .Times(1)
         .WillOnce(Return(42));
-    BrightnessControl dut(cm);
+
     dut.restore_active_brightness();
     ASSERT_EQ(dut.get_brightness(), 42);
 }
 
 /*****************************************************************************/
-TEST(Brightness, setBrightness) {
-    auto cm = std::make_shared<CmMock>();
+TEST_F(BrightnessFixture, setBrightness) {
     // active brightness is read in constructor
-    EXPECT_CALL(*cm.get(), do_set_brightness_act(25))
+    EXPECT_CALL(cm, do_set_brightness_act(25))
         .Times(1);
-    BrightnessControl dut(cm);
+
     dut.set_brightness(25);
     ASSERT_EQ(dut.get_brightness(), 25);
 }
 
 /*****************************************************************************/
-TEST(Brightness, RestoreStandby) {
-    auto cm = std::make_shared<CmMock>();
+TEST_F(BrightnessFixture, RestoreStandby) {
     // active brightness is read in constructor
-    EXPECT_CALL(*cm.get(), do_get_brightness_sb())
+    EXPECT_CALL(cm, do_get_brightness_sb())
         .Times(1)
         .WillOnce(Return(10));
-    BrightnessControl dut(cm);
+
     dut.restore_standby_brightness();
     ASSERT_EQ(dut.get_brightness(), 10);
 }

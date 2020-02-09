@@ -16,9 +16,10 @@
 #include <QObject>
 #include <memory>
 
+#include "IAlarmStore.hpp"
+
 namespace DigitalRooster {
 class Alarm;
-class ConfigurationManager;
 
 /**
  * ListModel to show alarms in QML Gui
@@ -28,9 +29,13 @@ class AlarmListModel : public QAbstractListModel {
 public:
     explicit AlarmListModel(QObject* parent = nullptr);
 
+    /**
+     * Constructor for AlarmListModel
+     * @param store Interface to get/update/delete alarms
+     * @param parent QObject hierarchy manage lifetime
+     */
     explicit AlarmListModel(
-        std::shared_ptr<DigitalRooster::ConfigurationManager> confman,
-        QObject* parent = nullptr);
+        IAlarmStore& store, QObject* parent = nullptr);
 
     enum AlarmRoles {
         PeriodicityRole = Qt::UserRole + 1,
@@ -71,7 +76,7 @@ protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
-    std::shared_ptr<DigitalRooster::ConfigurationManager> cm;
+    IAlarmStore&  cm;
 };
 } // namespace DigitalRooster
 
