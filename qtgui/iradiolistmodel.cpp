@@ -23,18 +23,11 @@
 using namespace DigitalRooster;
 
 /*****************************************************************************/
-IRadioListModel::IRadioListModel(std::shared_ptr<IStationStore> store,
-    std::shared_ptr<DigitalRooster::MediaPlayerProxy> pp, QObject* parent)
+IRadioListModel::IRadioListModel(IStationStore& store,
+    MediaPlayer& mp, QObject* parent)
     : QAbstractListModel(parent)
     , cm(store)
-    , mpp(pp) {
-}
-
-
-/*****************************************************************************/
-IRadioListModel::IRadioListModel(QObject* parent)
-    : QAbstractListModel(parent)
-    , cm(nullptr) {
+    , mpp(mp) {
 }
 
 /*****************************************************************************/
@@ -48,7 +41,7 @@ QHash<int, QByteArray> IRadioListModel::roleNames() const {
 /*****************************************************************************/
 int IRadioListModel::rowCount(const QModelIndex& /*parent */) const {
     // qDebug() << __FUNCTION__;
-    auto sz = cm->get_stations().size();
+    auto sz = cm.get_stations().size();
     if (sz <= 0) {
         qWarning() << " no stations ";
     }
@@ -57,28 +50,28 @@ int IRadioListModel::rowCount(const QModelIndex& /*parent */) const {
 
 /*****************************************************************************/
 QUrl IRadioListModel::get_station_url(int index) {
-    auto pi = cm->get_stations().at(index);
+    auto pi = cm.get_stations().at(index);
     return pi->get_url();
 }
 
 /*****************************************************************************/
 void IRadioListModel::send_to_player(int index) {
-    auto station = cm->get_stations().at(index);
-    mpp->set_media(station);
-    mpp->play();
+    auto station = cm.get_stations().at(index);
+    mpp.set_media(station);
+    mpp.play();
 }
 
 /*****************************************************************************/
 QVariant IRadioListModel::data(const QModelIndex& index, int role) const {
     // qDebug() << __FUNCTION__ << "(" << index.row() << ")";
-	auto sz = cm->get_stations().size();
+	auto sz = cm.get_stations().size();
 	if (sz <= 0)
         return QVariant();
 
     if (index.row() < 0 || index.row() >= sz)
         return QVariant();
 
-    auto station = cm->get_stations().at(index.row());
+    auto station = cm.get_stations().at(index.row());
 
     switch (role) {
     case StationNameRole:

@@ -48,8 +48,9 @@ public:
      * @param fallback_timeout grace period to wait until fallback is triggered
      * @param parent
      */
-    AlarmMonitor(std::shared_ptr<MediaPlayer> player,
-        std::chrono::milliseconds fallback_timeout = std::chrono::milliseconds(10000),
+    AlarmMonitor(DigitalRooster::MediaPlayer& player,
+        std::chrono::milliseconds fallback_timeout = std::chrono::milliseconds(
+            10000),
         QObject* parent = nullptr);
 
     /**
@@ -78,7 +79,7 @@ private:
     /**
      * PlayerBackend that receives the Alarms
      */
-    std::shared_ptr<MediaPlayer> mpp;
+    MediaPlayer& mpp;
 
     /**
      * Timer to trigger fallback behavior if player did not start to play

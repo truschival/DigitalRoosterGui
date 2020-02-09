@@ -19,17 +19,23 @@
 #include "IPodcastStore.hpp"
 
 namespace DigitalRooster {
-class MediaPlayerProxy;
-} // namespace DigitalRooster
-
+class MediaPlayer;
 class PodcastEpisodeModel;
 
+/**
+ * ListModel for Podcast Stations
+ */
 class PodcastSourceModel : public QAbstractListModel {
     Q_OBJECT
 public:
-    PodcastSourceModel(DigitalRooster::IPodcastStore&  store,
-        std::shared_ptr<DigitalRooster::MediaPlayerProxy> pp,
-        QObject* parent = nullptr);
+	/**
+	 * Create a PodcastSource model
+	 * @param store info on PodcastSources
+	 * @param mp Mediaplayer will be passed on to EpisodesModel
+	 * @param parent
+	 */
+    PodcastSourceModel(
+        IPodcastStore& store, MediaPlayer& mp, QObject* parent = nullptr);
 
     enum PodcastSourceRoles {
         DisplayNameRole = Qt::UserRole + 1,
@@ -43,7 +49,7 @@ public:
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
-    Q_INVOKABLE PodcastEpisodeModel* get_episodes(int index);
+    Q_INVOKABLE DigitalRooster::PodcastEpisodeModel* get_episodes(int index);
 
     Q_INVOKABLE void refresh(int index);
     Q_INVOKABLE void purge(int index);
@@ -56,8 +62,9 @@ protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
-    DigitalRooster::IPodcastStore&  cm;
-    std::shared_ptr<DigitalRooster::MediaPlayerProxy> mpp;
+    IPodcastStore& cm;
+    MediaPlayer& mpp;
 };
 
+} // namespace DigitalRooster
 #endif /* QTGUI_PODCASTSOURCEMODEL_HPP_ */

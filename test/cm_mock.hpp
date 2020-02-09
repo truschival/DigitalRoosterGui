@@ -35,12 +35,13 @@ public:
     MOCK_CONST_METHOD0(
         get_alarms, QVector<std::shared_ptr<DigitalRooster::Alarm>>&());
 
-    MOCK_METHOD0(get_weather_config, const DigitalRooster::WeatherConfig&());
+    MOCK_CONST_METHOD0(
+        get_weather_config, const DigitalRooster::WeatherConfig&());
 
-    MOCK_CONST_METHOD0(do_get_brightness_sb, int());
-    MOCK_CONST_METHOD0(do_get_brightness_act, int());
+    MOCK_CONST_METHOD0(get_active_brightness, int());
+    MOCK_CONST_METHOD0(get_standby_brightness, int());
     MOCK_CONST_METHOD0(do_get_volume, int());
-    MOCK_METHOD1(do_set_brightness_act, void(int ab));
+    MOCK_METHOD1(set_active_brightness, void(int ab));
     MOCK_CONST_METHOD0(get_wpa_socket_name, QString());
     MOCK_CONST_METHOD0(get_alarm_timeout, std::chrono::minutes());
     MOCK_CONST_METHOD0(get_sleep_timeout, std::chrono::minutes());

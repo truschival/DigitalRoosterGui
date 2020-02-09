@@ -45,7 +45,7 @@ TEST_F(BrightnessFixture, lin2log) {
 /*****************************************************************************/
 TEST_F(BrightnessFixture,RestoreActive) {
     // active brightness is read in constructor
-    EXPECT_CALL(cm, do_get_brightness_act())
+    EXPECT_CALL(cm, get_active_brightness())
         .Times(1)
         .WillOnce(Return(42));
 
@@ -56,7 +56,7 @@ TEST_F(BrightnessFixture,RestoreActive) {
 /*****************************************************************************/
 TEST_F(BrightnessFixture, setBrightness) {
     // active brightness is read in constructor
-    EXPECT_CALL(cm, do_set_brightness_act(25))
+    EXPECT_CALL(cm, set_active_brightness(25))
         .Times(1);
 
     dut.set_brightness(25);
@@ -66,7 +66,7 @@ TEST_F(BrightnessFixture, setBrightness) {
 /*****************************************************************************/
 TEST_F(BrightnessFixture, RestoreStandby) {
     // active brightness is read in constructor
-    EXPECT_CALL(cm, do_get_brightness_sb())
+    EXPECT_CALL(cm, get_standby_brightness())
         .Times(1)
         .WillOnce(Return(10));
 

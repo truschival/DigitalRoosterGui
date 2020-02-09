@@ -148,13 +148,12 @@ int main(int argc, char* argv[]) {
     /*
      * Read configuration
      */
-    auto cm = std::make_shared<ConfigurationManager>(
-        cmdline.value(confpath), cmdline.value(cachedir));
-    cm->update_configuration();
+    ConfigurationManager cm(cmdline.value(confpath), cmdline.value(cachedir));
+    cm.update_configuration();
 
     // Initialize Player
-    auto playerproxy = std::make_shared<MediaPlayerProxy>();
-    playerproxy->set_volume(cm->get_volume());
+    MediaPlayerProxy playerproxy;
+    playerproxy.set_volume(cm.get_volume());
 
     AlarmDispatcher alarmdispatcher(cm);
     AlarmMonitor alarmmonitor(playerproxy, std::chrono::seconds(20));
@@ -164,8 +163,8 @@ int main(int argc, char* argv[]) {
         SLOT(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
 
     PodcastSourceModel psmodel(cm, playerproxy);
-    IRadioListModel iradiolistmodel(cm, playerproxy);
     AlarmListModel alarmlistmodel(cm);
+    IRadioListModel iradiolistmodel(cm, playerproxy);
     WifiListModel wifilistmodel;
 
     Weather weather(cm);
@@ -183,8 +182,8 @@ int main(int argc, char* argv[]) {
     QObject::connect(&power, SIGNAL(becoming_active()), &brightness,
         SLOT(restore_active_brightness()));
     /* Powercontrol standby stops player */
-    QObject::connect(
-        &power, SIGNAL(going_in_standby()), playerproxy.get(), SLOT(stop()));
+    QObject::connect(&power, &PowerControl::going_in_standby, &playerproxy,
+        &MediaPlayer::stop);
     /* Wire shutdown and reboot requests to hardware */
     QObject::connect(&power, &PowerControl::reboot_request, &hwctrl,
         &Hal::HardwareControl::system_reboot);
@@ -199,7 +198,7 @@ int main(int argc, char* argv[]) {
     QObject::connect(&sleeptimer, &SleepTimer::sleep_timer_elapsed, &power,
         &PowerControl::standby);
     /* Sleeptimer resets when player changes state to play */
-    QObject::connect(playerproxy.get(), &MediaPlayer::playback_state_changed,
+    QObject::connect(&playerproxy, &MediaPlayer::playback_state_changed,
         &sleeptimer, &SleepTimer::playback_state_changed);
     /* Sleeptimer also monitors alarms */
     QObject::connect(&alarmdispatcher,
@@ -216,50 +215,54 @@ int main(int argc, char* argv[]) {
         &VolumeButton::process_rotary_event);
 
     /* wire volume button to consumers */
-    QObject::connect(
-        &volbtn, SIGNAL(button_released()), &power, SLOT(toggle_power_state()));
-    QObject::connect(&volbtn, SIGNAL(volume_incremented(int)),
-        playerproxy.get(), SLOT(increment_volume(int)));
+    QObject::connect(&volbtn, &VolumeButton::button_released, &power,
+        &PowerControl::toggle_power_state);
+    QObject::connect(&volbtn, &VolumeButton::volume_incremented, &playerproxy,
+        &MediaPlayer::increment_volume);
 
     /* Standby deactivates Volume button events */
     QObject::connect(&power, SIGNAL(active(bool)), &volbtn,
         SLOT(monitor_rotary_button(bool)));
-    QObject::connect(playerproxy.get(), SIGNAL(volume_changed(int)), cm.get(),
-        SLOT(set_volume(int)));
+    QObject::connect(&playerproxy, &MediaPlayer::volume_changed, &cm,
+        &ConfigurationManager::set_volume);
 
     /* we start in standby */
     power.standby();
 
     /*
-     * QML Setup
+     * QML Setup Dynamically createable Types
+     * All Elements/Lists are created in C++
      */
-    qmlRegisterType<PodcastEpisodeModel>(
-        "ruschi.PodcastEpisodeModel", 1, 0, "PodcastEpisodeModel");
-    qmlRegisterType<DigitalRooster::PodcastEpisode>(
-        "ruschi.PodcastEpisode", 1, 0, "PodcastEpisode");
-    qmlRegisterType<DigitalRooster::Alarm>("ruschi.Alarm", 1, 0, "Alarm");
-    qmlRegisterType<DigitalRooster::IRadioListModel>(
-        "ruschi.IRadioListModel", 1, 0, "IRadioListModel");
-    qmlRegisterType<DigitalRooster::PlayableItem>(
-        "ruschi.PlayableItem", 1, 0, "PlayableItem");
-    qmlRegisterType<DigitalRooster::WifiListModel>(
-        "ruschi.WifiListModel", 1, 0, "WifiListModel");
+    qmlRegisterUncreatableType<DigitalRooster::PodcastEpisodeModel>(
+        "ruschi.PodcastEpisodeModel", 1, 0, "PodcastEpisodeModel",
+        "QML must not instatiate PodcastEpisodeModel!");
+    qmlRegisterUncreatableType<DigitalRooster::PodcastEpisode>(
+        "ruschi.PodcastEpisode", 1, 0, "PodcastEpisode",
+        "QML must not instatiate PodcastEpisode!");
+    qmlRegisterUncreatableType<DigitalRooster::Alarm>("ruschi.Alarm", 1, 0, "Alarm",
+            "QML must not instatiate Alarm!");
+    qmlRegisterUncreatableType<DigitalRooster::PlayableItem>(
+        "ruschi.PlayableItem", 1, 0, "PlayableItem",
+        "QML must not instatiate PlayableItem!");
+    qmlRegisterUncreatableType<DigitalRooster::WifiListModel>(
+        "ruschi.WifiListModel", 1, 0, "WifiListModel",
+        "QML must not instatiate WifiListModel!");
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
 
-    WifiControl* wifictrl = WifiControl::get_instance(cm.get());
+    WifiControl* wifictrl = WifiControl::get_instance(&cm);
     ctxt->setContextProperty("wifictrl", wifictrl);
     ctxt->setContextProperty("wifilistmodel", &wifilistmodel);
     QObject::connect(wifictrl, &WifiControl::networks_found, &wifilistmodel,
         &WifiListModel::update_scan_results);
 
     ctxt->setContextProperty("podcastmodel", &psmodel);
-    ctxt->setContextProperty("playerProxy", playerproxy.get());
+    ctxt->setContextProperty("playerProxy", &playerproxy);
     ctxt->setContextProperty("alarmlistmodel", &alarmlistmodel);
     ctxt->setContextProperty("iradiolistmodel", &iradiolistmodel);
     ctxt->setContextProperty("weather", &weather);
-    ctxt->setContextProperty("config", cm.get());
+    ctxt->setContextProperty("config", &cm);
     ctxt->setContextProperty("powerControl", &power);
     ctxt->setContextProperty("brightnessControl", &brightness);
     ctxt->setContextProperty("volumeButton", &volbtn);

@@ -37,12 +37,8 @@ using ::testing::AtLeast;
 
 /*****************************************************************************/
 class SleepTimerFixture : public ::testing::Test {
-public:
-    SleepTimerFixture()
-        : dut(cm){};
 protected:
     CmMock cm;
-    SleepTimer dut;
 };
 
 /*****************************************************************************/
@@ -56,6 +52,7 @@ TEST_F(SleepTimerFixture, stopsRunningAlarm) {
         .Times(AtLeast(1))
         .WillRepeatedly(Return(duration_cast<minutes>(500ms)));
 
+    SleepTimer dut(cm);
     alm->set_timeout(duration_cast<minutes>(500ms));
     QSignalSpy spy(&dut, SIGNAL(sleep_timer_elapsed()));
     ASSERT_TRUE(spy.isValid());
@@ -73,6 +70,7 @@ TEST_F(SleepTimerFixture,stopsPlayer) {
         .Times(AtLeast(1))
         .WillRepeatedly(Return(duration_cast<minutes>(500ms)));
 
+    SleepTimer dut(cm);
     QSignalSpy spy(&dut, SIGNAL(sleep_timer_elapsed()));
     ASSERT_TRUE(spy.isValid());
     // start player
@@ -89,6 +87,7 @@ TEST_F(SleepTimerFixture, PlayerStoppedStillEmitsSignal) {
         .Times(AtLeast(1))
         .WillRepeatedly(Return(duration_cast<minutes>(500ms)));
 
+    SleepTimer dut(cm);
     QSignalSpy spy(&dut, SIGNAL(sleep_timer_elapsed()));
     ASSERT_TRUE(spy.isValid());
     // start Player
@@ -99,14 +98,13 @@ TEST_F(SleepTimerFixture, PlayerStoppedStillEmitsSignal) {
 }
 
 /*****************************************************************************/
-
 TEST_F(SleepTimerFixture, TimeoutChangeEmitsSignal) {
-
     /* sleep timeout 500 ms */
     EXPECT_CALL(cm, get_sleep_timeout())
         .Times(AtLeast(1))
         .WillRepeatedly(Return(duration_cast<minutes>(500ms)));
 
+    SleepTimer dut(cm);
     QSignalSpy spy(&dut, SIGNAL(sleep_timeout_changed(int)));
     ASSERT_TRUE(spy.isValid());
     // dispatch alarm

@@ -21,7 +21,7 @@
 
 namespace DigitalRooster {
 class PlayableItem;
-class MediaPlayerProxy;
+class MediaPlayer;
 
 /**
  * Simple Model for displaying Internet Radio stations in QML List
@@ -29,10 +29,15 @@ class MediaPlayerProxy;
 class IRadioListModel : public QAbstractListModel {
     Q_OBJECT
 public:
-    explicit IRadioListModel(QObject* parent = nullptr);
-
+    /**
+     * Constructor
+     * @param store cannot be a refernce because Object must be default
+     * constructable in QML/MOC Code
+     * @param pp Player
+     * @param parent
+     */
     IRadioListModel(IStationStore& store,
-        std::shared_ptr<DigitalRooster::MediaPlayerProxy> pp,
+        DigitalRooster::MediaPlayer&  mp,
         QObject* parent = nullptr);
 
     enum IRadioStationRoles { StationNameRole = Qt::UserRole + 1, UriRole };
@@ -49,7 +54,7 @@ protected:
 
 private:
     IStationStore& cm;
-    std::shared_ptr<DigitalRooster::MediaPlayerProxy> mpp;
+    MediaPlayer& mpp;
 };
 } // namespace DigitalRooster
 
