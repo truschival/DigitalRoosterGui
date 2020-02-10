@@ -356,17 +356,6 @@ private:
     void refresh_configuration();
 
     /**
-     * Private virtual interface for brightness settings
-     */
-    virtual int do_get_brightness_sb() const {
-        return brightness_sb;
-    }
-
-    virtual int do_get_brightness_act() const {
-        return brightness_act;
-    }
-
-    /**
      * actually set active brightness
      * @param brightness - new actual brightness
      */

@@ -84,7 +84,6 @@ private:
     std::chrono::seconds update_interval;
 };
 
-
 /**
  * Interface for addition, access of Weather Settings
  * actual storage \ref DigitalRooster::ConfigurationManager
