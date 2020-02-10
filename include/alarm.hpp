@@ -14,11 +14,11 @@
 #define _ALARM_HPP_
 
 #include <QDateTime>
+#include <QJsonObject>
 #include <QObject>
+#include <QTime>
 #include <QUrl>
 #include <QUuid>
-#include <QJsonDocument>
-#include <QJsonObject>
 
 #include <chrono>
 #include <memory>
@@ -69,14 +69,15 @@ public:
         const QUuid& uid = QUuid::createUuid(), QObject* parent = nullptr);
 
     /**
-     * Need Default constructor to register with QML
+     * Need Default constructor to create empty Alarm form QML
+     * Will be initialized to:
+     *	: id(QUuid::createUuid())
+     *  , media(std::make_shared<PlayableItem>("Alarm", QUrl()))
+     *  , period(Alarm::Daily)
+     *  , enabled(true)
+     *  , timeout(DEFAULT_ALARM_TIMEOUT){}
      */
-    Alarm()
-        : id(QUuid::createUuid())
-        , media(nullptr)
-        , period(Alarm::Daily)
-        , enabled(true)
-        , timeout(DEFAULT_ALARM_TIMEOUT){};
+    Alarm();
 
     /**
      * unique id for alarm
@@ -132,7 +133,7 @@ public:
      * Duration for alarm to stop automatically
      * @return time in minutes
      */
-    std::chrono::minutes get_timeout() const{
+    std::chrono::minutes get_timeout() const {
         return timeout;
     }
     /**
@@ -149,9 +150,7 @@ public:
     std::shared_ptr<PlayableItem> get_media() const {
         return media;
     }
-    void set_media(std::shared_ptr<PlayableItem> new_media) {
-        media = new_media;
-    }
+    void set_media(std::shared_ptr<PlayableItem> new_media);
 
     /**
      * is this alarm set
