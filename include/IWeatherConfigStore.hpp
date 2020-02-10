@@ -21,7 +21,7 @@
 namespace DigitalRooster {
 /**
  * Configuration of weather source as found in application config file
- * read by ConfigurationManager \ref ConfigurationManager::get_weather_cfg
+ * read by ConfigurationManager \ref ConfigurationManager::get_weather_config
  */
 class WeatherConfig {
 public:

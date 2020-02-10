@@ -33,7 +33,7 @@ public:
      * @param store Interface to get/update/delete alarms
      * @param parent QObject hierarchy manage lifetime
      */
-    AlarmDispatcher(IAlarmStore& store,
+    explicit AlarmDispatcher(IAlarmStore& store,
         QObject* parent = nullptr);
 
     /**
