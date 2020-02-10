@@ -17,10 +17,11 @@
 #include <QUrl>
 #include <memory>
 
+#include "IStationStore.hpp"
+
 namespace DigitalRooster {
 class PlayableItem;
-class MediaPlayerProxy;
-class ConfigurationManager;
+class MediaPlayer;
 
 /**
  * Simple Model for displaying Internet Radio stations in QML List
@@ -28,11 +29,15 @@ class ConfigurationManager;
 class IRadioListModel : public QAbstractListModel {
     Q_OBJECT
 public:
-    explicit IRadioListModel(QObject* parent = nullptr);
-
-    IRadioListModel(
-        std::shared_ptr<DigitalRooster::ConfigurationManager> confman,
-        std::shared_ptr<DigitalRooster::MediaPlayerProxy> pp,
+    /**
+     * Constructor
+     * @param store cannot be a refernce because Object must be default
+     * constructable in QML/MOC Code
+     * @param pp Player
+     * @param parent
+     */
+    IRadioListModel(IStationStore& store,
+        DigitalRooster::MediaPlayer&  mp,
         QObject* parent = nullptr);
 
     enum IRadioStationRoles { StationNameRole = Qt::UserRole + 1, UriRole };
@@ -48,8 +53,8 @@ protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
-    std::shared_ptr<DigitalRooster::ConfigurationManager> cm;
-    std::shared_ptr<DigitalRooster::MediaPlayerProxy> mpp;
+    IStationStore& cm;
+    MediaPlayer& mpp;
 };
 } // namespace DigitalRooster
 

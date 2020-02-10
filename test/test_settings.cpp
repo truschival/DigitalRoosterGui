@@ -9,6 +9,7 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
+#include <QJsonDocument>
 #include <QSettings>
 #include <QSignalSpy>
 #include <QStandardPaths>
@@ -19,6 +20,9 @@
 #include <fstream>
 #include <string>
 
+#include "PlayableItem.hpp"
+#include "PodcastSource.hpp"
+#include "alarm.hpp"
 #include "appconstants.hpp"
 #include "config.h"
 #include "configuration_manager.hpp"
@@ -171,7 +175,7 @@ protected:
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, read_radio_streams_two_streams) {
-    auto& v = cm->get_stream_sources();
+    auto& v = cm->get_stations();
     ASSERT_EQ(2, v.size());
 }
 /*****************************************************************************/
@@ -181,7 +185,7 @@ TEST_F(SettingsFixture, addRadioStation_no_write) {
         std::make_shared<PlayableItem>("foo", QUrl("http://bar.baz")));
     cm->add_radio_station(
         std::make_shared<PlayableItem>("ref", QUrl("http://gmx.net")));
-    auto& v = cm->get_stream_sources();
+    auto& v = cm->get_stations();
     ASSERT_EQ(4, v.size());
 }
 /*****************************************************************************/
@@ -197,7 +201,7 @@ TEST_F(SettingsFixture, addRadioStation_write) {
     }
     ConfigurationManager control(filename, TEST_FILE_PATH);
     control.update_configuration();
-    auto& v = control.get_stream_sources();
+    auto& v = control.get_stations();
     ASSERT_EQ(4, v.size());
 
     auto stream = v[2];
@@ -213,7 +217,7 @@ TEST_F(SettingsFixture, add_podcast_source) {
     auto size_before = cm->get_podcast_sources().size();
     cm->add_podcast_source(ps);
     ASSERT_EQ(spy.count(), 1);
-    ASSERT_EQ(cm->get_podcast_sources().size(), size_before+1);
+    ASSERT_EQ(cm->get_podcast_sources().size(), size_before + 1);
 }
 
 /*****************************************************************************/
@@ -224,26 +228,25 @@ TEST_F(SettingsFixture, get_podcast_source_throws) {
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, get_podcast_source_ok) {
-	auto& v = cm->get_podcast_sources();
-	auto uid = v[0]->get_id();
-	auto item = cm->get_podcast_source(uid);
-	ASSERT_EQ(item,v[0].get());
+    auto& v = cm->get_podcast_sources();
+    auto uid = v[0]->get_id();
+    auto item = cm->get_podcast_source(uid);
+    ASSERT_EQ(item, v[0].get());
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, delete_podcast_source) {
-	auto& v = cm->get_podcast_sources();
-	auto size_before=v.size();
-	auto uid = v[0]->get_id();
-	cm->delete_podcast_source(uid);
-	ASSERT_EQ(cm->get_podcast_sources().size(), size_before-1);
-	EXPECT_THROW(
-	        cm->get_podcast_source(uid), std::out_of_range);
+    auto& v = cm->get_podcast_sources();
+    auto size_before = v.size();
+    auto uid = v[0]->get_id();
+    cm->delete_podcast_source(uid);
+    ASSERT_EQ(cm->get_podcast_sources().size(), size_before - 1);
+    EXPECT_THROW(cm->get_podcast_source(uid), std::out_of_range);
 }
 /*****************************************************************************/
 TEST_F(SettingsFixture, delete_podcast_throws) {
-	EXPECT_THROW(
-	        cm->delete_podcast_source(QUuid::createUuid()), std::out_of_range);
+    EXPECT_THROW(
+        cm->delete_podcast_source(QUuid::createUuid()), std::out_of_range);
 }
 
 /*****************************************************************************/
@@ -251,40 +254,38 @@ TEST_F(SettingsFixture, add_radio_station) {
     QSignalSpy spy(cm.get(), SIGNAL(stations_changed()));
     ASSERT_TRUE(spy.isValid());
     auto radio = std::make_shared<PlayableItem>();
-    auto size_before = cm->get_stream_sources().size();
+    auto size_before = cm->get_stations().size();
     cm->add_radio_station(radio);
     ASSERT_EQ(spy.count(), 1);
-    ASSERT_EQ(cm->get_stream_sources().size(), size_before+1);
+    ASSERT_EQ(cm->get_stations().size(), size_before + 1);
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, get_radio_station_throws) {
-    EXPECT_THROW(
-        cm->get_stream_source(QUuid::createUuid()), std::out_of_range);
+    EXPECT_THROW(cm->get_station(QUuid::createUuid()), std::out_of_range);
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, get_radio_station_ok) {
-	auto& v = cm->get_stream_sources();
-	auto uid = v[0]->get_id();
-	auto item = cm->get_stream_source(uid);
-	ASSERT_EQ(item,v[0].get());
+    auto& v = cm->get_stations();
+    auto uid = v[0]->get_id();
+    auto item = cm->get_station(uid);
+    ASSERT_EQ(item, v[0].get());
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, delete_radio_station) {
-	auto& v = cm->get_stream_sources();
-	auto size_before=v.size();
-	auto uid = v[0]->get_id();
-	cm->delete_radio_station(uid);
-	ASSERT_EQ(cm->get_stream_sources().size(), size_before-1);
-	EXPECT_THROW(
-	        cm->get_stream_source(uid), std::out_of_range);
+    auto& v = cm->get_stations();
+    auto size_before = v.size();
+    auto uid = v[0]->get_id();
+    cm->delete_radio_station(uid);
+    ASSERT_EQ(cm->get_stations().size(), size_before - 1);
+    EXPECT_THROW(cm->get_station(uid), std::out_of_range);
 }
 /*****************************************************************************/
 TEST_F(SettingsFixture, delete_radio_throws) {
-	EXPECT_THROW(
-	        cm->delete_radio_station(QUuid::createUuid()), std::out_of_range);
+    EXPECT_THROW(
+        cm->delete_radio_station(QUuid::createUuid()), std::out_of_range);
 }
 
 
@@ -296,38 +297,35 @@ TEST_F(SettingsFixture, add_alarm) {
     auto size_before = cm->get_alarms().size();
     cm->add_alarm(alm);
     ASSERT_EQ(spy.count(), 1);
-    ASSERT_EQ(cm->get_alarms().size(), size_before+1);
+    ASSERT_EQ(cm->get_alarms().size(), size_before + 1);
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, get_alarm_throws) {
-    EXPECT_THROW(
-        cm->get_alarm(QUuid::createUuid()), std::out_of_range);
+    EXPECT_THROW(cm->get_alarm(QUuid::createUuid()), std::out_of_range);
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, get_alarm_ok) {
-	auto& v = cm->get_alarms();
-	auto uid = v[0]->get_id();
-	auto item = cm->get_alarm(uid);
-	ASSERT_EQ(item,v[0].get());
+    auto& v = cm->get_alarms();
+    auto uid = v[0]->get_id();
+    auto item = cm->get_alarm(uid);
+    ASSERT_EQ(item, v[0].get());
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, delete_alarm) {
-	auto& v = cm->get_alarms();
-	auto size_before=v.size();
-	auto uid = v[0]->get_id();
-	cm->delete_alarm(uid);
-	ASSERT_EQ(cm->get_alarms().size(), size_before-1);
-	EXPECT_THROW(
-	        cm->get_alarm(uid), std::out_of_range);
+    auto& v = cm->get_alarms();
+    auto size_before = v.size();
+    auto uid = v[0]->get_id();
+    cm->delete_alarm(uid);
+    ASSERT_EQ(cm->get_alarms().size(), size_before - 1);
+    EXPECT_THROW(cm->get_alarm(uid), std::out_of_range);
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, delete_alarm_throws) {
-	EXPECT_THROW(
-	        cm->delete_alarm(QUuid::createUuid()), std::out_of_range);
+    EXPECT_THROW(cm->delete_alarm(QUuid::createUuid()), std::out_of_range);
 }
 
 /*****************************************************************************/
@@ -405,7 +403,7 @@ TEST_F(SettingsFixture, podcastid) {
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, streamsourceid) {
-    auto& v = cm->get_stream_sources();
+    auto& v = cm->get_stations();
     auto res = std::find_if(
         v.begin(), v.end(), [&](const std::shared_ptr<PlayableItem>& item) {
             return item->get_id() ==
@@ -511,13 +509,13 @@ TEST(ConfigManager, DefaultForNotWritableConfig) {
 /*****************************************************************************/
 TEST_F(SettingsFixture, GetweatherConfigApiToken) {
     auto cfg = cm->get_weather_config();
-    ASSERT_EQ(cfg->get_api_token(), QString("d77bd1ca2fd77ce4e1cdcdd5f8b7206c"));
+    ASSERT_EQ(cfg.get_api_token(), QString("d77bd1ca2fd77ce4e1cdcdd5f8b7206c"));
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, GetweatherConfigCityId) {
     auto cfg = cm->get_weather_config();
-    ASSERT_EQ(cfg->get_location_id(), QString("3452925"));
+    ASSERT_EQ(cfg.get_location_id(), QString("3452925"));
 }
 
 /*****************************************************************************/

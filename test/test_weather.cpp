@@ -29,7 +29,7 @@ using ::testing::AtLeast;
 class WeatherFile : public virtual ::testing::Test {
 public:
     WeatherFile()
-        : weatherFile(TEST_FILE_PATH + "/sample_weather.json") {
+        : weatherFile(TEST_FILE_PATH + "/sample_weather.json"){
         if (!weatherFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
             qDebug() << weatherFile.errorString();
             throw std::system_error(
@@ -40,16 +40,16 @@ public:
 
 protected:
     QFile weatherFile;
+    CmMock cm;
 };
 
 /*****************************************************************************/
-TEST(Weather, RefreshEmitsSignal) {
-    auto cm = std::make_shared<CmMock>();
+TEST_F(WeatherFile, RefreshEmitsSignal) {
     auto weather_cfg = DigitalRooster::WeatherConfig(
         QString("a904431b4e0eae431bcc1e075c761abb"), QString("2172797"));
-    EXPECT_CALL(*(cm.get()), get_weather_cfg())
+    EXPECT_CALL(cm, get_weather_config())
         .Times(AtLeast(1))
-        .WillRepeatedly(Return(&weather_cfg));
+        .WillRepeatedly(ReturnRef(weather_cfg));
 
     Weather dut(cm);
     QSignalSpy spy(&dut, SIGNAL(weather_info_updated()));
@@ -61,13 +61,12 @@ TEST(Weather, RefreshEmitsSignal) {
 }
 
 /*****************************************************************************/
-TEST(Weather, GetConfigForDownloadAfterTimerExpired) {
-    auto cm = std::make_shared<CmMock>();
+TEST_F(WeatherFile, GetConfigForDownloadAfterTimerExpired) {
     auto weather_cfg = DigitalRooster::WeatherConfig(
         QString("a904431b4e0eae431bcc1e075c761abb"), QString("2172797"));
-    EXPECT_CALL(*(cm.get()), get_weather_cfg())
+    EXPECT_CALL(cm, get_weather_config())
         .Times(AtLeast(1))
-        .WillRepeatedly(Return(&weather_cfg));
+        .WillRepeatedly(ReturnRef(weather_cfg));
 
     Weather dut(cm);
     QSignalSpy spy(&dut, SIGNAL(weather_info_updated()));
@@ -80,15 +79,13 @@ TEST(Weather, GetConfigForDownloadAfterTimerExpired) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, ParseTemperatureFromFile) {
-    auto cm = std::make_shared<CmMock>();
     auto weather_cfg =
         DigitalRooster::WeatherConfig(QString("ABC"), QString("2172797"));
-
-    EXPECT_CALL(*(cm.get()), get_weather_cfg())
+    EXPECT_CALL(cm, get_weather_config())
         .Times(1)
-        .WillRepeatedly(Return(&weather_cfg));
-    Weather dut(cm);
+        .WillRepeatedly(ReturnRef(weather_cfg));
 
+    Weather dut(cm);
     QSignalSpy spy(&dut, SIGNAL(temperature_changed(double)));
     dut.parse_response(weatherFile.readAll());
     spy.wait(10);
@@ -97,16 +94,13 @@ TEST_F(WeatherFile, ParseTemperatureFromFile) {
 }
 /*****************************************************************************/
 TEST_F(WeatherFile, GetCityFromFile) {
-    auto cm = std::make_shared<CmMock>();
     auto weather_cfg =
         DigitalRooster::WeatherConfig(QString("ABC"), QString("2172797"));
-
-    EXPECT_CALL(*(cm.get()), get_weather_cfg())
+    EXPECT_CALL(cm, get_weather_config())
         .Times(1)
-        .WillRepeatedly(Return(&weather_cfg));
+        .WillRepeatedly(ReturnRef(weather_cfg));
 
     Weather dut(cm);
-
     QSignalSpy spy(&dut, SIGNAL(city_updated(const QString&)));
     dut.parse_response(weatherFile.readAll());
     spy.wait(10);
@@ -116,15 +110,13 @@ TEST_F(WeatherFile, GetCityFromFile) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, ParseConditionFromFile) {
-    auto cm = std::make_shared<CmMock>();
     auto weather_cfg =
         DigitalRooster::WeatherConfig(QString("ABC"), QString("2172797"));
-
-    EXPECT_CALL(*(cm.get()), get_weather_cfg())
+    EXPECT_CALL(cm, get_weather_config())
         .Times(1)
-        .WillRepeatedly(Return(&weather_cfg));
-    Weather dut(cm);
+        .WillRepeatedly(ReturnRef(weather_cfg));
 
+    Weather dut(cm);
     QSignalSpy spy(&dut, SIGNAL(condition_changed(const QString&)));
     dut.parse_response(weatherFile.readAll());
     spy.wait(10);
@@ -134,15 +126,13 @@ TEST_F(WeatherFile, ParseConditionFromFile) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, IconURI) {
-    auto cm = std::make_shared<CmMock>();
     auto weather_cfg =
         DigitalRooster::WeatherConfig(QString("ABC"), QString("2172797"));
-
-    EXPECT_CALL(*(cm.get()), get_weather_cfg())
+    EXPECT_CALL(cm, get_weather_config())
         .Times(1)
-        .WillRepeatedly(Return(&weather_cfg));
-    Weather dut(cm);
+        .WillRepeatedly(ReturnRef(weather_cfg));
 
+    Weather dut(cm);
     QSignalSpy spy(&dut, SIGNAL(temperature_changed(double)));
     dut.parse_response(weatherFile.readAll());
     spy.wait(10);
@@ -150,6 +140,7 @@ TEST_F(WeatherFile, IconURI) {
     ASSERT_EQ(dut.get_weather_icon_url(),
         QUrl("http://openweathermap.org/img/w/02d.png"));
 }
+
 /*****************************************************************************/
 TEST(WeatherCfg, fromJsonGood) {
     auto json_string = QString(R"(
@@ -160,12 +151,12 @@ TEST(WeatherCfg, fromJsonGood) {
 	}
 	)");
     auto jdoc = QJsonDocument::fromJson(json_string.toUtf8());
-
     auto dut = WeatherConfig::from_json_object(jdoc.object());
-    ASSERT_EQ(dut->get_api_token(), QString("Secret"));
-    ASSERT_EQ(dut->get_location_id(), QString("ABCD"));
-    ASSERT_EQ(dut->get_update_interval(), std::chrono::seconds(123));
+    ASSERT_EQ(dut.get_api_token(), QString("Secret"));
+    ASSERT_EQ(dut.get_location_id(), QString("ABCD"));
+    ASSERT_EQ(dut.get_update_interval(), std::chrono::seconds(123));
 }
+
 /*****************************************************************************/
 TEST(WeatherCfg, throwEmptyLocation) {
     auto json_string = QString(R"(
@@ -180,6 +171,7 @@ TEST(WeatherCfg, throwEmptyLocation) {
     ASSERT_THROW(
         WeatherConfig::from_json_object(jdoc.object()), std::invalid_argument);
 }
+
 /*****************************************************************************/
 TEST(WeatherCfg, throwNoApiToken) {
     auto json_string = QString(R"(

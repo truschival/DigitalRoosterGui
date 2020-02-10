@@ -36,14 +36,19 @@ using namespace std::chrono_literals;
 using ::testing::AtLeast;
 
 /*****************************************************************************/
-TEST(SleepTimer, stopsRunningAlarm) {
-    auto cm = std::make_shared<CmMock>();
+class SleepTimerFixture : public ::testing::Test {
+protected:
+    CmMock cm;
+};
+
+/*****************************************************************************/
+TEST_F(SleepTimerFixture, stopsRunningAlarm) {
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
         QTime::currentTime().addSecs(3), Alarm::Daily);
 
     /* sleep timeout 500 ms */
-    EXPECT_CALL(*(cm.get()), get_sleep_timeout())
+    EXPECT_CALL(cm, get_sleep_timeout())
         .Times(AtLeast(1))
         .WillRepeatedly(Return(duration_cast<minutes>(500ms)));
 
@@ -59,10 +64,9 @@ TEST(SleepTimer, stopsRunningAlarm) {
 }
 
 /*****************************************************************************/
-TEST(SleepTimer, stopsPlayer) {
-    auto cm = std::make_shared<CmMock>();
+TEST_F(SleepTimerFixture,stopsPlayer) {
     /* sleep timeout 500 ms */
-    EXPECT_CALL(*(cm.get()), get_sleep_timeout())
+    EXPECT_CALL(cm, get_sleep_timeout())
         .Times(AtLeast(1))
         .WillRepeatedly(Return(duration_cast<minutes>(500ms)));
 
@@ -77,10 +81,9 @@ TEST(SleepTimer, stopsPlayer) {
 }
 
 /*****************************************************************************/
-TEST(SleepTimer, PlayerStoppedStillEmitsSignal) {
-    auto cm = std::make_shared<CmMock>();
+TEST_F(SleepTimerFixture, PlayerStoppedStillEmitsSignal) {
     /* sleep timeout 500 ms */
-    EXPECT_CALL(*(cm.get()), get_sleep_timeout())
+    EXPECT_CALL(cm, get_sleep_timeout())
         .Times(AtLeast(1))
         .WillRepeatedly(Return(duration_cast<minutes>(500ms)));
 
@@ -95,11 +98,9 @@ TEST(SleepTimer, PlayerStoppedStillEmitsSignal) {
 }
 
 /*****************************************************************************/
-
-TEST(SleepTimer, TimeoutChangeEmitsSignal) {
-    auto cm = std::make_shared<CmMock>();
+TEST_F(SleepTimerFixture, TimeoutChangeEmitsSignal) {
     /* sleep timeout 500 ms */
-    EXPECT_CALL(*(cm.get()), get_sleep_timeout())
+    EXPECT_CALL(cm, get_sleep_timeout())
         .Times(AtLeast(1))
         .WillRepeatedly(Return(duration_cast<minutes>(500ms)));
 
@@ -107,13 +108,13 @@ TEST(SleepTimer, TimeoutChangeEmitsSignal) {
     QSignalSpy spy(&dut, SIGNAL(sleep_timeout_changed(int)));
     ASSERT_TRUE(spy.isValid());
     // dispatch alarm
-    dut.set_sleep_timeout(5); // use int signature
+    dut.set_sleep_timeout(5);  // use int signature
     ASSERT_EQ(spy.count(), 1); // expect 1 timeout change
     auto args = spy.first();
     bool valid = true;
     auto to = args.at(0).toInt(&valid);
     ASSERT_TRUE(valid);
-    ASSERT_EQ(to,5);
+    ASSERT_EQ(to, 5);
 }
 
 /*****************************************************************************/

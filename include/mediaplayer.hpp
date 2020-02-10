@@ -56,6 +56,12 @@ public:
     QMediaPlayer::Error error() const;
 
 public slots:
+    /**
+     * Update Media - yes it takes shared ownership mediaplayer updates the
+     * media position while playing make sure it exists even if e.g. the alarm
+     * has been deleted
+     * @param media
+     */
     void set_media(std::shared_ptr<DigitalRooster::PlayableItem> media);
     void set_playlist(QMediaPlaylist* playlist);
     /**

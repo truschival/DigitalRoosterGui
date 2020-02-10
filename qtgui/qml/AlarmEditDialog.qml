@@ -83,7 +83,7 @@ Popup {
 			currentIndex: currentAlarm.period_id;
 
 			onActivated: {
-				console.log("new index" + currentIndex);
+				console.log("new period:" + currentIndex);
 				currentAlarm.period_id = currentIndex;
 			}
 		}

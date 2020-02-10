@@ -11,36 +11,34 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  ******************************************************************************/
 #include <QByteArray>
-#include <QDebug>
 #include <QHash>
+#include <QLoggingCategory>
 #include <QQmlEngine>
 
 #include "alarm.hpp"
 #include "alarmlistmodel.hpp"
-#include "configuration_manager.hpp"
 
 using namespace DigitalRooster;
 
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.AlarmListModel");
 
 /******************************************************************************/
-
-AlarmListModel::AlarmListModel(
-    std::shared_ptr<DigitalRooster::ConfigurationManager> confman,
-    QObject* parent)
+AlarmListModel::AlarmListModel(IAlarmStore& store, QObject* parent)
     : QAbstractListModel(parent)
-    , cm(confman) {
+    , cm(store) {
 }
 
 /******************************************************************************/
-
-AlarmListModel::AlarmListModel(QObject* parent)
-    : QAbstractListModel(parent)
-    , cm(nullptr) {
+bool AlarmListModel::check_selection(int row) const {
+    auto sz = cm.get_alarms().size();
+    if (row < 0 || row >= sz) {
+        qWarning() << "Invalid Selection";
+        return false;
+    }
+    return true;
 }
 
 /******************************************************************************/
-
 QHash<int, QByteArray> AlarmListModel::roleNames() const {
     QHash<int, QByteArray> roles;
 
@@ -51,24 +49,23 @@ QHash<int, QByteArray> AlarmListModel::roleNames() const {
     roles[EnabledRole] = "alarmEnabled";
     return roles;
 }
-/******************************************************************************/
 
+/******************************************************************************/
 int AlarmListModel::rowCount(const QModelIndex& /*parent */) const {
-    if (cm->get_alarms().size() <= 0) {
-        qWarning() << " alarms configured ";
+    auto sz = cm.get_alarms().size();
+    if (sz <= 0) {
+        qWarning() << "no alarms configured ";
     }
-    return cm->get_alarms().size();
+    return sz;
 }
 
 /******************************************************************************/
 QVariant AlarmListModel::data(const QModelIndex& index, int role) const {
-    if (cm->get_alarms().size() <= 0)
+    if (!check_selection(index.row())) {
         return QVariant();
+    }
 
-    if (index.row() < 0 || index.row() >= cm->get_alarms().size())
-        return QVariant();
-
-    auto alarm = cm->get_alarms().at(index.row());
+    auto alarm = cm.get_alarms().at(index.row());
 
     switch (role) {
     case PeriodicityRole:
@@ -87,22 +84,21 @@ QVariant AlarmListModel::data(const QModelIndex& index, int role) const {
 }
 /******************************************************************************/
 void AlarmListModel::set_enabled(int row, bool enabled) {
-    if (row < 0 || row >= cm->get_alarms().size()) {
-        qWarning() << "Invalid Selection";
+    if (!check_selection(row)) {
         return;
     }
-    cm->get_alarms().at(row)->enable(enabled);
+    cm.get_alarms().at(row)->enable(enabled);
 
     emit dataChanged(index(row, 0), index(row, 0), {EnabledRole});
 }
 
 /******************************************************************************/
 DigitalRooster::Alarm* AlarmListModel::get_alarm(int row) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (row < 0 || row >= cm->get_alarms().size()) {
-        qWarning() << "Invalid Selection";
+    if (!check_selection(row)) {
+        qCCritical(CLASS_LC) << Q_FUNC_INFO << "invalid row!";
+        return nullptr;
     }
-    auto ret = cm->get_alarms().at(row).get();
+    auto ret = cm.get_alarms().at(row).get();
     QQmlEngine::setObjectOwnership(ret, QQmlEngine::CppOwnership);
 
     return ret;
@@ -110,11 +106,9 @@ DigitalRooster::Alarm* AlarmListModel::get_alarm(int row) {
 
 /******************************************************************************/
 void AlarmListModel::update_row(int row) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO << row;
-    if (row < 0 || row >= cm->get_alarms().size()) {
-        qWarning() << "Invalid Selection";
+    if (!check_selection(row)) {
+        return;
     }
-
     emit dataChanged(index(row, 0), index(row, 0),
         {TimeRole, EnabledRole, PeriodicityRole, PeriodStringRole, UriRole});
 }
@@ -122,10 +116,11 @@ void AlarmListModel::update_row(int row) {
 /*****************************************************************************/
 
 bool AlarmListModel::removeRows(
-        int row, int count, const QModelIndex& /*parent */){
-	 qCWarning(CLASS_LC) << Q_FUNC_INFO << "is not implemented!";
-	//cm->delete_alarm(id);
-	return true;
+    int row, int count, const QModelIndex& /*parent */) {
+    qCWarning(CLASS_LC) << Q_FUNC_INFO << "is not implemented!";
+    // TODO:
+    // cm->delete_alarm(id);
+    return true;
 }
 
 /*****************************************************************************/
@@ -133,9 +128,9 @@ int AlarmListModel::delete_alarm(qint64 row) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << row;
     beginRemoveRows(QModelIndex(), row, row);
     try {
-        auto alarm = cm->get_alarms().at(row);
+        auto alarm = cm.get_alarms().at(row);
         if (alarm) {
-            cm->delete_alarm(alarm->get_id());
+            cm.delete_alarm(alarm->get_id());
         }
     } catch (std::out_of_range& exc) {
         qCWarning(CLASS_LC) << Q_FUNC_INFO << " Alarm not found! ";
@@ -148,11 +143,13 @@ int AlarmListModel::delete_alarm(qint64 row) {
 DigitalRooster::Alarm* AlarmListModel::create_alarm() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto new_alarm = std::make_shared<Alarm>();
-    new_alarm->set_media(cm->get_stream_sources().at(0));
-    new_alarm->set_time(QTime::fromString("06:30","hh:mm"));
+    // TODO: Can we do without access to streamsources?
+    // new_alarm->set_media(cm->get_stream_sources().at(0));
+
+    new_alarm->set_time(QTime::fromString("06:30", "hh:mm"));
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     QQmlEngine::setObjectOwnership(new_alarm.get(), QQmlEngine::CppOwnership);
-    cm->add_alarm(new_alarm);
+    cm.add_alarm(new_alarm);
     endInsertRows();
     return new_alarm.get();
 }

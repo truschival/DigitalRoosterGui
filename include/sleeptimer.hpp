@@ -15,13 +15,16 @@
 
 #include <QMediaPlayer>
 #include <QObject>
+#include <QTimer>
+
 #include <chrono>
 #include <memory>
 
-#include "alarm.hpp"
-#include "configuration_manager.hpp"
+#include "ITimeoutStore.hpp"
 
 namespace DigitalRooster {
+// forward decl
+class Alarm;
 
 /**
  * SleepTimer emits sleep_timer_elapsed() after \ref
@@ -42,8 +45,8 @@ public:
      * @param cm configuration manager
      * @param parent owning QObject
      */
-    SleepTimer(
-        std::shared_ptr<ConfigurationManager> cm, QObject* parent = nullptr);
+    explicit SleepTimer(
+        ITimeOutStore& store, QObject* parent = nullptr);
 
     /**
      * Access the remaining time until standby is triggered
@@ -139,7 +142,7 @@ private:
     /**
      * Central configuration and data handler
      */
-    std::shared_ptr<ConfigurationManager> cm;
+    ITimeOutStore& cm;
 
     /**
      * Timer to trigger standby

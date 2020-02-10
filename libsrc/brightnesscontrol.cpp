@@ -12,9 +12,11 @@
 #include <QAudio>
 #include <QLoggingCategory>
 #include <memory>
+#include <cmath>
 
+#include "IBrightnessStore.hpp"
 #include "brightnesscontrol.hpp"
-#include "configuration_manager.hpp"
+#include "powercontrol.hpp"
 
 using namespace DigitalRooster;
 
@@ -22,9 +24,8 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.BrightnessControl");
 static const double LOG_100 = 4.6052;
 
 /*****************************************************************************/
-BrightnessControl::BrightnessControl(
-    std::shared_ptr<ConfigurationManager> confman)
-    : cm(confman)
+BrightnessControl::BrightnessControl(IBrightnessStore& store)
+    : cm(store)
     , linear_brightness(0) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }
@@ -34,7 +35,7 @@ void BrightnessControl::set_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << "Linear: " << brightness;
     linear_brightness = brightness;
     emit brightness_pwm_change(lin2log(linear_brightness));
-    cm->set_active_brightness(brightness);
+    cm.set_active_brightness(brightness);
 }
 
 /*****************************************************************************/
@@ -57,14 +58,14 @@ int BrightnessControl::lin2log(int lb) {
 /*****************************************************************************/
 void BrightnessControl::restore_active_brightness() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    linear_brightness = cm->get_active_brightness();
+    linear_brightness = cm.get_active_brightness();
     emit brightness_pwm_change(lin2log(linear_brightness));
 }
 
 /*****************************************************************************/
 void BrightnessControl::restore_standby_brightness() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    linear_brightness = cm->get_standby_brightness();
+    linear_brightness = cm.get_standby_brightness();
     emit brightness_pwm_change(lin2log(linear_brightness));
 }
 

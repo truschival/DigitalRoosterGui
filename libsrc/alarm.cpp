@@ -23,7 +23,16 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.Alarm");
 
 /*****************************************************************************/
-// Alarm from time
+Alarm::Alarm()
+    : id(QUuid::createUuid())
+    , media(std::make_shared<PlayableItem>("Alarm", QUrl()))
+    , period(Alarm::Daily)
+    , enabled(true)
+    , timeout(DEFAULT_ALARM_TIMEOUT) {
+}
+
+/*****************************************************************************/
+// Alarm from time with media etc.
 Alarm::Alarm(const QUrl& media, const QTime& timepoint, Alarm::Period period,
     bool enabled, const QUuid& uid, QObject* parent)
     : QObject(parent)
@@ -48,6 +57,7 @@ void Alarm::set_time(const QTime& timeofday) {
 
 /*****************************************************************************/
 QUrl Alarm::get_media_url() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return media->get_url();
 }
 
@@ -84,10 +94,9 @@ const QTime& Alarm::get_time() const {
 
 /*****************************************************************************/
 
-static const std::vector<std::pair<Alarm::Period, QString>>
-    period_to_string = {{Alarm::Daily, KEY_ALARM_DAILY},
-        {Alarm::Workdays, KEY_ALARM_WORKDAYS},
-        {Alarm::Weekend, KEY_ALARM_WEEKEND}, {Alarm::Once, KEY_ALARM_ONCE}};
+static const std::vector<std::pair<Alarm::Period, QString>> period_to_string = {
+    {Alarm::Daily, KEY_ALARM_DAILY}, {Alarm::Workdays, KEY_ALARM_WORKDAYS},
+    {Alarm::Weekend, KEY_ALARM_WEEKEND}, {Alarm::Once, KEY_ALARM_ONCE}};
 
 /*****************************************************************************/
 void Alarm::update_media_url(const QUrl& url) {
@@ -95,6 +104,12 @@ void Alarm::update_media_url(const QUrl& url) {
     media->set_url(url);
     emit media_url_changed(url);
     emit dataChanged();
+}
+
+/*****************************************************************************/
+void Alarm::set_media(std::shared_ptr<PlayableItem> new_media) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    media = new_media;
 }
 
 /*****************************************************************************/
@@ -122,16 +137,15 @@ QString DigitalRooster::alarm_period_to_json_string(
             return item.first == period;
         });
     if (res == period_to_string.end()) {
-        qCWarning(CLASS_LC) << "Invalid Period passed (" << period << ")" <<
-        		"This should never happen - aborting";
+        qCWarning(CLASS_LC) << "Invalid Period passed (" << period << ")"
+                            << "This should never happen - aborting";
         abort();
     }
     return res->second;
 }
 
 /*****************************************************************************/
-std::shared_ptr<Alarm> Alarm::from_json_object(
-    const QJsonObject& json_alarm) {
+std::shared_ptr<Alarm> Alarm::from_json_object(const QJsonObject& json_alarm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (json_alarm.isEmpty()) {
         throw std::invalid_argument("Empty Alarm JSON object!");
@@ -146,8 +160,9 @@ std::shared_ptr<Alarm> Alarm::from_json_object(
         json_alarm[KEY_ALARM_PERIOD].toString(KEY_ALARM_DAILY));
     auto timepoint =
         QTime::fromString(json_alarm[KEY_TIME].toString(), "hh:mm");
-    if(!timepoint.isValid()){
-        qCWarning(CLASS_LC) << "Invalid Time " << json_alarm[KEY_TIME].toString();
+    if (!timepoint.isValid()) {
+        qCWarning(CLASS_LC)
+            << "Invalid Time " << json_alarm[KEY_TIME].toString();
         throw std::invalid_argument("Alarm Time invalid!");
     }
 
@@ -183,7 +198,7 @@ QJsonObject Alarm::to_json_object() const {
         alarm_period_to_json_string(this->get_period());
     alarmcfg[KEY_TIME] = this->get_time().toString("hh:mm");
     alarmcfg[KEY_VOLUME] = this->get_volume();
-    alarmcfg[KEY_URI] = this->get_media()->get_url().toString();
+    alarmcfg[KEY_URI] = this->get_media_url().toString();
     alarmcfg[KEY_ENABLED] = this->is_enabled();
     return alarmcfg;
 }

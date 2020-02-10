@@ -20,9 +20,10 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "alarm.hpp"
-#include "appconstants.hpp"
+#include "PlayableItem.hpp"
+#include "PodcastSource.hpp"
 #include "UpdateTask.hpp"
+#include "alarm.hpp"
 #include "configuration_manager.hpp"
 
 using namespace DigitalRooster;
@@ -82,7 +83,6 @@ ConfigurationManager::ConfigurationManager(
     , volume(DEFAULT_VOLUME)
     , brightness_sb(DEFAULT_BRIGHTNESS)
     , brightness_act(DEFAULT_BRIGHTNESS)
-    , weather_cfg(new WeatherConfig)
     , config_file(configpath)
     , application_cache_dir(cachedir)
     , wpa_socket_name(WPA_CONTROL_SOCKET_PATH) {
@@ -197,8 +197,7 @@ void ConfigurationManager::parse_json(const QByteArray& json) {
 }
 
 /*****************************************************************************/
-void ConfigurationManager::read_radio_streams(
-    const QJsonObject& appconfig) {
+void ConfigurationManager::read_radio_streams(const QJsonObject& appconfig) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonArray stations =
         appconfig[DigitalRooster::KEY_GROUP_IRADIO_SOURCES].toArray();
@@ -223,15 +222,14 @@ void ConfigurationManager::read_radio_streams(
 }
 
 /*****************************************************************************/
-void ConfigurationManager::read_podcasts(
-    const QJsonObject& appconfig) {
+void ConfigurationManager::read_podcasts(const QJsonObject& appconfig) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonArray podcasts =
         appconfig[DigitalRooster::KEY_GROUP_PODCAST_SOURCES].toArray();
     for (const auto pc : podcasts) {
         auto ps = PodcastSource::from_json_object(pc.toObject());
         auto serializer = std::make_unique<PodcastSerializer>(
-                application_cache_dir, ps.get());
+            application_cache_dir, ps.get());
         // populate podcast source from cached info
         serializer->restore_info();
         // Move ownership to Podcast Source and setup signal/slot connections
@@ -272,8 +270,7 @@ void ConfigurationManager::read_alarms(const QJsonObject& appconfig) {
 }
 
 /*****************************************************************************/
-void ConfigurationManager::read_weather(
-    const QJsonObject& appconfig) {
+void ConfigurationManager::read_weather(const QJsonObject& appconfig) {
     if (appconfig[KEY_WEATHER].isNull()) {
         qCWarning(CLASS_LC) << "no weather configuration found!";
         return;
@@ -284,55 +281,6 @@ void ConfigurationManager::read_weather(
     } catch (std::invalid_argument& exc) {
         qCWarning(CLASS_LC) << "cannot parse weather config!";
     }
-}
-
-/*****************************************************************************/
-void ConfigurationManager::add_radio_station(
-    std::shared_ptr<PlayableItem> src) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    this->stream_sources.push_back(src);
-    dataChanged();
-    emit stations_changed();
-}
-
-/*****************************************************************************/
-const PlayableItem* ConfigurationManager::get_stream_source(
-    const QUuid& id) const {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    /* Find by id throws - just pass it on to the client */
-    return find_by_id(stream_sources, id);
-}
-
-/*****************************************************************************/
-void ConfigurationManager::add_podcast_source(
-    std::shared_ptr<PodcastSource> src) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    this->podcast_sources.push_back(src);
-    dataChanged();
-    emit podcast_sources_changed();
-}
-
-/*****************************************************************************/
-const PodcastSource* ConfigurationManager::get_podcast_source(
-    const QUuid& id) const {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    /* Find by id throws - just pass it on to the client */
-    return find_by_id(podcast_sources, id);
-}
-
-/*****************************************************************************/
-void ConfigurationManager::add_alarm(std::shared_ptr<Alarm> alm) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    this->alarms.push_back(alm);
-    dataChanged();
-    emit alarms_changed();
-}
-
-/*****************************************************************************/
-const Alarm* ConfigurationManager::get_alarm(const QUuid& id) const {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    /* Find by id throws - just pass it on to the client */
-    return find_by_id(alarms, id);
 }
 
 /*****************************************************************************/
@@ -413,7 +361,7 @@ void ConfigurationManager::store_current_config() {
     appconfig[KEY_GROUP_ALARMS] = alarms_json;
 
     /* Store Weather information*/
-    appconfig[KEY_WEATHER] = weather_cfg->to_json_object();
+    appconfig[KEY_WEATHER] = weather_cfg.to_json_object();
 
     /* global application configuration */
     appconfig[KEY_ALARM_TIMEOUT] =
@@ -532,6 +480,118 @@ QString ConfigurationManager::check_and_create_config() {
 }
 
 /*****************************************************************************/
+QString ConfigurationManager::get_cache_dir_name() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    return application_cache_dir.path();
+}
+
+/*****************************************************************************/
+
+
+/*****************************************************************************
+ * Implementation of IAlarmStore
+ *****************************************************************************/
+void ConfigurationManager::delete_alarm(const QUuid& id) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    /* delete may throw - just pass it on to the client */
+    delete_by_id(alarms, id);
+    dataChanged();
+    emit alarms_changed();
+};
+/*****************************************************************************/
+void ConfigurationManager::add_alarm(std::shared_ptr<Alarm> alm) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    this->alarms.push_back(alm);
+    dataChanged();
+    emit alarms_changed();
+}
+
+/*****************************************************************************/
+const Alarm* ConfigurationManager::get_alarm(const QUuid& id) const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    /* Find by id throws - just pass it on to the client */
+    return find_by_id(alarms, id);
+}
+
+/*****************************************************************************/
+const QVector<std::shared_ptr<Alarm>>&
+ConfigurationManager::get_alarms() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    return alarms;
+}
+
+
+/*****************************************************************************
+ * Implementation of IStationStore
+ *****************************************************************************/
+void ConfigurationManager::add_radio_station(
+    std::shared_ptr<PlayableItem> src) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    this->stream_sources.push_back(src);
+    dataChanged();
+    emit stations_changed();
+}
+
+/*****************************************************************************/
+void ConfigurationManager::delete_radio_station(const QUuid& id) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    /* delete may throw - just pass it on to the client */
+    delete_by_id(stream_sources, id);
+    dataChanged();
+    emit stations_changed();
+};
+
+/*****************************************************************************/
+const PlayableItem* ConfigurationManager::get_station(const QUuid& id) const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    /* Find by id throws - just pass it on to the client */
+    return find_by_id(stream_sources, id);
+}
+
+/*****************************************************************************/
+const QVector<std::shared_ptr<PlayableItem>>&
+ConfigurationManager::get_stations() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    return stream_sources;
+}
+
+
+/*****************************************************************************
+ * Implementation of IPodcastStore
+ *****************************************************************************/
+void ConfigurationManager::add_podcast_source(
+    std::shared_ptr<PodcastSource> src) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    this->podcast_sources.push_back(src);
+    dataChanged();
+    emit podcast_sources_changed();
+}
+
+/*****************************************************************************/
+void ConfigurationManager::delete_podcast_source(const QUuid& id) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    /* delete may throw - just pass it on to the client */
+    delete_by_id(podcast_sources, id);
+    dataChanged();
+    emit podcast_sources_changed();
+};
+
+/*****************************************************************************/
+const PodcastSource* ConfigurationManager::get_podcast_source(
+    const QUuid& id) const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    /* Find by id throws - just pass it on to the client */
+    return find_by_id(podcast_sources, id);
+}
+
+/*****************************************************************************/
+const QVector<std::shared_ptr<PodcastSource>>&
+ConfigurationManager::get_podcast_sources() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    return podcast_sources;
+}
+
+/*****************************************************************************/
 PodcastSource* ConfigurationManager::get_podcast_source_by_index(
     int index) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
@@ -542,37 +602,27 @@ PodcastSource* ConfigurationManager::get_podcast_source_by_index(
 void ConfigurationManager::remove_podcast_source_by_index(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     podcast_sources.remove(index);
+    emit podcast_sources_changed();
+    emit dataChanged();
     writeTimer.start(); // start delayed write
+}
+/*****************************************************************************
+ * Implementation of IBrightnessStore
+ *****************************************************************************/
+int ConfigurationManager::get_active_brightness() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    return brightness_act;
 }
 
 /*****************************************************************************/
-void ConfigurationManager::delete_alarm(const QUuid& id) {
+int ConfigurationManager::get_standby_brightness() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    /* delete may throw - just pass it on to the client */
-    delete_by_id(alarms, id);
-    dataChanged();
-    emit alarms_changed();
-};
+    return brightness_sb;
+}
 
-/*****************************************************************************/
-void ConfigurationManager::delete_podcast_source(const QUuid& id) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    /* delete may throw - just pass it on to the client */
-    delete_by_id(podcast_sources, id);
-    dataChanged();
-    emit alarms_changed();
-};
-
-/*****************************************************************************/
-void ConfigurationManager::delete_radio_station(const QUuid& id) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    /* delete may throw - just pass it on to the client */
-    delete_by_id(stream_sources, id);
-    dataChanged();
-    emit alarms_changed();
-};
-
-/*****************************************************************************/
+/*****************************************************************************
+ * Implementation of ITimeoutStore
+ *****************************************************************************/
 std::chrono::minutes ConfigurationManager::get_sleep_timeout() const {
     return sleep_timeout;
 }
@@ -585,9 +635,17 @@ void ConfigurationManager::set_sleep_timeout(std::chrono::minutes timeout) {
 }
 
 /*****************************************************************************/
-QString ConfigurationManager::get_cache_dir_name() {
+std::chrono::minutes ConfigurationManager::get_alarm_timeout() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return application_cache_dir.path();
+    return global_alarm_timeout;
+}
+
+/*****************************************************************************
+ * Implementation of IWeatherConfigStore
+ *****************************************************************************/
+const WeatherConfig& ConfigurationManager::get_weather_config() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    return weather_cfg;
 }
 
 /*****************************************************************************/

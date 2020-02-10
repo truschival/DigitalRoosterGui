@@ -17,26 +17,17 @@
 #include <QQmlEngine>
 
 #include "PlayableItem.hpp"
-#include "configuration_manager.hpp"
 #include "iradiolistmodel.hpp"
 #include "mediaplayerproxy.hpp"
 
 using namespace DigitalRooster;
 
 /*****************************************************************************/
-IRadioListModel::IRadioListModel(
-    std::shared_ptr<DigitalRooster::ConfigurationManager> confman,
-    std::shared_ptr<DigitalRooster::MediaPlayerProxy> pp, QObject* parent)
+IRadioListModel::IRadioListModel(IStationStore& store,
+    MediaPlayer& mp, QObject* parent)
     : QAbstractListModel(parent)
-    , cm(confman)
-    , mpp(pp) {
-}
-
-
-/*****************************************************************************/
-IRadioListModel::IRadioListModel(QObject* parent)
-    : QAbstractListModel(parent)
-    , cm(nullptr) {
+    , cm(store)
+    , mpp(mp) {
 }
 
 /*****************************************************************************/
@@ -50,35 +41,37 @@ QHash<int, QByteArray> IRadioListModel::roleNames() const {
 /*****************************************************************************/
 int IRadioListModel::rowCount(const QModelIndex& /*parent */) const {
     // qDebug() << __FUNCTION__;
-    if (cm->get_stream_sources().size() <= 0) {
+    auto sz = cm.get_stations().size();
+    if (sz <= 0) {
         qWarning() << " no stations ";
     }
-    return cm->get_stream_sources().size();
+    return sz;
 }
 
 /*****************************************************************************/
 QUrl IRadioListModel::get_station_url(int index) {
-    auto pi = cm->get_stream_sources().at(index);
+    auto pi = cm.get_stations().at(index);
     return pi->get_url();
 }
 
 /*****************************************************************************/
 void IRadioListModel::send_to_player(int index) {
-    auto station = cm->get_stream_sources().at(index);
-    mpp->set_media(station);
-    mpp->play();
+    auto station = cm.get_stations().at(index);
+    mpp.set_media(station);
+    mpp.play();
 }
 
 /*****************************************************************************/
 QVariant IRadioListModel::data(const QModelIndex& index, int role) const {
     // qDebug() << __FUNCTION__ << "(" << index.row() << ")";
-    if (cm->get_stream_sources().size() <= 0)
+	auto sz = cm.get_stations().size();
+	if (sz <= 0)
         return QVariant();
 
-    if (index.row() < 0 || index.row() >= cm->get_stream_sources().size())
+    if (index.row() < 0 || index.row() >= sz)
         return QVariant();
 
-    auto station = cm->get_stream_sources().at(index.row());
+    auto station = cm.get_stations().at(index.row());
 
     switch (role) {
     case StationNameRole:
