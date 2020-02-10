@@ -18,11 +18,9 @@
 #include <chrono>
 #include <memory>
 
-#include "alarm.hpp"
-#include "IAlarmStore.hpp"
-#include "mediaplayerproxy.hpp"
-
 namespace DigitalRooster {
+class Alarm;
+class IAlarmStore;
 
 /**
  * Monitors changes in alarm configuration and dispatches alarms when due

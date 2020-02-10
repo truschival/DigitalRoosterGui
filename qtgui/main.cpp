@@ -31,6 +31,7 @@
 #include "hwif/hardware_control.hpp"
 
 // Local classes
+#include "PlayableItem.hpp" // to register type
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
 #include "alarmlistmodel.hpp"
@@ -235,18 +236,18 @@ int main(int argc, char* argv[]) {
      */
     qmlRegisterUncreatableType<DigitalRooster::PodcastEpisodeModel>(
         "ruschi.PodcastEpisodeModel", 1, 0, "PodcastEpisodeModel",
-        "QML must not instatiate PodcastEpisodeModel!");
+        "QML must not instantiate PodcastEpisodeModel!");
     qmlRegisterUncreatableType<DigitalRooster::PodcastEpisode>(
         "ruschi.PodcastEpisode", 1, 0, "PodcastEpisode",
-        "QML must not instatiate PodcastEpisode!");
-    qmlRegisterUncreatableType<DigitalRooster::Alarm>("ruschi.Alarm", 1, 0, "Alarm",
-            "QML must not instatiate Alarm!");
+        "QML must not instantiate PodcastEpisode!");
+    qmlRegisterUncreatableType<DigitalRooster::Alarm>(
+        "ruschi.Alarm", 1, 0, "Alarm", "QML must not instatiate Alarm!");
     qmlRegisterUncreatableType<DigitalRooster::PlayableItem>(
         "ruschi.PlayableItem", 1, 0, "PlayableItem",
-        "QML must not instatiate PlayableItem!");
+        "QML must not instantiate PlayableItem!");
     qmlRegisterUncreatableType<DigitalRooster::WifiListModel>(
         "ruschi.WifiListModel", 1, 0, "WifiListModel",
-        "QML must not instatiate WifiListModel!");
+        "QML must not instantiate WifiListModel!");
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();

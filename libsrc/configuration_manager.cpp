@@ -20,9 +20,10 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "PlayableItem.hpp"
+#include "PodcastSource.hpp"
 #include "UpdateTask.hpp"
 #include "alarm.hpp"
-#include "appconstants.hpp"
 #include "configuration_manager.hpp"
 
 using namespace DigitalRooster;

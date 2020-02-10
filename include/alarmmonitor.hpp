@@ -19,10 +19,9 @@
 #include <chrono>
 #include <memory>
 
-#include "alarm.hpp"
-#include "mediaplayer.hpp"
-
 namespace DigitalRooster {
+class MediaPlayer;
+class Alarm;
 
 /**
  * Supervision of alarm behavior. Makes sure I wake up even if the original

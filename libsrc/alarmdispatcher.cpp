@@ -16,6 +16,7 @@
 #include <chrono>
 #include <memory>
 
+#include "IAlarmStore.hpp"
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
 #include "mediaplayerproxy.hpp"

@@ -16,15 +16,12 @@
 #include <QObject>
 #include <QString>
 #include <QVector>
+#include <QTimer>
 
 #include <chrono>
 #include <memory>
 
-#include "PlayableItem.hpp"
-#include "PodcastSource.hpp"
-#include "alarm.hpp"
 #include "appconstants.hpp"
-
 /* Implemented Interfaces */
 #include "IAlarmStore.hpp"
 #include "IBrightnessStore.hpp"
@@ -34,6 +31,11 @@
 #include "IWeatherConfigStore.hpp"
 
 namespace DigitalRooster {
+// forward decl
+class PlayableItem;
+class PodcastSource;
+class Alarm;
+
 /**
  * Reads JSON configuration and provides API to configuration objects
  */

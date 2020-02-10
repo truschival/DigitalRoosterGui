@@ -24,11 +24,9 @@
 #include <exception>
 #include <memory>
 
-#include "PlayableItem.hpp"
 
 namespace DigitalRooster {
 class PodcastSource;
-
 
 /**
  * Serialization/Deserialization of PodcastSources and PodcastEpisodes

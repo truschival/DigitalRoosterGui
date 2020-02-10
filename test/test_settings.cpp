@@ -9,6 +9,7 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
+#include <QJsonDocument>
 #include <QSettings>
 #include <QSignalSpy>
 #include <QStandardPaths>
@@ -19,6 +20,9 @@
 #include <fstream>
 #include <string>
 
+#include "PlayableItem.hpp"
+#include "PodcastSource.hpp"
+#include "alarm.hpp"
 #include "appconstants.hpp"
 #include "config.h"
 #include "configuration_manager.hpp"
@@ -213,7 +217,7 @@ TEST_F(SettingsFixture, add_podcast_source) {
     auto size_before = cm->get_podcast_sources().size();
     cm->add_podcast_source(ps);
     ASSERT_EQ(spy.count(), 1);
-    ASSERT_EQ(cm->get_podcast_sources().size(), size_before+1);
+    ASSERT_EQ(cm->get_podcast_sources().size(), size_before + 1);
 }
 
 /*****************************************************************************/
@@ -224,26 +228,25 @@ TEST_F(SettingsFixture, get_podcast_source_throws) {
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, get_podcast_source_ok) {
-	auto& v = cm->get_podcast_sources();
-	auto uid = v[0]->get_id();
-	auto item = cm->get_podcast_source(uid);
-	ASSERT_EQ(item,v[0].get());
+    auto& v = cm->get_podcast_sources();
+    auto uid = v[0]->get_id();
+    auto item = cm->get_podcast_source(uid);
+    ASSERT_EQ(item, v[0].get());
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, delete_podcast_source) {
-	auto& v = cm->get_podcast_sources();
-	auto size_before=v.size();
-	auto uid = v[0]->get_id();
-	cm->delete_podcast_source(uid);
-	ASSERT_EQ(cm->get_podcast_sources().size(), size_before-1);
-	EXPECT_THROW(
-	        cm->get_podcast_source(uid), std::out_of_range);
+    auto& v = cm->get_podcast_sources();
+    auto size_before = v.size();
+    auto uid = v[0]->get_id();
+    cm->delete_podcast_source(uid);
+    ASSERT_EQ(cm->get_podcast_sources().size(), size_before - 1);
+    EXPECT_THROW(cm->get_podcast_source(uid), std::out_of_range);
 }
 /*****************************************************************************/
 TEST_F(SettingsFixture, delete_podcast_throws) {
-	EXPECT_THROW(
-	        cm->delete_podcast_source(QUuid::createUuid()), std::out_of_range);
+    EXPECT_THROW(
+        cm->delete_podcast_source(QUuid::createUuid()), std::out_of_range);
 }
 
 /*****************************************************************************/
@@ -254,37 +257,35 @@ TEST_F(SettingsFixture, add_radio_station) {
     auto size_before = cm->get_stations().size();
     cm->add_radio_station(radio);
     ASSERT_EQ(spy.count(), 1);
-    ASSERT_EQ(cm->get_stations().size(), size_before+1);
+    ASSERT_EQ(cm->get_stations().size(), size_before + 1);
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, get_radio_station_throws) {
-    EXPECT_THROW(
-        cm->get_station(QUuid::createUuid()), std::out_of_range);
+    EXPECT_THROW(cm->get_station(QUuid::createUuid()), std::out_of_range);
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, get_radio_station_ok) {
-	auto& v = cm->get_stations();
-	auto uid = v[0]->get_id();
-	auto item = cm->get_station(uid);
-	ASSERT_EQ(item,v[0].get());
+    auto& v = cm->get_stations();
+    auto uid = v[0]->get_id();
+    auto item = cm->get_station(uid);
+    ASSERT_EQ(item, v[0].get());
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, delete_radio_station) {
-	auto& v = cm->get_stations();
-	auto size_before=v.size();
-	auto uid = v[0]->get_id();
-	cm->delete_radio_station(uid);
-	ASSERT_EQ(cm->get_stations().size(), size_before-1);
-	EXPECT_THROW(
-	        cm->get_station(uid), std::out_of_range);
+    auto& v = cm->get_stations();
+    auto size_before = v.size();
+    auto uid = v[0]->get_id();
+    cm->delete_radio_station(uid);
+    ASSERT_EQ(cm->get_stations().size(), size_before - 1);
+    EXPECT_THROW(cm->get_station(uid), std::out_of_range);
 }
 /*****************************************************************************/
 TEST_F(SettingsFixture, delete_radio_throws) {
-	EXPECT_THROW(
-	        cm->delete_radio_station(QUuid::createUuid()), std::out_of_range);
+    EXPECT_THROW(
+        cm->delete_radio_station(QUuid::createUuid()), std::out_of_range);
 }
 
 
@@ -296,38 +297,35 @@ TEST_F(SettingsFixture, add_alarm) {
     auto size_before = cm->get_alarms().size();
     cm->add_alarm(alm);
     ASSERT_EQ(spy.count(), 1);
-    ASSERT_EQ(cm->get_alarms().size(), size_before+1);
+    ASSERT_EQ(cm->get_alarms().size(), size_before + 1);
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, get_alarm_throws) {
-    EXPECT_THROW(
-        cm->get_alarm(QUuid::createUuid()), std::out_of_range);
+    EXPECT_THROW(cm->get_alarm(QUuid::createUuid()), std::out_of_range);
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, get_alarm_ok) {
-	auto& v = cm->get_alarms();
-	auto uid = v[0]->get_id();
-	auto item = cm->get_alarm(uid);
-	ASSERT_EQ(item,v[0].get());
+    auto& v = cm->get_alarms();
+    auto uid = v[0]->get_id();
+    auto item = cm->get_alarm(uid);
+    ASSERT_EQ(item, v[0].get());
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, delete_alarm) {
-	auto& v = cm->get_alarms();
-	auto size_before=v.size();
-	auto uid = v[0]->get_id();
-	cm->delete_alarm(uid);
-	ASSERT_EQ(cm->get_alarms().size(), size_before-1);
-	EXPECT_THROW(
-	        cm->get_alarm(uid), std::out_of_range);
+    auto& v = cm->get_alarms();
+    auto size_before = v.size();
+    auto uid = v[0]->get_id();
+    cm->delete_alarm(uid);
+    ASSERT_EQ(cm->get_alarms().size(), size_before - 1);
+    EXPECT_THROW(cm->get_alarm(uid), std::out_of_range);
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, delete_alarm_throws) {
-	EXPECT_THROW(
-	        cm->delete_alarm(QUuid::createUuid()), std::out_of_range);
+    EXPECT_THROW(cm->delete_alarm(QUuid::createUuid()), std::out_of_range);
 }
 
 /*****************************************************************************/
