@@ -77,11 +77,11 @@ void Weather::parse_response(QByteArray content) {
     parse_condition(o); // also extracts icon
     emit weather_info_updated();
 }
-/*****************************************************************************/
 
+/*****************************************************************************/
 QUrl DigitalRooster::create_weather_uri(const WeatherConfig& cfg) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    QString request_str({"http://api.openweathermap.org/data/2.5/weather?"});
+    QString request_str({"https://api.openweathermap.org/data/2.5/weather?"});
     request_str.reserve(512);
     request_str += "id=";
     request_str += cfg.get_location_id();
@@ -89,14 +89,18 @@ QUrl DigitalRooster::create_weather_uri(const WeatherConfig& cfg) {
     request_str += "&appid=";
     request_str += cfg.get_api_token();
     request_str += "&lang=en"; //default english
+    request_str += "&cnt=5"; // ~now, +3h, +6h, +9h, +12h
     return QUrl(request_str);
 }
+
 /*****************************************************************************/
 void Weather::parse_city(const QJsonObject& o) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     city_name = o["name"].toString();
+    qCInfo(CLASS_LC) << "Weather location:" << city_name;
     emit city_updated(city_name);
 }
+
 /*****************************************************************************/
 void Weather::parse_temperature(const QJsonObject& o) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
@@ -114,7 +118,7 @@ void Weather::parse_condition(const QJsonObject& o) {
     auto weather_arr = o["weather"].toArray();
     auto weather = weather_arr.at(0);
     if (weather.isUndefined()) {
-        qCWarning(CLASS_LC) << " couldn't read weather JSON object";
+        qCWarning(CLASS_LC) << "couldn't read weather JSON object";
         return;
     }
     condition = weather["description"].toString();
