@@ -155,7 +155,7 @@ void PodcastEpisode::set_description(const QString& desc) {
 
 /***********************************************************************/
 QString PodcastEpisode::get_guid() const {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+//    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (guid.isEmpty()) {
         return get_url().toString();
     }
