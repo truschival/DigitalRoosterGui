@@ -240,6 +240,23 @@ const int DEFAULT_BRIGHTNESS = 25;
  */
 const int DEFAULT_ICON_WIDTH = 88;
 
+/**
+ * Where to find icons for weather condition
+ */
+const QString WEATHER_ICON_BASE_URL("https://openweathermap.org/img/w/");
+
+/**
+ * API Base URL for weather
+ */
+const QString WEATHER_API_BASE_URL(
+    "https://api.openweathermap.org/data/2.5/weather?");
+
+/**
+ * API Base URL for Forecasts
+ */
+const QString WEATHER_FORECASTS_API_BASE_URL(
+    "https://api.openweathermap.org/data/2.5/forecast?");
+
 /*****************************************************************************
  CMake build configurations from config.h
  *****************************************************************************/

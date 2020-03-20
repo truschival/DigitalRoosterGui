@@ -231,7 +231,7 @@ int main(int argc, char* argv[]) {
     power.standby();
 
     /*
-     * QML Setup Dynamically createable Types
+     * QML Setup dynamically createable types
      * All Elements/Lists are created in C++
      */
     qmlRegisterUncreatableType<DigitalRooster::PodcastEpisodeModel>(
@@ -241,13 +241,16 @@ int main(int argc, char* argv[]) {
         "ruschi.PodcastEpisode", 1, 0, "PodcastEpisode",
         "QML must not instantiate PodcastEpisode!");
     qmlRegisterUncreatableType<DigitalRooster::Alarm>(
-        "ruschi.Alarm", 1, 0, "Alarm", "QML must not instatiate Alarm!");
+        "ruschi.Alarm", 1, 0, "Alarm", "QML must not instantiate Alarm!");
     qmlRegisterUncreatableType<DigitalRooster::PlayableItem>(
         "ruschi.PlayableItem", 1, 0, "PlayableItem",
         "QML must not instantiate PlayableItem!");
     qmlRegisterUncreatableType<DigitalRooster::WifiListModel>(
         "ruschi.WifiListModel", 1, 0, "WifiListModel",
         "QML must not instantiate WifiListModel!");
+    qmlRegisterUncreatableType<DigitalRooster::Forecast>(
+        "ruschi.Forecast", 1, 0, "Forecast",
+        "QML must not instantiate Forecast!");
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();

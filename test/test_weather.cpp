@@ -87,7 +87,7 @@ TEST_F(WeatherFile, ParseTemperatureFromFile) {
 
     Weather dut(cm);
     QSignalSpy spy(&dut, SIGNAL(temperature_changed(double)));
-    dut.parse_response(weatherFile.readAll());
+    dut.parse_weather(weatherFile.readAll());
     spy.wait(10);
     EXPECT_EQ(spy.count(), 1);
     ASSERT_FLOAT_EQ(dut.get_temperature(), 16);
@@ -102,7 +102,7 @@ TEST_F(WeatherFile, GetCityFromFile) {
 
     Weather dut(cm);
     QSignalSpy spy(&dut, SIGNAL(city_updated(const QString&)));
-    dut.parse_response(weatherFile.readAll());
+    dut.parse_weather(weatherFile.readAll());
     spy.wait(10);
     EXPECT_EQ(spy.count(), 1);
     ASSERT_EQ(dut.get_city(), QString("Porto Alegre"));
@@ -118,7 +118,7 @@ TEST_F(WeatherFile, ParseConditionFromFile) {
 
     Weather dut(cm);
     QSignalSpy spy(&dut, SIGNAL(condition_changed(const QString&)));
-    dut.parse_response(weatherFile.readAll());
+    dut.parse_weather(weatherFile.readAll());
     spy.wait(10);
     EXPECT_EQ(spy.count(), 1);
     ASSERT_EQ(dut.get_condition(), QString("few clouds"));
@@ -134,7 +134,7 @@ TEST_F(WeatherFile, IconURI) {
 
     Weather dut(cm);
     QSignalSpy spy(&dut, SIGNAL(temperature_changed(double)));
-    dut.parse_response(weatherFile.readAll());
+    dut.parse_weather(weatherFile.readAll());
     spy.wait(10);
     EXPECT_EQ(spy.count(), 1);
     ASSERT_EQ(dut.get_weather_icon_url(),

@@ -239,6 +239,7 @@ ApplicationWindow {
                 stackView.pop(null);
             }
         }
+
     }
 
     /**** global connections ****/

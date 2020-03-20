@@ -30,16 +30,21 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.Weather");
 Weather::Weather(const IWeatherConfigStore& store, QObject* parent)
     : cm(store) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+
     // timer starts refresh, refresh calls downloader
-    connect(&timer, SIGNAL(timeout()), this, SLOT(refresh()));
+    connect(&timer, &QTimer::timeout, this, &Weather::refresh);
     // downloader finished -> parse result
-    connect(&downloader, SIGNAL(dataAvailable(QByteArray)), this,
-        SLOT(parse_response(QByteArray)));
+    connect(&weather_downloader, &HttpClient::dataAvailable, this,
+        &Weather::parse_weather);
+    connect(&forecast_downloader, &HttpClient::dataAvailable, this,
+        &Weather::parse_forecast);
 
     timer.setInterval(duration_cast<milliseconds>(update_interval));
     timer.setSingleShot(false);
     timer.start();
-    downloader.doDownload(create_weather_uri(cm.get_weather_config()));
+    weather_downloader.doDownload(create_weather_url(cm.get_weather_config()));
+    forecast_downloader.doDownload(
+        create_forecast_url(cm.get_weather_config()));
 }
 
 /*****************************************************************************/
@@ -59,16 +64,19 @@ std::chrono::seconds Weather::get_update_interval() const {
 /*****************************************************************************/
 void Weather::refresh() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    downloader.doDownload(create_weather_uri(cm.get_weather_config()));
+    /* restart downloads */
+    weather_downloader.doDownload(create_weather_url(cm.get_weather_config()));
+    forecast_downloader.doDownload(
+        create_forecast_url(cm.get_weather_config()));
 }
 
 /*****************************************************************************/
-void Weather::parse_response(QByteArray content) {
+void Weather::parse_weather(const QByteArray& content) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonParseError perr;
     QJsonDocument doc = QJsonDocument::fromJson(content, &perr);
     if (perr.error != QJsonParseError::NoError) {
-        qCWarning(CLASS_LC) << "Parsing Failed";
+        qCWarning(CLASS_LC) << "Parsing weather failed";
         return;
     }
     QJsonObject o = doc.object();
@@ -79,17 +87,51 @@ void Weather::parse_response(QByteArray content) {
 }
 
 /*****************************************************************************/
-QUrl DigitalRooster::create_weather_uri(const WeatherConfig& cfg) {
+void Weather::parse_forecast(const QByteArray& content) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    QString request_str({"https://api.openweathermap.org/data/2.5/weather?"});
+    QJsonParseError perr;
+    QJsonDocument doc = QJsonDocument::fromJson(content, &perr);
+    if (perr.error != QJsonParseError::NoError) {
+        qCWarning(CLASS_LC) << "Parsing forecast failed";
+        return;
+    }
+    QJsonObject o = doc.object();
+    auto fc_array = doc["list"].toArray();
+    // TODO: probably need some mutex
+    forecasts.clear();
+    for (const auto fc_val : fc_array) {
+    	forecasts.append(
+            std::make_shared<DigitalRooster::Forecast>(fc_val.toObject()));
+    }
+    emit forecast_available();
+}
+
+/*****************************************************************************/
+QUrl DigitalRooster::create_weather_url(const WeatherConfig& cfg) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    QString request_str(WEATHER_API_BASE_URL);
     request_str.reserve(512);
     request_str += "id=";
     request_str += cfg.get_location_id();
     request_str += "&units=metric";
     request_str += "&appid=";
     request_str += cfg.get_api_token();
-    request_str += "&lang=en"; //default english
-    request_str += "&cnt=5"; // ~now, +3h, +6h, +9h, +12h
+    request_str += "&lang=en"; // default english
+    return QUrl(request_str);
+}
+
+/*****************************************************************************/
+QUrl DigitalRooster::create_forecast_url(const WeatherConfig& cfg) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    QString request_str(WEATHER_FORECASTS_API_BASE_URL);
+    request_str.reserve(512);
+    request_str += "id=";
+    request_str += cfg.get_location_id();
+    request_str += "&units=metric";
+    request_str += "&appid=";
+    request_str += cfg.get_api_token();
+    request_str += "&lang=en"; // default english
+    request_str += "&cnt=5";   // ~now, +3h, +6h, +9h, +12h
     return QUrl(request_str);
 }
 
@@ -122,9 +164,10 @@ void Weather::parse_condition(const QJsonObject& o) {
         return;
     }
     condition = weather["description"].toString();
-    icon_id = weather["icon"].toString();
+    icon_url =
+        QUrl(WEATHER_ICON_BASE_URL + weather["icon"].toString() + ".png");
     emit condition_changed(condition);
-    emit icon_changed(icon_id);
+    emit icon_changed(icon_url);
 }
 
 /*****************************************************************************/
@@ -136,7 +179,7 @@ WeatherConfig::WeatherConfig(const QString& token, const QString& location,
 }
 
 /*****************************************************************************/
-QJsonObject WeatherConfig::to_json_object() const{
+QJsonObject WeatherConfig::to_json_object() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject j;
     j[KEY_UPDATE_INTERVAL] = static_cast<qint64>(update_interval.count());
@@ -160,4 +203,30 @@ WeatherConfig WeatherConfig::from_json_object(const QJsonObject& json) {
     return WeatherConfig(json[KEY_WEATHER_API_KEY].toString(),
         json[KEY_WEATHER_LOCATION_ID].toString(), interval);
 }
+
+/*****************************************************************************/
+Forecast::Forecast(const QJsonObject& json) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+
+    auto main = json["main"].toObject();
+    // for some reasons the weather is an array with 1 element
+    auto weather_array = json["weather"].toArray();
+    auto weather = weather_array.at(0).toObject();
+
+    // According to api doc: "dt_txt": "2020-01-07 15:00:00"
+    timestamp =
+        QDateTime::fromSecsSinceEpoch(json["dt"].toInt(), QTimeZone::utc());
+
+    if (!main.isEmpty()) {
+        temperature = main["temp"].toDouble();
+    }
+    if (!weather.isEmpty()) {
+        icon_url =
+            QUrl(WEATHER_ICON_BASE_URL + weather["icon"].toString() + ".png");
+    }
+
+    qCDebug(CLASS_LC) << "forecast for" << timestamp << ":" << temperature
+                      << "°C icon:" << icon_url;
+}
+
 /*****************************************************************************/
