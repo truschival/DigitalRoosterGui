@@ -22,11 +22,62 @@
 #include <chrono>
 #include <httpclient.hpp>
 
+#include <mutex>
+
 #include "IWeatherConfigStore.hpp"
 
 namespace DigitalRooster {
 
 class ConfigurationManager;
+
+/**
+ * Object for Forecast data
+ * Still a QObject, would be nice if I figure out how to pass a list
+ * of Forecasts to QML (and keep the ressources managed and thread-safe)
+ */
+class Forecast : public QObject {
+    Q_OBJECT
+    Q_PROPERTY(QDateTime timestamp READ get_timestamp)
+    Q_PROPERTY(double temperature READ get_temperature)
+    Q_PROPERTY(QUrl weatherIcon READ get_weather_icon_url)
+public:
+    Forecast() = default;
+    /**
+     * Create a new forecast  from JSON object
+     * @param json
+     * @param parent
+     */
+    explicit Forecast(const QJsonObject& json);
+
+    QDateTime get_timestamp() const {
+        return timestamp;
+    };
+
+    QUrl get_weather_icon_url() const {
+        return icon_url;
+    };
+
+    double get_temperature() const {
+        return temperature;
+    };
+
+private:
+    /**
+     * expected temperature at timepoint
+     */
+    double temperature = 0.0;
+
+    /**
+     * Weather Icon URL
+     */
+    QUrl icon_url;
+
+    /**
+     * Timepoint for this forecast
+     */
+    QDateTime timestamp;
+};
+
 
 /**
  * Periodically downloads weather info from Openweathermaps
@@ -38,15 +89,14 @@ class Weather : public QObject {
     Q_PROPERTY(
         float temperature READ get_temperature NOTIFY temperature_changed)
     Q_PROPERTY(QUrl weatherIcon READ get_weather_icon_url NOTIFY icon_changed)
-
 public:
     /**
      * Constructor for Weather provider
      * @param store access to current weather configuration
      * @param parent
      */
-    explicit Weather(const IWeatherConfigStore& store,
-        QObject* parent = nullptr);
+    explicit Weather(
+        const IWeatherConfigStore& store, QObject* parent = nullptr);
     /**
      * Update Download interval
      * @param iv interval in seconds
@@ -79,9 +129,48 @@ public:
      * Construct a URL from icon_id
      */
     QUrl get_weather_icon_url() const {
-        const QString base_uri("http://openweathermap.org/img/w/");
-        return QUrl(base_uri + icon_id + ".png");
+        return icon_url;
     }
+
+    /**
+     * Ugly Interface to pass the information to QML
+     * I would like to keep a list of Forecasts in C++ and pass it to QML
+     * however I only can pass a list of raw pointers to QML (QObject is not
+     * copyable) and I would like to avoid raw pointers in the list so I can
+     * manage resources.
+     * The initial idea was a method like:
+     * Q_INVOKABLE QList<Forecast> get_forecasts() const;
+     * A QList<Forecast*> (raw pointers) would work for this case, however there
+     * is no way to assert that QML does not hold one of these Forecast pointers
+     * while the forecast is updated, the Object may be deleted and we have a
+     * dangling pointer.
+     * TODO: I have not figured out how to return a
+     * QList<std::shared_ptr<Forecast>>
+     */
+    /**
+     * Get a copy of Forecast list
+     * @return
+     */
+    const QList<std::shared_ptr<Forecast>> get_forecasts() const;
+
+    /**
+     * reach into list of forecasts and get temperature
+     * @param fc_idx index in list
+     * @return tempertature
+     */
+    Q_INVOKABLE double get_forecast_temperature(int fc_idx) const;
+    /**
+     * reach into list of forecasts and get timestamp
+     * @param fc_idx index in list
+     * @return tempertature
+     */
+    Q_INVOKABLE QDateTime get_forecast_timestamp(int fc_idx) const;
+    /**
+     * reach into list of forecasts and get icon url
+     * @param fc_idx index in list
+     * @return tempertature
+     */
+    Q_INVOKABLE QUrl get_forecast_icon_url(int fc_idx) const;
 
 public slots:
 
@@ -89,11 +178,18 @@ public slots:
      * Slot triggers refresh of weather data and starts a new download process
      */
     void refresh();
+
     /**
-     * Read Json from content bytearray and update internal fields
+     * Read Current weather status as JSON and update member fields
      * @param content  JSON as bytearray
      */
-    void parse_response(QByteArray content);
+    void parse_weather(const QByteArray& content);
+
+    /**
+     * Read Current weather status as JSON and update member fields
+     * @param content  weather forecast JSON as bytearray
+     */
+    void parse_forecast(const QByteArray& content);
 
 signals:
     /**
@@ -121,6 +217,11 @@ signals:
      */
     void icon_changed(const QUrl& img_uri);
 
+    /**
+     * Forecast available, emitted after successfully parsing new forecasts
+     */
+    void forecast_available();
+
 private:
     /**
      * Central configuration and data handler
@@ -144,14 +245,14 @@ private:
     QString city_name;
 
     /**
-     * Localized weathercondition string
+     * Localized weather condition string
      */
     QString condition;
 
     /**
-     * Icon matching the current weather condtion returned by weather-api
+     * Icon matching the current weather condition returned by weather-api
      */
-    QString icon_id;
+    QUrl icon_url;
 
     /**
      * QTimer for periodic updates
@@ -161,8 +262,17 @@ private:
     /**
      * HTTP handle to download JSONs
      */
-    HttpClient downloader;
+    HttpClient weather_downloader;
+    HttpClient forecast_downloader;
 
+    /**
+     * Mutex to lock list of forecasts
+     */
+    mutable std::mutex forecast_mtx;
+    /**
+     * list of forecasts
+     */
+    QList<std::shared_ptr<DigitalRooster::Forecast>> forecasts;
 
     void parse_city(const QJsonObject& o);
     void parse_temperature(const QJsonObject& o);
@@ -171,11 +281,18 @@ private:
 
 /**
  * create a valid URL to download weather-json from openweathermaps
- * based on infromation in WeatherConfig
+ * based on information in WeatherConfig
  * @param cfg configuration with location, units etc.
  * @return uri e.g. api.openweathermap.org/data/2.5/weather?zip=94040,us
  */
-QUrl create_weather_uri(const WeatherConfig& cfg);
+QUrl create_weather_url(const WeatherConfig& cfg);
+/**
+ * create a valid URL to download weather-json from openweathermaps
+ * based on information in WeatherConfig
+ * @param cfg configuration with location, units etc.
+ * @return uri e.g. api.openweathermap.org/data/2.5/weather?zip=94040,us
+ */
+QUrl create_forecast_url(const WeatherConfig& cfg);
 
 
 } // namespace DigitalRooster

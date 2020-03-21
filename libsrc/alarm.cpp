@@ -107,12 +107,6 @@ void Alarm::update_media_url(const QUrl& url) {
 }
 
 /*****************************************************************************/
-void Alarm::set_media(std::shared_ptr<PlayableItem> new_media) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    media = new_media;
-}
-
-/*****************************************************************************/
 Alarm::Period DigitalRooster::json_string_to_alarm_period(
     const QString& literal) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;

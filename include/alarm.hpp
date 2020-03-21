@@ -150,7 +150,6 @@ public:
     std::shared_ptr<PlayableItem> get_media() const {
         return media;
     }
-    void set_media(std::shared_ptr<PlayableItem> new_media);
 
     /**
      * is this alarm set
