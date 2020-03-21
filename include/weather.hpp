@@ -47,7 +47,7 @@ public:
      * @param json
      * @param parent
      */
-    Forecast(const QJsonObject& json);
+    explicit Forecast(const QJsonObject& json);
 
     QDateTime get_timestamp() const {
         return timestamp;

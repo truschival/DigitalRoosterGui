@@ -95,7 +95,6 @@ void Weather::parse_forecast(const QByteArray& content) {
         qCWarning(CLASS_LC) << "Parsing forecast failed";
         return;
     }
-    QJsonObject o = doc.object();
     auto fc_array = doc["list"].toArray();
     { // scope for lock
         const std::lock_guard<std::mutex> lock(forecast_mtx);
@@ -140,8 +139,8 @@ QUrl DigitalRooster::create_forecast_url(const WeatherConfig& cfg) {
 }
 
 /*****************************************************************************/
-const QList<std::shared_ptr<Forecast>> Weather::get_forecasts() const{
-	qCDebug(CLASS_LC) << Q_FUNC_INFO;
+const QList<std::shared_ptr<Forecast>> Weather::get_forecasts() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     const std::lock_guard<std::mutex> lock(forecast_mtx);
     auto ret = forecasts; // copy
     return ret;
@@ -262,7 +261,6 @@ Forecast::Forecast(const QJsonObject& json) {
     auto weather_array = json["weather"].toArray();
     auto weather = weather_array.at(0).toObject();
 
-    // According to api doc: "dt_txt": "2020-01-07 15:00:00"
     timestamp =
         QDateTime::fromSecsSinceEpoch(json["dt"].toInt(), QTimeZone::utc());
 
