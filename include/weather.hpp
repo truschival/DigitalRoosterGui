@@ -22,6 +22,8 @@
 #include <chrono>
 #include <httpclient.hpp>
 
+#include <mutex>
+
 #include "IWeatherConfigStore.hpp"
 
 namespace DigitalRooster {
@@ -30,6 +32,8 @@ class ConfigurationManager;
 
 /**
  * Object for Forecast data
+ * Still a QObject, would be nice if I figure out how to pass a list
+ * of Forecasts to QML (and keep the ressources managed and thread-safe)
  */
 class Forecast : public QObject {
     Q_OBJECT
@@ -129,38 +133,44 @@ public:
     }
 
     /**
+     * Ugly Interface to pass the information to QML
+     * I would like to keep a list of Forecasts in C++ and pass it to QML
+     * however I only can pass a list of raw pointers to QML (QObject is not
+     * copyable) and I would like to avoid raw pointers in the list so I can
+     * manage resources.
+     * The initial idea was a method like:
+     * Q_INVOKABLE QList<Forecast> get_forecasts() const;
+     * A QList<Forecast*> (raw pointers) would work for this case, however there
+     * is no way to assert that QML does not hold one of these Forecast pointers
+     * while the forecast is updated, the Object may be deleted and we have a
+     * dangling pointer.
+     * TODO: I have not figured out how to return a
+     * QList<std::shared_ptr<Forecast>>
+     */
+    /**
+     * Get a copy of Forecast list
+     * @return
+     */
+    const QList<std::shared_ptr<Forecast>> get_forecasts() const;
+
+    /**
      * reach into list of forecasts and get temperature
      * @param fc_idx index in list
      * @return tempertature
      */
-    Q_INVOKABLE double get_forecast_temperature(int fc_idx) const {
-        if (fc_idx < forecasts.length()) {
-            return forecasts[fc_idx]->get_temperature();
-        }
-        return std::nan("");
-    }
+    Q_INVOKABLE double get_forecast_temperature(int fc_idx) const;
     /**
      * reach into list of forecasts and get timestamp
      * @param fc_idx index in list
      * @return tempertature
      */
-    Q_INVOKABLE QDateTime get_forecast_timestamp(int fc_idx) const {
-        if (fc_idx < forecasts.length()) {
-            return forecasts[fc_idx]->get_timestamp();
-        }
-        return QDateTime();
-    }
+    Q_INVOKABLE QDateTime get_forecast_timestamp(int fc_idx) const;
     /**
      * reach into list of forecasts and get icon url
      * @param fc_idx index in list
      * @return tempertature
      */
-    Q_INVOKABLE QUrl get_forecast_icon_url(int fc_idx) const {
-        if (fc_idx < forecasts.length()) {
-            return forecasts[fc_idx]->get_weather_icon_url();
-        }
-        return QUrl();
-    }
+    Q_INVOKABLE QUrl get_forecast_icon_url(int fc_idx) const;
 
 public slots:
 
@@ -256,15 +266,13 @@ private:
     HttpClient forecast_downloader;
 
     /**
+     * Mutex to lock list of forecasts
+     */
+    mutable std::mutex forecast_mtx;
+    /**
      * list of forecasts
      */
     QList<std::shared_ptr<DigitalRooster::Forecast>> forecasts;
-
-    /**
-     * Extract forecasts from JSON object as returned by api call
-     * @param forecast_response
-     */
-    void parse_forecasts(const QJsonObject& forecast_response);
 
     void parse_city(const QJsonObject& o);
     void parse_temperature(const QJsonObject& o);

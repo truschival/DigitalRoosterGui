@@ -29,24 +29,35 @@ using ::testing::AtLeast;
 class WeatherFile : public virtual ::testing::Test {
 public:
     WeatherFile()
-        : weatherFile(TEST_FILE_PATH + "/sample_weather.json"){
+        : weatherFile(TEST_FILE_PATH + "/sample_weather.json")
+        , forecastFile(TEST_FILE_PATH + "/sample_forecast.json")
+        , weather_cfg(
+              QString("a904431b4e0eae431bcc1e075c761abb"), QString("2172797")) {
+
         if (!weatherFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
             qDebug() << weatherFile.errorString();
             throw std::system_error(
                 make_error_code(std::errc::no_such_file_or_directory),
                 weatherFile.errorString().toStdString());
         }
+
+        if (!forecastFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            qDebug() << forecastFile.errorString();
+            throw std::system_error(
+                make_error_code(std::errc::no_such_file_or_directory),
+                forecastFile.errorString().toStdString());
+        }
     };
 
 protected:
     QFile weatherFile;
+    QFile forecastFile;
+    WeatherConfig weather_cfg;
     CmMock cm;
 };
 
 /*****************************************************************************/
 TEST_F(WeatherFile, RefreshEmitsSignal) {
-    auto weather_cfg = DigitalRooster::WeatherConfig(
-        QString("a904431b4e0eae431bcc1e075c761abb"), QString("2172797"));
     EXPECT_CALL(cm, get_weather_config())
         .Times(AtLeast(1))
         .WillRepeatedly(ReturnRef(weather_cfg));
@@ -62,8 +73,6 @@ TEST_F(WeatherFile, RefreshEmitsSignal) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, GetConfigForDownloadAfterTimerExpired) {
-    auto weather_cfg = DigitalRooster::WeatherConfig(
-        QString("a904431b4e0eae431bcc1e075c761abb"), QString("2172797"));
     EXPECT_CALL(cm, get_weather_config())
         .Times(AtLeast(1))
         .WillRepeatedly(ReturnRef(weather_cfg));
@@ -79,10 +88,8 @@ TEST_F(WeatherFile, GetConfigForDownloadAfterTimerExpired) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, ParseTemperatureFromFile) {
-    auto weather_cfg =
-        DigitalRooster::WeatherConfig(QString("ABC"), QString("2172797"));
     EXPECT_CALL(cm, get_weather_config())
-        .Times(1)
+        .Times(AtLeast(1))
         .WillRepeatedly(ReturnRef(weather_cfg));
 
     Weather dut(cm);
@@ -94,10 +101,8 @@ TEST_F(WeatherFile, ParseTemperatureFromFile) {
 }
 /*****************************************************************************/
 TEST_F(WeatherFile, GetCityFromFile) {
-    auto weather_cfg =
-        DigitalRooster::WeatherConfig(QString("ABC"), QString("2172797"));
     EXPECT_CALL(cm, get_weather_config())
-        .Times(1)
+        .Times(AtLeast(1))
         .WillRepeatedly(ReturnRef(weather_cfg));
 
     Weather dut(cm);
@@ -110,10 +115,8 @@ TEST_F(WeatherFile, GetCityFromFile) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, ParseConditionFromFile) {
-    auto weather_cfg =
-        DigitalRooster::WeatherConfig(QString("ABC"), QString("2172797"));
     EXPECT_CALL(cm, get_weather_config())
-        .Times(1)
+        .Times(AtLeast(1))
         .WillRepeatedly(ReturnRef(weather_cfg));
 
     Weather dut(cm);
@@ -126,10 +129,8 @@ TEST_F(WeatherFile, ParseConditionFromFile) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, IconURI) {
-    auto weather_cfg =
-        DigitalRooster::WeatherConfig(QString("ABC"), QString("2172797"));
     EXPECT_CALL(cm, get_weather_config())
-        .Times(1)
+        .Times(AtLeast(1))
         .WillRepeatedly(ReturnRef(weather_cfg));
 
     Weather dut(cm);
@@ -137,9 +138,71 @@ TEST_F(WeatherFile, IconURI) {
     dut.parse_weather(weatherFile.readAll());
     spy.wait(10);
     EXPECT_EQ(spy.count(), 1);
-    ASSERT_EQ(dut.get_weather_icon_url(),
-        QUrl("http://openweathermap.org/img/w/02d.png"));
+    ASSERT_EQ(
+        dut.get_weather_icon_url(), QUrl(WEATHER_ICON_BASE_URL + "02d.png"));
 }
+
+
+/*****************************************************************************/
+TEST_F(WeatherFile, parseForecasts5) {
+    EXPECT_CALL(cm, get_weather_config())
+        .Times(AtLeast(1))
+        .WillRepeatedly(ReturnRef(weather_cfg));
+
+    Weather dut(cm);
+    QSignalSpy spy(&dut, SIGNAL(forecast_available()));
+    ASSERT_TRUE(spy.isValid());
+    dut.parse_forecast(forecastFile.readAll());
+    spy.wait(10);
+    EXPECT_EQ(spy.count(), 1);
+    ASSERT_EQ(dut.get_forecasts().size(), 5);
+}
+
+/*****************************************************************************/
+TEST_F(WeatherFile, ForecastOutOfRange) {
+    EXPECT_CALL(cm, get_weather_config())
+        .Times(AtLeast(1))
+        .WillRepeatedly(ReturnRef(weather_cfg));
+
+    Weather dut(cm);
+    QSignalSpy spy(&dut, SIGNAL(forecast_available()));
+    ASSERT_TRUE(spy.isValid());
+    dut.parse_forecast(forecastFile.readAll());
+    spy.wait(10);
+    EXPECT_EQ(spy.count(), 1);
+    ASSERT_TRUE(std::isnan(dut.get_forecast_temperature(-1)));
+    ASSERT_TRUE(dut.get_forecast_icon_url(-1).isEmpty());
+    ASSERT_FALSE(dut.get_forecast_timestamp(-1).isValid());
+
+    ASSERT_TRUE(std::isnan(dut.get_forecast_temperature(6)));
+    ASSERT_TRUE(dut.get_forecast_icon_url(6).isEmpty());
+    ASSERT_FALSE(dut.get_forecast_timestamp(6).isValid());
+}
+
+/*****************************************************************************/
+TEST_F(WeatherFile, ForeCastOk) {
+    EXPECT_CALL(cm, get_weather_config())
+        .Times(AtLeast(1))
+        .WillRepeatedly(ReturnRef(weather_cfg));
+
+    Weather dut(cm);
+    QSignalSpy spy(&dut, SIGNAL(forecast_available()));
+    ASSERT_TRUE(spy.isValid());
+    dut.parse_forecast(forecastFile.readAll());
+    spy.wait(10);
+    EXPECT_EQ(spy.count(), 1);
+    ASSERT_EQ(dut.get_forecasts().size(), 5);
+    ASSERT_EQ(
+        dut.get_forecast_icon_url(2), QUrl(WEATHER_ICON_BASE_URL + "10n.png"));
+    ASSERT_DOUBLE_EQ(dut.get_forecast_temperature(2), 25.05);
+    ASSERT_EQ(dut.get_forecast_timestamp(2).toSecsSinceEpoch(), 1584813600);
+
+    ASSERT_EQ(
+        dut.get_forecast_icon_url(4), QUrl(WEATHER_ICON_BASE_URL + "10d.png"));
+    ASSERT_DOUBLE_EQ(dut.get_forecast_temperature(4), 26.51);
+    ASSERT_EQ(dut.get_forecast_timestamp(4).toSecsSinceEpoch(), 1584835200);
+}
+
 
 /*****************************************************************************/
 TEST(WeatherCfg, fromJsonGood) {

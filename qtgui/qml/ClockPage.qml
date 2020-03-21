@@ -27,7 +27,7 @@ Page {
             Layout.margins: Style.itemMargins.slim;
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             Text{
-                text: Math.round(weather.temperature*10)/10 + "\u00B0C";
+                text: Math.round(weather.temperature) + "\u00B0C";
                 font: Style.font.subtitle;
                 color: "white"
                 Layout.alignment: Qt.AlignRight| Qt.AlignVCenter;

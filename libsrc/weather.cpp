@@ -97,12 +97,14 @@ void Weather::parse_forecast(const QByteArray& content) {
     }
     QJsonObject o = doc.object();
     auto fc_array = doc["list"].toArray();
-    // TODO: probably need some mutex
-    forecasts.clear();
-    for (const auto fc_val : fc_array) {
-    	forecasts.append(
-            std::make_shared<DigitalRooster::Forecast>(fc_val.toObject()));
-    }
+    { // scope for lock
+        const std::lock_guard<std::mutex> lock(forecast_mtx);
+        forecasts.clear();
+        for (const auto fc_val : fc_array) {
+            forecasts.append(
+                std::make_shared<DigitalRooster::Forecast>(fc_val.toObject()));
+        }
+    } // emit outside of lock, code is executed in the same thread
     emit forecast_available();
 }
 
@@ -117,6 +119,7 @@ QUrl DigitalRooster::create_weather_url(const WeatherConfig& cfg) {
     request_str += "&appid=";
     request_str += cfg.get_api_token();
     request_str += "&lang=en"; // default english
+    qCDebug(CLASS_LC) << request_str;
     return QUrl(request_str);
 }
 
@@ -132,7 +135,16 @@ QUrl DigitalRooster::create_forecast_url(const WeatherConfig& cfg) {
     request_str += cfg.get_api_token();
     request_str += "&lang=en"; // default english
     request_str += "&cnt=5";   // ~now, +3h, +6h, +9h, +12h
+    qCDebug(CLASS_LC) << request_str;
     return QUrl(request_str);
+}
+
+/*****************************************************************************/
+const QList<std::shared_ptr<Forecast>> Weather::get_forecasts() const{
+	qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    const std::lock_guard<std::mutex> lock(forecast_mtx);
+    auto ret = forecasts; // copy
+    return ret;
 }
 
 /*****************************************************************************/
@@ -171,11 +183,48 @@ void Weather::parse_condition(const QJsonObject& o) {
 }
 
 /*****************************************************************************/
+double Weather::get_forecast_temperature(int fc_idx) const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+
+    const std::lock_guard<std::mutex> lock(forecast_mtx);
+    if (!(fc_idx >= 0 && fc_idx < forecasts.length())) {
+        qCCritical(CLASS_LC) << Q_FUNC_INFO << fc_idx << "index out of range";
+        return std::nan("");
+    }
+    return forecasts[fc_idx]->get_temperature();
+}
+
+/*****************************************************************************/
+QDateTime Weather::get_forecast_timestamp(int fc_idx) const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+
+    const std::lock_guard<std::mutex> lock(forecast_mtx);
+    if (!(fc_idx >= 0 && fc_idx < forecasts.length())) {
+        qCCritical(CLASS_LC) << Q_FUNC_INFO << fc_idx << "index out of range";
+        return QDateTime();
+    }
+    return forecasts[fc_idx]->get_timestamp();
+}
+
+/*****************************************************************************/
+QUrl Weather::get_forecast_icon_url(int fc_idx) const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+
+    const std::lock_guard<std::mutex> lock(forecast_mtx);
+    if (!(fc_idx >= 0 && fc_idx < forecasts.length())) {
+        qCCritical(CLASS_LC) << Q_FUNC_INFO << fc_idx << "index out of range";
+        return QUrl();
+    }
+    return forecasts[fc_idx]->get_weather_icon_url();
+}
+
+/*****************************************************************************/
 WeatherConfig::WeatherConfig(const QString& token, const QString& location,
     const std::chrono::seconds& interval)
     : api_token(token)
     , location_id(location)
     , update_interval(interval) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }
 
 /*****************************************************************************/
