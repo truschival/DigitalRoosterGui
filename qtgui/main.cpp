@@ -90,7 +90,9 @@ std::shared_ptr<TimeProvider> DigitalRooster::wallclock =
 
 /*****************************************************************************/
 int main(int argc, char* argv[]) {
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    //QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    /* Force 96 DPI independent of display DPI by OS */
+    // QCoreApplication::setAttribute(Qt::AA_Use96Dpi);
     QCoreApplication::setApplicationName(APPLICATION_NAME);
     QCoreApplication::setApplicationVersion(PROJECT_VERSION);
     QGuiApplication app(argc, argv);
@@ -134,6 +136,13 @@ int main(int argc, char* argv[]) {
     } else { // Default behavour as before
         setup_logger_file(DEFAULT_LOG_PATH);
     }
+
+    double dpi = QGuiApplication::primaryScreen()->logicalDotsPerInch();
+    qCInfo(MAIN) << "DPI (physical):" << QGuiApplication::primaryScreen()->physicalDotsPerInch();
+    qCInfo(MAIN) << "DPI (logical):" << dpi;
+    qCInfo(MAIN) << "Screen Size:" << QGuiApplication::primaryScreen()->size();
+    qCInfo(MAIN) << "DevicePixelRatio:" << QGuiApplication::primaryScreen()->devicePixelRatio();
+
     qCInfo(MAIN) << "confpath: " << cmdline.value(confpath);
     qCInfo(MAIN) << "cachedir: " << cmdline.value(cachedir);
     qCInfo(MAIN) << APPLICATION_NAME << " - " << GIT_REVISION;
@@ -271,8 +280,11 @@ int main(int argc, char* argv[]) {
     ctxt->setContextProperty("brightnessControl", &brightness);
     ctxt->setContextProperty("volumeButton", &volbtn);
     ctxt->setContextProperty("sleeptimer", &sleeptimer);
+
     ctxt->setContextProperty(
         "DEFAULT_ICON_WIDTH", QVariant::fromValue(DEFAULT_ICON_WIDTH));
+    ctxt->setContextProperty(
+            "FONT_SCALING", QVariant::fromValue(dpi));
 
     view.load(QUrl("qrc:/main.qml"));
 
