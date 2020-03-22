@@ -177,7 +177,7 @@ public slots:
     /**
      * Slot triggers refresh of weather data and starts a new download process
      */
-    void refresh();
+	Q_INVOKABLE void refresh();
 
     /**
      * Read Current weather status as JSON and update member fields

@@ -28,7 +28,8 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.Weather");
 
 /*****************************************************************************/
 Weather::Weather(const IWeatherConfigStore& store, QObject* parent)
-    : cm(store) {
+    : cm(store)
+    , icon_url("https://openweathermap.org/img/w/10d.png") {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     // timer starts refresh, refresh calls downloader
@@ -68,6 +69,7 @@ void Weather::refresh() {
     weather_downloader.doDownload(create_weather_url(cm.get_weather_config()));
     forecast_downloader.doDownload(
         create_forecast_url(cm.get_weather_config()));
+    timer.start();
 }
 
 /*****************************************************************************/

@@ -11,8 +11,8 @@ Page {
         rows: 3;
         anchors.fill: parent;
         anchors.margins: Style.itemMargins.slim;
-	anchors.bottomMargin: Style.itemMargins.medium;
-	rowSpacing: 0;
+        anchors.bottomMargin: Style.itemMargins.medium;
+        rowSpacing: 0;
 
         Text{
             text: currentTime.timestring_lz_hh_mm
@@ -22,15 +22,18 @@ Page {
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter ;
         }
 
+
         RowLayout{
             Layout.columnSpan: 3;
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+
             Text{
                 text: Math.round(weather.temperature) + "\u00B0C";
                 font: Style.font.subtitle;
                 color: "white"
                 Layout.alignment: Qt.AlignRight| Qt.AlignVCenter;
             }
+
             Image {
                 source: weather.weatherIcon;
                 fillMode: Image.PreserveAspectFit
@@ -40,7 +43,15 @@ Page {
                 Layout.preferredHeight: 72;
                 Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter;
                 Layout.fillHeight: true;
-            }
+                MouseArea{
+                    anchors.fill: parent;
+                    pressAndHoldInterval: 500; // ms press to refresh
+                    onPressAndHold: {
+                        console.log("Refresh weather")
+                        weather.refresh();
+                    }
+                } // MouseArea
+            } // Image
         }// Rowlayout Temp+Icon current
 
         ForecastWidget{
@@ -71,7 +82,7 @@ Page {
             console.log("\tTemp:" + weather.get_forecast_temperature(idx)+ "°C")
             console.log("\tURL:" +weather.get_forecast_icon_url(idx) );
         }
-		fc0h.update(weather.get_forecast_timestamp(0),
+        fc0h.update(weather.get_forecast_timestamp(0),
                     weather.get_forecast_temperature(0),
                     weather.get_forecast_icon_url(0));
 
