@@ -33,10 +33,11 @@ Page {
                 Layout.alignment: Qt.AlignRight| Qt.AlignVCenter;
             }
             Image {
-                Layout.maximumWidth: 72
-                Layout.maximumHeight: 72
-                Layout.preferredWidth: 72
-                Layout.preferredHeight: 72
+            	Layout.minimumHeight: 64;
+            	Layout.minimumWidth: 64;
+            	Layout.preferredWidth: 72;
+                Layout.preferredHeight: 72;
+                
                 Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter;
                 Layout.fillHeight: true;
                 fillMode: Image.PreserveAspectFit
@@ -44,20 +45,11 @@ Page {
             }
         }// Rowlayout Temp+Icon current
 
-        /* Text{ */
-        /*     text: weather.city; */
-        /*     font: Style.font.label; */
-        /*     color: "white" */
-        /*     Layout.columnSpan: 2 */
-        /*     Layout.margins: 0; */
-        /*     Layout.alignment: Qt.AlignHCenter */
-        /* } */
-
         GridLayout{
             columns: 2;
             rows: 2;
             rowSpacing:0;
-            columnSpacing: Style.itemMargins.slim;
+            columnSpacing: 0;// Style.itemMargins.slim;
 
             Layout.margins: Style.itemMargins.slim;
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
@@ -67,29 +59,30 @@ Page {
                 text: Math.round(weather.temperature) + "\u00B0C";
                 font: Style.font.label;
                 color: "white"
-                Layout.alignment: Qt.AlignRight| Qt.AlignVCenter;
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter;
             }
             Image {
                 id: condition_icon_6h;
-                Layout.leftMargin:-2;
-                Layout.maximumWidth: 64
-                Layout.maximumHeight: 64
-                Layout.preferredWidth: 48
-                Layout.preferredHeight: 48
-                Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter;
-                Layout.fillHeight: true;
                 fillMode: Image.PreserveAspectFit
                 source: weather.weatherIcon;
+            
+                Layout.rowSpan: 2;         
+                Layout.maximumWidth: 64
+                Layout.maximumHeight: 64
+                Layout.minimumWidth: 50
+                Layout.minimumHeight: 50
+                Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter;
+                Layout.fillHeight: true;
             }
             Text{
                 id: timestamp_6h;
                 text: "6:00";
                 font: Style.font.label;
-                Layout.columnSpan: 2
                 color: "white"
-                Layout.alignment: Qt.AlignHCenter | Qt.AlignTop;
-                Layout.topMargin: -Style.itemMargins.slim;
-                Layout.bottomMargin: Style.itemMargins.slim;
+                
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop;
+               // Layout.topMargin:   -Style.itemMargins.slim;
+               // Layout.bottomMargin: Style.itemMargins.slim;
             }
         }// Gridlayout Temp+Icon +6h
 
