@@ -35,19 +35,34 @@ class ConfigurationManager;
  * Still a QObject, would be nice if I figure out how to pass a list
  * of Forecasts to QML (and keep the ressources managed and thread-safe)
  */
-class Forecast : public QObject {
+class WeatherStatus : public QObject {
     Q_OBJECT
     Q_PROPERTY(QDateTime timestamp READ get_timestamp)
-    Q_PROPERTY(double temperature READ get_temperature)
+    Q_PROPERTY(double temp READ get_temperature)
+    Q_PROPERTY(double temp_min READ get_max_temperature)
+    Q_PROPERTY(double temp_max READ get_min_temperature)
     Q_PROPERTY(QUrl weatherIcon READ get_weather_icon_url)
 public:
-    Forecast() = default;
+    WeatherStatus() = default;
     /**
-     * Create a new forecast  from JSON object
-     * @param json
-     * @param parent
+     * Update status with data from JSON object
+     * @param json a 'weather' object:
+     *     {
+     *     "dt": 1584792000,
+     *     "main": {
+     *        "temp": 24.78,
+     *        "temp_min": 24.78,
+     *        "temp_max": 26.25,
+     *      },
+     *     "weather": [
+     *          {
+     *          "id": 500,
+     *          "icon": "10n"
+     *          }
+     *        ]
+     *     }
      */
-    explicit Forecast(const QJsonObject& json);
+    void update(const QJsonObject& json);
 
     QDateTime get_timestamp() const {
         return timestamp;
@@ -61,11 +76,27 @@ public:
         return temperature;
     };
 
+    double get_min_temperature() const {
+        return temp_min;
+    };
+
+    double get_max_temperature() const {
+        return temp_max;
+    };
+
 private:
     /**
-     * expected temperature at timepoint
+     * temperature at timepoint
      */
     double temperature = 0.0;
+    /**
+     * measured/expected temperature at timepoint
+     */
+    double temp_min = 0.0;
+    /**
+     * maximum measured/expected temperature at timepoint
+     */
+    double temp_max = 0.0;
 
     /**
      * Weather Icon URL
@@ -76,16 +107,27 @@ private:
      * Timepoint for this forecast
      */
     QDateTime timestamp;
+
+    /**
+     * update min/max current temperature
+     * @param json object that contains a "main" object of forecast or current
+     * weather: "main": { "temp": 16, "pressure": 1018, "humidity": 93,
+     *      "temp_min": 16,
+     *      "temp_max": 16
+     *   }
+     */
+    void parse_temperatures(const QJsonObject& json);
 };
 
 
 /**
  * Periodically downloads weather info from Openweathermaps
+ * weather information is parsed into a WeatherStatus objects and
+ * can be accessed with get_weather()
  */
 class Weather : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString city READ get_city NOTIFY city_updated)
-    Q_PROPERTY(QString condition READ get_condition NOTIFY condition_changed)
     Q_PROPERTY(
         float temperature READ get_temperature NOTIFY temperature_changed)
     Q_PROPERTY(QUrl weatherIcon READ get_weather_icon_url NOTIFY icon_changed)
@@ -105,31 +147,21 @@ public:
     std::chrono::seconds get_update_interval() const;
 
     /**
-     * Access to temperature
+     * Access to current temperature
+     * @deprecated but available for compatibility
      */
-    double get_temperature() const {
-        return temperature;
-    }
-
+    double get_temperature() const;
     /**
-     * Current wheather condition description (localized string)
-     * e.g. "light clouds", "light intensity drizzle"
+     * Icon url for current condition
+     * @deprecated but available for compatibility
      */
-    QString get_condition() const {
-        return condition;
-    }
+    QUrl get_weather_icon_url() const;
+
     /**
      * Access to city name
      */
     QString get_city() const {
         return city_name;
-    }
-
-    /**
-     * Construct a URL from icon_id
-     */
-    QUrl get_weather_icon_url() const {
-        return icon_url;
     }
 
     /**
@@ -147,11 +179,20 @@ public:
      * TODO: I have not figured out how to return a
      * QList<std::shared_ptr<Forecast>>
      */
+
+    /**
+     * Access the weather status at given time in the future or now (idx=0
+     *
+     * @param idx 0=current condition forecast for now+idx*3h (more or less)
+     * @return Wheater status object
+     */
+    const WeatherStatus* get_weather(int idx) const;
+
     /**
      * Get a copy of Forecast list
      * @return
      */
-    const QList<std::shared_ptr<Forecast>> get_forecasts() const;
+    const QList<std::shared_ptr<WeatherStatus>> get_forecasts() const;
 
     /**
      * reach into list of forecasts and get temperature
@@ -177,7 +218,7 @@ public slots:
     /**
      * Slot triggers refresh of weather data and starts a new download process
      */
-	Q_INVOKABLE void refresh();
+    Q_INVOKABLE void refresh();
 
     /**
      * Read Current weather status as JSON and update member fields
@@ -196,11 +237,6 @@ signals:
      * Flag new weather information received
      */
     void weather_info_updated();
-
-    /**
-     * Current Condition description
-     */
-    void condition_changed(const QString& temp);
 
     /**
      * City name available
@@ -235,24 +271,9 @@ private:
     std::chrono::seconds update_interval{3600LL};
 
     /**
-     * Current Temperature
-     */
-    double temperature = 0.0;
-
-    /**
      * Name of location matching the ID, retured by weather-api
      */
     QString city_name;
-
-    /**
-     * Localized weather condition string
-     */
-    QString condition;
-
-    /**
-     * Icon matching the current weather condition returned by weather-api
-     */
-    QUrl icon_url;
 
     /**
      * QTimer for periodic updates
@@ -269,14 +290,24 @@ private:
      * Mutex to lock list of forecasts
      */
     mutable std::mutex forecast_mtx;
+
+    /**
+     * Static array of Weatherstatus
+     * no + 24*3h forecasts should be enough
+     */
+    std::array<DigitalRooster::WeatherStatus, 1 + WEATHER_FORECAST_COUNT>
+        weather;
+
     /**
      * list of forecasts
      */
-    QList<std::shared_ptr<DigitalRooster::Forecast>> forecasts;
+    QList<std::shared_ptr<DigitalRooster::WeatherStatus>> forecasts;
 
+    /**
+     * Extract City form response
+     * @param o
+     */
     void parse_city(const QJsonObject& o);
-    void parse_temperature(const QJsonObject& o);
-    void parse_condition(const QJsonObject& o);
 };
 
 /**

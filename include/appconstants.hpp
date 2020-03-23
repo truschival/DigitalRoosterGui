@@ -241,6 +241,12 @@ const int DEFAULT_BRIGHTNESS = 25;
 const int DEFAULT_ICON_WIDTH = 88;
 
 /**
+ * number of forecasts to fetch
+ * 24*3h = 72 h
+ */
+const int WEATHER_FORECAST_COUNT = 24;
+
+/**
  * Where to find icons for weather condition
  */
 const QString WEATHER_ICON_BASE_URL("https://openweathermap.org/img/w/");
