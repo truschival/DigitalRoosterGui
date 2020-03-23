@@ -7,42 +7,52 @@ Item {
     property double temperature;
     property string timestamp;
     property url condition_icon;
-    implicitHeight: 50;
-    implicitWidth: 85;
+    implicitHeight: 64;
+    implicitWidth:  80;
 
     GridLayout{
+        rows: 3;
         columns: 2;
-        rows: 2;
-        rowSpacing:0;
-        columnSpacing: 0;
+        rowSpacing: 0;
+        columnSpacing: -5;
 
         Text{
             id: temperature;
             text: Math.round(weather.temperature) + "\u00B0C";
-            font: Style.font.label;
+            font: Style.font.weatherInfo;
             color: "white"
-            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter;
+            Layout.alignment: Qt.AlignRight | Qt.AlignBottom;
         }
-
-	Image {
+        
+        Image {
             id: condition_icon;
             fillMode: Image.PreserveAspectFit
-            Layout.rowSpan: 2;
-	    Layout.margins: 0;
-            Layout.maximumWidth: 72
-            Layout.maximumHeight: 72
-            Layout.minimumWidth: 64
-            Layout.minimumHeight: 64
+
+	    Layout.rowSpan: 2;
+            Layout.margins: 0;
+            Layout.leftMargin: 0;
+            Layout.minimumHeight: 64;
+            Layout.maximumHeight: 72;
+            Layout.fillWidth: true;
             Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter;
-            Layout.fillHeight: true;
         }
 
-	Text{
-            id: timestamp;
-            text: "6:00";
-            font: Style.font.label;
+        Text{
+            id: temperature_low;
+            text: Math.round(weather.temperature) + "\u00B0C";
+            font: Style.font.weatherInfo;
             color: "white"
-            Layout.alignment: Qt.AlignLeft | Qt.AlignTop;
+            Layout.alignment: Qt.AlignRight | Qt.AlignTop;
+        }
+
+        Text{
+            id: timestamp;
+            text: "16:00";
+            font: Style.font.label;
+            color: "white";
+	    Layout.topMargin: -7;
+            Layout.columnSpan: 2;
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop;
         }
     }
 
@@ -51,5 +61,14 @@ Item {
         timestamp.text  = Qt.formatTime(ts,"hh:mm");
         temperature.text = Math.round(temp)+"\u00B0C";
         condition_icon.source = iconurl;
+    }
+
+    MouseArea{
+        anchors.fill: parent;
+        pressAndHoldInterval: 500; //ms press to refresh
+        onPressAndHold: {
+            console.log("Refresh weather")
+            weather.refresh();
+        }
     }
 }

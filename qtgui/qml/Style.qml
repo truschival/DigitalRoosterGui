@@ -23,7 +23,7 @@ QtObject {
     }
 
     function scaleFont(px){
-        return px*1.5;
+        return Math.ceil(px*1.5);
     }
 
     property QtObject font: QtObject{
@@ -41,7 +41,19 @@ QtObject {
         property font subtitle: Qt.font({
             family: "DejaVu Sans Condensed",
             weight: Font.DemiBold,
-            pixelSize: scaleFont(16)
+            pixelSize: scaleFont(14)
+        });
+
+        property font weatherInfo: Qt.font({
+            family: "DejaVu Sans Condensed",
+            weight: Font.DemiBold,
+            pixelSize: scaleFont(12)
+        });
+
+        property font weatherTime: Qt.font({
+            family: "DejaVu Sans Condensed",
+            weight: Font.Normal,
+            pixelSize: scaleFont(12)
         });
 
         property font listItemHead: Qt.font({
@@ -89,7 +101,7 @@ QtObject {
         // -- elements
         property font clock: Qt.font({
             weight: Font.Bold,
-            pixelSize: scaleFont(42)
+            pixelSize: scaleFont(44)
         })
 
         property font tumbler: Qt.font({
