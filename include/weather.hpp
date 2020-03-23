@@ -41,7 +41,7 @@ class WeatherStatus : public QObject {
     Q_PROPERTY(double temp READ get_temperature)
     Q_PROPERTY(double temp_min READ get_max_temperature)
     Q_PROPERTY(double temp_max READ get_min_temperature)
-    Q_PROPERTY(QUrl weatherIcon READ get_weather_icon_url)
+    Q_PROPERTY(QUrl icon_url READ get_weather_icon_url)
 public:
     WeatherStatus() = default;
     /**
@@ -178,6 +178,9 @@ public:
      * dangling pointer.
      * TODO: I have not figured out how to return a
      * QList<std::shared_ptr<Forecast>>
+     *
+     * Instead I opted for a static array \ref weather where 0 is the current
+     * weather
      */
 
     /**
@@ -186,32 +189,7 @@ public:
      * @param idx 0=current condition forecast for now+idx*3h (more or less)
      * @return Wheater status object
      */
-    const WeatherStatus* get_weather(int idx) const;
-
-    /**
-     * Get a copy of Forecast list
-     * @return
-     */
-    const QList<std::shared_ptr<WeatherStatus>> get_forecasts() const;
-
-    /**
-     * reach into list of forecasts and get temperature
-     * @param fc_idx index in list
-     * @return tempertature
-     */
-    Q_INVOKABLE double get_forecast_temperature(int fc_idx) const;
-    /**
-     * reach into list of forecasts and get timestamp
-     * @param fc_idx index in list
-     * @return tempertature
-     */
-    Q_INVOKABLE QDateTime get_forecast_timestamp(int fc_idx) const;
-    /**
-     * reach into list of forecasts and get icon url
-     * @param fc_idx index in list
-     * @return tempertature
-     */
-    Q_INVOKABLE QUrl get_forecast_icon_url(int fc_idx) const;
+    Q_INVOKABLE DigitalRooster::WeatherStatus* get_weather(int idx) const;
 
 public slots:
 
@@ -297,11 +275,6 @@ private:
      */
     std::array<DigitalRooster::WeatherStatus, 1 + WEATHER_FORECAST_COUNT>
         weather;
-
-    /**
-     * list of forecasts
-     */
-    QList<std::shared_ptr<DigitalRooster::WeatherStatus>> forecasts;
 
     /**
      * Extract City form response

@@ -17,7 +17,7 @@ Item {
         columnSpacing: -5;
 
         Text{
-            id: temperature;
+            id: temp_max;
             text: Math.round(weather.temperature) + "\u00B0C";
             font: Style.font.weatherInfo;
             color: "white"
@@ -38,7 +38,7 @@ Item {
         }
 
         Text{
-            id: temperature_low;
+            id: temp_min;
             text: Math.round(weather.temperature) + "\u00B0C";
             font: Style.font.weatherInfo;
             color: "white"
@@ -56,11 +56,12 @@ Item {
         }
     }
 
-    function update(ts, temp, iconurl){
-        console.log("update: "+temp+ " : "+ts+" : "+iconurl)
-        timestamp.text  = Qt.formatTime(ts,"hh:mm");
-        temperature.text = Math.round(temp)+"\u00B0C";
-        condition_icon.source = iconurl;
+    function update(weather){
+	console.log("update: " + weather.timestamp);
+        timestamp.text  = Qt.formatTime(weather.timestamp,"hh:mm");
+        temp_max.text = Math.round(weather.temp_max)+"\u00B0C";
+	temp_min.text = Math.round(weather.temp_min)+"\u00B0C";
+	condition_icon.source = weather.icon_url;
     }
 
     MouseArea{

@@ -258,7 +258,7 @@ int main(int argc, char* argv[]) {
         "ruschi.WifiListModel", 1, 0, "WifiListModel",
         "QML must not instantiate WifiListModel!");
     qmlRegisterUncreatableType<DigitalRooster::WeatherStatus>(
-        "ruschi.Forecast", 1, 0, "WeatherStatus",
+        "ruschi.WeatherStatus", 1, 0, "WeatherStatus",
         "QML must not instantiate WeatherStatus!");
 
     QQmlApplicationEngine view;

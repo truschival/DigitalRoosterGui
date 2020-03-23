@@ -28,8 +28,7 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.Weather");
 
 /*****************************************************************************/
 Weather::Weather(const IWeatherConfigStore& store, QObject* parent)
-    : cm(store)
-    , icon_url(WEATHER_ICON_BASE_URL + "10d.png") {
+    : cm(store) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     // timer starts refresh, refresh calls downloader
@@ -99,10 +98,10 @@ QUrl Weather::get_weather_icon_url() const {
 }
 
 /*****************************************************************************/
-const WeatherStatus* Weather::get_weather(int idx) const {
+WeatherStatus* Weather::get_weather(int idx) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     try {
-        return &weather.at(idx);
+        return const_cast<WeatherStatus*>(&weather.at(idx));
     } catch (std::out_of_range& exc) {
         qCCritical(CLASS_LC) << "Forecast index out of range!";
         return nullptr; // would be nice to throw exception to QML instead
@@ -124,15 +123,6 @@ void Weather::parse_forecast(const QByteArray& content) {
     for (int i = 1; i < max_idx; i++) {
         weather[i].update(fc_array[i].toObject());
     }
-
-    { // scope for lock
-        const std::lock_guard<std::mutex> lock(forecast_mtx);
-        forecasts.clear();
-        for (const auto fc_val : fc_array) {
-            forecasts.append(std::make_shared<DigitalRooster::WeatherStatus>(
-                fc_val.toObject()));
-        }
-    } // emit outside of lock, code is executed in the same thread
     emit forecast_available();
 }
 
@@ -168,55 +158,11 @@ QUrl DigitalRooster::create_forecast_url(const WeatherConfig& cfg) {
 }
 
 /*****************************************************************************/
-const QList<std::shared_ptr<WeatherStatus>> Weather::get_forecasts() const {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    const std::lock_guard<std::mutex> lock(forecast_mtx);
-    auto ret = forecasts; // copy
-    return ret;
-}
-
-/*****************************************************************************/
 void Weather::parse_city(const QJsonObject& o) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     city_name = o["name"].toString();
     qCInfo(CLASS_LC) << "Weather location:" << city_name;
     emit city_updated(city_name);
-}
-
-/*****************************************************************************/
-double Weather::get_forecast_temperature(int fc_idx) const {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-
-    const std::lock_guard<std::mutex> lock(forecast_mtx);
-    if (!(fc_idx >= 0 && fc_idx < forecasts.length())) {
-        qCCritical(CLASS_LC) << Q_FUNC_INFO << fc_idx << "index out of range";
-        return std::nan("");
-    }
-    return forecasts[fc_idx]->get_temperature();
-}
-
-/*****************************************************************************/
-QDateTime Weather::get_forecast_timestamp(int fc_idx) const {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-
-    const std::lock_guard<std::mutex> lock(forecast_mtx);
-    if (!(fc_idx >= 0 && fc_idx < forecasts.length())) {
-        qCCritical(CLASS_LC) << Q_FUNC_INFO << fc_idx << "index out of range";
-        return QDateTime();
-    }
-    return forecasts[fc_idx]->get_timestamp();
-}
-
-/*****************************************************************************/
-QUrl Weather::get_forecast_icon_url(int fc_idx) const {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-
-    const std::lock_guard<std::mutex> lock(forecast_mtx);
-    if (!(fc_idx >= 0 && fc_idx < forecasts.length())) {
-        qCCritical(CLASS_LC) << Q_FUNC_INFO << fc_idx << "index out of range";
-        return QUrl();
-    }
-    return forecasts[fc_idx]->get_weather_icon_url();
 }
 
 /*****************************************************************************/
