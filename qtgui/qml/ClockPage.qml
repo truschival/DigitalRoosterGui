@@ -13,7 +13,7 @@ Page {
         anchors.margins: Style.itemMargins.slim;
         anchors.bottomMargin: Style.itemMargins.slim;
         rowSpacing: 0;
-        columnSpacing: 0;
+        columnSpacing: 4;
 	
         Text{
             text: currentTime.timestring_lz_hh_mm

@@ -28,6 +28,7 @@
 
 namespace DigitalRooster {
 
+class Weather;
 class ConfigurationManager;
 
 /**
@@ -44,8 +45,22 @@ class WeatherStatus : public QObject {
     Q_PROPERTY(QUrl icon_url READ get_weather_icon_url)
 public:
     WeatherStatus() = default;
+
+    /**
+     * Cloning constructor - Q_OBJECT does not allow copy construction
+     * @param other where to take the fields from
+     */
+    explicit WeatherStatus(const WeatherStatus* other) {
+        timestamp = other->timestamp;
+        icon_url = other->icon_url;
+        temp_max = other->temp_max;
+        temp_min = other->temp_min;
+        temperature = other->temperature;
+    }
+
     /**
      * Update status with data from JSON object
+     * @return true if update worked, false otherwise
      * @param json a 'weather' object:
      *     {
      *     "dt": 1584792000,
@@ -62,7 +77,7 @@ public:
      *        ]
      *     }
      */
-    void update(const QJsonObject& json);
+    bool update(const QJsonObject& json);
 
     QDateTime get_timestamp() const {
         return timestamp;
@@ -82,7 +97,13 @@ public:
 
     double get_max_temperature() const {
         return temp_max;
-    };
+    }
+    /**
+     * Basic validation of json from API will throw if a elementary object e.g.
+     * 'main' or 'weather' is missing
+     * @param json
+     */
+    static void validate_json(const QJsonObject& json);
 
 private:
     /**
@@ -224,7 +245,7 @@ signals:
     /**
      * Current temperature
      */
-    void temperature_changed(const double temperature);
+    void temperature_changed(double temperature);
 
     /**
      * Weather icon corresponding to current condition
@@ -275,12 +296,6 @@ private:
      */
     std::array<DigitalRooster::WeatherStatus, 1 + WEATHER_FORECAST_COUNT>
         weather;
-
-    /**
-     * Extract City form response
-     * @param o
-     */
-    void parse_city(const QJsonObject& o);
 };
 
 /**
