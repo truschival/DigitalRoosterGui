@@ -4,7 +4,7 @@
 // https://github.com/kevincarlson/QmlBridgeForMaterialDesignIcons
 
 import QtQuick 2.9
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.2
 
 Button {
 	font: Style.font.button;
