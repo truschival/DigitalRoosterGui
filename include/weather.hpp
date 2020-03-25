@@ -1,10 +1,10 @@
 /******************************************************************************
  * \filename
- * \brief Download weather information form openweathermaps
+ * \brief   Download weather information form openweathermaps
  *
  * \details Periodically polls weather info
  *
- * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
+ * \copyright (c) 2019  Thomas Ruschival <thomas@ruschival.de>
  * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
@@ -50,12 +50,12 @@ public:
      * Cloning constructor - Q_OBJECT does not allow copy construction
      * @param other where to take the fields from
      */
-    explicit WeatherStatus(const WeatherStatus* other) {
-        timestamp = other->timestamp;
-        icon_url = other->icon_url;
-        temp_max = other->temp_max;
-        temp_min = other->temp_min;
-        temperature = other->temperature;
+    explicit WeatherStatus(const WeatherStatus* other)
+        : temperature(other->temperature)
+        , temp_min(other->temp_min)
+        , temp_max(other->temp_max)
+        , icon_url(other->icon_url)
+        , timestamp(other->timestamp) {
     }
 
     /**
@@ -292,7 +292,7 @@ private:
 
     /**
      * Static array of Weatherstatus
-     * no + 24*3h forecasts should be enough
+     * now + WEATHER_FORECAST_COUNT*3h forecasts should be enough
      */
     std::array<DigitalRooster::WeatherStatus, 1 + WEATHER_FORECAST_COUNT>
         weather;

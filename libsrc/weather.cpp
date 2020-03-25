@@ -1,10 +1,10 @@
 /******************************************************************************
  * \filename
- * \brief  parse weather information form openweathermaps
+ * \brief  manage information form openweathermaps
  *
  * \details
  *
- * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
+ * \copyright (c) 2019  Thomas Ruschival <thomas@ruschival.de>
  * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
@@ -171,8 +171,9 @@ QUrl DigitalRooster::create_forecast_url(const WeatherConfig& cfg) {
     request_str += "&units=metric";
     request_str += "&appid=";
     request_str += cfg.get_api_token();
-    request_str += "&lang=en";                       // default english
-    request_str += "&cnt=" + WEATHER_FORECAST_COUNT; //
+    request_str += "&lang=en"; // default english
+    request_str += "&cnt=";
+    request_str += QString(WEATHER_FORECAST_COUNT); //
     qCDebug(CLASS_LC) << request_str;
     return QUrl(request_str);
 }
