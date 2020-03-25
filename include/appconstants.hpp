@@ -242,9 +242,9 @@ const int DEFAULT_ICON_WIDTH = 88;
 
 /**
  * number of forecasts to fetch
- * 24*3h = 72 h
+ * 8*3h =  24h
  */
-const int WEATHER_FORECAST_COUNT = 24;
+const int WEATHER_FORECAST_COUNT = 8;
 
 /**
  * Where to find icons for weather condition
