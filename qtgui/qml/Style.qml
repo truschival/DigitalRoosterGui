@@ -101,7 +101,7 @@ QtObject {
         // -- elements
         property font clock: Qt.font({
             weight: Font.Bold,
-            pixelSize: scaleFont(44)
+            pixelSize: scaleFont(64)
         })
 
         property font tumbler: Qt.font({

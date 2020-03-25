@@ -13,36 +13,33 @@ Page {
         anchors.margins: Style.itemMargins.slim;
         anchors.bottomMargin: Style.itemMargins.slim;
         rowSpacing: 0;
-        columnSpacing: 4;
-	
+        columnSpacing: 3;
+
         Text{
             text: currentTime.timestring_lz_hh_mm
             font: Style.font.clock;
             color: "white"
             Layout.columnSpan: 3;
-    	    Layout.topMargin: Style.itemMargins.medium;
-	    Layout.bottomMargin: Style.itemMargins.slim;
+            Layout.topMargin: Style.itemMargins.medium;
+            Layout.bottomMargin:0;
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter ;
         }
 
         ForecastWidget{
             id:fc0h;
             timestamp: "+00 h";
-	    Layout.margins: Style.itemMargins.slim;    
             Layout.alignment: Qt.AlignHCenter| Qt.AlignVCenter;
         }
 
         ForecastWidget{
             id:fc6h;
             timestamp: "+06 h";
-	    Layout.margins: Style.itemMargins.slim;    
             Layout.alignment: Qt.AlignHCenter| Qt.AlignVCenter;
         }
 
         ForecastWidget{
             id:fc12h;
             timestamp: "+12 h";
-	    Layout.margins: Style.itemMargins.slim;    
             Layout.alignment: Qt.AlignHCenter| Qt.AlignVCenter;
         }
 
@@ -51,8 +48,8 @@ Page {
     function update_forecast(){
         console.log("update_forecast")
         fc0h.update(weather.get_weather(0));
-	fc6h.update(weather.get_weather(2));
-	fc12h.update(weather.get_weather(4));
+        fc6h.update(weather.get_weather(2));
+        fc12h.update(weather.get_weather(4));
     }
 
     /* one signal->update all forecasts*/
