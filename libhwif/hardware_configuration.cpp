@@ -69,8 +69,8 @@ QString HardwareConfiguration::resolve_name_to_path(
     qCDebug(CLASS_LC) << Q_FUNC_INFO << device_name;
     QDir evt_dir = QDir("/dev/input/");
     for (auto& file_name : evt_dir.entryList(QDir::System)) {
-        QFile f(file_name);
-        qCDebug(CLASS_LC) << "trying " << file_name;
+        qCDebug(CLASS_LC) << "trying " << evt_dir.absoluteFilePath(file_name);
+        QFile f(evt_dir.absoluteFilePath(file_name));
         if (!f.open(QFile::ReadWrite)) {
             qCCritical(CLASS_LC)
                 << "Error: open file " << f.fileName() << f.errorString();

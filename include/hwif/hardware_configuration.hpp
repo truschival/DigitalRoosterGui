@@ -103,9 +103,9 @@ private:
 
     /**
      * Input device name of rotary button (must match Device Tree)
-     * Default = "push_btn"
+     * Default = "gpio_keys"
      */
-    QString dev_push_button_event_name{"push_button"};
+    QString dev_push_button_event_name{"gpio_keys"};
 };
 
 } /* namespace Hal */
