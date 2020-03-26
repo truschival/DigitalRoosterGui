@@ -173,7 +173,7 @@ QUrl DigitalRooster::create_forecast_url(const WeatherConfig& cfg) {
     request_str += cfg.get_api_token();
     request_str += "&lang=en"; // default english
     request_str += "&cnt=";
-    request_str += QString(WEATHER_FORECAST_COUNT); //
+    request_str += QString::number(WEATHER_FORECAST_COUNT); //
     qCDebug(CLASS_LC) << request_str;
     return QUrl(request_str);
 }
