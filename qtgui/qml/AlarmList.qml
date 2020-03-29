@@ -5,7 +5,7 @@ import ruschi.Alarm 1.0
 
 ListView {
     id:alarmlist
-	property string objectName : "Alarms"
+    property string objectName : "Alarms"
     width: stackView.width
     height: stackView.height
     antialiasing: true
@@ -21,22 +21,22 @@ ListView {
         id: alarmdelegate
     }
 
-	AlarmEditDialog{
-		id: alarmEditDlg;
-		width: Style.contentWidth*0.8;
-		x: Math.round((applicationWindow.width - width)/2)
-		bottomMargin:15;
-	}
+    AlarmEditDialog{
+        id: alarmEditDlg;
+        width: Style.contentWidth*0.8;
+        x: Math.round((applicationWindow.width - width)/2)
+        bottomMargin:15;
+    }
     model: alarmlistmodel
 
     RoundButton {
         text: qsTr("+")
         highlighted: true
-		width: 56;
-		height: 56;
-        anchors.margins: 10
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
+        width: 56;
+        height: 56;
+        anchors.margins: 10;
+        anchors.left: parent.left;
+        anchors.bottom: parent.bottom;
         onClicked: {
             alarmEditDlg.currentAlarm = alarmlistmodel.create_alarm();
             alarmlist.currentIndex = alarmlistmodel.rowCount()-1;
