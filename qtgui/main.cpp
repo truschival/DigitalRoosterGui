@@ -245,9 +245,10 @@ int main(int argc, char* argv[]) {
     /* we start in standby */
     power.standby();
 
-    Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(8080));
-    RestAdapter rest(cm.get(),addr);
-
+#ifdef REST_API
+    Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(REST_API_PORT));
+    RestAdapter rest(cm,cm,cm,cm,cm,addr);
+#endif
     /*
      * QML Setup dynamically createable types
      * All Elements/Lists are created in C++

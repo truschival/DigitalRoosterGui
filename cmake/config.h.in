@@ -64,4 +64,12 @@
 #define WIFI_INTERFACE_PATH @WIFI_INTERFACE@
 #endif
 
+/**
+ * REST API TCP listen port
+ */
+#ifndef REST_API_LISTEN_PORT
+#define REST_API_LISTEN_PORT (@REST_API_PORT@)
+#endif
+
+
 #endif /* _CONFIG_H_ */

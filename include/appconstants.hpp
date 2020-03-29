@@ -299,6 +299,11 @@ const QString CONFIG_JSON_FILE_NAME(STR_VALUE(CMAKE_SETTINGS_FILE_NAME));
  */
 const QString WPA_CONTROL_SOCKET_PATH(STR_VALUE(WIFI_INTERFACE_PATH));
 
+/**
+ * Port for REST API
+ */
+const int REST_API_PORT(REST_API_LISTEN_PORT);
+
 /****************************************************************************/
 
 /**

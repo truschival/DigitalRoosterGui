@@ -11,11 +11,16 @@
  *****************************************************************************/
 
 #include <QLoggingCategory>
+
 #include <QJsonObject>
+#include <QJsonValue>
+#include <QJsonArray>
+#include <QJsonDocument>
+
 #include <pistache/router.h>
 
-
 #include "RestAdapter.hpp"
+#include "PodcastSource.hpp"
 #include "Helpers.h"
 
 using namespace Pistache;
@@ -32,10 +37,17 @@ const int PISTACHE_SERVER_MAX_RESPONSE_SIZE = 32768;
 
 /*****************************************************************************/
 
-RestAdapter::RestAdapter(
-    DigitalRooster::ConfigurationManager* confman, Pistache::Address addr)
-    : cm(confman)
-    , endpoint(addr) {
+RestAdapter::RestAdapter(const DigitalRooster::IWeatherConfigStore& ws,
+    const DigitalRooster::IAlarmStore& asr,
+    const DigitalRooster::IPodcastStore& ps,
+    const DigitalRooster::IStationStore& sts,
+    const DigitalRooster::ITimeOutStore& tos,
+    Pistache::Address addr)
+    : alarmstore(asr)
+    , podcaststore(ps)
+    , stationstore(sts)
+    , timeoutstore(tos)
+    , endpoint(addr ) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     auto opts =
@@ -47,6 +59,7 @@ RestAdapter::RestAdapter(
 
     Routes::Get(router, base + "/podcasts",
         Routes::bind(&RestAdapter::podcasts_read_all_handler, this));
+
 };
 /*****************************************************************************/
 
@@ -74,11 +87,10 @@ void RestAdapter::podcasts_read_all_handler(
         }
     }
 
-
     try {
         QJsonArray j;
-        for(const auto& pc : cm->get_podcast_sources()){
-        	j.push_back(pc->to_json_object());
+        for(const auto& pc : podcaststore.get_podcast_sources()){
+        	j.push_back(QJsonValue(pc->to_json_object()));
         }
         QJsonDocument jdoc;
         jdoc.setArray(j);

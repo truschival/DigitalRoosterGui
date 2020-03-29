@@ -13,8 +13,8 @@
 #ifndef INCLUDE_REST_RESTADAPTER_HPP_
 #define INCLUDE_REST_RESTADAPTER_HPP_
 
-#include <string>
 #include <memory>
+#include <string>
 
 #include <pistache/endpoint.h>
 #include <pistache/http.h>
@@ -25,21 +25,27 @@
 namespace DigitalRooster {
 class RestAdapter {
 public:
+    const std::string base = "/v1";
 
-	const std::string base = "/v1";
-
-    explicit RestAdapter(
-        DigitalRooster::ConfigurationManager* confman, Pistache::Address addr);
+    RestAdapter(const DigitalRooster::IWeatherConfigStore& ws,
+        const DigitalRooster::IAlarmStore& asr,
+        const DigitalRooster::IPodcastStore& ps,
+        const DigitalRooster::IStationStore& sts,
+        const DigitalRooster::ITimeOutStore& tos,
+        Pistache::Address addr);
 
     void podcasts_read_all_handler(const Pistache::Rest::Request& request,
         Pistache::Http::ResponseWriter response);
 
 private:
     void setup_routes();
-    DigitalRooster::ConfigurationManager* cm;
+    const DigitalRooster::IAlarmStore& alarmstore;
+    const DigitalRooster::IPodcastStore& podcaststore;
+    const DigitalRooster::IStationStore& stationstore;
+    const DigitalRooster::ITimeOutStore& timeoutstore;
+
     Pistache::Http::Endpoint endpoint;
     Pistache::Rest::Router router;
-
 };
 
 } // namespace DigitalRooster
