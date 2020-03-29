@@ -30,94 +30,109 @@ QtObject {
 
         property font title: Qt.font({
             weight: Font.Normal,
-            pixelSize: scaleFont(18)
+            pixelSize: scaleFont(18),
+            preferShaping: false
         });
 
         property font titleBold: Qt.font({
             weight: Font.Bold,
-            pixelSize: scaleFont(18)
+            pixelSize: scaleFont(18),
+            preferShaping: false
         });
 
         property font subtitle: Qt.font({
             family: "DejaVu Sans Condensed",
             weight: Font.DemiBold,
-            pixelSize: scaleFont(14)
+            pixelSize: scaleFont(14),
+            preferShaping: false
         });
 
         property font weatherInfo: Qt.font({
             family: "DejaVu Sans Condensed",
-            weight: Font.DemiBold,
-            pixelSize: scaleFont(12)
+            weight: Font.Bold,
+            pixelSize: scaleFont(14),
+            preferShaping: false
         });
 
         property font weatherTime: Qt.font({
-            family: "DejaVu Sans Condensed",
-            weight: Font.Normal,
-            pixelSize: scaleFont(12)
+            family: "DejaVu Sans",
+            weight: Font.DemiBold,
+            pixelSize: scaleFont(12),
+            preferShaping: false
         });
 
         property font listItemHead: Qt.font({
             family: "DejaVu Sans Condensed",
             weight: Font.DemiBold,
             letterSpacing:-1,
-            pixelSize: scaleFont(12)
+            pixelSize: scaleFont(12),
+            preferShaping: false
         });
 
         property font listItemHeadListened: Qt.font({
             family: "DejaVu Sans Condensed",
             weight: Font.Normal,
             letterSpacing:-1,
-            pixelSize: scaleFont(12)
+            pixelSize: scaleFont(12),
+            preferShaping: false
         });
 
         property font label: Qt.font({
             family: "DejaVu Sans Condensed",
             weight: Font.DemiBold,
             letterSpacing:-1,
-            pixelSize: scaleFont(10)
+            pixelSize: scaleFont(10),
+            preferShaping: false
         });
 
         property font boldLabel: Qt.font({
             family: "DejaVu Sans Condensed",
             weight: Font.Bold,
             letterSpacing:-1,
-            pixelSize: scaleFont(10)
+            pixelSize: scaleFont(10),
+            preferShaping: false
         });
 
         property font valueLabel: Qt.font({
             family: "DejaVu Sans Condensed",
             weight: Font.Normal,
             letterSpacing:-1,
-            pixelSize: scaleFont(10)
+            pixelSize: scaleFont(10),
+            preferShaping: false
         });
 
         property font flowText: Qt.font({
             family: "DejaVu Sans Condensed",
             weight: Font.Normal,
             letterSpacing:-1,
-            pixelSize: scaleFont(10)
+            pixelSize: scaleFont(10),
+            preferShaping: false
         });
 
         // -- elements
         property font clock: Qt.font({
             weight: Font.Bold,
-            pixelSize: scaleFont(64)
+            pixelSize: scaleFont(64),
+            preferShaping: false
         })
 
         property font tumbler: Qt.font({
             weight: Font.Bold,
-            pixelSize: scaleFont(16)
+            pixelSize: scaleFont(16),
+            preferShaping: false
         });
 
         property font button: Qt.font({
             family: "Material Design Icons",
             weight: Font.DemiBold,
-            pixelSize: scaleFont(18)
+            pixelSize: scaleFont(20),
+            preferShaping: false
         });
 
         property font sliderValue: Qt.font({
             weight: Font.DemiBold,
-            pixelSize: scaleFont(16)
+            pixelSize: scaleFont(16),
+            preferShaping: false
         });
     }// font
 
