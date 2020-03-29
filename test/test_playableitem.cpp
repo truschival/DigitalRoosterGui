@@ -86,5 +86,3 @@ TEST(PlayableItem, ListenedChanged) {
 	ASSERT_EQ(spy.count(),1);
     ASSERT_TRUE(episode.already_listened());
 }
-
-

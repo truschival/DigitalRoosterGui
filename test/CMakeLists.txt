@@ -1,8 +1,9 @@
-	MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
+MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
 
 SET(BINARY_NAME "${PROJECT_NAME}_gtest")
-
-#set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(COMPONENT_NAME ${BINARY_NAME})
+# Interface/binary version
+SET(COMPONENT_VERSION ${PROJECT_VERSION})
 
 # Extra QT5 components for tests
 find_package(Qt5 COMPONENTS Test REQUIRED)
@@ -56,11 +57,11 @@ ELSE(NOT BUILD_GTEST_FROM_SRC)
   # https://github.com/google/googletest/tree/master/googletest#incorporating-into-an-existing-cmake-project
   #--------------------------------------------------------------------------
   set(GTEST_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/GTestExternal/")
-  
+
   # Download and unpack googletest at configure time
   configure_file(CMakeLists.txt.in ${GTEST_PREFIX}/CMakeLists.txt)
 
-  message(STATUS "Executing cmake on generated Download CMakeLists.txt") 
+  message(STATUS "Executing cmake on generated Download CMakeLists.txt")
   execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"  .
 	RESULT_VARIABLE result
 	WORKING_DIRECTORY ${GTEST_PREFIX} )
@@ -68,7 +69,7 @@ ELSE(NOT BUILD_GTEST_FROM_SRC)
   	message(FATAL_ERROR "CMake step for googletest failed: ${result}")
   endif()
 
-  message(STATUS "Building google test" ) 
+  message(STATUS "Building google test" )
   execute_process(COMMAND ${CMAKE_COMMAND} --build  ${GTEST_PREFIX}
 	RESULT_VARIABLE result
 	WORKING_DIRECTORY ${GTEST_PREFIX}/googletest-build )
@@ -92,13 +93,13 @@ ELSE(NOT BUILD_GTEST_FROM_SRC)
 
   set(GTEST_INCLUDES "${GTEST_PREFIX}/googletest-src/googletest/include")
   set(GMOCK_INCLUDES "${GTEST_PREFIX}/googletest-src/googlemock/include")
-  
+
   set(GTEST_LIBRARY  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${LIBPREFIX}gtest")
   set(GTEST_MAINLIB  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${LIBPREFIX}gtest_main")
 
   set(GMOCK_LIBRARY  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${LIBPREFIX}gmock")
   set(GMOCK_MAINLIB  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${LIBPREFIX}gmock_main")
-  
+
   add_library(GTest IMPORTED STATIC GLOBAL)
   set_target_properties(GTest PROPERTIES
   	IMPORTED_LOCATION "${GTEST_LIBRARY}${LIBSUFFIX}"
@@ -112,7 +113,7 @@ ELSE(NOT BUILD_GTEST_FROM_SRC)
    	IMPORTED_LOCATION_DEBUG  "${GTEST_MAINLIB}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
  	INTERFACE_INCLUDE_DIRECTORIES      "${GTEST_INCLUDES}"
   	IMPORTED_LINK_INTERFACE_LIBRARIES  GTest)
-  
+
   add_library(GMock IMPORTED STATIC GLOBAL)
   set_target_properties(GMock PROPERTIES
 	IMPORTED_LOCATION "${GMOCK_LIBRARY}${LIBSUFFIX}"
@@ -126,10 +127,10 @@ ELSE(NOT BUILD_GTEST_FROM_SRC)
    	IMPORTED_LOCATION_DEBUG  "${GMOCK_MAINLIB}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
    	INTERFACE_INCLUDE_DIRECTORIES      "${GTEST_INCLUDES};${GMOCK_INCLUDES}"
    	IMPORTED_LINK_INTERFACE_LIBRARIES  GMock )
-  
+
   add_dependencies(GTest gtest_main gtest)
   add_dependencies(GMock gmock_main gmock)
- 
+
 endif(NOT BUILD_GTEST_FROM_SRC)
 
 #------------------------------
@@ -154,16 +155,22 @@ CONFIGURE_FILE(
 
 SET(AUDIO_TEST_FILE "testaudio.mp3")
 CONFIGURE_FILE(
-  "${CMAKE_CURRENT_SOURCE_DIR}/${AUDIO_TEST_FILE}"	
+  "${CMAKE_CURRENT_SOURCE_DIR}/${AUDIO_TEST_FILE}"
   "${CMAKE_BINARY_DIR}/${AUDIO_TEST_FILE}"
   COPYONLY)
-  
+
 SET(WEATHER_TEST_FILE "sample_weather.json")
 CONFIGURE_FILE(
-  "${CMAKE_CURRENT_SOURCE_DIR}/${WEATHER_TEST_FILE}"	
+  "${CMAKE_CURRENT_SOURCE_DIR}/${WEATHER_TEST_FILE}"
   "${CMAKE_BINARY_DIR}/${WEATHER_TEST_FILE}"
   COPYONLY)
-  
+
+SET(FORECAST_TEST_FILE "sample_forecast.json")
+CONFIGURE_FILE(
+  "${CMAKE_CURRENT_SOURCE_DIR}/${FORECAST_TEST_FILE}"
+  "${CMAKE_BINARY_DIR}/${FORECAST_TEST_FILE}"
+  COPYONLY)
+
 #-------------------------------------------------------------------------------
 # Unit test sources, TestDoubles, Mocks etc.
 #-------------------------------------------------------------------------------
@@ -185,43 +192,42 @@ SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test_sleeptimer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_powercontrol.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_hardware_config.cpp
-  )  
-  
+  )
+
 IF(HAS_WPA_SUPPLICANT)
 	LIST(APPEND TEST_HARNESS_SRCS
 		${CMAKE_CURRENT_SOURCE_DIR}/test_wpa_ctrl.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/test_wifi_control.cpp
 	)
-ENDIF() 
-  
+ENDIF()
+
 #------------------------------
 # Binary
 #------------------------------
 
 # UnitTests Executable (for target)
-add_executable(
-  ${BINARY_NAME}
+add_executable(${COMPONENT_NAME}
   ${TEST_HARNESS_SRCS}
   )
 
-SET_TARGET_PROPERTIES(
-  ${BINARY_NAME}
+SET_TARGET_PROPERTIES(${COMPONENT_NAME}
   PROPERTIES
   VERSION ${PROJECT_VERSION}
   VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
   )
 
-TARGET_COMPILE_DEFINITIONS(${BINARY_NAME}
-  PUBLIC ${CPP_DEFS} 
+TARGET_COMPILE_DEFINITIONS(${COMPONENT_NAME}
+  PUBLIC ${CPP_DEFS}
   )
 
-TARGET_COMPILE_OPTIONS(${BINARY_NAME} PRIVATE
+TARGET_COMPILE_OPTIONS(${COMPONENT_NAME}
+  PRIVATE
   $<$<COMPILE_LANGUAGE:CXX>:${CUSTOM_CXX_FLAGS}>
   $<$<COMPILE_LANGUAGE:C>:${CUSTOM_C_FLAGS}>)
 
 # Linkage with gtest_main coverage etc.
 TARGET_LINK_LIBRARIES(
-  ${BINARY_NAME}
+  ${COMPONENT_NAME}
   ${DUT_LIBS}   # Units under test
   GMock # main not required, implemented in test.cpp
   GTest
@@ -233,27 +239,33 @@ TARGET_LINK_LIBRARIES(
 
 IF(TEST_COVERAGE)
   IF(NOT MSVC)
-	#Remove googletest, autogenerated QT code and headers for testcovera
-	SET(COVERAGE_EXCLUDES '*GTestExternal/*' "*_autogen*" '/usr/*')
+	#Remove googletest, autogenerated QT code and headers for testcoverage
+	SET(COVERAGE_EXCLUDES
+	   '*GTestExternal/*'
+	   '*PistacheExternal/*'
+	   "*_autogen*"
+	   '/usr/*'
+	   )
 	SETUP_TARGET_FOR_COVERAGE(
-	  NAME ${BINARY_NAME}_coverage                # New target name
-	  EXECUTABLE ${BINARY_NAME} -j 4 # Executable in PROJECT_BINARY_DIR
-	  DEPENDENCIES ${BINARY_NAME})
+	  NAME ${COMPONENT_NAME}_coverage                # New target name
+	  EXECUTABLE ${COMPONENT_NAME} -j 4 # Executable in PROJECT_BINARY_DIR
+	  DEPENDENCIES ${COMPONENT_NAME}
+	  )
   ELSE(NOT MSVC)
-	SET_PROPERTY(TARGET  ${BINARY_NAME} APPEND PROPERTY LINK_FLAGS
+	SET_PROPERTY(TARGET  ${COMPONENT_NAME} APPEND PROPERTY LINK_FLAGS
 	  /PROFILE)
   ENDIF(NOT MSVC)
-ENDIF(TEST_COVERAGE) 
+ENDIF(TEST_COVERAGE)
 
 # Call the testBinary with junit-xml output
 ADD_TEST(junitout
-  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${BINARY_NAME}"
+  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${COMPONENT_NAME}"
   --gtest_output=xml:gtestresults.xml
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR} )
 
+#-----
+# Install (optional)
+#-----
 IF(INSTALL_UNIT_TEST_ON_TARGET)
-  INSTALL(TARGETS
-	${TEST_BINARY_NAME}
-	RUNTIME	DESTINATION ${TARGET_EXE_INSTALL_DIR}
-	)
+  include(IntallLibraryComponents)
 ENDIF(INSTALL_UNIT_TEST_ON_TARGET)

@@ -1,0 +1,199 @@
+{
+  "cod": "200",
+  "message": 0,
+  "cnt": 5,
+  "list": [
+    {
+      "dt": 1584792000,
+      "main": {
+        "temp": 24.78,
+        "feels_like": 23.39,
+        "temp_min": 24.78,
+        "temp_max": 26.25,
+        "pressure": 1015,
+        "sea_level": 1015,
+        "grnd_level": 1012,
+        "humidity": 79,
+        "temp_kf": -1.47
+      },
+      "weather": [
+        {
+          "id": 500,
+          "main": "Rain",
+          "description": "light rain",
+          "icon": "10n"
+        }
+      ],
+      "clouds": {
+        "all": 38
+      },
+      "wind": {
+        "speed": 7.88,
+        "deg": 150
+      },
+      "rain": {
+        "3h": 1.44
+      },
+      "sys": {
+        "pod": "n"
+      },
+      "dt_txt": "2020-03-21 12:00:00"
+    },
+    {
+      "dt": 1584802800,
+      "main": {
+        "temp": 25.06,
+        "feels_like": 23.46,
+        "temp_min": 25.06,
+        "temp_max": 26.16,
+        "pressure": 1013,
+        "sea_level": 1013,
+        "grnd_level": 1011,
+        "humidity": 80,
+        "temp_kf": -1.1
+      },
+      "weather": [
+        {
+          "id": 500,
+          "main": "Rain",
+          "description": "light rain",
+          "icon": "10n"
+        }
+      ],
+      "clouds": {
+        "all": 77
+      },
+      "wind": {
+        "speed": 8.52,
+        "deg": 144
+      },
+      "rain": {
+        "3h": 2.06
+      },
+      "sys": {
+        "pod": "n"
+      },
+      "dt_txt": "2020-03-21 15:00:00"
+    },
+    {
+      "dt": 1584813600,
+      "main": {
+        "temp": 25.05,
+        "feels_like": 25.02,
+        "temp_min": 25.05,
+        "temp_max": 25.79,
+        "pressure": 1013,
+        "sea_level": 1013,
+        "grnd_level": 1010,
+        "humidity": 82,
+        "temp_kf": -0.74
+      },
+      "weather": [
+        {
+          "id": 501,
+          "main": "Rain",
+          "description": "moderate rain",
+          "icon": "10n"
+        }
+      ],
+      "clouds": {
+        "all": 84
+      },
+      "wind": {
+        "speed": 6.57,
+        "deg": 145
+      },
+      "rain": {
+        "3h": 4.38
+      },
+      "sys": {
+        "pod": "n"
+      },
+      "dt_txt": "2020-03-21 18:00:00"
+    },
+    {
+      "dt": 1584824400,
+      "main": {
+        "temp": 25.7,
+        "feels_like": 24.62,
+        "temp_min": 25.7,
+        "temp_max": 26.07,
+        "pressure": 1013,
+        "sea_level": 1013,
+        "grnd_level": 1011,
+        "humidity": 83,
+        "temp_kf": -0.37
+      },
+      "weather": [
+        {
+          "id": 501,
+          "main": "Rain",
+          "description": "moderate rain",
+          "icon": "10d"
+        }
+      ],
+      "clouds": {
+        "all": 97
+      },
+      "wind": {
+        "speed": 8.71,
+        "deg": 144
+      },
+      "rain": {
+        "3h": 5.06
+      },
+      "sys": {
+        "pod": "d"
+      },
+      "dt_txt": "2020-03-21 21:00:00"
+    },
+    {
+      "dt": 1584835200,
+      "main": {
+        "temp": 26.51,
+        "feels_like": 26.26,
+        "temp_min": 26.51,
+        "temp_max": 26.51,
+        "pressure": 1015,
+        "sea_level": 1015,
+        "grnd_level": 1013,
+        "humidity": 80,
+        "temp_kf": 0
+      },
+      "weather": [
+        {
+          "id": 501,
+          "main": "Rain",
+          "description": "moderate rain",
+          "icon": "10d"
+        }
+      ],
+      "clouds": {
+        "all": 98
+      },
+      "wind": {
+        "speed": 7.67,
+        "deg": 136
+      },
+      "rain": {
+        "3h": 4.13
+      },
+      "sys": {
+        "pod": "d"
+      },
+      "dt_txt": "2020-03-22 00:00:00"
+    }
+  ],
+  "city": {
+    "id": 2172797,
+    "name": "Cairns",
+    "coord": {
+      "lat": -16.9167,
+      "lon": 145.7667
+    },
+    "country": "AU",
+    "timezone": 36000,
+    "sunrise": 1584735656,
+    "sunset": 1584779235
+  }
+}

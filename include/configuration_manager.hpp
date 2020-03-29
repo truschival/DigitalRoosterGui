@@ -16,44 +16,36 @@
 #include <QObject>
 #include <QString>
 #include <QVector>
+#include <QTimer>
 
 #include <chrono>
 #include <memory>
 
-#include "PlayableItem.hpp"
-#include "PodcastSource.hpp"
-#include "alarm.hpp"
 #include "appconstants.hpp"
+/* Implemented Interfaces */
+#include "IAlarmStore.hpp"
+#include "IBrightnessStore.hpp"
+#include "IPodcastStore.hpp"
+#include "IStationStore.hpp"
+#include "ITimeoutStore.hpp"
+#include "IWeatherConfigStore.hpp"
 
 namespace DigitalRooster {
+// forward decl
+class PlayableItem;
+class PodcastSource;
+class Alarm;
 
 /**
- * Simple POD for openweathermaps configuration
- * with sensible default values
+ * Reads JSON configuration and provides API to configuration objects
  */
-struct WeatherConfig {
-    /* Base uri for OpenWeatherMaps API */
-    QString base_uri{"http://api.openweathermap.org/data/2.5/weather?"};
-    /**
-     *  location id
-     * from http://bulk.openweathermap.org/sample/city.list.json.gz
-     * e.g. 'Esslingen,de' = id 2928751, Porto Alegre=3452925
-     */
-    QString cityid = {"2928751"};
-    /** Openweathermap API Key */
-    QString apikey = {"a904431b4e0eae431bcc1e075c761abb"};
-    /** metric, imperial, */
-    QString units = {"metric"};
-    /* language for description 'en', 'de'...*/
-    QString language = {"en"};
-    /** Update Interval for wheather information */
-    std::chrono::seconds update_interval{3600LL};
-};
-
-/**
- * Reads JSON configuration
- */
-class ConfigurationManager : public QObject {
+class ConfigurationManager : public QObject,
+                             public IAlarmStore,
+                             public IStationStore,
+                             public IPodcastStore,
+                             public ITimeOutStore,
+                             public IBrightnessStore,
+                             public IWeatherConfigStore {
     Q_OBJECT
     Q_PROPERTY(QString revision READ get_revision CONSTANT)
     Q_PROPERTY(QString buildtime READ get_build CONSTANT)
@@ -69,9 +61,7 @@ public:
      * @param configpath path to application configuration
      * @param cachedir directory to cache data (podcastlist etc)
      */
-    ConfigurationManager(
-        const QString& configpath,
-        const QString& cachedir);
+    ConfigurationManager(const QString& configpath, const QString& cachedir);
 
     virtual ~ConfigurationManager() = default;
 
@@ -100,84 +90,54 @@ public:
         return do_get_volume();
     }
 
-    /**
-     * User set and stored brightness for standby mode (form config file)
-     * @return brightness
+    /*
+     * Implementation of IAlarmStore
      */
-    int get_standby_brightness() const {
-        return do_get_brightness_sb();
-    }
+    void add_alarm(std::shared_ptr<Alarm> alarm) override;
+    void delete_alarm(const QUuid& id) override;
+    const Alarm* get_alarm(const QUuid& id) const override;
+    const QVector<std::shared_ptr<Alarm>>& get_alarms() const override;
 
-    /**
-     * User set and stored brightness for standby mode (form config file)
-     * @return brightness
+    /*
+     * Implementation of IStationStore
      */
-    int get_active_brightness() const {
-        return do_get_brightness_act();
-    }
+    virtual void add_radio_station(std::shared_ptr<PlayableItem> src) override;
+    virtual void delete_radio_station(const QUuid& id) override;
+    const PlayableItem* get_station(const QUuid& id) const override;
+    virtual const QVector<std::shared_ptr<PlayableItem>>&
+    get_stations() const override;
 
-    /**
-     * get all radio stream sources
+    /*
+     * Implementation of IPodcastStore
      */
-    const QVector<std::shared_ptr<PlayableItem>>& get_stream_sources() {
-        return get_iradio_list();
-    }
+    virtual void add_podcast_source(
+        std::shared_ptr<PodcastSource> podcast) override;
+    virtual void delete_podcast_source(const QUuid& id) override;
+    virtual const PodcastSource* get_podcast_source(
+        const QUuid& id) const override;
+    virtual const QVector<std::shared_ptr<PodcastSource>>&
+    get_podcast_sources() const override;
+    virtual PodcastSource* get_podcast_source_by_index(
+        int index) const override;
+    virtual void remove_podcast_source_by_index(int index) override;
 
-    /**
-     * get all podcast sources
+    /*
+     * Implementation of ITimeoutStore
      */
-    const QVector<std::shared_ptr<PodcastSource>>& get_podcast_sources() {
-        return get_podcast_list();
-    }
+    virtual std::chrono::minutes get_alarm_timeout() const override;
+    virtual std::chrono::minutes get_sleep_timeout() const override;
+    virtual void set_sleep_timeout(std::chrono::minutes timeout) override;
 
-    /**
-     * Get a single podcast source identified by index
-     * @throws 	 std::out_of_range if not found
-     * @param index in vector
-     * @return PodastSource
+    /*
+     * Implementation of IBrightnessStore
      */
-    PodcastSource* get_podcast_source_by_index(int index) const;
+    virtual int get_standby_brightness() const override;
+    virtual int get_active_brightness() const override;
 
-    /**
-     * Removes a podcast source entry form list
-     * @throws 	 std::out_of_range if not found
-     * @param index in vector
+    /*
+     * Implementation of IWeatherConfigStore
      */
-    void remove_podcast_source_by_index(int index);
-
-    /**
-     * get all radio stream sources
-     */
-    const QVector<std::shared_ptr<Alarm>>& get_alarms() {
-        return get_alarm_list();
-    }
-
-    /**
-     * Weather configuration object
-     */
-    const WeatherConfig& get_weather_config() {
-        return get_weather_cfg();
-    }
-
-    /**
-     * Access configuration when Alarm should stop automatically
-     * @return default alarm timeout
-     */
-    virtual std::chrono::minutes get_alarm_timeout() const {
-        return global_alarm_timeout;
-    }
-
-    /**
-     * Minutes after which DigitalRooster goes in standby
-     * @return \ref sleep_timeout
-     */
-    virtual std::chrono::minutes get_sleep_timeout() const;
-
-    /**
-     * Update sleep timeout Minutes after which DigitalRooster goes in standby
-     * @param timeout \ref sleep_timeout
-     */
-    void set_sleep_timeout(std::chrono::minutes timeout);
+    virtual const WeatherConfig& get_weather_config() const override;
 
     /**
      * Path to wpa_supplicant control socket
@@ -195,28 +155,9 @@ public:
      * Where to store cache files
      * @return application_cache_dir.dirName()
      */
-    QString get_cache_path(){
-    	return get_cache_dir_name();
+    QString get_cache_path() {
+        return get_cache_dir_name();
     };
-
-    /**
-     * Append the radio stream to list - duplicates will not be checked
-     * @param src the new stream source - we take ownership
-     */
-    void add_radio_station(std::shared_ptr<PlayableItem> src);
-
-    /**
-     * Append new alarm to list
-     * @param alarm
-     */
-    void add_alarm(std::shared_ptr<Alarm> alarm);
-
-    /**
-     * Delete an alarm identified by ID from the list of alarms
-     * @param id of alarm
-     * @return 0 if alarm was deleted, -1 otherwise
-     */
-    int delete_alarm(const QUuid& id);
 
 public slots:
     /**
@@ -235,13 +176,13 @@ public slots:
      * user changed standby brightness
      * @param brightness new volume settings (0..100)
      */
-    void set_standby_brightness(int brightness);
+    void set_standby_brightness(int brightness) override;
 
     /**
      * user changed standby brightness
      * @param brightness new volume settings (0..100)
      */
-    void set_active_brightness(int brightness);
+    void set_active_brightness(int brightness) override;
 
     /**
      * Write memory config to file - will overwrite changes in file
@@ -260,7 +201,24 @@ public slots:
     }
 
 signals:
+    /**
+     * Any configuration item changed
+     */
     void configuration_changed();
+    /**
+     * podcast list was changed (added/deleted items)
+     */
+    void podcast_sources_changed();
+
+    /**
+     * alarm list was changed (added/deleted items)
+     */
+    void alarms_changed();
+
+    /**
+     * radio list was changed (added/deleted items)
+     */
+    void stations_changed();
 
 private:
     /**
@@ -277,11 +235,6 @@ private:
      * All Alarm objects
      */
     QVector<std::shared_ptr<Alarm>> alarms;
-
-    /**
-     * Weather configuration
-     */
-    WeatherConfig weather_cfg;
 
     /**
      * Duration for alarm to stop automatically
@@ -315,6 +268,11 @@ private:
      * file changed connection stored to disconnect & reconnect
      */
     QMetaObject::Connection fwConn;
+
+    /**
+     * Weather configuration
+     */
+    WeatherConfig weather_cfg;
 
     /**
      * Configuration directory, writable, created if it doesn't exist
@@ -368,24 +326,24 @@ private:
     virtual void parse_json(const QByteArray& json);
 
     /**
-     * Fills the vector stream_sources with entries form settings file
+     * Fills the vector stream_sources
      */
-    virtual void read_radio_streams_from_file(const QJsonObject& appconfig);
+    virtual void read_radio_streams(const QJsonObject& appconfig);
 
     /**
      * Read all podcast sources form configuration file
      */
-    virtual void read_podcasts_from_file(const QJsonObject& appconfig);
+    virtual void read_podcasts(const QJsonObject& appconfig);
 
     /**
      * Read Alarm objects
      */
-    virtual void read_alarms_from_file(const QJsonObject& appconfig);
+    virtual void read_alarms(const QJsonObject& appconfig);
 
     /**
      * Read weatherconfig
      */
-    virtual void read_weather_from_file(const QJsonObject& appconfig);
+    virtual void read_weather(const QJsonObject& appconfig);
 
     /**
      * Store settings permanently to file
@@ -396,45 +354,6 @@ private:
      * Update all configuration items
      */
     void refresh_configuration();
-
-    /**
-     * get all radio stream sources
-     */
-    virtual QVector<std::shared_ptr<PlayableItem>>& get_iradio_list() {
-        return stream_sources;
-    }
-
-    /**
-     * get all podcast sources
-     */
-    virtual QVector<std::shared_ptr<PodcastSource>>& get_podcast_list() {
-        return podcast_sources;
-    }
-
-    /**
-     * get all radio stream sources
-     */
-    virtual QVector<std::shared_ptr<Alarm>>& get_alarm_list() {
-        return alarms;
-    }
-
-    /**
-     * Weather configuration object
-     */
-    virtual WeatherConfig& get_weather_cfg() {
-        return weather_cfg;
-    }
-
-    /**
-     * Private virtual interface for brightness settings
-     */
-    virtual int do_get_brightness_sb() const {
-        return brightness_sb;
-    }
-
-    virtual int do_get_brightness_act() const {
-        return brightness_act;
-    }
 
     /**
      * actually set active brightness

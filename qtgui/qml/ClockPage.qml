@@ -6,55 +6,54 @@ Page {
     id: clockPage
     property string objectName : "ClockPage"
 
-    ColumnLayout{
-        anchors.fill: parent
-        anchors.leftMargin: Style.itemMargins.extrawide;
-        anchors.rightMargin:Style.itemMargins.extrawide;
-        spacing: Style.itemSpacings.sparse;
+    GridLayout{
+        columns: 3;
+        rows: 2;
+        anchors.fill: parent;
+        anchors.margins: Style.itemMargins.slim;
+        anchors.bottomMargin: Style.itemMargins.slim;
+        rowSpacing: 0;
+        columnSpacing: 3;
 
         Text{
             text: currentTime.timestring_lz_hh_mm
             font: Style.font.clock;
             color: "white"
-            Layout.alignment: Qt.AlignHCenter
+            Layout.columnSpan: 3;
+            Layout.topMargin: Style.itemMargins.medium;
+            Layout.bottomMargin:0;
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter ;
         }
 
-        /* Text{ */
-        /* 	text: currentTime.datestring_lz */
-        /* 	font: Style.font.subtitle; */
-        /* 	color: "white" */
-        /* 	Layout.alignment: Qt.AlignHCenter */
-        /* } */
-
-        GridLayout{
-            id: weatherLayout
-            columns: 2
-            rows: 2
-            rowSpacing: 0;
-            columnSpacing: Style.itemSpacings.dense;
-
-            Layout.alignment: Qt.AlignHCenter
-            Text{
-                text: weather.city + " " +  Math.round(weather.temperature*10)/10 + "\u00B0C";
-                font: Style.font.subtitle;
-                color: "white"
-                Layout.columnSpan: 1
-                Layout.alignment: Qt.AlignHCenter
-            }
-
-            Image {
-                id: cloudicon
-                Layout.maximumWidth: 72
-                Layout.maximumHeight: 72
-                Layout.preferredWidth: 64
-                Layout.preferredHeight: 64
-                Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter
-                Layout.fillHeight: true;
-
-                fillMode: Image.PreserveAspectFit
-                source: weather.weatherIcon;
-            }
+        ForecastWidget{
+            id:fc0h;
+            timestamp: "+00 h";
+            Layout.alignment: Qt.AlignHCenter| Qt.AlignVCenter;
         }
 
+        ForecastWidget{
+            id:fc6h;
+            timestamp: "+06 h";
+            Layout.alignment: Qt.AlignHCenter| Qt.AlignVCenter;
+        }
+
+        ForecastWidget{
+            id:fc12h;
+            timestamp: "+12 h";
+            Layout.alignment: Qt.AlignHCenter| Qt.AlignVCenter;
+        }
+
+    }// Gridlayout
+
+    function update_forecast(){
+        console.log("update_forecast")
+        fc0h.update(weather.get_weather(0));
+        fc6h.update(weather.get_weather(2));
+        fc12h.update(weather.get_weather(4));
     }
-}
+
+    /* one signal->update all forecasts*/
+    Component.onCompleted: {
+        weather.forecast_available.connect(update_forecast)
+    }
+}//Page

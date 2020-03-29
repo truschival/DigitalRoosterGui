@@ -14,10 +14,10 @@ ApplicationWindow {
     visible: true
     width: Style.canvasWidth;
     height: Style.canvasHeight;
-    
+
     Material.theme: Material.Dark
     Material.accent: Material.Red
-    
+
     property alias playerControlWidget: playerControlWidget
     property string functionMode: "Clock"
 
@@ -62,7 +62,7 @@ ApplicationWindow {
                 elide: Label.ElideRight
                 Layout.fillWidth: true
             }
-            
+
             Label{
                 id: countdown_to_sleep;
                 text: "<span style = 'font-family: materialdesignicons; font-size: 16pt; font-weight: bold'>\uf51a</span>
@@ -118,9 +118,22 @@ ApplicationWindow {
         width: Style.drawer.w;
         height: applicationWindow.height
         margins: Style.itemMargins.slim;
+        closePolicy : Popup.CloseOnPressOutside;
         edge: Qt.LeftEdge;
         interactive: true;
-        
+
+        onOpened :{
+        	autocloseTimer.start()
+        }
+
+        Timer {
+	        id: autocloseTimer
+	        interval: 4000
+	        running: true
+	        repeat: false
+	        onTriggered: drawer.close();
+	    }
+
         ListView {
             id: listView
             anchors.fill: parent
@@ -226,7 +239,8 @@ ApplicationWindow {
                 stackView.pop(null);
             }
         }
-    }  
+
+    }
 
     /**** global connections ****/
     Component.onCompleted: {

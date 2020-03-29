@@ -33,10 +33,12 @@ using ::testing::AtLeast;
 // Fixture to inject fake clock as the global clock
 class AlarmDispatcherFixture : public ::testing::Test {
 public:
+    AlarmDispatcherFixture()
+        : mc(new MockClock)
+        , dut(cm){};
+
     // Make our own clock to be the wallclock
     void SetUp() {
-        cm = std::make_shared<CmMock>();
-        mc = std::make_shared<MockClock>();
         DigitalRooster::wallclock =
             std::static_pointer_cast<TimeProvider, MockClock>(mc);
     };
@@ -48,23 +50,23 @@ public:
 
 protected:
     std::shared_ptr<MockClock> mc;
-    std::shared_ptr<CmMock> cm;
+    CmMock cm;
+    AlarmDispatcher dut;
 };
 
 /*****************************************************************************/
 
 TEST_F(AlarmDispatcherFixture, callsGetAlarms) {
-    EXPECT_CALL(*(cm.get()), get_alarm_list())
+    EXPECT_CALL(cm, get_alarms())
         .Times(1)
-        .WillRepeatedly(ReturnRef(cm->alarms));
+        .WillRepeatedly(ReturnRef(cm.alarms));
     // Friday 8:29:45, just before and just before and after the alarm time
     EXPECT_CALL(*(mc.get()), get_time())
         .Times(AtLeast(1))
         .WillRepeatedly(
             Return(QDateTime::fromString("2018-09-26T08:29:45", Qt::ISODate)));
 
-    AlarmDispatcher a(cm);
-    a.check_alarms();
+    dut.check_alarms();
 }
 /*****************************************************************************/
 
@@ -72,11 +74,11 @@ TEST_F(AlarmDispatcherFixture, dispatchSingleAlarm) {
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
         QTime::fromString("08:30:00", "hh:mm:ss"), Alarm::Daily);
-    cm->alarms.push_back(alm);
+    cm.alarms.push_back(alm);
 
-    EXPECT_CALL(*(cm.get()), get_alarm_list())
+    EXPECT_CALL(cm, get_alarms())
         .Times(1)
-        .WillRepeatedly(ReturnRef(cm->alarms));
+        .WillRepeatedly(ReturnRef(cm.alarms));
 
     // Friday 8:29:45, just before and just before and after the alarm time
     EXPECT_CALL(*(mc.get()), get_time())
@@ -84,15 +86,14 @@ TEST_F(AlarmDispatcherFixture, dispatchSingleAlarm) {
         .WillRepeatedly(
             Return(QDateTime::fromString("2018-09-26T08:29:45", Qt::ISODate)));
 
-    AlarmDispatcher a(cm);
     QSignalSpy spy1(
-        &a, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+        &dut, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
     ASSERT_TRUE(spy1.isValid());
 
-    QSignalSpy spy2(&a, SIGNAL(alarm_triggered()));
+    QSignalSpy spy2(&dut, SIGNAL(alarm_triggered()));
     ASSERT_TRUE(spy2.isValid());
 
-    a.check_alarms();
+    dut.check_alarms();
     ASSERT_EQ(spy1.count(), 1);
     ASSERT_EQ(spy2.count(), 1);
 }
@@ -103,23 +104,22 @@ TEST_F(AlarmDispatcherFixture, disableSingleAlarmAfterDispatch) {
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
         QTime::fromString("08:30:00", "hh:mm:ss"), Alarm::Once);
-    cm->alarms.push_back(alm);
+    cm.alarms.push_back(alm);
 
-    EXPECT_CALL(*(cm.get()), get_alarm_list())
+    EXPECT_CALL(cm, get_alarms())
         .Times(1)
-        .WillRepeatedly(ReturnRef(cm->alarms));
+        .WillRepeatedly(ReturnRef(cm.alarms));
     // Friday 8:29:45, just before and just before and after the alarm time
     EXPECT_CALL(*(mc.get()), get_time())
         .Times(AtLeast(1))
         .WillRepeatedly(
             Return(QDateTime::fromString("2018-09-26T08:29:45", Qt::ISODate)));
 
-    AlarmDispatcher a(cm);
     QSignalSpy spy(
-        &a, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+        &dut, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
     ASSERT_TRUE(spy.isValid());
 
-    a.check_alarms();
+    dut.check_alarms();
     ASSERT_FALSE(alm->is_enabled());
     ASSERT_EQ(spy.count(), 1);
 }
@@ -130,11 +130,11 @@ TEST_F(AlarmDispatcherFixture, DontDispatchDisabledAlarm) {
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
         QTime::fromString("08:30:00", "hh:mm:ss"), Alarm::Daily, false);
-    cm->alarms.push_back(alm);
+    cm.alarms.push_back(alm);
 
-    EXPECT_CALL(*(cm.get()), get_alarm_list())
+    EXPECT_CALL(cm, get_alarms())
         .Times(1)
-        .WillRepeatedly(ReturnRef(cm->alarms));
+        .WillRepeatedly(ReturnRef(cm.alarms));
 
     // just before and just after the alarm time
     EXPECT_CALL(*(mc.get()), get_time())
@@ -142,13 +142,11 @@ TEST_F(AlarmDispatcherFixture, DontDispatchDisabledAlarm) {
         .WillRepeatedly(
             Return(QDateTime::fromString("2018-09-26T08:30:02", Qt::ISODate)));
 
-    AlarmDispatcher a(cm);
-
     QSignalSpy spy(
-        &a, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+        &dut, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
     ASSERT_TRUE(spy.isValid());
 
-    a.check_alarms();
+    dut.check_alarms();
     ASSERT_EQ(spy.count(), 0);
 }
 /*****************************************************************************/
@@ -156,23 +154,22 @@ TEST_F(AlarmDispatcherFixture, DontDispatchPastAlarms) {
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
         QTime::fromString("08:25:00", "hh:mm:ss"), Alarm::Daily, true);
-    cm->alarms.push_back(alm);
+    cm.alarms.push_back(alm);
 
-    EXPECT_CALL(*(cm.get()), get_alarm_list())
+    EXPECT_CALL(cm, get_alarms())
         .Times(1)
-        .WillRepeatedly(ReturnRef(cm->alarms));
+        .WillRepeatedly(ReturnRef(cm.alarms));
     // 1 Minute after Alarm time
     EXPECT_CALL(*(mc.get()), get_time())
         .Times(AtLeast(1))
         .WillRepeatedly(
             Return(QDateTime::fromString("2018-09-26T08:26:00", Qt::ISODate)));
-    AlarmDispatcher a(cm);
 
     QSignalSpy spy(
-        &a, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+        &dut, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
 
     ASSERT_TRUE(spy.isValid());
-    a.check_alarms();
+    dut.check_alarms();
     ASSERT_EQ(spy.count(), 0);
 }
 /*****************************************************************************/
@@ -180,7 +177,7 @@ TEST_F(AlarmDispatcherFixture, DispatchAlarmsWithSlightOffset) {
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
         QTime::fromString("08:30:00", "hh:mm:ss"), Alarm::Workdays, true);
-    cm->alarms.push_back(alm);
+    cm.alarms.push_back(alm);
 
     // Friday 8:29:45, just before and just before and after the alarm time
     EXPECT_CALL(*(mc.get()), get_time())
@@ -190,16 +187,15 @@ TEST_F(AlarmDispatcherFixture, DispatchAlarmsWithSlightOffset) {
         .WillRepeatedly(
             Return(QDateTime::fromString("2018-09-28T08:30:20", Qt::ISODate)));
 
-    EXPECT_CALL(*(cm.get()), get_alarm_list())
+    EXPECT_CALL(cm, get_alarms())
         .Times(2)
-        .WillRepeatedly(ReturnRef(cm->alarms));
-    AlarmDispatcher a(cm);
+        .WillRepeatedly(ReturnRef(cm.alarms));
 
     QSignalSpy spy(
-        &a, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+        &dut, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
     ASSERT_TRUE(spy.isValid());
-    a.check_alarms();
-    a.check_alarms();
+    dut.check_alarms();
+    dut.check_alarms();
     ASSERT_EQ(spy.count(), 1); // past alarm should not be played
 }
 /*****************************************************************************/
@@ -207,7 +203,7 @@ TEST_F(AlarmDispatcherFixture, Workdays_Friday) {
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
         QTime::fromString("08:30:00", "hh:mm:ss"), Alarm::Workdays, true);
-    cm->alarms.push_back(alm);
+    cm.alarms.push_back(alm);
 
     // Friday 8:29:45, just before the alarm time
     EXPECT_CALL(*(mc.get()), get_time())
@@ -215,14 +211,13 @@ TEST_F(AlarmDispatcherFixture, Workdays_Friday) {
         .WillOnce(
             Return(QDateTime::fromString("2018-09-26T08:29:45", Qt::ISODate)));
 
-    EXPECT_CALL(*(cm.get()), get_alarm_list())
+    EXPECT_CALL(cm, get_alarms())
         .Times(1)
-        .WillRepeatedly(ReturnRef(cm->alarms));
-    AlarmDispatcher a(cm);
+        .WillRepeatedly(ReturnRef(cm.alarms));
 
     QSignalSpy spy(
-        &a, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
-    a.check_alarms();
+        &dut, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+    dut.check_alarms();
     ASSERT_EQ(spy.count(), 1);
 }
 /*****************************************************************************/
@@ -232,7 +227,7 @@ TEST_F(AlarmDispatcherFixture, Workdays_Monday) {
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"), timepoint,
         Alarm::Workdays, true);
-    cm->alarms.push_back(alm);
+    cm.alarms.push_back(alm);
 
     // Monday 8:29
     EXPECT_CALL(*(mc.get()), get_time())
@@ -240,15 +235,14 @@ TEST_F(AlarmDispatcherFixture, Workdays_Monday) {
         .WillOnce(
             Return(QDateTime::fromString("2018-09-14T08:29:45", Qt::ISODate)));
 
-    EXPECT_CALL(*(cm.get()), get_alarm_list())
+    EXPECT_CALL(cm, get_alarms())
         .Times(1)
-        .WillRepeatedly(ReturnRef(cm->alarms));
-    AlarmDispatcher a(cm);
+        .WillRepeatedly(ReturnRef(cm.alarms));
 
     QSignalSpy spy(
-        &a, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+        &dut, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
     ASSERT_TRUE(spy.isValid());
-    a.check_alarms();
+    dut.check_alarms();
     ASSERT_EQ(spy.count(), 1);
 }
 /*****************************************************************************/
@@ -258,7 +252,7 @@ TEST_F(AlarmDispatcherFixture, Weekends_Monday) {
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"), timepoint,
         Alarm::Weekend, true);
-    cm->alarms.push_back(alm);
+    cm.alarms.push_back(alm);
 
     // Monday 8:29
     EXPECT_CALL(*(mc.get()), get_time())
@@ -267,15 +261,14 @@ TEST_F(AlarmDispatcherFixture, Weekends_Monday) {
             Return(QDateTime::fromString("2018-09-14T08:29:45", Qt::ISODate)));
 
 
-    EXPECT_CALL(*(cm.get()), get_alarm_list())
+    EXPECT_CALL(cm, get_alarms())
         .Times(1)
-        .WillRepeatedly(ReturnRef(cm->alarms));
+        .WillRepeatedly(ReturnRef(cm.alarms));
 
-    AlarmDispatcher a(cm);
     QSignalSpy spy(
-        &a, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+        &dut, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
 
-    a.check_alarms();
+    dut.check_alarms();
     ASSERT_EQ(spy.count(), 0);
 }
 /*****************************************************************************/
@@ -284,7 +277,7 @@ TEST_F(AlarmDispatcherFixture, Weekends_Saturday) {
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"), timepoint,
         Alarm::Weekend, true);
-    cm->alarms.push_back(alm);
+    cm.alarms.push_back(alm);
 
     // Saturday  8:29
     EXPECT_CALL(*(mc.get()), get_time())
@@ -292,15 +285,14 @@ TEST_F(AlarmDispatcherFixture, Weekends_Saturday) {
         .WillOnce(
             Return(QDateTime::fromString("2018-09-29T08:29:45", Qt::ISODate)));
 
-    EXPECT_CALL(*(cm.get()), get_alarm_list())
+    EXPECT_CALL(cm, get_alarms())
         .Times(1)
-        .WillRepeatedly(ReturnRef(cm->alarms));
+        .WillRepeatedly(ReturnRef(cm.alarms));
 
-    AlarmDispatcher a(cm);
     QSignalSpy spy(
-        &a, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+        &dut, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
 
-    a.check_alarms();
+    dut.check_alarms();
     ASSERT_EQ(spy.count(), 1);
 }
 /*****************************************************************************/
@@ -310,7 +302,7 @@ TEST_F(AlarmDispatcherFixture, Workdays_Sunday) {
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"), timepoint,
         Alarm::Weekend, true);
-    cm->alarms.push_back(alm);
+    cm.alarms.push_back(alm);
 
     // Friday 8:29:45, just before the alarm time
     EXPECT_CALL(*(mc.get()), get_time())
@@ -318,15 +310,14 @@ TEST_F(AlarmDispatcherFixture, Workdays_Sunday) {
         .WillOnce(
             Return(QDateTime::fromString("2018-09-28T08:29:45", Qt::ISODate)));
 
-    EXPECT_CALL(*(cm.get()), get_alarm_list())
+    EXPECT_CALL(cm, get_alarms())
         .Times(1)
-        .WillRepeatedly(ReturnRef(cm->alarms));
+        .WillRepeatedly(ReturnRef(cm.alarms));
 
-    AlarmDispatcher a(cm);
     QSignalSpy spy(
-        &a, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+        &dut, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
 
-    a.check_alarms();
+    dut.check_alarms();
     ASSERT_EQ(spy.count(), 0);
 }
 
@@ -337,17 +328,17 @@ TEST_F(AlarmDispatcherFixture, dispatch2DueAlarms) {
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
         QTime::fromString("08:29:48", "hh:mm:ss"), Alarm::Once);
-    cm->alarms.push_back(alm);
+    cm.alarms.push_back(alm);
     auto alm2 = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
         QTime::fromString("08:29:50", "hh:mm:ss"), Alarm::Daily);
-    cm->alarms.push_back(alm2);
+    cm.alarms.push_back(alm2);
 
-    ASSERT_EQ(cm->alarms.size(), 2);
+    ASSERT_EQ(cm.alarms.size(), 2);
 
-    EXPECT_CALL(*(cm.get()), get_alarm_list())
+    EXPECT_CALL(cm, get_alarms())
         .Times(1)
-        .WillRepeatedly(ReturnRef(cm->alarms));
+        .WillRepeatedly(ReturnRef(cm.alarms));
     // Friday 8:29:45, just before the alarm time
     EXPECT_CALL(*(mc.get()), get_time())
         .Times(1)
@@ -365,15 +356,14 @@ TEST_F(AlarmDispatcherFixture, dispatch2DueAlarms) {
 
 /*****************************************************************************/
 TEST_F(AlarmDispatcherFixture, LoopTimerTriggers) {
-    auto cm = std::make_shared<CmMock>();
     auto alm = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
         QTime::fromString("08:29:40", "hh:mm:ss"), Alarm::Daily);
-    cm->alarms.push_back(alm);
+    cm.alarms.push_back(alm);
 
-    EXPECT_CALL(*(cm.get()), get_alarm_list())
+    EXPECT_CALL(cm, get_alarms())
         .Times(AtLeast(1))
-        .WillRepeatedly(ReturnRef(cm->alarms));
+        .WillRepeatedly(ReturnRef(cm.alarms));
 
     EXPECT_CALL(*(mc.get()), get_time())
         .Times(AtLeast(1))
@@ -381,13 +371,12 @@ TEST_F(AlarmDispatcherFixture, LoopTimerTriggers) {
             Return(QDateTime::fromString("2018-09-28T08:29:40", Qt::ISODate)));
 
     /* Interval 1s */
-    AlarmDispatcher a(cm);
-    a.set_interval(std::chrono::seconds(1));
-    ASSERT_EQ(a.get_interval(), std::chrono::seconds(1));
+    dut.set_interval(std::chrono::seconds(1));
+    ASSERT_EQ(dut.get_interval(), std::chrono::seconds(1));
 
     // Only observable signal, actually we want to test if it loops
     QSignalSpy spy(
-        &a, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+        &dut, SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
     ASSERT_TRUE(spy.isValid());
 
     spy.wait(1100);

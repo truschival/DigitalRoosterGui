@@ -66,7 +66,7 @@ void HttpClient::downloadFinished(QNetworkReply* reply) {
     QUrl url = reply->url();
     if (reply->error()) {
         qCCritical(CLASS_LC)
-            << "Download of %s failed" << url.toEncoded().constData()
+            << "Download failed" << url.toEncoded().constData()
             << qPrintable(reply->errorString());
     } else {
         if (isHttpRedirect(reply)) {

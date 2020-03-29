@@ -16,17 +16,19 @@
 #include <QDate>
 #include <QDateTime>
 #include <QMap>
+#include <QDir>
 #include <QObject>
 #include <QString>
 #include <QUuid>
 #include <QVector>
+#include <QJsonObject>
 #include <chrono>
 #include <limits>
 #include <memory>
 
 #include "PlayableItem.hpp"
 #include "UpdateTask.hpp"
-
+#include "podcast_serializer.hpp"
 
 namespace DigitalRooster {
 class HttpClient; // forward declaration
@@ -47,11 +49,9 @@ public:
     /**
      * Preconfigured Podcast Source
      * @param url Feed URL
-     * @param cache_dir directory for cache files
      * @param uid unique id for this podcast
      */
-    PodcastSource(const QUrl& url, const QDir& cache_dir,
-        QUuid uid = QUuid::createUuid());
+    explicit PodcastSource(const QUrl& url, QUuid uid = QUuid::createUuid());
 
     /**
      * Destructor to delete icon_downloader nicely
@@ -63,6 +63,14 @@ public:
      * takes ownership!
      */
     void set_update_task(std::unique_ptr<UpdateTask>&& ut);
+
+    /**
+     * Serializer stores and restores data to/from cache file
+     * A PodcastSerializer is responsible for only one PodcastSource,
+     * -> PodcastSource takes ownership!
+     * @param pser
+     */
+    void set_serializer(std::unique_ptr<PodcastSerializer>&& pser);
 
     /**
      * Add an episode to episodes
@@ -90,8 +98,8 @@ public:
     void set_cache_dir(const QString& dirname);
 
     /**
-     * cached pocast source information in this file
-     * @return file path
+     * cached podcast source information in this file
+     * @return file name (without directory)
      */
     QString get_cache_file_name() const;
 
@@ -242,6 +250,20 @@ public:
      * clear local information on podcast episodes
      */
     void purge_episodes();
+    /**
+     * Create PodcastSource from JSON JSonObject
+     * @param json representation
+     * @return PodcastSource - default initialized if fields are missing
+     */
+    static std::shared_ptr<PodcastSource> from_json_object(
+        const QJsonObject& json);
+
+    /**
+     * Serialize as JSON Object - only contains information that is not
+     * updated through RSS feed and cached.
+     * @return QJsonObject
+     */
+    QJsonObject to_json_object() const;
 
 public slots:
     /**
@@ -255,16 +277,6 @@ public slots:
     void purge();
 
     /**
-     * save in memory inforamtion to cache file
-     */
-    void store();
-
-    /**
-     * restore information from cache file
-     */
-    void restore();
-
-    /**
      * Properties of an episode e.g. title etc. has changed and a
      * delayed store should be triggered.
      */
@@ -272,15 +284,29 @@ public slots:
 
 signals:
     /**
+     * Title has changed
+     * Signal GUI
+     */
+    void titleChanged();
+    /**
+     * Description has been updated
+     * Signal GUI
+     */
+
+    void descriptionChanged();
+    /**
+     * Icon image has been updated
+     * Signal GUI
+     */
+
+    void icon_changed();
+
+    /**
      * The episodes list or any other member has been updated
+     * trigger a write
      */
     void dataChanged();
 
-    void titleChanged();
-
-    void descriptionChanged();
-
-    void icon_changed();
     /**
      * A new episodes has been added
      * @param count updated number of episodes
@@ -319,11 +345,6 @@ private:
     QDateTime last_updated;
 
     /**
-     * Timer tor write configuration to disk
-     */
-    QTimer writeTimer;
-
-    /**
      * Website of RSS feed channel (not the rss xml URI but additional
      * information)
      */
@@ -340,11 +361,6 @@ private:
     QString image_file_path;
 
     /**
-     * Cache directory
-     */
-    const QDir& cache_dir;
-
-    /**
      * show max_episodes in the list
      */
     int max_episodes = std::numeric_limits<int>::max();
@@ -359,6 +375,11 @@ private:
      * Optional UpdateTask
      */
     std::unique_ptr<UpdateTask> updater = nullptr;
+
+    /**
+     * Optional Serializer to cache information on disk
+     */
+    std::unique_ptr<PodcastSerializer> serializer = nullptr;
 
     /**
      * Optional Icon Downloader - only used to refresh icon

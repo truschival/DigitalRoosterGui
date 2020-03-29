@@ -12,6 +12,7 @@
         <file>AlarmList.qml</file>
         <file>Clock.qml</file>
         <file>ClockPage.qml</file>
+        <file>ForecastWidget.qml</file>
         <file>IRadioDelegate.qml</file>
         <file>IRadioList.qml</file>
         <file>Jsutil.js</file>

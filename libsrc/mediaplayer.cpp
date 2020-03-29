@@ -15,10 +15,10 @@
 
 using namespace DigitalRooster;
 
-static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.MediaPlayer")
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.MediaPlayer");
 
-    /*****************************************************************************/
-    bool MediaPlayer::muted() const {
+/*****************************************************************************/
+bool MediaPlayer::muted() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return is_muted();
 }

@@ -71,7 +71,7 @@ const QString KEY_ID("id");
 /**
  *  property key for all URIs
  */
-const QString KEY_URI("uri");
+const QString KEY_URI("url");
 
 /**
  * property key for all nice names
@@ -239,6 +239,29 @@ const int DEFAULT_BRIGHTNESS = 25;
  * Shared between C++ and QML
  */
 const int DEFAULT_ICON_WIDTH = 88;
+
+/**
+ * number of forecasts to fetch
+ * 8*3h =  24h
+ */
+const int WEATHER_FORECAST_COUNT = 8;
+
+/**
+ * Where to find icons for weather condition
+ */
+const QString WEATHER_ICON_BASE_URL("https://openweathermap.org/img/w/");
+
+/**
+ * API Base URL for weather
+ */
+const QString WEATHER_API_BASE_URL(
+    "https://api.openweathermap.org/data/2.5/weather?");
+
+/**
+ * API Base URL for Forecasts
+ */
+const QString WEATHER_FORECASTS_API_BASE_URL(
+    "https://api.openweathermap.org/data/2.5/forecast?");
 
 /*****************************************************************************
  CMake build configurations from config.h

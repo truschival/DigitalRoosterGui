@@ -22,21 +22,19 @@ namespace DigitalRooster {
 
 class ConfigurationManager;
 class PodcastEpisode;
-class MediaPlayerProxy;
+class MediaPlayer;
 
-} // namespace DigitalRooster
+/**
+ * Model for list of Episodes of one podcast source
+ */
 class PodcastEpisodeModel : public QAbstractListModel {
     Q_OBJECT
     Q_PROPERTY(int currentIndex READ get_current_index WRITE set_current_index
             NOTIFY current_index_changed)
 public:
-    explicit PodcastEpisodeModel(QObject* parent = nullptr);
-
     PodcastEpisodeModel(
-        const QVector<std::shared_ptr<DigitalRooster::PodcastEpisode>>*
-            episodes,
-        std::shared_ptr<DigitalRooster::MediaPlayerProxy> pp,
-        QObject* parent = nullptr);
+        const QVector<std::shared_ptr<PodcastEpisode>>* episodes,
+        MediaPlayer& mp, QObject* parent = nullptr);
 
     enum PodcastEpisodeRoles {
         DisplayNameRole = Qt::UserRole + 1,
@@ -53,9 +51,7 @@ public:
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
-    void set_episodes(
-        const QVector<std::shared_ptr<DigitalRooster::PodcastEpisode>>*
-            episodes);
+    void set_episodes(const QVector<std::shared_ptr<PodcastEpisode>>* episodes);
 
     const QString& getName() {
         return name;
@@ -84,12 +80,12 @@ protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
-    const QVector<std::shared_ptr<DigitalRooster::PodcastEpisode>>* episodes;
-    std::shared_ptr<DigitalRooster::MediaPlayerProxy> mpp;
-
+    const QVector<std::shared_ptr<PodcastEpisode>>* episodes;
+    MediaPlayer& mpp;
     int currentIndex = -1;
     QString name;
 };
 
+} // namespace DigitalRooster
 
 #endif

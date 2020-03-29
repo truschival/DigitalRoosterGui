@@ -9,6 +9,7 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
+#include <QJsonDocument>
 #include <QSettings>
 #include <QSignalSpy>
 #include <QStandardPaths>
@@ -19,6 +20,9 @@
 #include <fstream>
 #include <string>
 
+#include "PlayableItem.hpp"
+#include "PodcastSource.hpp"
+#include "alarm.hpp"
 #include "appconstants.hpp"
 #include "config.h"
 #include "configuration_manager.hpp"
@@ -28,7 +32,7 @@ using namespace DigitalRooster;
 class SettingsFixture : public virtual ::testing::Test {
 public:
     SettingsFixture()
-        : filename(DEFAULT_CONFIG_FILE_PATH+"_SettingsFixture")
+        : filename(DEFAULT_CONFIG_FILE_PATH + "_SettingsFixture")
         , cache_dir(DEFAULT_CACHE_DIR_PATH) {
     }
 
@@ -105,6 +109,7 @@ protected:
         al1[KEY_ALARM_PERIOD] = "daily";
         al1[KEY_ENABLED] = true;
         al1[KEY_ID] = "1a4bf6bd-7e67-4b40-80fd-b13e2524fc74";
+        alarms.append(al1);
 
         QJsonObject al2;
         al2[KEY_TIME] = "07:00";
@@ -112,6 +117,7 @@ protected:
         al2[KEY_ALARM_PERIOD] = "workdays";
         al2[KEY_ENABLED] = true;
         al2[KEY_ID] = "12eb4390-6abf-4626-be48-f11fe20f45cf";
+        alarms.append(al2);
 
         QJsonObject al3;
         al3[KEY_TIME] = "09:00";
@@ -119,6 +125,7 @@ protected:
         al3[KEY_ALARM_PERIOD] = "weekend";
         al3[KEY_ENABLED] = false;
         al3[KEY_ID] = "62ab05d7-d9ab-4254-8bfd-47bfdc74417a";
+        alarms.append(al3);
 
         QJsonObject al4;
         al4[KEY_TIME] = "13:00";
@@ -126,6 +133,7 @@ protected:
         al4[KEY_ALARM_PERIOD] = "once";
         al4[KEY_ENABLED] = true;
         al4[KEY_ID] = "fa3ce587-ab02-4328-9c68-4ee5e3626c86";
+        alarms.append(al4);
 
         QJsonObject al5;
         al5[KEY_TIME] = "17:00";
@@ -133,12 +141,23 @@ protected:
         al5[KEY_ALARM_PERIOD] = "Manchmal";
         al5[KEY_ENABLED] = true;
         al5[KEY_ID] = "694485e9-ac44-46f5-bc45-730a7a0ac387";
-
-        alarms.append(al1);
-        alarms.append(al2);
-        alarms.append(al3);
-        alarms.append(al4);
         alarms.append(al5);
+
+        QJsonObject al6;
+        al6[KEY_TIME] = "25:34";
+        al6[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
+        al6[KEY_ALARM_PERIOD] = "once";
+        al6[KEY_ENABLED] = true;
+        al6[KEY_ID] = "694485e9-ac44-46f5-bc45-730a7a0a2387";
+        alarms.append(al6);
+
+        QJsonObject al7;
+        al7[KEY_TIME] = "12:34";
+        al7[KEY_URI] = "";
+        al7[KEY_ALARM_PERIOD] = "once";
+        al7[KEY_ENABLED] = true;
+        al7[KEY_ID] = "694485e9-ac44-46f5-bc45-730a7a0a2387";
+        alarms.append(al7);
 
         root[KEY_GROUP_ALARMS] = alarms;
     }
@@ -156,7 +175,7 @@ protected:
 /*****************************************************************************/
 
 TEST_F(SettingsFixture, read_radio_streams_two_streams) {
-    auto& v = cm->get_stream_sources();
+    auto& v = cm->get_stations();
     ASSERT_EQ(2, v.size());
 }
 /*****************************************************************************/
@@ -166,7 +185,7 @@ TEST_F(SettingsFixture, addRadioStation_no_write) {
         std::make_shared<PlayableItem>("foo", QUrl("http://bar.baz")));
     cm->add_radio_station(
         std::make_shared<PlayableItem>("ref", QUrl("http://gmx.net")));
-    auto& v = cm->get_stream_sources();
+    auto& v = cm->get_stations();
     ASSERT_EQ(4, v.size());
 }
 /*****************************************************************************/
@@ -182,11 +201,131 @@ TEST_F(SettingsFixture, addRadioStation_write) {
     }
     ConfigurationManager control(filename, TEST_FILE_PATH);
     control.update_configuration();
-    auto& v = control.get_stream_sources();
+    auto& v = control.get_stations();
     ASSERT_EQ(4, v.size());
 
     auto stream = v[2];
     ASSERT_EQ(stream->get_display_name(), QString("foo"));
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, add_podcast_source) {
+    QSignalSpy spy(cm.get(), SIGNAL(podcast_sources_changed()));
+    ASSERT_TRUE(spy.isValid());
+    auto ps = std::make_shared<PodcastSource>(
+        QUrl("https://alternativlos.org/alternativlos.rss"));
+    auto size_before = cm->get_podcast_sources().size();
+    cm->add_podcast_source(ps);
+    ASSERT_EQ(spy.count(), 1);
+    ASSERT_EQ(cm->get_podcast_sources().size(), size_before + 1);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, get_podcast_source_throws) {
+    EXPECT_THROW(
+        cm->get_podcast_source(QUuid::createUuid()), std::out_of_range);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, get_podcast_source_ok) {
+    auto& v = cm->get_podcast_sources();
+    auto uid = v[0]->get_id();
+    auto item = cm->get_podcast_source(uid);
+    ASSERT_EQ(item, v[0].get());
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, delete_podcast_source) {
+    auto& v = cm->get_podcast_sources();
+    auto size_before = v.size();
+    auto uid = v[0]->get_id();
+    cm->delete_podcast_source(uid);
+    ASSERT_EQ(cm->get_podcast_sources().size(), size_before - 1);
+    EXPECT_THROW(cm->get_podcast_source(uid), std::out_of_range);
+}
+/*****************************************************************************/
+TEST_F(SettingsFixture, delete_podcast_throws) {
+    EXPECT_THROW(
+        cm->delete_podcast_source(QUuid::createUuid()), std::out_of_range);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, add_radio_station) {
+    QSignalSpy spy(cm.get(), SIGNAL(stations_changed()));
+    ASSERT_TRUE(spy.isValid());
+    auto radio = std::make_shared<PlayableItem>();
+    auto size_before = cm->get_stations().size();
+    cm->add_radio_station(radio);
+    ASSERT_EQ(spy.count(), 1);
+    ASSERT_EQ(cm->get_stations().size(), size_before + 1);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, get_radio_station_throws) {
+    EXPECT_THROW(cm->get_station(QUuid::createUuid()), std::out_of_range);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, get_radio_station_ok) {
+    auto& v = cm->get_stations();
+    auto uid = v[0]->get_id();
+    auto item = cm->get_station(uid);
+    ASSERT_EQ(item, v[0].get());
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, delete_radio_station) {
+    auto& v = cm->get_stations();
+    auto size_before = v.size();
+    auto uid = v[0]->get_id();
+    cm->delete_radio_station(uid);
+    ASSERT_EQ(cm->get_stations().size(), size_before - 1);
+    EXPECT_THROW(cm->get_station(uid), std::out_of_range);
+}
+/*****************************************************************************/
+TEST_F(SettingsFixture, delete_radio_throws) {
+    EXPECT_THROW(
+        cm->delete_radio_station(QUuid::createUuid()), std::out_of_range);
+}
+
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, add_alarm) {
+    QSignalSpy spy(cm.get(), SIGNAL(alarms_changed()));
+    ASSERT_TRUE(spy.isValid());
+    auto alm = std::make_shared<Alarm>();
+    auto size_before = cm->get_alarms().size();
+    cm->add_alarm(alm);
+    ASSERT_EQ(spy.count(), 1);
+    ASSERT_EQ(cm->get_alarms().size(), size_before + 1);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, get_alarm_throws) {
+    EXPECT_THROW(cm->get_alarm(QUuid::createUuid()), std::out_of_range);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, get_alarm_ok) {
+    auto& v = cm->get_alarms();
+    auto uid = v[0]->get_id();
+    auto item = cm->get_alarm(uid);
+    ASSERT_EQ(item, v[0].get());
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, delete_alarm) {
+    auto& v = cm->get_alarms();
+    auto size_before = v.size();
+    auto uid = v[0]->get_id();
+    cm->delete_alarm(uid);
+    ASSERT_EQ(cm->get_alarms().size(), size_before - 1);
+    EXPECT_THROW(cm->get_alarm(uid), std::out_of_range);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, delete_alarm_throws) {
+    EXPECT_THROW(cm->delete_alarm(QUuid::createUuid()), std::out_of_range);
 }
 
 /*****************************************************************************/
@@ -196,7 +335,7 @@ TEST_F(SettingsFixture, read_2podcasts) {
 }
 
 /*****************************************************************************/
-TEST_F(SettingsFixture, deletePodcastById) {
+TEST_F(SettingsFixture, deletePodcastByIndex) {
     auto& v = cm->get_podcast_sources();
     ASSERT_EQ(2, v.size());
     cm->remove_podcast_source_by_index(0);
@@ -230,7 +369,10 @@ TEST(StringToPeriodEnum, mapping_good) {
 /*****************************************************************************/
 TEST_F(SettingsFixture, alarm_count) {
     auto& v = cm->get_alarms();
-    ASSERT_EQ(v.size(), 5);
+    // Alarm 5 has an unknown peridicity string "Manchmal"
+    // Alarm 6 has an invalid Timestamp string "25:34"
+    // Alarm 7 has an invalid URL
+    ASSERT_EQ(v.size(), 4);
 }
 
 /*****************************************************************************/
@@ -261,7 +403,7 @@ TEST_F(SettingsFixture, podcastid) {
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, streamsourceid) {
-    auto& v = cm->get_stream_sources();
+    auto& v = cm->get_stations();
     auto res = std::find_if(
         v.begin(), v.end(), [&](const std::shared_ptr<PlayableItem>& item) {
             return item->get_id() ==
@@ -269,31 +411,6 @@ TEST_F(SettingsFixture, streamsourceid) {
         });
     ASSERT_NE(res, v.end());
     ASSERT_EQ((*res)->get_url(), QString("http://swr2.de"));
-}
-
-/*****************************************************************************/
-TEST_F(SettingsFixture, addAlarm) {
-    auto al = std::make_shared<Alarm>();
-    auto size_before = cm->get_alarms().size();
-    cm->add_alarm(al);
-    ASSERT_EQ(cm->get_alarms().size(), size_before + 1);
-}
-
-/*****************************************************************************/
-TEST_F(SettingsFixture, deleteAlarm) {
-    auto al = std::make_shared<Alarm>();
-    auto id = al->get_id();
-    auto size_before = cm->get_alarms().size();
-    cm->add_alarm(al);
-    cm->delete_alarm(id);
-    ASSERT_EQ(cm->get_alarms().size(), size_before);
-}
-
-/*****************************************************************************/
-TEST_F(SettingsFixture, deleteAlarmNonExist) {
-    auto size_before = cm->get_alarms().size();
-    ASSERT_EQ(cm->delete_alarm(QUuid("XXX")), -1);
-    ASSERT_EQ(cm->get_alarms().size(), size_before);
 }
 
 /*****************************************************************************/
@@ -327,14 +444,6 @@ TEST_F(SettingsFixture, alarm_once) {
     ASSERT_EQ(v[3]->get_period(), Alarm::Once);
     ASSERT_EQ(v[3]->get_time(), QTime::fromString("13:00", "hh:mm"));
     ASSERT_TRUE(v[3]->is_enabled());
-}
-
-/*****************************************************************************/
-TEST_F(SettingsFixture, alarm_once_default) {
-    auto& v = cm->get_alarms();
-    // Alarm 5 has an unknown peridicity string "Manchmal" it should default to
-    // Daily
-    ASSERT_EQ(v[4]->get_period(), Alarm::Daily);
 }
 
 /*****************************************************************************/
@@ -390,22 +499,23 @@ TEST(ConfigManager, DefaultForNotWritableCache) {
 /*****************************************************************************/
 TEST(ConfigManager, DefaultForNotWritableConfig) {
     QFile default_conf_file(DEFAULT_CONFIG_FILE_PATH);
-    ASSERT_TRUE(default_conf_file.remove());
-    ConfigurationManager cm(QString("/dev/foobar.json"),
-        DEFAULT_CACHE_DIR_PATH);
+    // Delete it should it exist..
+    default_conf_file.remove();
+    ConfigurationManager cm(
+        QString("/dev/foobar.json"), DEFAULT_CACHE_DIR_PATH);
     ASSERT_TRUE(default_conf_file.exists());
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, GetweatherConfigApiToken) {
     auto cfg = cm->get_weather_config();
-    ASSERT_EQ(cfg.apikey, QString("d77bd1ca2fd77ce4e1cdcdd5f8b7206c"));
+    ASSERT_EQ(cfg.get_api_token(), QString("d77bd1ca2fd77ce4e1cdcdd5f8b7206c"));
 }
 
 /*****************************************************************************/
 TEST_F(SettingsFixture, GetweatherConfigCityId) {
     auto cfg = cm->get_weather_config();
-    ASSERT_EQ(cfg.cityid, QString("3452925"));
+    ASSERT_EQ(cfg.get_location_id(), QString("3452925"));
 }
 
 /*****************************************************************************/

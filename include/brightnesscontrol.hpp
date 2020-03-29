@@ -16,11 +16,8 @@
 #include <QObject>
 #include <memory>
 
-#include "powercontrol.hpp"
-
 namespace DigitalRooster {
-
-class ConfigurationManager;
+class IBrightnessStore;
 
 /**
  * Controls display brightness settings
@@ -36,7 +33,7 @@ public:
      * Constructor
      * @param confman configuration
      */
-    explicit BrightnessControl(std::shared_ptr<ConfigurationManager> confman);
+    explicit BrightnessControl(IBrightnessStore& store);
     ~BrightnessControl() = default;
 
     /**
@@ -86,9 +83,9 @@ signals:
 
 private:
     /**
-     * Central configuration and data handler
+     * configuration and data handler
      */
-    std::shared_ptr<ConfigurationManager> cm;
+    IBrightnessStore& cm;
 
     /**
      * Current brightness setting (linear)

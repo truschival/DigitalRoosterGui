@@ -15,10 +15,13 @@
 
 #include <QDateTime>
 #include <QDebug>
+#include <QJsonObject>
 #include <QObject>
 #include <QString>
 #include <QUrl>
 #include <QUuid>
+
+#include <memory>
 
 namespace DigitalRooster {
 
@@ -87,6 +90,15 @@ public:
     virtual void set_position(qint64 newVal);
 
     /**
+     * Mark as seekable: position can arbitrarily set
+     * property of media, assinged by QMediaPlayer
+     */
+    void set_seekable(bool seek);
+    bool is_seekable() const {
+        return seekable;
+    };
+
+    /**
      * Title for Playable item
      * @return title
      */
@@ -111,7 +123,19 @@ public:
     QUuid get_id() const {
         return id;
     }
+    /**
+     * Create PlayableItem/Radio Station from JSON JSonObject
+     * @param json_radio json representation
+     * @return Station object - default initialized if fields are missing
+     */
+    static std::shared_ptr<PlayableItem> from_json_object(
+        const QJsonObject& json_radio);
 
+    /**
+     * JSon Representation of Internet Radio station
+     * @return
+     */
+    QJsonObject to_json_object();
 signals:
     /**
      * Human readable identifier changed (title, name, publisher etc)
@@ -150,6 +174,9 @@ private:
 
     /** Current position in stream */
     qint64 position = 0;
+
+    /** Media itself is seekable (not a stream)*/
+    bool seekable{false};
 
 protected:
     /**
@@ -230,6 +257,20 @@ public:
      * @param len >= 0
      */
     void set_duration(qint64 len);
+    /**
+     * Create PlayableItem/Radio Station from JSON JSonObject
+     * @param json_episode episode as json object
+     * @return Station object - default initialized if fields are missing
+     */
+    static std::shared_ptr<PodcastEpisode> from_json_object(
+        const QJsonObject& json_episode);
+
+    /**
+     * JSon Representation of Internet Radio station
+     * @param episode to serialize
+     * @return
+     */
+    QJsonObject to_json_object() const;
 
 signals:
     void description_changed(const QString& desc);
