@@ -150,7 +150,7 @@ class Weather : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString city READ get_city NOTIFY city_updated)
     Q_PROPERTY(
-        float temperature READ get_temperature NOTIFY temperature_changed)
+        float temp READ get_temperature NOTIFY temperature_changed)
     Q_PROPERTY(QUrl weatherIcon READ get_weather_icon_url NOTIFY icon_changed)
 public:
     /**
