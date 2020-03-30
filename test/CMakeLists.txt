@@ -33,6 +33,15 @@ IF(UNIX)
 	LIST(APPEND DUT_LIBS wpa_ctrl)
 ENDIF(UNIX)
 
+if(REST_API)
+  if(TARGET restconfig)
+    add_library(${PROJECT_NAME}::restconfig ALIAS restconfig)
+  else()
+    find_package(${PROJECT_NAME} COMPONENTS restconfig CONFIG REQUIRED)
+  endif()
+  LIST(APPEND DUT_LIBS restconfig)
+endif(REST_API)
+
 #------------------------------
 # add compile definitions
 #------------------------------
@@ -192,6 +201,7 @@ SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test_sleeptimer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_powercontrol.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_hardware_config.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_restadapter.cpp
   )
 
 IF(HAS_WPA_SUPPLICANT)
