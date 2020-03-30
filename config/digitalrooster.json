@@ -26,12 +26,12 @@
 		{
 			"id": "{09be8e85-a9d3-4db8-b2c5-02e3eb3ff66d}",
 			"name": "Deutschlandfunk",
-			"url": "http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"
+			"url": "https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3"
 		},
 		{
 			"id": "{51ec1a1b-bd15-4123-bab9-aa2ffaf9ff5c}",
 			"name": "Deutschlandfunk Nova",
-			"url": "http://st03.dlf.de/dlf/03/104/ogg/stream.ogg"
+			"url": "https://st03.sslstream.dlf.de/dlf/03/128/mp3/stream.mp3"
 		},
 		{
 			"id": "{de2c79da-c250-4c78-a2db-5db398c0cbd9}",

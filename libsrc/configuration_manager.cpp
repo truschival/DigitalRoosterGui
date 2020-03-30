@@ -431,11 +431,11 @@ void ConfigurationManager::create_default_configuration() {
 
     /* Radio Streams */
     stream_sources.push_back(std::make_shared<PlayableItem>("Deutschlandfunk",
-        QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg")));
+        QUrl("https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3")));
 
     stream_sources.push_back(
         std::make_shared<PlayableItem>("Deutschlandfunk Nova",
-            QUrl("http://st03.dlf.de/dlf/03/104/ogg/stream.ogg")));
+            QUrl("https://st03.sslstream.dlf.de/dlf/03/128/mp3/stream.mp3")));
 
     stream_sources.push_back(std::make_shared<PlayableItem>("SWR2",
         QUrl("http://swr-swr2-live.cast.addradio.de/swr/swr2/live/mp3/256/"
