@@ -28,7 +28,7 @@ namespace DigitalRooster {
 class HttpClient : public QObject {
     Q_OBJECT
     QNetworkAccessManager manager;
-    QVector<QNetworkReply*> currentDownloads;
+    std::vector<QNetworkReply*> currentDownloads;
 
 public:
     HttpClient();

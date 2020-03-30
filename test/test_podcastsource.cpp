@@ -91,8 +91,7 @@ TEST_F(PodcastSourceFixture, add_episodeEmitsCountChanged) {
     ASSERT_EQ(spy.count(), 1);
     ASSERT_EQ(spy_data.count(), 0); // should not emit dataChanged
     // arguments of first signal, here only 1 int
-    // QSignalSpy inherits from QList<QList<QVariant>>
-    QList<QVariant> arguments = spy.takeFirst();
+    auto arguments = spy.takeFirst();
     ASSERT_EQ(arguments.at(0).toInt(), 1);
 }
 

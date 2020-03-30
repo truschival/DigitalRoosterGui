@@ -15,14 +15,14 @@
 #include <QUuid>
 
 #include <system_error>
+#include <vector>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "mock_clock.hpp"
-
 #include "PodcastSource.hpp"
 #include "appconstants.hpp"
+#include "mock_clock.hpp"
 #include "podcast_serializer.hpp"
 #include "serializer_mock.hpp"
 
@@ -53,7 +53,7 @@ class PodcastSourceMock_episodes : public PodcastSourceMock {
 public:
     explicit PodcastSourceMock_episodes(){};
     MOCK_CONST_METHOD0(
-        get_episodes_impl, const QVector<std::shared_ptr<PodcastEpisode>>&());
+        get_episodes_impl, const std::vector<std::shared_ptr<PodcastEpisode>>&());
 };
 
 /******************************************************************************/
@@ -346,7 +346,7 @@ TEST_F(SerializerFixture, ReadFromFile) {
 TEST_F(SerializerFixture, FullRoundTrip) {
     PodcastSourceMock_episodes psmock_episodes;
     QString test_file_name("FullRoundTrip_test_file.json");
-    QVector<std::shared_ptr<PodcastEpisode>> ep_vec;
+    std::vector<std::shared_ptr<PodcastEpisode>> ep_vec;
     for (int i = 0; i < 3; i++) {
         auto e = std::make_shared<PodcastEpisode>();
         e->set_duration(1 + i * 1000);

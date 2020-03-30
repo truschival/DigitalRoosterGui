@@ -50,7 +50,7 @@ bool DigitalRooster::create_writable_directory(const QString& dirname) {
 
 /*****************************************************************************/
 template <typename T>
-T* find_by_id(const QVector<std::shared_ptr<T>>& container, const QUuid& id) {
+T* find_by_id(const std::vector<std::shared_ptr<T>>& container, const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto item = std::find_if(container.begin(), container.end(),
         [&](const std::shared_ptr<T> item) { return item->get_id() == id; });
@@ -62,7 +62,7 @@ T* find_by_id(const QVector<std::shared_ptr<T>>& container, const QUuid& id) {
 
 /*****************************************************************************/
 template <typename T>
-void delete_by_id(QVector<std::shared_ptr<T>>& container, const QUuid& id) {
+void delete_by_id(std::vector<std::shared_ptr<T>>& container, const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto old_end = container.end();
     container.erase(std::remove_if(container.begin(), container.end(),
@@ -514,7 +514,7 @@ const Alarm* ConfigurationManager::get_alarm(const QUuid& id) const {
 }
 
 /*****************************************************************************/
-const QVector<std::shared_ptr<Alarm>>&
+const std::vector<std::shared_ptr<Alarm>>&
 ConfigurationManager::get_alarms() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return alarms;
@@ -549,7 +549,7 @@ const PlayableItem* ConfigurationManager::get_station(const QUuid& id) const {
 }
 
 /*****************************************************************************/
-const QVector<std::shared_ptr<PlayableItem>>&
+const std::vector<std::shared_ptr<PlayableItem>>&
 ConfigurationManager::get_stations() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return stream_sources;
@@ -585,7 +585,7 @@ const PodcastSource* ConfigurationManager::get_podcast_source(
 }
 
 /*****************************************************************************/
-const QVector<std::shared_ptr<PodcastSource>>&
+const std::vector<std::shared_ptr<PodcastSource>>&
 ConfigurationManager::get_podcast_sources() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return podcast_sources;
@@ -601,7 +601,9 @@ PodcastSource* ConfigurationManager::get_podcast_source_by_index(
 /*****************************************************************************/
 void ConfigurationManager::remove_podcast_source_by_index(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    podcast_sources.remove(index);
+    assert((index >= 0) &&
+        (podcast_sources.begin() + index < podcast_sources.end()));
+    podcast_sources.erase(podcast_sources.begin() + index);
     emit podcast_sources_changed();
     emit dataChanged();
     writeTimer.start(); // start delayed write

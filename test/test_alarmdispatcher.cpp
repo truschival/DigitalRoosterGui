@@ -12,12 +12,14 @@
 #include <QDebug>
 #include <QSignalSpy>
 #include <QUrl>
-#include <QVector>
+
 #include <chrono>
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
 #include <memory>
 #include <thread>
+#include <vector>
+
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
 
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"

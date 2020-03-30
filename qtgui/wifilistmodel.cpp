@@ -87,7 +87,7 @@ void WifiListModel::wps_connect(int index) {
 }
 
 /******************************************************************************/
-void WifiListModel::update_scan_results(const QVector<WifiNetwork>& results) {
+void WifiListModel::update_scan_results(const std::vector<WifiNetwork>& results) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     beginResetModel();
     scan_results = results;

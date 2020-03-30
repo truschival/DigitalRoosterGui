@@ -90,7 +90,7 @@ QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
     case DisplayUrlRole:
         return ps->get_url();
     case DisplayCountRole:
-        return ps->get_episodes().size();
+        return QVariant(static_cast<int>(ps->get_episodes().size()));
     case DescriptionRole:
         desc = ps->get_description();
         desc.remove(QRegExp("<[^>]*>")); // Strip HTML tags

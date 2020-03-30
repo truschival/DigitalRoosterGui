@@ -113,7 +113,7 @@ TEST(Alarm, periodChangeEmits) {
     ASSERT_EQ(spy_period_string.count(), 1);
     ASSERT_EQ(spy_period_enum.count(), 1);
 
-    QList<QVariant> arguments = spy_period_string.takeFirst();
+    auto arguments = spy_period_string.takeFirst();
     ASSERT_EQ(arguments.at(0).toString(), QString("daily"));
 }
 /*****************************************************************************/

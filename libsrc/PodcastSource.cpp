@@ -155,9 +155,9 @@ void PodcastSource::set_serializer(std::unique_ptr<PodcastSerializer>&& pser) {
 }
 
 /*****************************************************************************/
-QVector<QString> PodcastSource::get_episodes_names() {
+std::vector<QString> PodcastSource::get_episodes_names() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto ret = QVector<QString>();
+    auto ret = std::vector<QString>();
     for (const auto& e : episodes) {
         ret.push_back(e->get_display_name());
     }
@@ -233,7 +233,7 @@ std::shared_ptr<PodcastEpisode> PodcastSource::get_episode_by_id_impl(
 }
 
 /*****************************************************************************/
-const QVector<std::shared_ptr<PodcastEpisode>>&
+const std::vector<std::shared_ptr<PodcastEpisode>>&
 PodcastSource::get_episodes_impl() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return episodes;

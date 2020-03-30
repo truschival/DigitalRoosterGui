@@ -16,6 +16,7 @@
 #include <QMediaPlaylist>
 #include <QObject>
 #include <QTimer>
+
 #include <chrono>
 #include <memory>
 

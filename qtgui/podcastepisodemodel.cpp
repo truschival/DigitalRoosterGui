@@ -24,7 +24,7 @@ using namespace DigitalRooster;
 
 /*****************************************************************************/
 PodcastEpisodeModel::PodcastEpisodeModel(
-    const QVector<std::shared_ptr<PodcastEpisode>>* ep,
+    const std::vector<std::shared_ptr<PodcastEpisode>>* ep,
     MediaPlayer& mp, QObject* parent)
     : QAbstractListModel(parent)
     , episodes(ep)
@@ -47,7 +47,7 @@ QHash<int, QByteArray> PodcastEpisodeModel::roleNames() const {
 }
 /*****************************************************************************/
 void PodcastEpisodeModel::set_episodes(
-    const QVector<std::shared_ptr<PodcastEpisode>>* ep) {
+    const std::vector<std::shared_ptr<PodcastEpisode>>* ep) {
     episodes = ep;
 }
 
