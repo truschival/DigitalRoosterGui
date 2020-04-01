@@ -149,7 +149,7 @@ components:
 ###############################################################################
 paths:
 # Internet Radio Streams
-  /streams:
+  /radios:
     get: # Get All Streams
       operationId: streams.read_all
       tags:
@@ -194,7 +194,7 @@ paths:
           $ref: '#/components/responses/NotFound'  
           
 # Manipulate single Internet Radio Stream
-  /streams/{uid}:
+  /radios/{uid}:
 
     get: # read single stream by uid
       operationId: streams.read_one

@@ -11,7 +11,6 @@
  *****************************************************************************/
 
 #include <QLoggingCategory>
-
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -19,13 +18,17 @@
 
 #include <pistache/router.h>
 
-#include "Helpers.h"
 #include "PodcastSource.hpp"
+#include "alarm.hpp"
+
 #include "RestAdapter.hpp"
+#include "common.hpp"
 
 using namespace Pistache;
 using namespace Pistache::Rest;
+
 using namespace DigitalRooster;
+using namespace DigitalRooster::REST;
 
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.RestAdapter");
 
@@ -36,7 +39,6 @@ const int PISTACHE_SERVER_MAX_REQUEST_SIZE = 32768;
 const int PISTACHE_SERVER_MAX_RESPONSE_SIZE = 32768;
 
 /*****************************************************************************/
-
 RestAdapter::RestAdapter(const DigitalRooster::IWeatherConfigStore& ws,
     const DigitalRooster::IAlarmStore& asr,
     const DigitalRooster::IPodcastStore& ps,
@@ -57,7 +59,13 @@ RestAdapter::RestAdapter(const DigitalRooster::IWeatherConfigStore& ws,
     endpoint.init(opts);
 
     Routes::Get(router, base + "/podcasts",
-        Routes::bind(&RestAdapter::podcasts_read_all_handler, this));
+        Routes::bind(&RestAdapter::podcasts_read_list_handler, this));
+
+    Routes::Get(router, base + "/alarms",
+        Routes::bind(&RestAdapter::alarms_read_list_handler, this));
+
+    Routes::Get(router, base + "/radios",
+            Routes::bind(&RestAdapter::radios_read_list_handler, this));
 
     router.addCustomHandler(Routes::bind(&RestAdapter::default_handler, this));
     endpoint.setHandler(router.handler());
@@ -75,46 +83,47 @@ void RestAdapter::default_handler(const Pistache::Rest::Request& request,
 })");
 }
 
+
 /*****************************************************************************/
-void RestAdapter::podcasts_read_all_handler(
+void RestAdapter::podcasts_read_list_handler(
     const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    using namespace org::openapitools::server::helpers;
+    respond_json_array(podcaststore.get_podcast_sources(), request, response);
+}
 
-    // Offset default 0
-    auto offset =
-        get_uint_from_query_with_default(request.query().get("offset"), 0);
-    // length default max possible length
-    auto length =
-        get_uint_from_query_with_default(request.query().get("length"), 1024);
-    try {
-        QJsonArray j;
-        for (const auto& p : container_from_range(
-                 podcaststore.get_podcast_sources(), offset, length)) {
-            j.push_back(QJsonValue(p->to_json_object()));
-        }
-        QJsonDocument jdoc;
-        jdoc.setArray(j);
-        response.send(Pistache::Http::Code::Ok, jdoc.toJson().toStdString());
-    } catch (std::exception& e) {
-        // send a 500 error
-        response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
-        return;
-    }
+
+/*****************************************************************************/
+void RestAdapter::alarms_read_list_handler(
+    const Pistache::Rest::Request& request,
+    Pistache::Http::ResponseWriter response) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    respond_json_array(alarmstore.get_alarms(), request, response);
 }
 
 /*****************************************************************************/
-unsigned long DigitalRooster::get_uint_from_query_with_default(
-    const Pistache::Optional<std::string>& query, unsigned long def_val) {
+void RestAdapter::radios_read_list_handler(
+    const Pistache::Rest::Request& request,
+    Pistache::Http::ResponseWriter response) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    respond_json_array(stationstore.get_stations(), request, response);
+}
+
+
+/*****************************************************************************/
+int DigitalRooster::REST::get_val_from_query_within_range(
+    const Pistache::Optional<std::string>& query, int min, int max) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
-    int val = def_val;
+    int val = min;
     try {
         val = std::stoi(query.get());
     } catch (const std::invalid_argument& e) {
         qCCritical(CLASS_LC) << Q_FUNC_INFO << e.what();
     }
-    // return only positive values, all others will default
-    return (val < 0) ? def_val : val;
+    // cap val at lower end
+    val = (val < min) ? min : val;
+    // vap val at upper limit
+    val = (val > max) ? max : val;
+    return val;
 }

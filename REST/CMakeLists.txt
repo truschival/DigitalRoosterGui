@@ -33,7 +33,6 @@ LIST(APPEND CPP_DEFS "")
 #-------------------------------------------------------------------------------
 SET(SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/RestAdapter.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/Helpers.cpp
   ) 
 
 #------------------------------
