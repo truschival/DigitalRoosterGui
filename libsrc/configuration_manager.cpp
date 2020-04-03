@@ -116,13 +116,24 @@ ConfigurationManager::ConfigurationManager(
     auto path = check_and_create_config();
     filewatcher.addPath(path);
 
-    writeTimer.setInterval(std::chrono::seconds(5));
-    writeTimer.setSingleShot(true);
-    connect(&writeTimer, SIGNAL(timeout()), this, SLOT(store_current_config()));
     // store connection to disconnect during write_config_file
     fwConn = connect(&filewatcher, &QFileSystemWatcher::fileChanged, this,
         &ConfigurationManager::fileChanged);
+
+    // Event loop timer every 5 seconds to update remaining time
+    evt_timer_id = startTimer(std::chrono::seconds(5));
 };
+
+/*****************************************************************************/
+void ConfigurationManager::timerEvent(QTimerEvent* evt) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    if (evt->timerId() == evt_timer_id && dirty) {
+    	store_current_config();
+    	dirty = !dirty; // toggle
+    } else {
+        QObject::timerEvent(evt);
+    }
+}
 
 /*****************************************************************************/
 void ConfigurationManager::refresh_configuration() {
@@ -286,7 +297,7 @@ void ConfigurationManager::read_weather(const QJsonObject& appconfig) {
 /*****************************************************************************/
 void ConfigurationManager::dataChanged() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    writeTimer.start();
+    dirty = true;
 }
 
 /*****************************************************************************/
@@ -300,7 +311,7 @@ void ConfigurationManager::set_volume(int vol) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << vol;
     if (vol >= 0 && vol <= 100) {
         this->volume = vol;
-        writeTimer.start();
+        dirty = true;
     } else {
         qCWarning(CLASS_LC) << "invalid volume value: " << vol;
     }
@@ -311,7 +322,7 @@ void ConfigurationManager::set_standby_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
     if (brightness >= 0 && brightness <= 100) {
         this->brightness_sb = brightness;
-        writeTimer.start();
+        dirty = true;
     } else {
         qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
     }
@@ -328,7 +339,7 @@ void ConfigurationManager::do_set_brightness_act(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
     if (brightness >= 0 && brightness <= 100) {
         this->brightness_act = brightness;
-        writeTimer.start();
+        dirty = true;
     } else {
         qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
     }
@@ -606,7 +617,7 @@ void ConfigurationManager::remove_podcast_source_by_index(int index) {
     podcast_sources.erase(podcast_sources.begin() + index);
     emit podcast_sources_changed();
     emit dataChanged();
-    writeTimer.start(); // start delayed write
+    dirty = true;
 }
 /*****************************************************************************
  * Implementation of IBrightnessStore
@@ -633,7 +644,7 @@ std::chrono::minutes ConfigurationManager::get_sleep_timeout() const {
 void ConfigurationManager::set_sleep_timeout(std::chrono::minutes timeout) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     sleep_timeout = timeout;
-    writeTimer.start();
+    dirty = true;
 }
 
 /*****************************************************************************/

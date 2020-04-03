@@ -18,6 +18,7 @@
 #include <QTimer>
 
 #include <chrono>
+#include <atomic>
 #include <memory>
 #include <vector>
 
@@ -285,9 +286,17 @@ private:
     QDir application_cache_dir;
 
     /**
-     * Timer tor write configuration to disk
+     * Timer Id for writing data
+     * assigned by \ref QObject::startTimer()
+     * started in ctor
      */
-    QTimer writeTimer;
+    int evt_timer_id = -1;
+
+    /**
+     * Write operations set this flag. event timer expires
+     * configuration is written to disk
+     */
+    std::atomic<bool> dirty{false};
 
     /**
      * WPA control socket path /var/lib/wpa_supplicant/wlan0
@@ -367,6 +376,13 @@ private:
     virtual int do_get_volume() const {
         return volume;
     };
+
+    /**
+     * React to QObject Timer events
+     * check if config needs to be written to disk
+     * @param evt timer event
+     */
+    virtual void timerEvent(QTimerEvent* evt) override;
 };
 
 /**
