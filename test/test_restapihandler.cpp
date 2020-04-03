@@ -10,6 +10,7 @@
  *
  *****************************************************************************/
 
+#include <ApiHandler.hpp>
 #include <QJsonArray>
 
 #include <chrono>
@@ -18,7 +19,6 @@
 #include <pistache/http.h>
 
 #include "common.hpp"
-#include "REST/RestAdapter.hpp"
 #include "cm_mock.hpp" /* mock configuration manager */
 
 using namespace DigitalRooster;

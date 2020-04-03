@@ -51,14 +51,6 @@ components:
         - code
         - message
 
-    # Enum Schemas
-    AlarmPeriodEnum: # Alarm enum
-        type: string 
-        enum:
-          - once
-          - weekend
-          - workdays
-          - daily
     # Station definition
     Station:
       required:
@@ -76,6 +68,7 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Station'
+   
     # PodcastSource definition
     Podcast:
       required:
@@ -90,11 +83,13 @@ components:
           type: string
         updateInterval:
           type: integer  
+    
     # Array of PodcastSources
     Podcasts:
       type: array
       items:
         $ref: '#/components/schemas/Podcast'
+    
     # Alarm definition
     Alarm:
       required:
@@ -106,7 +101,12 @@ components:
         time:
           type: string
         period:
-          $ref: '#/components/schemas/AlarmPeriodEnum'
+          type: string
+          enum:
+            - once
+            - daily
+            - workdays
+            - weekends
         url:
           type: string
         enabled:
@@ -115,6 +115,7 @@ components:
           type: integer
         uid:
           type: string
+    
     # Alarm array
     Alarms:
       type: array
@@ -125,14 +126,14 @@ components:
     ArrayLength:
       name: length
       in: query
-      description: max items returned
+      description: number of items if omitted or invalid all remaining elements will be assumed
       required: false
       schema:
         type: integer
     ArrayOffset:
       name: offset
       in: query
-      description: offset from start of list
+      description: offset from start of list if omitted or invalid 0 will be assumed
       required: false
       schema:
         type: integer

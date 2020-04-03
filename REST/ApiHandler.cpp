@@ -9,19 +9,19 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
-
-#include <QLoggingCategory>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QLoggingCategory>
 
+#include <memory>
 #include <pistache/router.h>
 
+#include "ApiHandler.hpp"
 #include "PodcastSource.hpp"
-#include "alarm.hpp"
-
-#include "RestAdapter.hpp"
+#include "RestApi.hpp" /* interface to application */
+#include "appconstants.hpp"
 #include "common.hpp"
 
 using namespace Pistache;
@@ -39,16 +39,26 @@ const int PISTACHE_SERVER_MAX_REQUEST_SIZE = 32768;
 const int PISTACHE_SERVER_MAX_RESPONSE_SIZE = 32768;
 
 /*****************************************************************************/
-RestAdapter::RestAdapter(const DigitalRooster::IWeatherConfigStore& ws,
-    const DigitalRooster::IAlarmStore& asr,
-    const DigitalRooster::IPodcastStore& ps,
-    const DigitalRooster::IStationStore& sts,
-    const DigitalRooster::ITimeOutStore& tos, Pistache::Address addr)
-    : alarmstore(asr)
-    , podcaststore(ps)
-    , stationstore(sts)
-    , timeoutstore(tos)
-    , endpoint(addr) {
+/* PIMPL initialization */
+DigitalRooster::RestApi::RestApi(DigitalRooster::IWeatherConfigStore& ws,
+    DigitalRooster::IAlarmStore& asr, DigitalRooster::IPodcastStore& ps,
+    DigitalRooster::IStationStore& sts, DigitalRooster::ITimeOutStore& tos)
+    : impl(std::make_unique<ApiHandler>(ws, asr, ps, sts, tos,
+          Pistache::Address(
+              Pistache::Ipv4::any(), Pistache::Port(REST_API_PORT)))) {
+}
+/*****************************************************************************/
+DigitalRooster::RestApi::~RestApi() {
+    // default dtor for PIMPL
+}
+
+/*****************************************************************************/
+ApiHandler::ApiHandler(DigitalRooster::IWeatherConfigStore& ws,
+    DigitalRooster::IAlarmStore& asr, DigitalRooster::IPodcastStore& ps,
+    DigitalRooster::IStationStore& sts, DigitalRooster::ITimeOutStore& tos,
+    Pistache::Address addr)
+    : endpoint(addr)
+    , radios(sts, router) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     auto opts =
@@ -58,57 +68,19 @@ RestAdapter::RestAdapter(const DigitalRooster::IWeatherConfigStore& ws,
     opts.maxResponseSize(PISTACHE_SERVER_MAX_RESPONSE_SIZE);
     endpoint.init(opts);
 
-    Routes::Get(router, base + "/podcasts",
-        Routes::bind(&RestAdapter::podcasts_read_list_handler, this));
 
-    Routes::Get(router, base + "/alarms",
-        Routes::bind(&RestAdapter::alarms_read_list_handler, this));
-
-    Routes::Get(router, base + "/radios",
-            Routes::bind(&RestAdapter::radios_read_list_handler, this));
-
-    router.addCustomHandler(Routes::bind(&RestAdapter::default_handler, this));
+    router.addCustomHandler(Routes::bind(&ApiHandler::default_handler, this));
     endpoint.setHandler(router.handler());
     endpoint.serveThreaded();
 };
 
 /*****************************************************************************/
-void RestAdapter::default_handler(const Pistache::Rest::Request& request,
+void ApiHandler::default_handler(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     response.send(Pistache::Http::Code::Not_Found,
-        R"({
-  "code": 404, 
-  "message": "The resource or method does not exist!"
-})");
+        R"({"code": 404, "message": "The resource or method does not exist!"})");
 }
-
-
-/*****************************************************************************/
-void RestAdapter::podcasts_read_list_handler(
-    const Pistache::Rest::Request& request,
-    Pistache::Http::ResponseWriter response) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    respond_json_array(podcaststore.get_podcast_sources(), request, response);
-}
-
-
-/*****************************************************************************/
-void RestAdapter::alarms_read_list_handler(
-    const Pistache::Rest::Request& request,
-    Pistache::Http::ResponseWriter response) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    respond_json_array(alarmstore.get_alarms(), request, response);
-}
-
-/*****************************************************************************/
-void RestAdapter::radios_read_list_handler(
-    const Pistache::Rest::Request& request,
-    Pistache::Http::ResponseWriter response) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    respond_json_array(stationstore.get_stations(), request, response);
-}
-
 
 /*****************************************************************************/
 int DigitalRooster::REST::get_val_from_query_within_range(

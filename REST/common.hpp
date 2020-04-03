@@ -25,6 +25,13 @@
 
 namespace DigitalRooster {
 namespace REST {
+
+	/**
+	 * API base path prepended to all REST resources
+	 * e.g. http://digitalrooster/<base>/radio
+	 */
+	const std::string API_URL_BASE = "/api/1.0/";
+
     /**
      * Helper function to read a range with offset and length from T
      * and return this range as a copy

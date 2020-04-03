@@ -32,7 +32,8 @@ LIST(APPEND CPP_DEFS "")
 # Input sources
 #-------------------------------------------------------------------------------
 SET(SRCS
-  ${CMAKE_CURRENT_SOURCE_DIR}/RestAdapter.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/ApiHandler.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/RadioAPI.cpp
   ) 
 
 #------------------------------

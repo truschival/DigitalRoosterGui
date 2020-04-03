@@ -201,7 +201,7 @@ SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test_sleeptimer.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_powercontrol.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_hardware_config.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_restadapter.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_restapihandler.cpp
   )
 
 IF(HAS_WPA_SUPPLICANT)

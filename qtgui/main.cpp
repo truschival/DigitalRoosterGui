@@ -26,9 +26,6 @@
 #include <iostream>
 #include <memory>
 
-// Pistache Address
-#include <pistache/endpoint.h>
-
 // hardware interface
 #include "hwif/hardware_configuration.hpp"
 #include "hwif/hardware_control.hpp"
@@ -55,8 +52,8 @@
 #include "wifi_control.hpp"
 #include "wifilistmodel.hpp"
 
-// REST interface
-#include "REST/RestAdapter.hpp"
+// REST interface - optional
+#include "RestApi.hpp"
 
 using namespace DigitalRooster;
 
@@ -246,8 +243,7 @@ int main(int argc, char* argv[]) {
     power.standby();
 
 #ifdef REST_API
-    Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(REST_API_PORT));
-    RestAdapter rest(cm,cm,cm,cm,cm,addr);
+    RestApi rest(cm,cm,cm,cm,cm);
 #endif
     /*
      * QML Setup dynamically createable types

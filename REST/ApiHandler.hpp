@@ -1,6 +1,6 @@
 /******************************************************************************
  * \filename
- * \brief     REST adapter for configuration
+ * \brief     Dispatches REST API calls to respective API implementations
  *
  * \details
  *
@@ -19,26 +19,31 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonValue>
+
 #include <pistache/endpoint.h>
 #include <pistache/http.h>
 #include <pistache/router.h>
 
 #include "IAlarmStore.hpp"
 #include "IPodcastStore.hpp"
-#include "IStationStore.hpp"
+
 #include "ITimeoutStore.hpp"
 #include "IWeatherConfigStore.hpp"
 
-namespace DigitalRooster {
-class RestAdapter {
-public:
-    const std::string base = "/v1";
+#include "IStationStore.hpp"
+#include "RadioAPI.hpp"
 
-    RestAdapter(const DigitalRooster::IWeatherConfigStore& ws,
-        const DigitalRooster::IAlarmStore& asr,
-        const DigitalRooster::IPodcastStore& ps,
-        const DigitalRooster::IStationStore& sts,
-        const DigitalRooster::ITimeOutStore& tos, Pistache::Address addr);
+namespace DigitalRooster {
+namespace REST{
+/**
+ * Class to setup Pistache infrastructure and API implementations
+ */
+class ApiHandler {
+public:
+    ApiHandler(DigitalRooster::IWeatherConfigStore& ws,
+        DigitalRooster::IAlarmStore& asr, DigitalRooster::IPodcastStore& ps,
+        DigitalRooster::IStationStore& sts, DigitalRooster::ITimeOutStore& tos,
+        Pistache::Address addr);
 
     /**
      * Read list of podcast sources
@@ -57,14 +62,6 @@ public:
         Pistache::Http::ResponseWriter response);
 
     /**
-     * Read list of radio stations
-     * @param request
-     * @param response
-     */
-    void radios_read_list_handler(const Pistache::Rest::Request& request,
-        Pistache::Http::ResponseWriter response);
-
-    /**
      * Catch all HTTP handler for unknown methods and resources
      * @param request
      * @param response
@@ -72,15 +69,14 @@ public:
     void default_handler(const Pistache::Rest::Request& request,
         Pistache::Http::ResponseWriter response);
 
+    ~ApiHandler() = default;
 private:
-    void setup_routes();
-    const DigitalRooster::IAlarmStore& alarmstore;
-    const DigitalRooster::IPodcastStore& podcaststore;
-    const DigitalRooster::IStationStore& stationstore;
-    const DigitalRooster::ITimeOutStore& timeoutstore;
-
     Pistache::Http::Endpoint endpoint;
     Pistache::Rest::Router router;
+
+    REST::RadioAPI radios;
+
 };
+} // namespace REST
 } // namespace DigitalRooster
 #endif /* INCLUDE_REST_RESTADAPTER_HPP_ */
