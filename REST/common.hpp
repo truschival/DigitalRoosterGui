@@ -26,11 +26,17 @@
 namespace DigitalRooster {
 namespace REST {
 
-	/**
-	 * API base path prepended to all REST resources
-	 * e.g. http://digitalrooster/<base>/radio
-	 */
-	const std::string API_URL_BASE = "/api/1.0/";
+    /**
+     * API base path prepended to all REST resources
+     * e.g. http://digitalrooster/<base>/radio
+     */
+    const std::string API_URL_BASE = "/api/1.0/";
+
+    /**
+     * Reponse to send if we didn't find a element with given UUID
+     */
+    const std::string BAD_REQUEST_NO_ITEM_WITH_UUID =
+        R"({"code":400, "message": "no item for this UUID"})";
 
     /**
      * Helper function to read a range with offset and length from T
@@ -47,6 +53,8 @@ namespace REST {
         auto end_it = std::min(start_it + length, all.end());
         return T(start_it, end_it);
     }
+    /*****************************************************************************/
+
     /**
      * Helper function to get a  variable from optional query  parameters such
      * as length or offset
@@ -59,6 +67,14 @@ namespace REST {
      */
     int get_val_from_query_within_range(
         const Pistache::Optional<std::string>& query, int min, int max);
+
+    /**
+     * Convenience function to get a QJsonObject from a std::string
+     * @throws std::invalid_argument if string is not json parsable
+     * @param data some json string
+     * @return a QJsonObject
+     */
+    QJsonObject qjson_form_std_string(const std::string & data);
 
     /**
      * Simple Helper function that creates a HTTP response with a JSON array of

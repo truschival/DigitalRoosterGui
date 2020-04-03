@@ -50,12 +50,14 @@ bool DigitalRooster::create_writable_directory(const QString& dirname) {
 
 /*****************************************************************************/
 template <typename T>
-T* find_by_id(const std::vector<std::shared_ptr<T>>& container, const QUuid& id) {
+T* find_by_id(
+    const std::vector<std::shared_ptr<T>>& container, const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto item = std::find_if(container.begin(), container.end(),
         [&](const std::shared_ptr<T> item) { return item->get_id() == id; });
     if (item == container.end()) {
-        throw std::out_of_range(Q_FUNC_INFO);
+        qCCritical(CLASS_LC) << "no such item:" << id;
+        throw std::out_of_range(id.toString().toStdString());
     }
     return item->get();
 }

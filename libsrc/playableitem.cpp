@@ -104,7 +104,7 @@ std::shared_ptr<PlayableItem> PlayableItem::from_json_object(
 }
 
 /***********************************************************************/
-QJsonObject PlayableItem::to_json_object() {
+QJsonObject PlayableItem::to_json_object() const{
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject irconfig;
     irconfig[KEY_NAME] = this->get_display_name();

@@ -20,8 +20,8 @@
 #include <pistache/http.h>
 
 #include "PlayableItem.hpp"
-#include "common.hpp"
 #include "RadioAPI.hpp"
+#include "common.hpp"
 
 using namespace Pistache;
 using namespace Pistache::Rest;
@@ -44,12 +44,11 @@ RadioAPI::RadioAPI(IStationStore& station, Pistache::Rest::Router& router)
 
     // Manage individual station identified by UUID
     Routes::Get(router, API_URL_BASE + api_ressource + ":uid",
-            Routes::bind(&RadioAPI::get_station, this));
+        Routes::bind(&RadioAPI::get_station, this));
     Routes::Put(router, API_URL_BASE + api_ressource + ":uid",
         Routes::bind(&RadioAPI::update_station, this));
     Routes::Delete(router, API_URL_BASE + api_ressource + ":uid",
-            Routes::bind(&RadioAPI::delete_station, this));
-
+        Routes::bind(&RadioAPI::delete_station, this));
 }
 
 /*****************************************************************************/
@@ -59,19 +58,43 @@ void RadioAPI::read_radio_list(const Pistache::Rest::Request& request,
     respond_json_array(stationstore.get_stations(), request, response);
 }
 
-
 /*****************************************************************************/
 void RadioAPI::get_station(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    response.send(Http::Code::Not_Implemented, "method not implemented!");
+
+    try {
+        // Massively ugly casting to get something convertible to QUuid...
+        auto uid = QUuid::fromString(
+            QLatin1String(request.param(":uid").as<std::string>().c_str()));
+        QJsonDocument jd;
+        auto result = stationstore.get_station(uid);
+        jd.setObject(result->to_json_object());
+        response.send(Pistache::Http::Code::Ok, jd.toJson().toStdString());
+    } catch (std::out_of_range& oor) {
+        // wrong UUID provided
+        response.send(
+            Pistache::Http::Code::Bad_Request, BAD_REQUEST_NO_ITEM_WITH_UUID);
+    } catch (std::exception& exc) {
+        // some other error occurred -> 500
+        response.send(Pistache::Http::Code::Internal_Server_Error, exc.what());
+    }
 }
 
 /*****************************************************************************/
 void RadioAPI::add_station(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    response.send(Http::Code::Not_Implemented, "method not implemented!");
+    try {
+        stationstore.add_radio_station(PlayableItem::from_json_object(
+            qjson_form_std_string(request.body())));
+        response.send(Http::Code::Ok);
+    } catch (std::invalid_argument& ia) {
+        response.send(Pistache::Http::Code::Bad_Request, ia.what());
+    } catch (std::exception& exc) {
+        // some other error occurred -> 500
+        response.send(Pistache::Http::Code::Internal_Server_Error, exc.what());
+    }
 }
 
 /*****************************************************************************/
@@ -85,5 +108,18 @@ void RadioAPI::update_station(const Pistache::Rest::Request& request,
 void RadioAPI::delete_station(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    response.send(Http::Code::Not_Implemented, "method not implemented!");
+    try {
+        // Massively ugly casting to get something convertible to QUuid...
+        auto uid = QUuid::fromString(
+            QLatin1String(request.param(":uid").as<std::string>().c_str()));
+        stationstore.delete_radio_station(uid);
+        response.send(Pistache::Http::Code::Ok);
+    } catch (std::out_of_range& oor) {
+        // wrong UUID provided
+        response.send(
+            Pistache::Http::Code::Bad_Request, BAD_REQUEST_NO_ITEM_WITH_UUID);
+    } catch (std::exception& exc) {
+        // some other error occurred -> 500
+        response.send(Pistache::Http::Code::Internal_Server_Error, exc.what());
+    }
 }

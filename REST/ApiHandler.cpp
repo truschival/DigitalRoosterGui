@@ -83,6 +83,18 @@ void ApiHandler::default_handler(const Pistache::Rest::Request& request,
 }
 
 /*****************************************************************************/
+QJsonObject DigitalRooster::REST::qjson_form_std_string(
+    const std::string& data) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    QJsonParseError perr;
+    auto jd = QJsonDocument::fromJson(data.c_str(), &perr);
+    if (perr.error != QJsonParseError::NoError) {
+        throw std::invalid_argument(data + " is not valid JSON");
+    }
+    return jd.object();
+}
+
+/*****************************************************************************/
 int DigitalRooster::REST::get_val_from_query_within_range(
     const Pistache::Optional<std::string>& query, int min, int max) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
