@@ -1,7 +1,9 @@
 MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
 
-SET(BINARY_NAME "${PROJECT_NAME}_gtest")
-set(COMPONENT_NAME ${BINARY_NAME})
+SET(GEST_BINARY_NAME "${PROJECT_NAME}_gtest")
+SET(RESTSERVER_NAME "restserver")
+
+set(COMPONENT_NAME "DigitalRooster-Test")
 # Interface/binary version
 SET(COMPONENT_VERSION ${PROJECT_VERSION})
 
@@ -11,6 +13,7 @@ find_package(Qt5 COMPONENTS Test REQUIRED)
 # Threading library for gtest
 # Use ${CMAKE_THREAD_LIBS_INIT} for the library
 find_package(Threads REQUIRED)
+
 #-------------------------------------------------------------------------------
 # Add libraries to test here
 #-------------------------------------------------------------------------------
@@ -184,6 +187,7 @@ CONFIGURE_FILE(
 # Unit test sources, TestDoubles, Mocks etc.
 #-------------------------------------------------------------------------------
 SET(TEST_HARNESS_SRCS
+  ${CMAKE_CURRENT_SOURCE_DIR}/testcommon.cpp		
   ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_settings.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_reader.cpp
@@ -212,37 +216,37 @@ IF(HAS_WPA_SUPPLICANT)
 ENDIF()
 
 #------------------------------
-# Binary
+# Gtest binary
 #------------------------------
 
-# UnitTests Executable (for target)
-add_executable(${COMPONENT_NAME}
+# Standard unit test binary using google test
+add_executable(${GEST_BINARY_NAME}
   ${TEST_HARNESS_SRCS}
   )
 
-SET_TARGET_PROPERTIES(${COMPONENT_NAME}
+SET_TARGET_PROPERTIES(${GEST_BINARY_NAME}
   PROPERTIES
   VERSION ${PROJECT_VERSION}
   VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
   )
 
-TARGET_COMPILE_DEFINITIONS(${COMPONENT_NAME}
-  PUBLIC ${CPP_DEFS}
+TARGET_COMPILE_DEFINITIONS(${GEST_BINARY_NAME}
+  PUBLIC ${CPP_DEFS} TEST_LOG_NAME=${GEST_BINARY_NAME}.log
   )
 
-TARGET_COMPILE_OPTIONS(${COMPONENT_NAME}
+TARGET_COMPILE_OPTIONS(${GEST_BINARY_NAME}
   PRIVATE
   $<$<COMPILE_LANGUAGE:CXX>:${CUSTOM_CXX_FLAGS}>
   $<$<COMPILE_LANGUAGE:C>:${CUSTOM_C_FLAGS}>)
 
 # Tests may also access private component headers
-TARGET_INCLUDE_DIRECTORIES(${COMPONENT_NAME}
+TARGET_INCLUDE_DIRECTORIES(${GEST_BINARY_NAME}
   PRIVATE ${CMAKE_SOURCE_DIR}/REST
   )
 
 # Linkage with gtest_main coverage etc.
 TARGET_LINK_LIBRARIES(
-  ${COMPONENT_NAME}
+  ${GEST_BINARY_NAME}
   ${DUT_LIBS}   # Units under test
   GMock # main not required, implemented in test.cpp
   GTest
@@ -251,6 +255,27 @@ TARGET_LINK_LIBRARIES(
   OpenSSL::SSL
   ${CUSTOM_LINK_FLAGS}
   )
+
+
+#------------------------------
+# Rest Server binary
+#------------------------------
+add_executable(${RESTSERVER_NAME}
+   ${CMAKE_CURRENT_SOURCE_DIR}/restserver.cpp
+   ${CMAKE_CURRENT_SOURCE_DIR}/testcommon.cpp
+  )
+  
+TARGET_COMPILE_DEFINITIONS(${RESTSERVER_NAME}
+  PUBLIC ${CPP_DEFS} TEST_LOG_NAME=${RESTSERVER_NAME}.log
+  )
+# Link all libraries 
+TARGET_LINK_LIBRARIES(${RESTSERVER_NAME}
+  ${DUT_LIBS}   # Units under test
+  OpenSSL::Crypto
+  OpenSSL::SSL
+  ${CUSTOM_LINK_FLAGS}
+  )
+
 
 IF(TEST_COVERAGE)
   IF(NOT MSVC)
@@ -261,26 +286,30 @@ IF(TEST_COVERAGE)
 	   "*_autogen*"
 	   '/usr/*'
 	   )
+	   
 	SETUP_TARGET_FOR_COVERAGE(
-	  NAME ${COMPONENT_NAME}_coverage                # New target name
-	  EXECUTABLE ${COMPONENT_NAME} -j 4 # Executable in PROJECT_BINARY_DIR
-	  DEPENDENCIES ${COMPONENT_NAME}
+	  NAME ${GEST_BINARY_NAME}_coverage  # New target name
+	  EXECUTABLE ${GEST_BINARY_NAME}     # Executable in PROJECT_BINARY_DIR
+	  DEPENDENCIES ${GEST_BINARY_NAME}
 	  )
   ELSE(NOT MSVC)
-	SET_PROPERTY(TARGET  ${COMPONENT_NAME} APPEND PROPERTY LINK_FLAGS
-	  /PROFILE)
+	SET_PROPERTY(TARGET ${GEST_BINARY_NAME} 
+		APPEND PROPERTY LINK_FLAGS  /PROFILE)
+	SET_PROPERTY(TARGET ${RESTSERVER_NAME} 
+		APPEND PROPERTY LINK_FLAGS  /PROFILE)			
   ENDIF(NOT MSVC)
 ENDIF(TEST_COVERAGE)
 
-# Call the testBinary with junit-xml output
-ADD_TEST(junitout
-  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${COMPONENT_NAME}"
-  --gtest_output=xml:gtestresults.xml
-  WORKING_DIRECTORY ${PROJECT_BINARY_DIR} )
 
-#-----
-# Install (optional)
-#-----
-IF(INSTALL_UNIT_TEST_ON_TARGET)
-  include(IntallLibraryComponents)
-ENDIF(INSTALL_UNIT_TEST_ON_TARGET)
+ADD_TEST(restapi
+	"${CMAKE_SOURCE_DIR}/test/resttest.py"
+	WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	)
+set_property(TEST restapi 
+	APPEND PROPERTY
+    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test/python-api)	
+set_property(TEST restapi 
+	APPEND PROPERTY
+    ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}:$ENV{PATH})	
+
+
