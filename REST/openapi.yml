@@ -218,28 +218,6 @@ paths:
         404:
           $ref: '#/components/responses/NotFound' 
 
-    put: # Update single stream
-      operationId: streams.update_one
-      tags:
-        - Internet Radio
-      summary: Update Internet radio station information
-      parameters:
-      - $ref: '#/components/parameters/Uuid'
-      requestBody:
-        description: new content of internet radio station
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Station'
-      responses:
-        200:
-          $ref: '#/components/responses/Success'        
-        401:
-          $ref: '#/components/responses/Unauthorized'
-        404:
-          $ref: '#/components/responses/NotFound'  
-
     delete: # delete stream identified by uid
       operationId: streams.delete
       tags:
@@ -315,30 +293,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Podcast'
-        401:
-          $ref: '#/components/responses/Unauthorized'
-        403:
-          $ref: '#/components/responses/InvalidRequest' 
-        404:
-          $ref: '#/components/responses/NotFound' 
-
-    put: # Update single podcast
-      operationId: podcasts.update_one
-      tags:
-        - Podcasts
-      summary: Update alarm
-      parameters:
-      - $ref: '#/components/parameters/Uuid'
-      requestBody:
-        description: new content of alarm
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Podcast'
-      responses:
-        200:
-          $ref: '#/components/responses/Success'
         401:
           $ref: '#/components/responses/Unauthorized'
         403:
@@ -426,31 +380,7 @@ paths:
         403:
           $ref: '#/components/responses/InvalidRequest' 
         404:
-          $ref: '#/components/responses/NotFound' 
-
-    put: # Update single alarm
-      operationId: alarms.update_one
-      tags:
-        - Alarms
-      summary: Update alarm
-      parameters:
-      - $ref: '#/components/parameters/Uuid'
-      requestBody:
-        description: new content of alarm
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Alarm'
-      responses:
-        200:
-          $ref: '#/components/responses/Success'
-        401:
-          $ref: '#/components/responses/Unauthorized'
-        403:
-          $ref: '#/components/responses/InvalidRequest' 
-        404:
-          $ref: '#/components/responses/NotFound' 
+          $ref: '#/components/responses/NotFound'
 
     delete: # delete alarm identified by uid
       operationId: alarms.delete
