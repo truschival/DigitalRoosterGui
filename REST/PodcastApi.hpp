@@ -88,7 +88,7 @@ namespace REST {
         /**
          * API resource name
          */
-        const std::string api_ressource{"podcasts/"};
+        const std::string api_ressource{"podcasts"};
     };
 } /* namespace REST */
 } /* namespace DigitalRooster */

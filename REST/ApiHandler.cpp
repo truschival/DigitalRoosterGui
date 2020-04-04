@@ -21,8 +21,8 @@
 #include <pistache/http.h>
 #include <pistache/router.h>
 
-#include "RestApi.hpp"
 #include "ApiHandler.hpp"
+#include "RestApi.hpp"
 #include "appconstants.hpp"
 #include "common.hpp"
 
@@ -56,10 +56,11 @@ DigitalRooster::RestApi::~RestApi() {
 
 /*****************************************************************************/
 ApiHandler::ApiHandler(DigitalRooster::IWeatherConfigStore& ws,
-    DigitalRooster::IAlarmStore& asr, DigitalRooster::IPodcastStore& ps,
+    DigitalRooster::IAlarmStore& as, DigitalRooster::IPodcastStore& ps,
     DigitalRooster::IStationStore& sts, DigitalRooster::ITimeOutStore& tos,
     Pistache::Address addr)
     : endpoint(addr)
+    , alarmapi(as, router)
     , radioapi(sts, router)
     , podcastsapi(ps, router) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;

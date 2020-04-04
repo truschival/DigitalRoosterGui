@@ -24,9 +24,11 @@
 #include <pistache/http.h>
 #include <pistache/router.h>
 
-#include "IAlarmStore.hpp"
 #include "ITimeoutStore.hpp"
 #include "IWeatherConfigStore.hpp"
+
+#include "AlarmApi.hpp"
+#include "IAlarmStore.hpp"
 
 #include "IPodcastStore.hpp"
 #include "PodcastApi.hpp"
@@ -35,49 +37,50 @@
 #include "RadioApi.hpp"
 
 namespace DigitalRooster {
-namespace REST{
-/**
- * Class to setup Pistache infrastructure and API implementations
- */
-class ApiHandler {
-public:
-    ApiHandler(DigitalRooster::IWeatherConfigStore& ws,
-        DigitalRooster::IAlarmStore& asr, DigitalRooster::IPodcastStore& ps,
-        DigitalRooster::IStationStore& sts, DigitalRooster::ITimeOutStore& tos,
-        Pistache::Address addr);
-
+namespace REST {
     /**
-     * Read list of podcast sources
-     * @param request
-     * @param response
+     * Class to setup Pistache infrastructure and API implementations
      */
-    void podcasts_read_list_handler(const Pistache::Rest::Request& request,
-        Pistache::Http::ResponseWriter response);
+    class ApiHandler {
+    public:
+        ApiHandler(DigitalRooster::IWeatherConfigStore& ws,
+            DigitalRooster::IAlarmStore& as, DigitalRooster::IPodcastStore& ps,
+            DigitalRooster::IStationStore& sts,
+            DigitalRooster::ITimeOutStore& tos, Pistache::Address addr);
 
-    /**
-     * Read list of alarms
-     * @param request
-     * @param response
-     */
-    void alarms_read_list_handler(const Pistache::Rest::Request& request,
-        Pistache::Http::ResponseWriter response);
+        /**
+         * Read list of podcast sources
+         * @param request
+         * @param response
+         */
+        void podcasts_read_list_handler(const Pistache::Rest::Request& request,
+            Pistache::Http::ResponseWriter response);
 
-    /**
-     * Catch all HTTP handler for unknown methods and resources
-     * @param request
-     * @param response
-     */
-    void default_handler(const Pistache::Rest::Request& request,
-        Pistache::Http::ResponseWriter response);
+        /**
+         * Read list of alarms
+         * @param request
+         * @param response
+         */
+        void alarms_read_list_handler(const Pistache::Rest::Request& request,
+            Pistache::Http::ResponseWriter response);
 
-    ~ApiHandler() = default;
-private:
-    Pistache::Http::Endpoint endpoint;
-    Pistache::Rest::Router router;
-    REST::RadioApi radioapi;
-    REST::PodcastApi podcastsapi;
+        /**
+         * Catch all HTTP handler for unknown methods and resources
+         * @param request
+         * @param response
+         */
+        void default_handler(const Pistache::Rest::Request& request,
+            Pistache::Http::ResponseWriter response);
 
-};
+        ~ApiHandler() = default;
+
+    private:
+        Pistache::Http::Endpoint endpoint;
+        Pistache::Rest::Router router;
+        REST::AlarmApi alarmapi;
+        REST::RadioApi radioapi;
+        REST::PodcastApi podcastsapi;
+    };
 } // namespace REST
 } // namespace DigitalRooster
 #endif /* INCLUDE_REST_RESTADAPTER_HPP_ */

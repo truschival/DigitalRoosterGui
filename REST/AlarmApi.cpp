@@ -19,8 +19,8 @@
 #include <pistache/endpoint.h>
 #include <pistache/http.h>
 
-#include "RadioApi.hpp"
-#include "PlayableItem.hpp"
+#include "AlarmApi.hpp"
+#include "alarm.hpp"
 #include "common.hpp"
 
 using namespace Pistache;
@@ -29,37 +29,37 @@ using namespace Pistache::Rest;
 using namespace DigitalRooster;
 using namespace DigitalRooster::REST;
 
-static Q_LOGGING_CATEGORY(CLASS_LC, "RadioAPI");
+static Q_LOGGING_CATEGORY(CLASS_LC, "AlarmApi");
 
 /*****************************************************************************/
-RadioApi::RadioApi(IStationStore& station, Pistache::Rest::Router& router)
-    : stationstore(station) {
+AlarmApi::AlarmApi(IAlarmStore& as, Pistache::Rest::Router& router)
+    : alarmstore(as) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     // Access list or create new station
     Routes::Get(router, API_URL_BASE + api_ressource,
-        Routes::bind(&RadioApi::read_radio_list, this));
+        Routes::bind(&AlarmApi::read_alarm_list, this));
     Routes::Post(router, API_URL_BASE + api_ressource,
-        Routes::bind(&RadioApi::add_station, this));
+        Routes::bind(&AlarmApi::add_alarm, this));
 
     // Manage individual station identified by UUID
     Routes::Get(router, API_URL_BASE + api_ressource + "/:uid",
-        Routes::bind(&RadioApi::get_station, this));
+        Routes::bind(&AlarmApi::get_alarm, this));
     Routes::Put(router, API_URL_BASE + api_ressource + "/:uid",
-        Routes::bind(&RadioApi::update_station, this));
+        Routes::bind(&AlarmApi::update_alarm, this));
     Routes::Delete(router, API_URL_BASE + api_ressource + "/:uid",
-        Routes::bind(&RadioApi::delete_station, this));
+        Routes::bind(&AlarmApi::delete_alarm, this));
 }
 
 /*****************************************************************************/
-void RadioApi::read_radio_list(const Pistache::Rest::Request& request,
+void AlarmApi::read_alarm_list(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    respond_json_array(stationstore.get_stations(), request, response);
+    respond_json_array(alarmstore.get_alarms(), request, response);
 }
 
 /*****************************************************************************/
-void RadioApi::get_station(const Pistache::Rest::Request& request,
+void AlarmApi::get_alarm(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
@@ -68,7 +68,7 @@ void RadioApi::get_station(const Pistache::Rest::Request& request,
         auto uid = QUuid::fromString(
             QLatin1String(request.param(":uid").as<std::string>().c_str()));
         QJsonDocument jd;
-        auto result = stationstore.get_station(uid);
+        auto result = alarmstore.get_alarm(uid);
         jd.setObject(result->to_json_object());
         response.send(Pistache::Http::Code::Ok, jd.toJson().toStdString());
     } catch (std::out_of_range& oor) {
@@ -82,12 +82,12 @@ void RadioApi::get_station(const Pistache::Rest::Request& request,
 }
 
 /*****************************************************************************/
-void RadioApi::add_station(const Pistache::Rest::Request& request,
+void AlarmApi::add_alarm(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     try {
-        stationstore.add_radio_station(PlayableItem::from_json_object(
-            qjson_form_std_string(request.body())));
+        alarmstore.add_alarm(
+            Alarm::from_json_object(qjson_form_std_string(request.body())));
         response.send(Http::Code::Ok);
     } catch (std::invalid_argument& ia) {
         response.send(Pistache::Http::Code::Bad_Request, ia.what());
@@ -98,21 +98,21 @@ void RadioApi::add_station(const Pistache::Rest::Request& request,
 }
 
 /*****************************************************************************/
-void RadioApi::update_station(const Pistache::Rest::Request& request,
+void AlarmApi::update_alarm(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     response.send(Http::Code::Not_Implemented, "method not implemented!");
 }
 
 /*****************************************************************************/
-void RadioApi::delete_station(const Pistache::Rest::Request& request,
+void AlarmApi::delete_alarm(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     try {
         // Massively ugly casting to get something convertible to QUuid...
         auto uid = QUuid::fromString(
             QLatin1String(request.param(":uid").as<std::string>().c_str()));
-        stationstore.delete_radio_station(uid);
+        alarmstore.delete_alarm(uid);
         response.send(Pistache::Http::Code::Ok);
     } catch (std::out_of_range& oor) {
         // wrong UUID provided

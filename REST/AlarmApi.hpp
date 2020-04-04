@@ -1,6 +1,6 @@
 /******************************************************************************
  * \filename
- * \brief     API for managing Internet Radio Stations
+ * \brief     API for managing Internet Alarm Stations
  *
  * \details
  *
@@ -9,26 +9,26 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
-#ifndef REST_RADIOAPI_HPP_
-#define REST_RADIOAPI_HPP_
+#ifndef REST_ALARMAPI_HPP_
+#define REST_ALARMAPI_HPP_
 
 #include <pistache/http.h>
 #include <pistache/router.h>
 #include <string>
 
-#include "IStationStore.hpp"
+#include "IAlarmStore.hpp"
 
 namespace DigitalRooster {
 namespace REST {
 
-    class RadioApi {
+    class AlarmApi {
     public:
         /**
          * API registers all handlers with router
-         * @param station backend that provides access to radio stations
+         * @param alarmstore backend that provides access to Alarm list
          * @param router
          */
-        RadioApi(IStationStore& station, Pistache::Rest::Router& router);
+        AlarmApi(IAlarmStore& station, Pistache::Rest::Router& router);
 
         /**
          * resource name under \ref{API_URL_BASE}
@@ -39,58 +39,58 @@ namespace REST {
         }
 
         /**
-         * Read list of radio stations and write it out via HTTP response
-         * @param request
+         * Read list of Alarms and write it out via HTTP response
+         * @param request with optional length and offset parameters
          * @param response
          */
-        void read_radio_list(const Pistache::Rest::Request& request,
+        void read_alarm_list(const Pistache::Rest::Request& request,
             Pistache::Http::ResponseWriter response);
 
         /**
-         * Add the station from request to list of radio stations
-         * @param request must contain a valid JSON for Radio station
+         * Add the alarm from request to list of Alarms
+         * @param request must contain a valid JSON in body
          * @param response
          */
-        void add_station(const Pistache::Rest::Request& request,
+        void add_alarm(const Pistache::Rest::Request& request,
             Pistache::Http::ResponseWriter response);
 
         /**
-         * Get the station identified by UUID to list of radio stations
+         * Get the alarm  identified by UUID to list of Alarms
          * @param request with UUID as parameter
          * @param response
          */
-        void get_station(const Pistache::Rest::Request& request,
+        void get_alarm(const Pistache::Rest::Request& request,
             Pistache::Http::ResponseWriter response);
 
         /**
-         * Update station identified by UUID with new values
-         * @param request with UUID as parameter and station information body
+         * Update Alarm identified by UUID with new values
+         * @param request with UUID as parameter and Alarm JSON
          * @param response
          */
-        void update_station(const Pistache::Rest::Request& request,
+        void update_alarm(const Pistache::Rest::Request& request,
             Pistache::Http::ResponseWriter response);
 
         /**
-         * Delete a station with UUID from list of radio stations
-         * @param request with UUID of radio station to delete
+         * Delete an alarm with UUID from list of Alarms
+         * @param request with UUID of Alarm to delete
          * @param response
          */
-        void delete_station(const Pistache::Rest::Request& request,
+        void delete_alarm(const Pistache::Rest::Request& request,
             Pistache::Http::ResponseWriter response);
 
-        virtual ~RadioApi() = default;
+        virtual ~AlarmApi() = default;
 
     private:
         /**
-         * Backend handling internet radio stations in configuration
+         * Backend handling internet Alarm stations in configuration
          */
-        IStationStore& stationstore;
+        IAlarmStore& alarmstore;
         /**
          * API resource name
          */
-        const std::string api_ressource{"radios"};
+        const std::string api_ressource{"alarms"};
     };
 } /* namespace REST */
 } /* namespace DigitalRooster */
 
-#endif /* REST_RADIOAPI_HPP_ */
+#endif /* REST_ALARMAPI_HPP_ */

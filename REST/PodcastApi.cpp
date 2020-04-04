@@ -44,11 +44,11 @@ PodcastApi::PodcastApi(IPodcastStore& ps, Pistache::Rest::Router& router)
         Routes::bind(&PodcastApi::add_podcast, this));
 
     // Manage individual podcast identified by UUID
-    Routes::Get(router, API_URL_BASE + api_ressource + ":uid",
+    Routes::Get(router, API_URL_BASE + api_ressource + "/:uid",
         Routes::bind(&PodcastApi::get_podcast, this));
-    Routes::Put(router, API_URL_BASE + api_ressource + ":uid",
+    Routes::Put(router, API_URL_BASE + api_ressource + "/:uid",
         Routes::bind(&PodcastApi::update_podcast, this));
-    Routes::Delete(router, API_URL_BASE + api_ressource + ":uid",
+    Routes::Delete(router, API_URL_BASE + api_ressource + "/:uid",
         Routes::bind(&PodcastApi::delete_podcast, this));
 }
 
