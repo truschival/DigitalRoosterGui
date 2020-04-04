@@ -1,6 +1,6 @@
 /******************************************************************************
  * \filename
- * \brief     API for managing Internet Radio Stations
+ * \brief     API for managing Podcast RSS feeds
  *
  * \details
  *
@@ -9,24 +9,26 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
-#ifndef REST_RADIOAPI_HPP_
-#define REST_RADIOAPI_HPP_
+#ifndef REST_PodcastApi_HPP_
+#define REST_PodcastApi_HPP_
 
+#include <pistache/http.h>
 #include <pistache/router.h>
+#include <string>
 
-#include "IStationStore.hpp"
+#include "IPodcastStore.hpp"
 
 namespace DigitalRooster {
 namespace REST {
 
-    class RadioAPI {
+    class PodcastApi {
     public:
         /**
          * API registers all handlers with router
-         * @param station backend that provides access to radio stations
+         * @param ps backend that provides access list of PodcastSource
          * @param router
          */
-        RadioAPI(IStationStore& station, Pistache::Rest::Router& router);
+        PodcastApi(IPodcastStore& ps, Pistache::Rest::Router& router);
 
         /**
          * resource name under \ref{API_URL_BASE}
@@ -37,58 +39,58 @@ namespace REST {
         }
 
         /**
-         * Read list of radio stations and write it out via HTTP response
-         * @param request
+         * Read list of PodcastSource and write it out via HTTP response
+         * @param request with length and offset
          * @param response
          */
-        void read_radio_list(const Pistache::Rest::Request& request,
+        void read_podcast_list(const Pistache::Rest::Request& request,
             Pistache::Http::ResponseWriter response);
 
         /**
-         * Add the station from request to list of radio stations
-         * @param request must contain a valid JSON for Radio station
+         * Add a PodcastSource from request to list
+         * @param request must contain a valid JSON for PodcastSource
          * @param response
          */
-        void add_station(const Pistache::Rest::Request& request,
+        void add_podcast(const Pistache::Rest::Request& request,
             Pistache::Http::ResponseWriter response);
 
         /**
-         * Get the station identified by UUID to list of radio stations
+         * Get the PodcastSource identified by UUID to list of PodcastSources
          * @param request with UUID as parameter
          * @param response
          */
-        void get_station(const Pistache::Rest::Request& request,
+        void get_podcast(const Pistache::Rest::Request& request,
             Pistache::Http::ResponseWriter response);
 
         /**
-         * Update station identified by UUID with new values
+         * Update PodcastSource identified by UUID with new values
          * @param request with UUID as parameter and station information body
          * @param response
          */
-        void update_station(const Pistache::Rest::Request& request,
+        void update_podcast(const Pistache::Rest::Request& request,
             Pistache::Http::ResponseWriter response);
 
         /**
-         * Delete a station with UUID from list of radio stations
-         * @param request with UUID of radio station to delete
+         * Delete PodcastSource with UUID from list of PodcastSources
+         * @param request with UUID of PodcastSource to delete
          * @param response
          */
-        void delete_station(const Pistache::Rest::Request& request,
+        void delete_podcast(const Pistache::Rest::Request& request,
             Pistache::Http::ResponseWriter response);
 
-        virtual ~RadioAPI() = default;
+        virtual ~PodcastApi() = default;
 
     private:
         /**
-         * Backend handling internet radio stations in configuration
+         * Backend handling for storing PodcastSource in configuration
          */
-        IStationStore& stationstore;
+        IPodcastStore& podcaststore;
         /**
          * API resource name
          */
-        const std::string api_ressource{"radios/"};
+        const std::string api_ressource{"podcasts/"};
     };
 } /* namespace REST */
 } /* namespace DigitalRooster */
 
-#endif /* REST_RADIOAPI_HPP_ */
+#endif /* REST_PodcastApi_HPP_ */

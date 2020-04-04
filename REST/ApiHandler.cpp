@@ -16,11 +16,13 @@
 #include <QLoggingCategory>
 
 #include <memory>
+#include <string>
+
+#include <pistache/http.h>
 #include <pistache/router.h>
 
+#include "RestApi.hpp"
 #include "ApiHandler.hpp"
-#include "PodcastSource.hpp"
-#include "RestApi.hpp" /* interface to application */
 #include "appconstants.hpp"
 #include "common.hpp"
 
@@ -30,7 +32,7 @@ using namespace Pistache::Rest;
 using namespace DigitalRooster;
 using namespace DigitalRooster::REST;
 
-static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.RestAdapter");
+static Q_LOGGING_CATEGORY(CLASS_LC, "RestAdapter");
 
 /*****************************************************************************/
 
@@ -58,7 +60,8 @@ ApiHandler::ApiHandler(DigitalRooster::IWeatherConfigStore& ws,
     DigitalRooster::IStationStore& sts, DigitalRooster::ITimeOutStore& tos,
     Pistache::Address addr)
     : endpoint(addr)
-    , radios(sts, router) {
+    , radioapi(sts, router)
+    , podcastsapi(ps, router) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     auto opts =

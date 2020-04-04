@@ -33,7 +33,8 @@ LIST(APPEND CPP_DEFS "")
 #-------------------------------------------------------------------------------
 SET(SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/ApiHandler.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/RadioAPI.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/PodcastApi.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/RadioApi.cpp
   ) 
 
 #------------------------------

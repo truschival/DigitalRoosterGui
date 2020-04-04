@@ -25,13 +25,14 @@
 #include <pistache/router.h>
 
 #include "IAlarmStore.hpp"
-#include "IPodcastStore.hpp"
-
 #include "ITimeoutStore.hpp"
 #include "IWeatherConfigStore.hpp"
 
+#include "IPodcastStore.hpp"
+#include "PodcastApi.hpp"
+
 #include "IStationStore.hpp"
-#include "RadioAPI.hpp"
+#include "RadioApi.hpp"
 
 namespace DigitalRooster {
 namespace REST{
@@ -73,8 +74,8 @@ public:
 private:
     Pistache::Http::Endpoint endpoint;
     Pistache::Rest::Router router;
-
-    REST::RadioAPI radios;
+    REST::RadioApi radioapi;
+    REST::PodcastApi podcastsapi;
 
 };
 } // namespace REST
