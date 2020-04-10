@@ -135,7 +135,7 @@ public:
      * JSon Representation of Internet Radio station
      * @return
      */
-    QJsonObject to_json_object();
+    QJsonObject to_json_object() const;
 signals:
     /**
      * Human readable identifier changed (title, name, publisher etc)
