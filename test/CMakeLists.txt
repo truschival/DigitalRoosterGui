@@ -308,7 +308,7 @@ IF(REST_API)
   # Set python path to generated API
   SET_PROPERTY(TEST restapi
     APPEND PROPERTY
-    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/test/python-api
+    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/python-client
     )
   # make sure python test find the binary to run server
   SET_PROPERTY(TEST restapi
