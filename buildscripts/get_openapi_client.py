@@ -12,7 +12,8 @@ request_headers['Content-Type']="application/json"
 def get_commit_hash():
     dir_path = os.path.dirname( os.path.dirname(os.path.realpath(__file__))+"/../")
     gitinfo=Repo(dir_path)
-    return str(gitinfo.head.commit)
+    hash=str(gitinfo.head.commit)
+    return hash
 
 def build_document_url():
     openapi_yml_url = "https://raw.githubusercontent.com/truschival/DigitalRoosterGui/"
@@ -58,7 +59,10 @@ def download_client_module(link, filename="python-client.zip"):
         req.raise_for_status()              
 
 if __name__ == "__main__":
+    print("working with commit {0}".format(get_commit_hash()))
     link = request_client_module(build_document_url())
     download_client_module(link, "python-client.zip")
     with zipfile.ZipFile("python-client.zip","r") as zip:
-        zip.extractall() 
+        zip.extractall()
+    print("ok")
+    

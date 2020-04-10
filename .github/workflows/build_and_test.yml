@@ -53,13 +53,17 @@ jobs:
         -DREST_API=On
     - name: Build
       run: docker exec $CONTAINER_NAME cmake --build $BUILD_DIR --parallel
+    - name: Get OpenAPI client
+      run: |
+        docker exec -w $SRC_DIR $CONTAINER_NAME buildscripts/get_openapi_client.py
     - name: Run tests
       run: docker exec -w $BUILD_DIR $CONTAINER_NAME ctest -V
     - name: Package Test output for analysis
       if: failure()
       run: >
-        tar -czf $TEST_ARTIFACT
-            $BUILD_DIR_HOST/test_trace.log
+        tar -C $BUILD_DIR_HOST -czf $TEST_ARTIFACT
+            test_trace.log
+            test/gtest_results.xml
     - name: Upload program trace
       if: failure()
       uses: actions/upload-artifact@v1
@@ -82,7 +86,3 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: /tmp/build/coverage.info
-    - name: Cleanup
-      run: |
-        docker stop $CONTAINER_NAME
-        docker rm $CONTAINER_NAME

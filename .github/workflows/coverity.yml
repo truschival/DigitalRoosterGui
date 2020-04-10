@@ -14,6 +14,8 @@ jobs:
       BUILD_DIR_HOST: /tmp/build
       BUILD_DIR: /build
       SRC_DIR: /src
+      BUILD_IMAGE: ruschi/devlinuxqt-pistache
+      CONTAINER_NAME: buildc
       COVERITY_INSTALL_DIR: /tmp/coverity
       COVERITY_RESULT_DIR: cov-int
       COVERITY_TARBALL: digitalrooster_coverity.tar.bz2
@@ -31,7 +33,7 @@ jobs:
         echo "Coverity tarball:" $COVERITY_TARBALL
         echo "Coverity result:" $COVERITY_RESULT_DIR
     - name: Create build dir
-      run: | 
+      run: |
         mkdir -p $BUILD_DIR_HOST
         mkdir -p $COVERITY_INSTALL_DIR
     - name: Install Coverity
@@ -43,35 +45,36 @@ jobs:
       env:
           TOKEN: ${{ secrets.COVERITY_TOKEN }}
     - name: Pull docker container
-      run: docker pull ruschi/devlinuxqtquick2:latest
+      run: docker pull $BUILD_IMAGE
       timeout-minutes: 5
     - name: Start Docker
       run: >
-        docker run -itd -u $UID:$GID --privileged --name build_container
+        docker run -itd -u $UID:$GID --privileged --name $CONTAINER_NAME
         -v$GITHUB_WORKSPACE:$SRC_DIR
         -v$BUILD_DIR_HOST:$BUILD_DIR
         -v$COVERITY_INSTALL_DIR:/coverity
-        ruschi/devlinuxqtquick2
+        $BUILD_IMAGE
     - name: Configure (Release, No Tests)
       run: >
-        docker exec build_container cmake
+        docker exec $CONTAINER_NAME cmake
         -DCMAKE_BUILD_TYPE=Release
         -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY=On
         -H$SRC_DIR -B$BUILD_DIR
         -DBUILD_TESTS=Off -DTEST_COVERAGE=Off -DBUILD_GTEST_FROM_SRC=Off
+        -DREST_API=On
     - name: Gather Coverity build info
       run: >
-        docker exec -w $BUILD_DIR build_container
+        docker exec -w $BUILD_DIR $CONTAINER_NAME
         /coverity/bin/cov-build --dir $COVERITY_RESULT_DIR make -j 3
     - name: Package Coverity output
       run:  tar cjvf $COVERITY_TARBALL -C $BUILD_DIR_HOST $COVERITY_RESULT_DIR
     - name: Upload Coverity Info
-      run: >        
+      run: >
         curl --form token=$TOKEN
-        --form email=thomas@ruschival.de 
+        --form email=thomas@ruschival.de
         --form file=@$COVERITY_TARBALL
         --form version=$GITHUB_SHA
-        --form description="Auto scan on $GITHUB_REF" 
+        --form description="Auto scan on $GITHUB_REF"
         https://scan.coverity.com/builds?project=$GITHUB_REPOSITORY
       env:
         TOKEN: ${{ secrets.COVERITY_TOKEN }}

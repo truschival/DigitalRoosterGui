@@ -275,10 +275,10 @@ IF(TEST_COVERAGE)
   ENDIF(NOT MSVC)
 ENDIF(TEST_COVERAGE)
 
-ADD_TEST(unittest
+ADD_TEST(gtest
   "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${GEST_BINARY_NAME}"
-  --gtest_output=xml:gtestresults.xml
-  WORKING_DIRECTORY ${PROJECT_BINARY_DIR} )
+  --gtest_output=xml:gtest_results.xml
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
 #------------------------------
 # Rest Server binary
