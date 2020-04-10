@@ -61,6 +61,10 @@ in privileged mode using `--privileged`.
 
 -   `-DTEST_COVERAGE=Off`        code coverage
 
+-   `-DREST_API=On`               provide a REST API for json configuration
+
+-   `-DREST_API_PORT=6666`       Default TCP listen port for REST API
+
 -   `-DPROFILING=On`              profiling build for Visual Studio
 
 The following commands will checkout the sources to `/tmp/checkout/`, create a

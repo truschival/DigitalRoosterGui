@@ -33,9 +33,9 @@ endif()
 #-------------------------------------------------------------------------------
 # user Configuration + Defaults
 #-------------------------------------------------------------------------------
-option(BUILD_EXE "Build QT Gui" On)
 option(BUILD_TESTS "Build Tests" On)
 option(HAS_WPA_SUPPLICANT "Target has wpa_supplicant" Off)
+option(REST_API "Use the REST API" On)
 option(PROFILE "Build with Profiling" Off)
 option(TEST_COVERAGE "Test Coverage" Off)
 option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" On)
@@ -57,6 +57,7 @@ SET(WIFI_INTERFACE "/var/run/wpa_supplicant/wlp2s0"
 SET(SETTINGS_PATH  "${CMAKE_CURRENT_BINARY_DIR}/settings"
   CACHE PATH "application configuration path")
 SET(GENERATED_DIR  "${CMAKE_BINARY_DIR}/generated" CACHE INTERNAL "" )
+SET(REST_API_PORT "6666" CACHE STRING "Rest API TCP Port")
 
 #-------------------------------------------------------------------------------
 # Command line parameters  or default
@@ -109,6 +110,7 @@ MESSAGE(STATUS "Build GoogleTest:\t ${BUILD_GTEST_FROM_SRC} ")
 MESSAGE(STATUS "Test coverage:\t ${TEST_COVERAGE} ")
 MESSAGE(STATUS "Profiling:\t\t ${PROFILE} ")
 MESSAGE(STATUS "Wpa supplicant:\t ${HAS_WPA_SUPPLICANT} ")
+MESSAGE(STATUS "REST API:\t\t ${REST_API} (${REST_API_PORT})")
 MESSAGE(STATUS "Revision:\t\t ${GIT_DESCRIBE_REV} ")
 MESSAGE(STATUS "System:\t\t ${SYSTEM_TARGET_NAME} ")
 MESSAGE(STATUS "------------------------------ " )
@@ -238,9 +240,11 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/wpa_ctrl/)
 add_subdirectory(${PROJECT_SOURCE_DIR}/libhwif/)
 add_subdirectory(${PROJECT_SOURCE_DIR}/libsrc/) #libsrc depends on libhwif
 
-if(BUILD_EXE)
-  add_subdirectory(${PROJECT_SOURCE_DIR}/qtgui/)
-endif(BUILD_EXE)
+if(REST_API)
+	add_subdirectory(${PROJECT_SOURCE_DIR}/REST/)
+endif(REST_API)
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/qtgui/)
 
 #-------------------------------------------------------------------------------
 # configuration install

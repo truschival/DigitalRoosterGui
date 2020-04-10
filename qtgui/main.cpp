@@ -52,6 +52,9 @@
 #include "wifi_control.hpp"
 #include "wifilistmodel.hpp"
 
+// REST interface - optional
+#include "RestApi.hpp"
+
 using namespace DigitalRooster;
 
 Q_DECLARE_LOGGING_CATEGORY(MAIN)
@@ -239,6 +242,9 @@ int main(int argc, char* argv[]) {
     /* we start in standby */
     power.standby();
 
+#ifdef REST_API
+    RestApi rest(cm,cm,cm,cm,cm);
+#endif
     /*
      * QML Setup dynamically createable types
      * All Elements/Lists are created in C++
