@@ -30,7 +30,7 @@ std::shared_ptr<DigitalRooster::TimeProvider> DigitalRooster::wallclock =
  * Log file path
  */
 const QString DigitalRooster::DEFAULT_LOG_PATH(
-    QDir(TEST_FILE_PATH).filePath("Digitalrooster_tests.log"));
+    QDir(TEST_FILE_PATH).filePath("test_trace.log"));
 
 /**
  * Default configuration file path
