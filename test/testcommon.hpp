@@ -12,15 +12,16 @@
 #ifndef TEST_COMMON_HPP_
 #define TEST_COMMON_HPP_
 
-
-
 /**
  * file name for debug output during test run
  */
 #ifndef TEST_LOG_NAME
-#define TEST_LOG_NAME tests.log
+#define TEST_LOG_NAME test_trace.log
 #endif
 
-void setup_test_logs();
+/**
+ * Initialize test file system paths and logger
+ */
+void setup_tests();
 
 #endif /* TEST_COMMON_HPP_ */

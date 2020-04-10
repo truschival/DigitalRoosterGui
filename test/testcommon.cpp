@@ -9,6 +9,7 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
+#include <QDebug>
 #include <QDir>
 #include <QLoggingCategory>
 #include <QString>
@@ -47,13 +48,8 @@ std::shared_ptr<DigitalRooster::TimeProvider> DigitalRooster::wallclock =
 
 
 /*****************************************************************************/
-void setup_test_logs() {
-    try {
-        DigitalRooster::setup_logger_file(DigitalRooster::DEFAULT_LOG_PATH);
-    } catch (std::system_error& exc) {
-        DigitalRooster::setup_logger_stdout(); // Write log to stdout
-    }
-
+void setup_tests() {
+    DigitalRooster::setup_logger_file(DigitalRooster::DEFAULT_LOG_PATH);
     QDir(DigitalRooster::TEST_FILE_PATH).mkdir("testcache");
     QDir(DigitalRooster::TEST_FILE_PATH).mkdir("testconfig");
     QLoggingCategory::setFilterRules("*.debug=true");

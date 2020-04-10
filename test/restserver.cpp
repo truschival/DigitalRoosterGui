@@ -10,39 +10,43 @@
  *
  *****************************************************************************/
 #include <QCoreApplication>
+#include <QDebug>
 #include <QObject>
 
 #include <chrono>
-
 #include <signal.h>
 
-#include "appconstants.hpp"
-#include "testcommon.hpp"
-
 #include "RestApi.hpp"
+#include "appconstants.hpp"
 #include "configuration_manager.hpp"
+#include "testcommon.hpp"
 
 using namespace DigitalRooster;
 
-void term_handler(int sig){
-	exit(0);
+void term_handler(int sig) {
+    exit(0);
 }
 
 int main(int argc, char** argv) {
     QCoreApplication app(argc, argv);
 
-    setup_test_logs();
+    setup_tests();
+    qDebug() << argv[0];
 
     ConfigurationManager cm(DEFAULT_CONFIG_FILE_PATH, DEFAULT_CACHE_DIR_PATH);
     RestApi restserver(cm, cm, cm, cm, cm);
     cm.update_configuration();
 
-    signal(SIGTERM,term_handler);
+    /*
+     * coverage data is only generated if program is not killed forcefully
+     * -> capture the terminate signal and exit gracefully
+     */
+    signal(SIGTERM, term_handler);
 
-//    QTimer exitTimer;
-//    QObject::connect(
-//        &exitTimer, &QTimer::timeout, &app, QCoreApplication::quit);
-//    exitTimer.start(std::chrono::seconds(10));
+    //    QTimer exitTimer;
+    //    QObject::connect(
+    //        &exitTimer, &QTimer::timeout, &app, QCoreApplication::quit);
+    //    exitTimer.start(std::chrono::seconds(10));
     app.exec();
     return 0;
 }

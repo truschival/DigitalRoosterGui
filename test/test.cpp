@@ -11,6 +11,7 @@
  *****************************************************************************/
 
 #include <QCoreApplication>
+#include <QDebug>
 #include <QObject>
 #include <QStandardPaths>
 #include <QTimer>
@@ -30,7 +31,9 @@
 int main(int argc, char** argv) {
     QCoreApplication app(argc, argv);
 
-    setup_test_logs();
+    setup_tests();
+    qDebug() << argv[0];
+
     ::testing::InitGoogleTest(&argc, argv);
     int ret = RUN_ALL_TESTS();
 
