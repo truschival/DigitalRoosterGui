@@ -264,7 +264,6 @@ if(BUILD_TESTS)
   add_subdirectory(${PROJECT_SOURCE_DIR}/test/)
 endif(BUILD_TESTS)
 
-
 # --------------------------------------------------------------------
 # Generate CPACK installer
 # --------------------------------------------------------------------
