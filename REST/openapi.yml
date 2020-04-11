@@ -57,7 +57,7 @@ components:
         - name
         - url
       properties:
-        uid:
+        id:
           type: string
         name:
           type: string
@@ -75,7 +75,7 @@ components:
         - name
         - url
       properties:
-        uid:
+        id:
           type: string
         name:
           type: string
@@ -113,7 +113,7 @@ components:
           type: boolean
         volume:
           type: integer
-        uid:
+        id:
           type: string
     
     # Alarm array
@@ -137,8 +137,8 @@ components:
       required: false
       schema:
         type: integer
-    Uuid:
-      name: uid
+    id:
+      name: id
       in: path
       description: unique id to identify item
       required: true
@@ -195,15 +195,15 @@ paths:
           $ref: '#/components/responses/NotFound'  
           
 # Manipulate single Internet Radio Stream
-  /radios/{uid}:
+  /radios/{id}:
 
-    get: # read single stream by uid
+    get: # read single stream by id
       operationId: streams.read_one
       tags:
         - Internet Radio
       summary: Read one Internet radio station
       parameters:
-        - $ref: '#/components/parameters/Uuid'
+        - $ref: '#/components/parameters/id'
       responses:
         200:
           description: Successfully read a single radio station
@@ -218,13 +218,13 @@ paths:
         404:
           $ref: '#/components/responses/NotFound' 
 
-    delete: # delete stream identified by uid
+    delete: # delete stream identified by id
       operationId: streams.delete
       tags:
         - Internet Radio
       summary: Delete Internet radio station from list
       parameters:
-        - $ref: '#/components/parameters/Uuid'
+        - $ref: '#/components/parameters/id'
       responses:
         200:
           $ref: '#/components/responses/Success'        
@@ -278,14 +278,14 @@ paths:
         403:
           $ref: '#/components/responses/InvalidRequest' 
 
-  /podcasts/{uid}:
-    get: # read single podcast by uid
+  /podcasts/{id}:
+    get: # read single podcast by id
       operationId: podcasts.read_one
       tags:
         - Podcasts
-      summary: Read one Podcast identified by UUID
+      summary: Read one Podcast identified by id
       parameters:
-       - $ref: '#/components/parameters/Uuid'
+       - $ref: '#/components/parameters/id'
       responses:
         200:
           description: Successfully read Podcast
@@ -300,13 +300,13 @@ paths:
         404:
           $ref: '#/components/responses/NotFound' 
 
-    delete: # delete podcasts identified by uid
+    delete: # delete podcasts identified by id
       operationId: podcasts.delete
       tags:
         - Podcasts
       summary: Delete Podcast from list
       parameters:
-        - $ref: '#/components/parameters/Uuid'
+        - $ref: '#/components/parameters/id'
       responses:
         200:
           $ref: '#/components/responses/Success'
@@ -360,14 +360,14 @@ paths:
         404:
           $ref: '#/components/responses/NotFound' 
 
-  /alarms/{uid}:
-    get: # read single alarm by uid
+  /alarms/{id}:
+    get: # read single alarm by id
       operationId: alarms.read_one
       tags:
         - Alarms
       summary: Read one Alarm
       parameters:
-       - $ref: '#/components/parameters/Uuid'
+       - $ref: '#/components/parameters/id'
       responses:
         200:
           description: Successfully read Alarm
@@ -382,13 +382,13 @@ paths:
         404:
           $ref: '#/components/responses/NotFound'
 
-    delete: # delete alarm identified by uid
+    delete: # delete alarm identified by id
       operationId: alarms.delete
       tags:
         - Alarms
       summary: Delete alarm from list
       parameters:
-        - $ref: '#/components/parameters/Uuid'
+        - $ref: '#/components/parameters/id'
       responses:
         200:
           $ref: '#/components/responses/Success'
