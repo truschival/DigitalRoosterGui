@@ -52,6 +52,7 @@ AlarmApi::AlarmApi(IAlarmStore& as, Pistache::Rest::Router& router)
 }
 
 /*****************************************************************************/
+// coverity[PASS_BY_VALUE] - Pistache API does a std::move down the line
 void AlarmApi::read_alarm_list(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
@@ -60,6 +61,7 @@ void AlarmApi::read_alarm_list(const Pistache::Rest::Request& request,
 
 /*****************************************************************************/
 void AlarmApi::get_alarm(const Pistache::Rest::Request& request,
+// coverity[PASS_BY_VALUE] - Pistache API does a std::move down the line
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
@@ -83,6 +85,7 @@ void AlarmApi::get_alarm(const Pistache::Rest::Request& request,
 
 /*****************************************************************************/
 void AlarmApi::add_alarm(const Pistache::Rest::Request& request,
+/* coverity[PASS_BY_VALUE] - Pistache API does a std::move down the line */
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     try {
@@ -98,6 +101,7 @@ void AlarmApi::add_alarm(const Pistache::Rest::Request& request,
 }
 
 /*****************************************************************************/
+/* coverity[PASS_BY_VALUE] - Pistache API does a std::move down the line */
 void AlarmApi::update_alarm(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
