@@ -275,8 +275,8 @@ IF(TEST_COVERAGE)
   ENDIF(NOT MSVC)
 ENDIF(TEST_COVERAGE)
 
-ADD_TEST(gtest
-  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${GEST_BINARY_NAME}"
+ADD_TEST(NAME gtest
+  COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${GEST_BINARY_NAME}
   --gtest_output=xml:gtest_results.xml
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
@@ -300,8 +300,9 @@ IF(REST_API)
   #------------------------------
   # Python integration tests for API
   #------------------------------
-  ADD_TEST(restapi
-    "${CMAKE_SOURCE_DIR}/test/resttest.py"
+  ADD_TEST(NAME restapi
+    COMMAND python3 
+    -m pytest -v ${CMAKE_SOURCE_DIR}/test/api-tests
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )
 
