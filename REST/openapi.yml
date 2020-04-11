@@ -106,7 +106,7 @@ components:
             - once
             - daily
             - workdays
-            - weekends
+            - weekend
         url:
           type: string
         enabled:
