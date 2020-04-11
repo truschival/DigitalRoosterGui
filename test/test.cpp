@@ -30,9 +30,9 @@
 
 int main(int argc, char** argv) {
     QCoreApplication app(argc, argv);
-
     setup_tests();
     qDebug() << argv[0];
+    DigitalRooster::setup_logger_file(DigitalRooster::DEFAULT_LOG_FILE);
 
     ::testing::InitGoogleTest(&argc, argv);
     int ret = RUN_ALL_TESTS();

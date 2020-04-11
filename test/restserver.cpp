@@ -20,6 +20,7 @@
 #include "appconstants.hpp"
 #include "configuration_manager.hpp"
 #include "testcommon.hpp"
+#include "util.hpp"
 
 using namespace DigitalRooster;
 
@@ -29,11 +30,13 @@ void term_handler(int sig) {
 
 int main(int argc, char** argv) {
     QCoreApplication app(argc, argv);
+    const auto& cmdline = get_commandline_options(app);
+    setup_log_facility(cmdline);
 
     setup_tests();
     qDebug() << argv[0];
 
-    ConfigurationManager cm(DEFAULT_CONFIG_FILE_PATH, DEFAULT_CACHE_DIR_PATH);
+    ConfigurationManager cm(CMD_ARG_CONFIG_FILE, CMD_ARG_CACHE_DIR);
     RestApi restserver(cm, cm, cm, cm, cm);
     cm.update_configuration();
 
@@ -43,10 +46,6 @@ int main(int argc, char** argv) {
      */
     signal(SIGTERM, term_handler);
 
-    //    QTimer exitTimer;
-    //    QObject::connect(
-    //        &exitTimer, &QTimer::timeout, &app, QCoreApplication::quit);
-    //    exitTimer.start(std::chrono::seconds(10));
     app.exec();
     return 0;
 }

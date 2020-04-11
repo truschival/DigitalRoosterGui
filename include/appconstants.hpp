@@ -307,10 +307,37 @@ const int REST_API_PORT(REST_API_LISTEN_PORT);
 /****************************************************************************/
 
 /**
+ * Command line option for logfile
+ * -l  --logfile
+ */
+const QString CMD_ARG_LOG_FILE("logfile");
+
+/**
+ * Command line option logging to stdout (takes precedence over --logfile)
+ * -s --stdout
+ */
+const QString CMD_ARG_LOG_STDOUT("stdout");
+
+/**
+ * Command line option for cache directory of podcasts
+ * -c --cachedir
+ */
+const QString CMD_ARG_CACHE_DIR("cachedir");
+
+/**
+ * Command line option for configuration file digitalrooster.json
+ * -c --config
+ */
+const QString CMD_ARG_CONFIG_FILE("config");
+
+
+/****************************************************************************/
+
+/**
  * Log file path
  * initialized in main.cpp or test.cpp
  */
-extern const QString DEFAULT_LOG_PATH;
+extern const QString DEFAULT_LOG_FILE;
 
 /**
  * Default configuration file path
@@ -324,6 +351,7 @@ extern const QString DEFAULT_CONFIG_FILE_PATH;
  */
 extern const QString DEFAULT_CACHE_DIR_PATH;
 
+/****************************************************************************/
 } // namespace DigitalRooster
 
 #endif /* _APPCONSTANTS_HPP_ */
