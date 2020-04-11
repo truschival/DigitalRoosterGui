@@ -321,7 +321,7 @@ std::shared_ptr<PodcastSource> PodcastSource::from_json_object(
 QJsonObject PodcastSource::to_json_object() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject json;
-    json[KEY_ID] = get_id().toString();
+    json[KEY_ID] = get_id().toString(QUuid::WithoutBraces);
     json[KEY_URI] = get_url().toString();
     json[KEY_TITLE] = get_title();
     json[KEY_UPDATE_INTERVAL] =

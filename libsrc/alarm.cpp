@@ -187,7 +187,7 @@ std::shared_ptr<Alarm> Alarm::from_json_object(const QJsonObject& json_alarm) {
 QJsonObject Alarm::to_json_object() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject alarmcfg;
-    alarmcfg[KEY_ID] = this->get_id().toString();
+    alarmcfg[KEY_ID] = this->get_id().toString(QUuid::WithoutBraces);
     alarmcfg[KEY_ALARM_PERIOD] =
         alarm_period_to_json_string(this->get_period());
     alarmcfg[KEY_TIME] = this->get_time().toString("hh:mm");
