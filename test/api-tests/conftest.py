@@ -15,7 +15,7 @@ def create_config(filename):
         "Alarms": [
             {
                 "enabled": true,
-                "id": "{8364287c-3036-4cd0-b243-0a4f5dd863ae}",
+                "id": "8364287c-3036-4cd0-b243-0a4f5dd863ae",
                 "period": "workdays",
                 "time": "06:30",
                 "url": "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3",
@@ -23,7 +23,7 @@ def create_config(filename):
             },
             {
                 "enabled": false,
-                "id": "{30df096e-f776-404c-8619-3c4c2c4da212}",
+                "id": "30df096e-f776-404c-8619-3c4c2c4da212",
                 "period": "once",
                 "time": "07:00",
                 "url": "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3",
@@ -32,7 +32,7 @@ def create_config(filename):
         ],
         "InternetRadio": [
             {
-                "id": "{0a2152ef-da4f-4f26-8a77-078193da536e}",
+                "id": "0a2152ef-da4f-4f26-8a77-078193da536e",
                 "name": "BBC Radio 4",
                 "url": "http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk"
             },

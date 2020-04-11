@@ -18,6 +18,12 @@ components:
   responses:
     Success:
       description: Request processed with success!
+    SuccessCreated:
+      description: Resource created with success!
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResourceUuid'  
     InvalidRequest:
       description: Invalid request parameters!
       content:
@@ -50,7 +56,15 @@ components:
       required:
         - code
         - message
-
+   # UUid of created resource
+    ResourceUuid:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 'Uuid of created resource'
+      required:
+        - id
     # Station definition
     Station:
       required:
@@ -186,7 +200,7 @@ paths:
               $ref: '#/components/schemas/Station'
       responses:
         200:
-          $ref: '#/components/responses/Success'
+          $ref: '#/components/responses/SuccessCreated'
         401:
           $ref: '#/components/responses/Unauthorized'
         403:
@@ -272,7 +286,7 @@ paths:
               $ref: '#/components/schemas/Podcast'
       responses:
         200:
-          $ref: '#/components/responses/Success'
+          $ref: '#/components/responses/SuccessCreated'
         401:
           $ref: '#/components/responses/Unauthorized'
         403:
@@ -352,7 +366,7 @@ paths:
               $ref: '#/components/schemas/Alarm'
       responses:
         200:
-          $ref: '#/components/responses/Success'
+          $ref: '#/components/responses/SuccessCreated'
         401:
           $ref: '#/components/responses/Unauthorized'
         403:

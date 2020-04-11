@@ -74,7 +74,7 @@ namespace REST {
      * @param data some json string
      * @return a QJsonObject
      */
-    QJsonObject qjson_form_std_string(const std::string & data);
+    QJsonObject qjson_form_std_string(const std::string& data);
 
     /**
      * Simple Helper function that creates a HTTP response with a JSON array of
@@ -86,7 +86,6 @@ namespace REST {
      * @param request query with possibly "length" and "offset" parameters
      * @param response output writer
      */
-    /*****************************************************************************/
     template <typename T>
     void respond_json_array(const T& all,
         const Pistache::Rest::Request& request,
@@ -124,6 +123,27 @@ namespace REST {
             return;
         }
     }
+    /*****************************************************************************/
+
+    /**
+     * Helper function to make a correct SuccessCreated JSON response with the
+     * unique id as only content. Used for creation of Alarm, podcastSources and
+     * PlayableItem i.e. RadioStations
+     * @tparam T a (smart) pointer to an object that implemntes QUuid get_id()
+     * @param item created item
+     * @param response
+     */
+    template <typename T>
+    void respond_SuccessCreated(
+        const T& item, Pistache::Http::ResponseWriter& response) {
+        QJsonDocument jd;
+        QJsonObject o;
+        o["id"] = item->get_id().toString(QUuid::WithoutBraces);
+        jd.setObject(o);
+        response.send(Pistache::Http::Code::Ok, jd.toJson().toStdString());
+    }
+
+
 } // namespace REST
 } // namespace DigitalRooster
 #endif /* _REST_COMMON_HPP_ */

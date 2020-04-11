@@ -89,9 +89,9 @@ void AlarmApi::add_alarm(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     try {
-        alarmstore.add_alarm(
-            Alarm::from_json_object(qjson_form_std_string(request.body())));
-        response.send(Http::Code::Ok);
+    	auto alm = Alarm::from_json_object(qjson_form_std_string(request.body()));
+        alarmstore.add_alarm(alm);
+        respond_SuccessCreated(alm,response);
     } catch (std::invalid_argument& ia) {
         response.send(Pistache::Http::Code::Bad_Request, ia.what());
     } catch (std::exception& exc) {

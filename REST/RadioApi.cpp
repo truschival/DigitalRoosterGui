@@ -19,8 +19,8 @@
 #include <pistache/endpoint.h>
 #include <pistache/http.h>
 
-#include "RadioApi.hpp"
 #include "PlayableItem.hpp"
+#include "RadioApi.hpp"
 #include "common.hpp"
 
 using namespace Pistache;
@@ -86,9 +86,10 @@ void RadioApi::add_station(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     try {
-        stationstore.add_radio_station(PlayableItem::from_json_object(
-            qjson_form_std_string(request.body())));
-        response.send(Http::Code::Ok);
+        auto st = PlayableItem::from_json_object(
+            qjson_form_std_string(request.body()));
+        stationstore.add_radio_station(st);
+        respond_SuccessCreated(st, response);
     } catch (std::invalid_argument& ia) {
         response.send(Pistache::Http::Code::Bad_Request, ia.what());
     } catch (std::exception& exc) {
