@@ -25,7 +25,7 @@
 /**
  * Log file path
  */
-const QString DigitalRooster::DEFAULT_LOG_PATH(
+const QString DigitalRooster::DEFAULT_LOG_FILE(
     QDir(DigitalRooster::TEST_FILE_PATH).filePath(STR_VALUE(TEST_LOG_NAME)));
 /**
  * Default configuration file path
@@ -49,7 +49,6 @@ std::shared_ptr<DigitalRooster::TimeProvider> DigitalRooster::wallclock =
 
 /*****************************************************************************/
 void setup_tests() {
-    DigitalRooster::setup_logger_file(DigitalRooster::DEFAULT_LOG_PATH);
     QDir(DigitalRooster::TEST_FILE_PATH).mkdir("testcache");
     QDir(DigitalRooster::TEST_FILE_PATH).mkdir("testconfig");
     QLoggingCategory::setFilterRules("*.debug=true");
