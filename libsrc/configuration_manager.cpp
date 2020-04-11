@@ -27,7 +27,7 @@
 #include "configuration_manager.hpp"
 
 using namespace DigitalRooster;
-static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
+static Q_LOGGING_CATEGORY(CLASS_LC, "ConfigurationManager");
 
 /*****************************************************************************/
 bool DigitalRooster::is_writable_directory(const QString& dirname) {
@@ -292,7 +292,7 @@ void ConfigurationManager::read_weather(const QJsonObject& appconfig) {
     try {
         weather_cfg = WeatherConfig::from_json_object(json_weather);
     } catch (std::invalid_argument& exc) {
-        qCWarning(CLASS_LC) << "cannot parse weather config!";
+        qCWarning(CLASS_LC) << "parsing weather json failed!" << exc.what();
     }
 }
 
