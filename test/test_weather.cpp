@@ -362,8 +362,8 @@ TEST(WeatherStatus, validateBadJsonTempMinMissing) {
 TEST(WeatherCfg, fromJsonGood) {
     auto json_string = QString(R"(
         {
-            "API-Key": "Secret",
-            "locationID": "ABCD",
+            "apiKey": "Secret",
+            "locationId": "ABCD",
             "updateInterval": 123
         }
         )");

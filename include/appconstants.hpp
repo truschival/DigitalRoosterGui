@@ -140,12 +140,12 @@ const QString KEY_WEATHER("Weather");
 /**
  * property keyword Location ID for openweathermaps property
  */
-const QString KEY_WEATHER_LOCATION_ID("locationID");
+const QString KEY_WEATHER_LOCATION_ID("locationId");
 
 /**
  * API key to access openweathermaps
  */
-const QString KEY_WEATHER_API_KEY("API-Key");
+const QString KEY_WEATHER_API_KEY("apiKey");
 
 /**
  * key for any free text description property
