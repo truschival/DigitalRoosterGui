@@ -87,9 +87,10 @@ void PodcastApi::add_podcast(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     try {
-        podcaststore.add_podcast_source(PodcastSource::from_json_object(
-            qjson_form_std_string(request.body())));
-        response.send(Http::Code::Ok);
+        auto ps = PodcastSource::from_json_object(
+            qjson_form_std_string(request.body()));
+        podcaststore.add_podcast_source(ps);
+        respond_SuccessCreated(ps, response);
     } catch (std::invalid_argument& ia) {
         response.send(Pistache::Http::Code::Bad_Request, ia.what());
     } catch (std::exception& exc) {
