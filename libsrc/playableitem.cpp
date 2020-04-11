@@ -87,8 +87,6 @@ void PlayableItem::set_seekable(bool seek) {
     seekable = seek;
 }
 
-
-
 /***********************************************************************/
 std::shared_ptr<PlayableItem> PlayableItem::from_json_object(
     const QJsonObject& json_radio) {
@@ -109,7 +107,7 @@ QJsonObject PlayableItem::to_json_object() const{
     QJsonObject irconfig;
     irconfig[KEY_NAME] = this->get_display_name();
     irconfig[KEY_URI] = this->get_url().toString();
-    irconfig[KEY_ID] = this->get_id().toString();
+    irconfig[KEY_ID] = this->get_id().toString(QUuid::WithoutBraces);
     return irconfig;
 }
 
