@@ -52,6 +52,7 @@ AlarmApi::AlarmApi(IAlarmStore& as, Pistache::Rest::Router& router)
 }
 
 /*****************************************************************************/
+// coverity[PASS_BY_VALUE] - Pistache API does a std::move down the line
 void AlarmApi::read_alarm_list(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
