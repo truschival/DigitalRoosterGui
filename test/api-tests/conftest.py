@@ -28,6 +28,14 @@ def create_config(filename):
                 "time": "07:00",
                 "url": "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3",
                 "volume": 40
+            },
+            {
+                "enabled": true,
+                "id": "e0fcc26f-fc55-4346-ab08-c0673cbf6184",
+                "period": "daily",
+                "time": "14:20",
+                "url": "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3",
+                "volume": 25
             }
         ],
         "InternetRadio": [
@@ -78,9 +86,9 @@ def api_client():
     digitalrooster_json = '/tmp/api-tests.json'
     create_config(digitalrooster_json)
     sample = subprocess.Popen(args=['restserver', '-c' , digitalrooster_json])
-    time.sleep(0.1);
+    time.sleep(0.2);
     with digitalrooster.ApiClient(conf) as client:
         yield  client
         # tear down code
         sample.terminate()
-        time.sleep(0.1)
+        time.sleep(0.2)
