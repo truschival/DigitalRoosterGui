@@ -130,8 +130,8 @@ ConfigurationManager::ConfigurationManager(
 void ConfigurationManager::timerEvent(QTimerEvent* evt) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (evt->timerId() == evt_timer_id && dirty) {
-    	store_current_config();
-    	dirty = !dirty; // toggle
+        store_current_config();
+        dirty = !dirty; // toggle
     } else {
         QObject::timerEvent(evt);
     }
@@ -423,11 +423,14 @@ void ConfigurationManager::write_config_file(const QJsonObject& appconfig) {
 /*****************************************************************************/
 void ConfigurationManager::create_default_configuration() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    /* Alarm */
-    auto alm = std::make_shared<DigitalRooster::Alarm>(
-        QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
-        QTime::fromString("06:30", "hh:mm"), Alarm::Workdays);
-    alarms.push_back(alm);
+    /* 2 Alarms */
+    alarms.push_back(std::make_shared<DigitalRooster::Alarm>(
+        QUrl("https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3"),
+        QTime::fromString("06:30", "hh:mm"), Alarm::Workdays));
+
+    alarms.push_back(std::make_shared<DigitalRooster::Alarm>(
+        QUrl("https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3"),
+        QTime::fromString("09:00", "hh:mm"), Alarm::Weekend, false));
 
     /* Podcasts */
     podcast_sources.push_back(std::make_shared<PodcastSource>(
@@ -439,20 +442,9 @@ void ConfigurationManager::create_default_configuration() {
     podcast_sources.push_back(std::make_shared<PodcastSource>(
         QUrl("https://alternativlos.org/alternativlos.rss")));
 
-    podcast_sources.push_back(std::make_shared<PodcastSource>(
-        QUrl("http://www.podcastone.com/podcast?categoryID2=1225")));
-
     /* Radio Streams */
     stream_sources.push_back(std::make_shared<PlayableItem>("Deutschlandfunk",
         QUrl("https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3")));
-
-    stream_sources.push_back(
-        std::make_shared<PlayableItem>("Deutschlandfunk Nova",
-            QUrl("https://st03.sslstream.dlf.de/dlf/03/128/mp3/stream.mp3")));
-
-    stream_sources.push_back(std::make_shared<PlayableItem>("SWR2",
-        QUrl("http://swr-swr2-live.cast.addradio.de/swr/swr2/live/mp3/256/"
-             "stream.mp3")));
 
     stream_sources.push_back(std::make_shared<PlayableItem>(
         "FM4", QUrl("https://fm4shoutcast.sf.apa.at")));
@@ -460,9 +452,6 @@ void ConfigurationManager::create_default_configuration() {
     stream_sources.push_back(
         std::make_shared<PlayableItem>("BBC World Service News",
             QUrl("http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-einws")));
-
-    stream_sources.push_back(std::make_shared<PlayableItem>("BBC World Service",
-        QUrl("http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk")));
 
     store_current_config();
 }
