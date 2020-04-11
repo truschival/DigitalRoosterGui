@@ -36,7 +36,8 @@ int main(int argc, char** argv) {
     setup_tests();
     qDebug() << argv[0];
 
-    ConfigurationManager cm(CMD_ARG_CONFIG_FILE, CMD_ARG_CACHE_DIR);
+    ConfigurationManager cm(
+        cmdline.value(CMD_ARG_CONFIG_FILE), cmdline.value(CMD_ARG_CACHE_DIR));
     RestApi restserver(cm, cm, cm, cm, cm);
     cm.update_configuration();
 
