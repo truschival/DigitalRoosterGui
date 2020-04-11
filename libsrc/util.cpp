@@ -63,12 +63,6 @@ const QCommandLineParser& get_commandline_options(
     cmdline.setApplicationDescription(desc);
     cmdline.addVersionOption();
     cmdline.process(app);
-
-    qCInfo(CLASS_LC) << "logfile: " << cmdline.value(logfile);
-    qCInfo(CLASS_LC) << "log to stdout: " << cmdline.value(logstdout);
-    qCInfo(CLASS_LC) << "confpath: " << cmdline.value(logfile);
-    qCInfo(CLASS_LC) << "cachedir: " << cmdline.value(cachedir);
-
     return cmdline;
 }
 
@@ -77,7 +71,7 @@ void setup_log_facility(const QCommandLineParser& cmdline) {
     try {
         if (cmdline.isSet(CMD_ARG_LOG_STDOUT)) {
             setup_logger_stdout(); // Write log to stdout
-        } else if (cmdline.isSet(CMD_ARG_LOG_FILE)) {
+        } else {
             // coverity[UNCAUGHT_EXCEPT]
             setup_logger_file(cmdline.value(CMD_ARG_LOG_FILE));
         }
@@ -85,6 +79,10 @@ void setup_log_facility(const QCommandLineParser& cmdline) {
         // fallback behavior
         setup_logger_stdout();
     }
+    qInfo() << "log to stdout: " << cmdline.isSet(CMD_ARG_LOG_STDOUT);
+    qInfo() << "logfile: " << cmdline.value(CMD_ARG_LOG_FILE);
+    qInfo() << "config: " << cmdline.value(CMD_ARG_CONFIG_FILE);
+    qInfo() << "cachedir: " << cmdline.value(CMD_ARG_CACHE_DIR);
 }
 
 /*****************************************************************************/
