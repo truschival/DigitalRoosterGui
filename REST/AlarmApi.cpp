@@ -93,7 +93,7 @@ void AlarmApi::add_alarm(const Pistache::Rest::Request& request,
         alarmstore.add_alarm(alm);
         respond_SuccessCreated(alm, response);
     } catch (std::invalid_argument& ia) {
-    	InternalErrorJson je(ia, 400);
+        InternalErrorJson je(ia, 400);
         response.send(Pistache::Http::Code::Bad_Request, je);
     } catch (std::exception& exc) {
         // some other error occurred -> 500
