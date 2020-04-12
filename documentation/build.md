@@ -52,6 +52,9 @@ in privileged mode using `--privileged`.
 
 ## Build Steps (on Linux)
 
+All steps to build it on your machine in a docker container and run tests are listed
+in the script [buildscripts/build_local.sh](../buildscripts/build_local.sh)
+
 ### Options & Defaults (compilation flags & targets)
 
 -   `-DBUILD_TESTS=On`           build unit tests
@@ -104,10 +107,10 @@ build directory in `/tmp/build/` configure and build DigitalRooster.
 
     ```sh
     cd $BUILD_DIR
-    bin/DigitalRooster_gtest
+    ctest -V
     ```
 
-    or with lcov coverage output as HTML:
+or with lcov coverage output as HTML:
 
     ```
     cmake --build $BUILD_DIR --target DigitalRooster_gtest_coverage

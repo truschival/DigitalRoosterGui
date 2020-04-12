@@ -22,6 +22,12 @@ i.e.:
 -   On Linux :  `~/.config/DigitalRooster/digitalrooster.json`
 -   On Windows:  `%LOCALAPPDATA%/DigitalRooster/digitalrooster.json`
 
+You can update the file with a text editor upon save the configuration will
+be reloaded automatically. There is no need to restart the program.
+
+Using the REST API you can configure alarms, podcasts and radio stations.
+For more details refer to [documentation/rest.md](./documentation/rest.md)
+
 ### Global configuration and common properties of objects
 
 -   `id` of the objects is auto generated if not present.
@@ -52,7 +58,7 @@ i.e.:
 
 -   `enabled` enabled/disables triggering of alarm
 
--   `uri` stream uri to play for this alarm
+-   `url` stream uri to play for this alarm
 
 -   `time` Time of day when to trigger the alarm
 
@@ -66,29 +72,30 @@ errors a fallback sound will be played.
 
 ### Podcast Source objects
 `Podcasts` is an array containing individual RSS sources for podcasts.
-The only mandatory property is `uri` others are optional:
+The only mandatory property is `url` others are optional:
 -   `id` unique identifier - auto generated if not present
--   `name` human readable identifier, updated according to RSS XML
--   `uri` RSS uri
+-   `title` human readable identifier, updated according to RSS XML
+-   `url` RSS url
 
 ### Internet Stream objects
 `InternetRadio` is an array containing individual stream source configurations.
-The only mandatory property is `uri` others are optional:
+The only mandatory property is `url` others are optional:
 -   `id` unique identifier - auto generated if not present
 
 -   `name` human readable identifier, updated according to shoutcast
             information when played (if available)
 
--   `uri` stream uri
+-   `url` stream url
 
 ### Weather
 The `Weather` object configures the displayed weather information
 form [openweathermap.org](https://api.openweathermap.org)
 
--   `LocationID` identifier for the geographic location, see [http://bulk.openweathermap.org/sample/city.list.json.gz](http://bulk.openweathermap.org/sample/city.list.json.gz)
-                   e.g. Esslingen: `"LocationID" = "2928751"` or Porto Alegre: `"LocationID" = "3452925"`
+-   `LocationId` identifier for the geographic location, see [http://bulk.openweathermap.org/sample/city.list.json.gz](http://bulk.openweathermap.org/sample/city.list.json.gz)
+     e.g. Esslingen: `"LocationId" = "2928751"` or Porto Alegre: `"LocationID" = "3452925"`
 
--   `API-Key` access token to the openweather api
+-   `apiKey` access token to the openweather api. You have to get your own key from [https://openweathermap.org](https://openweathermap.org)
+
 
 ### Example configuration file
 ```JSON
@@ -100,7 +107,7 @@ form [openweathermap.org](https://api.openweathermap.org)
             "id": "{43eac57e-2c63-45f6-9748-b18e7d7a8666}",
             "period": "workdays",
             "time": "17:58",
-            "uri": "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3",
+            "url": "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3",
             "volume": 30
         },
         {
@@ -108,7 +115,7 @@ form [openweathermap.org](https://api.openweathermap.org)
             "id": "{455c0cb6-291f-4326-ba97-cd0e0d5adbf6}",
             "period": "weekend",
             "time": "18:04",
-            "uri": "http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk",
+            "url": "http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk",
             "volume": 30
         }
     ],
@@ -116,36 +123,36 @@ form [openweathermap.org](https://api.openweathermap.org)
         {
             "id": "{a258d2f2-f36e-4620-9e1f-9d5f7875a747}",
             "name": "Deutschlandfunk Nova",
-            "uri": "http://st03.dlf.de/dlf/03/104/ogg/stream.ogg"
+            "url": "http://st03.dlf.de/dlf/03/104/ogg/stream.ogg"
         },
         {
             "id": "{de2c79da-c250-4c78-a2db-5db398c0cbd9}",
             "name": "Radio FM4",
-            "uri": "https://fm4shoutcast.sf.apa.at"
+            "url": "https://fm4shoutcast.sf.apa.at"
         },
         {
             "id": "{0bad5cdd-4b4f-411b-929c-be9d634ba76a}",
             "name": "BBC Service",
-            "uri": "http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk"
+            "url": "http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk"
         }
     ],
     "Podcasts": [
         {
             "id": "{b10f3ffc-51cb-4935-ae89-39a8dfb01ddd}",
-            "name": "Alternativlos",
-            "uri": "https://alternativlos.org/alternativlos.rss"
+            "title": "Alternativlos",
+            "url": "https://alternativlos.org/alternativlos.rss"
         },
         {
             "id": "{e153f4b9-13a1-4313-a6f2-ed97cdce88a4}",
-            "name": "Arms Control Wonk",
-            "uri": "http://armscontrolwonk.libsyn.com/rss"
+            "title": "Arms Control Wonk",
+            "url": "http://armscontrolwonk.libsyn.com/rss"
         }
     ],
     "SleepTimeout": 60,
-    "Version": "0.5.2",
+    "Version": "0.9.0",
     "Weather": {
-        "API-Key": "xxx",
-        "LocationID": "2928751"
+        "apiKey": "xxx",
+        "LocationId": "2928751"
     },
     "brightnessActive": 60,
     "brightnessStandby": 15,
