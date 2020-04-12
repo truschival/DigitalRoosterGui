@@ -1,6 +1,6 @@
 /******************************************************************************
  * \filename
- * \brief     API for managing Internet Alarm Stations
+ * \brief     API for managing Alarms
  *
  * \details
  *
@@ -20,7 +20,9 @@
 
 namespace DigitalRooster {
 namespace REST {
-
+	/**
+	 * Managing HTTP requests for Alarms API
+	 */
     class AlarmApi {
     public:
         /**
@@ -63,22 +65,12 @@ namespace REST {
             Pistache::Http::ResponseWriter response);
 
         /**
-         * Update Alarm identified by UUID with new values
-         * @param request with UUID as parameter and Alarm JSON
-         * @param response
-         */
-        void update_alarm(const Pistache::Rest::Request& request,
-            Pistache::Http::ResponseWriter response);
-
-        /**
          * Delete an alarm with UUID from list of Alarms
          * @param request with UUID of Alarm to delete
          * @param response
          */
         void delete_alarm(const Pistache::Rest::Request& request,
             Pistache::Http::ResponseWriter response);
-
-        virtual ~AlarmApi() = default;
 
     private:
         /**

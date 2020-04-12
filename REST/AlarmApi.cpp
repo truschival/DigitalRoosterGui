@@ -45,8 +45,6 @@ AlarmApi::AlarmApi(IAlarmStore& as, Pistache::Rest::Router& router)
     // Manage individual station identified by UUID
     Routes::Get(router, API_URL_BASE + api_ressource + "/:uid",
         Routes::bind(&AlarmApi::get_alarm, this));
-    Routes::Put(router, API_URL_BASE + api_ressource + "/:uid",
-        Routes::bind(&AlarmApi::update_alarm, this));
     Routes::Delete(router, API_URL_BASE + api_ressource + "/:uid",
         Routes::bind(&AlarmApi::delete_alarm, this));
 }
@@ -61,7 +59,7 @@ void AlarmApi::read_alarm_list(const Pistache::Rest::Request& request,
 
 /*****************************************************************************/
 void AlarmApi::get_alarm(const Pistache::Rest::Request& request,
-// coverity[PASS_BY_VALUE]
+    // coverity[PASS_BY_VALUE]
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
@@ -79,36 +77,33 @@ void AlarmApi::get_alarm(const Pistache::Rest::Request& request,
             Pistache::Http::Code::Bad_Request, BAD_REQUEST_NO_ITEM_WITH_UUID);
     } catch (std::exception& exc) {
         // some other error occurred -> 500
-        response.send(Pistache::Http::Code::Internal_Server_Error, exc.what());
+        InternalErrorJson je(exc, 500);
+        response.send(Pistache::Http::Code::Internal_Server_Error, je);
     }
 }
 
 /*****************************************************************************/
 void AlarmApi::add_alarm(const Pistache::Rest::Request& request,
-/* coverity[PASS_BY_VALUE] */
+    /* coverity[PASS_BY_VALUE] */
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     try {
-    	auto alm = Alarm::from_json_object(qjson_form_std_string(request.body()));
+        auto alm =
+            Alarm::from_json_object(qjson_form_std_string(request.body()));
         alarmstore.add_alarm(alm);
-        respond_SuccessCreated(alm,response);
+        respond_SuccessCreated(alm, response);
     } catch (std::invalid_argument& ia) {
-        response.send(Pistache::Http::Code::Bad_Request, ia.what());
+    	InternalErrorJson je(ia, 400);
+        response.send(Pistache::Http::Code::Bad_Request, je);
     } catch (std::exception& exc) {
         // some other error occurred -> 500
-        response.send(Pistache::Http::Code::Internal_Server_Error, exc.what());
+        InternalErrorJson je(exc, 500);
+        response.send(Pistache::Http::Code::Internal_Server_Error, je);
     }
 }
 
 /*****************************************************************************/
 /* coverity[PASS_BY_VALUE] - Pistache API does a std::move down the line */
-void AlarmApi::update_alarm(const Pistache::Rest::Request& request,
-    Pistache::Http::ResponseWriter response) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    response.send(Http::Code::Not_Implemented, "method not implemented!");
-}
-
-/*****************************************************************************/
 void AlarmApi::delete_alarm(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
@@ -124,6 +119,7 @@ void AlarmApi::delete_alarm(const Pistache::Rest::Request& request,
             Pistache::Http::Code::Bad_Request, BAD_REQUEST_NO_ITEM_WITH_UUID);
     } catch (std::exception& exc) {
         // some other error occurred -> 500
-        response.send(Pistache::Http::Code::Internal_Server_Error, exc.what());
+        InternalErrorJson je(exc, 500);
+        response.send(Pistache::Http::Code::Internal_Server_Error, je);
     }
 }
