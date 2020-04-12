@@ -1,13 +1,10 @@
-# pytest fixture for setup and teardown 
+# pytest fixture for setup and teardown
 
 import pytest
 import time
 import os
-import sys
 import subprocess
 import digitalrooster
-from digitalrooster import configuration
-from digitalrooster.rest import ApiException
 
 def create_config(filename):
     with open(filename, 'w') as opened_file:
@@ -86,7 +83,7 @@ def api_client():
     conf.host="http://localhost:6666/api/1.0"
     digitalrooster_json = '/tmp/api-tests.json'
     create_config(digitalrooster_json)
-    os.system("killall -SIGTERM restserver")
+    os.system("/usr/bin/killall -SIGTERM restserver")
     time.sleep(0.1)
     restserver = subprocess.Popen(args=['restserver', '-c' , digitalrooster_json])
     time.sleep(0.2);

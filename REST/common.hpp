@@ -44,7 +44,7 @@ namespace REST {
      * JSON messages
      */
     struct InternalErrorJson {
-        InternalErrorJson(std::exception& exc, int code = 400)
+        explicit InternalErrorJson(std::exception& exc, int code = 400)
             : message(exc.what())
             , error_code(code) {
         }
@@ -140,10 +140,9 @@ namespace REST {
             response.send(
                 Pistache::Http::Code::Ok, jdoc.toJson().toStdString());
         } catch (std::exception& e) {
-        	InternalErrorJson je(e, 500);
+            InternalErrorJson je(e, 500);
             // send a 500 error
-            response.send(
-                Pistache::Http::Code::Internal_Server_Error, je);
+            response.send(Pistache::Http::Code::Internal_Server_Error, je);
             return;
         }
     }
