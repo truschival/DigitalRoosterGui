@@ -20,7 +20,7 @@
 
 using namespace DigitalRooster;
 
-static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.Alarm");
+static Q_LOGGING_CATEGORY(CLASS_LC, "Alarm");
 
 /*****************************************************************************/
 Alarm::Alarm()
@@ -33,17 +33,18 @@ Alarm::Alarm()
 
 /*****************************************************************************/
 // Alarm from time with media etc.
-Alarm::Alarm(const QUrl& media, const QTime& timepoint, Alarm::Period period,
+Alarm::Alarm(const QUrl& url, const QTime& timepoint, Alarm::Period period,
     bool enabled, const QUuid& uid, QObject* parent)
     : QObject(parent)
     , id(uid)
-    , media(std::make_shared<PlayableItem>("Alarm", media))
+    , media(std::make_shared<PlayableItem>("Alarm", url))
     , period(period)
     , alarm_time(timepoint)
     , enabled(enabled)
     , timeout(DEFAULT_ALARM_TIMEOUT) {
 
-    qCDebug(CLASS_LC) << Q_FUNC_INFO << "trigger:" << alarm_time;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << "time:" << alarm_time << "URL:" << url
+                      << "period:" << alarm_period_to_json_string(period);
 }
 
 
@@ -144,30 +145,35 @@ std::shared_ptr<Alarm> Alarm::from_json_object(const QJsonObject& json_alarm) {
     if (json_alarm.isEmpty()) {
         throw std::invalid_argument("Empty Alarm JSON object!");
     }
-
-    QUrl url(json_alarm[KEY_URI].toString());
+    auto urlstr = json_alarm[KEY_URI].toString();
+    auto url = QUrl::fromEncoded(urlstr.toLocal8Bit(), QUrl::StrictMode);
     if (!url.isValid()) {
-        qCWarning(CLASS_LC) << "Invalid URI " << json_alarm[KEY_URI].toString();
-        throw std::invalid_argument("Alarm URL invalid!");
+        qCWarning(CLASS_LC) << "Invalid URL" << json_alarm[KEY_URI].toString();
+        throw std::invalid_argument("Alarm url invalid!");
     }
+
     auto period = json_string_to_alarm_period(
         json_alarm[KEY_ALARM_PERIOD].toString(KEY_ALARM_DAILY));
+
     auto timepoint =
         QTime::fromString(json_alarm[KEY_TIME].toString(), "hh:mm");
     if (!timepoint.isValid()) {
         qCWarning(CLASS_LC)
             << "Invalid Time " << json_alarm[KEY_TIME].toString();
-        throw std::invalid_argument("Alarm Time invalid!");
+        throw std::invalid_argument("Alarm time invalid!");
     }
 
     auto enabled = json_alarm[KEY_ENABLED].toBool(true);
-    auto media = QUrl(json_alarm[KEY_URI].toString());
+
     auto id = QUuid::fromString(
         json_alarm[KEY_ID].toString(QUuid::createUuid().toString()));
+    if (id.isNull()) {
+        throw std::invalid_argument("id cannot be converted into UUID!");
+    }
     /*
      * Create alarm with essential information
      */
-    auto alarm = std::make_shared<Alarm>(media, timepoint, period, enabled, id);
+    auto alarm = std::make_shared<Alarm>(url, timepoint, period, enabled, id);
 
     /* Set volume if configured */
     if (json_alarm.contains(KEY_VOLUME)) {

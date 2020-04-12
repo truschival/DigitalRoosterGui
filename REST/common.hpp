@@ -14,6 +14,7 @@
 #define _REST_COMMON_HPP_
 
 #include <memory>
+#include <sstream>
 #include <string>
 
 #include <QJsonArray>
@@ -37,6 +38,28 @@ namespace REST {
      */
     const std::string BAD_REQUEST_NO_ITEM_WITH_UUID =
         R"({"code":400, "message": "no item for this UUID"})";
+
+    /**
+     * Helper structure to package exceptions and reformat them into
+     * JSON messages
+     */
+    struct InternalErrorJson {
+        InternalErrorJson(std::exception& exc, int code = 400)
+            : message(exc.what())
+            , error_code(code) {
+        }
+        std::string message;
+        int error_code;
+
+        operator std::string() const {
+            std::stringstream ss;
+            ss << "{";
+            ss << R"("code":)" << error_code;
+            ss << R"(,"message":")" << message;
+            ss << R"("})";
+            return ss.str();
+        }
+    };
 
     /**
      * Helper function to read a range with offset and length from T
@@ -117,9 +140,10 @@ namespace REST {
             response.send(
                 Pistache::Http::Code::Ok, jdoc.toJson().toStdString());
         } catch (std::exception& e) {
+        	InternalErrorJson je(e, 500);
             // send a 500 error
             response.send(
-                Pistache::Http::Code::Internal_Server_Error, e.what());
+                Pistache::Http::Code::Internal_Server_Error, je);
             return;
         }
     }
