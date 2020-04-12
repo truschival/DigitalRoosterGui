@@ -72,8 +72,6 @@ namespace REST {
         void default_handler(const Pistache::Rest::Request& request,
             Pistache::Http::ResponseWriter response);
 
-        ~ApiHandler() = default;
-
     private:
         Pistache::Http::Endpoint endpoint;
         Pistache::Rest::Router router;

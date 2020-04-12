@@ -63,22 +63,12 @@ namespace REST {
             Pistache::Http::ResponseWriter response);
 
         /**
-         * Update station identified by UUID with new values
-         * @param request with UUID as parameter and station information body
-         * @param response
-         */
-        void update_station(const Pistache::Rest::Request& request,
-            Pistache::Http::ResponseWriter response);
-
-        /**
          * Delete a station with UUID from list of radio stations
          * @param request with UUID of radio station to delete
          * @param response
          */
         void delete_station(const Pistache::Rest::Request& request,
             Pistache::Http::ResponseWriter response);
-
-        virtual ~RadioApi() = default;
 
     private:
         /**

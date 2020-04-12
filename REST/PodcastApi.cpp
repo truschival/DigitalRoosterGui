@@ -46,8 +46,6 @@ PodcastApi::PodcastApi(IPodcastStore& ps, Pistache::Rest::Router& router)
     // Manage individual podcast identified by UUID
     Routes::Get(router, API_URL_BASE + api_ressource + "/:uid",
         Routes::bind(&PodcastApi::get_podcast, this));
-    Routes::Put(router, API_URL_BASE + api_ressource + "/:uid",
-        Routes::bind(&PodcastApi::update_podcast, this));
     Routes::Delete(router, API_URL_BASE + api_ressource + "/:uid",
         Routes::bind(&PodcastApi::delete_podcast, this));
 }
@@ -97,13 +95,6 @@ void PodcastApi::add_podcast(const Pistache::Rest::Request& request,
         // some other error occurred -> 500
         response.send(Pistache::Http::Code::Internal_Server_Error, exc.what());
     }
-}
-
-/*****************************************************************************/
-void PodcastApi::update_podcast(const Pistache::Rest::Request& request,
-    Pistache::Http::ResponseWriter response) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    response.send(Http::Code::Not_Implemented, "method not implemented!");
 }
 
 /*****************************************************************************/
