@@ -1,7 +1,7 @@
 import pytest
 import digitalrooster
 import json
-from digitalrooster import configuration, api_client
+from digitalrooster import api_client
 from digitalrooster.rest import ApiException
 
 
@@ -115,4 +115,3 @@ def test_delete_invalid_alarm(api_client):
      with pytest.raises(ApiException) as apiexc:
         r= c.alarms_delete("c0ffee00-404c-f776-8619-3c4c2c4da212")
      assert apiexc.value.status == 400
-     print(apiexc.value.body)
