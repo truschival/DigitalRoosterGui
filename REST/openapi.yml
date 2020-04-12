@@ -86,12 +86,12 @@ components:
     # PodcastSource definition
     Podcast:
       required:
-        - name
+        - title
         - url
       properties:
         id:
           type: string
-        name:
+        title:
           type: string
         url:
           type: string
@@ -166,7 +166,7 @@ paths:
 # Internet Radio Streams
   /radios:
     get: # Get All Streams
-      operationId: streams.read_all
+      operationId: iradio.read_all
       tags:
         - Internet Radio
       summary: Read all Internet radio streams
@@ -187,7 +187,7 @@ paths:
           $ref: '#/components/responses/NotFound'        
                 
     post: # Create a stream
-      operationId: streams.create
+      operationId: iradio.create
       tags:
         - Internet Radio
       summary: Create a station info and add it to the list
@@ -212,7 +212,7 @@ paths:
   /radios/{id}:
 
     get: # read single stream by id
-      operationId: streams.read_one
+      operationId: iradio.read_one
       tags:
         - Internet Radio
       summary: Read one Internet radio station
@@ -233,7 +233,7 @@ paths:
           $ref: '#/components/responses/NotFound' 
 
     delete: # delete stream identified by id
-      operationId: streams.delete
+      operationId: iradio.delete
       tags:
         - Internet Radio
       summary: Delete Internet radio station from list

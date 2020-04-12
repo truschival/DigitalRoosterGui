@@ -2,6 +2,7 @@
 
 import pytest
 import time
+import os
 import sys
 import subprocess
 import digitalrooster
@@ -60,7 +61,7 @@ def create_config(filename):
             {
                 "id": "{6d2ebae6-d961-411d-aecc-7820d1be1650}",
                 "title": "Arms Control Wonk",
-                "updateInterval": 3600,
+                "updateInterval": 1200,
                 "url": "http://armscontrolwonk.libsyn.com/rss"
             }
         ],
@@ -85,10 +86,11 @@ def api_client():
     conf.host="http://localhost:6666/api/1.0"
     digitalrooster_json = '/tmp/api-tests.json'
     create_config(digitalrooster_json)
-    sample = subprocess.Popen(args=['restserver', '-c' , digitalrooster_json])
+    os.system("killall -SIGTERM restserver")
+    time.sleep(0.1)
+    restserver = subprocess.Popen(args=['restserver', '-c' , digitalrooster_json])
     time.sleep(0.2);
     with digitalrooster.ApiClient(conf) as client:
         yield  client
         # tear down code
-        sample.terminate()
-        time.sleep(0.2)
+        restserver.terminate()
