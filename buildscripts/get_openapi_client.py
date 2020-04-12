@@ -12,16 +12,16 @@ request_headers['Content-Type']="application/json"
 def get_commit_hash():
     dir_path = os.path.dirname( os.path.dirname(os.path.realpath(__file__))+"/../")
     gitinfo=Repo(dir_path)
-    hash=str(gitinfo.head.commit)
-    return hash
+    commit_hash=str(gitinfo.head.commit)
+    return commit_hash
 
 def build_document_url():
     openapi_yml_url = "https://raw.githubusercontent.com/truschival/DigitalRoosterGui/"
     openapi_yml_url += get_commit_hash()
-    openapi_yml_url += "/REST/openapi.yml" 
+    openapi_yml_url += "/REST/openapi.yml"
     return openapi_yml_url
 
-def request_client_module(document_url):   
+def request_client_module(document_url):
     generator_options={}
     generator_options["generateSourceCodeOnly"]=True
     generator_options["packageName"]="digitalrooster"
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     print("working with commit {0}".format(get_commit_hash()))
     link = request_client_module(build_document_url())
     download_client_module(link, "python-client.zip")
-    with zipfile.ZipFile("python-client.zip","r") as zip:
-        zip.extractall()
+    with zipfile.ZipFile("python-client.zip","r") as zf:
+        zf.extractall()
     print("ok")
-    
+

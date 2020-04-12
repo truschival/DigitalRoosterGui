@@ -1,9 +1,7 @@
 import pytest
 import digitalrooster
 import json
-from digitalrooster import api_client
 from digitalrooster.rest import ApiException
-
 
 def test_read_alarms(api_client):
     c = digitalrooster.AlarmsApi(api_client)
@@ -49,7 +47,7 @@ def test_get_alarm_by_id(api_client):
 def test_get_alarm_by_wrong_id(api_client):
     c = digitalrooster.AlarmsApi(api_client)
     with pytest.raises(ApiException) as apiexc:
-        r= c.alarms_read_one("c0ffee00-404c-f776-8619-3c4c2c4da212")
+        c.alarms_read_one("c0ffee00-404c-f776-8619-3c4c2c4da212")
     assert apiexc.value.status == 400
     msg = json.loads(apiexc.value.body)
     assert msg['code'] == 400
@@ -113,5 +111,5 @@ def test_delete_created_alarm(api_client):
 def test_delete_invalid_alarm(api_client):
      c = digitalrooster.AlarmsApi(api_client)
      with pytest.raises(ApiException) as apiexc:
-        r= c.alarms_delete("c0ffee00-404c-f776-8619-3c4c2c4da212")
+         c.alarms_delete("c0ffee00-404c-f776-8619-3c4c2c4da212")
      assert apiexc.value.status == 400
