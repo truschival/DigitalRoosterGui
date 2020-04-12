@@ -173,36 +173,27 @@ void ConfigurationManager::parse_json(const QByteArray& json) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonDocument doc = QJsonDocument::fromJson(json);
     QJsonObject appconfig = doc.object();
-    /* get application config */
-    auto at = appconfig[DigitalRooster::KEY_ALARM_TIMEOUT];
-    if (!at.isUndefined()) {
-        global_alarm_timeout =
-            std::chrono::minutes(at.toInt(DEFAULT_ALARM_TIMEOUT.count()));
-    } else {
-        global_alarm_timeout =
-            std::chrono::minutes(DEFAULT_ALARM_TIMEOUT.count());
-    }
-    auto bright_act = appconfig[KEY_BRIGHTNESS_ACT];
-    if (!bright_act.isUndefined()) {
-        set_active_brightness(bright_act.toInt(DEFAULT_BRIGHTNESS));
-    }
-    auto bright_sb = appconfig[KEY_BRIGHTNESS_SB];
-    if (!bright_sb.isUndefined()) {
-        set_standby_brightness(bright_sb.toInt(DEFAULT_BRIGHTNESS));
-    }
-    auto vol = appconfig[KEY_VOLUME];
-    if (!vol.isUndefined()) {
-        set_volume(vol.toInt(DEFAULT_VOLUME));
-    }
+    /*
+     * get application config
+     */
+    global_alarm_timeout =
+        std::chrono::minutes(appconfig[DigitalRooster::KEY_ALARM_TIMEOUT].toInt(
+            DEFAULT_ALARM_TIMEOUT.count()));
 
-    auto sleep_to = appconfig[KEY_SLEEP_TIMEOUT];
-    if (!sleep_to.isUndefined()) {
-        set_sleep_timeout(std::chrono::minutes(
-            sleep_to.toInt(DEFAULT_SLEEP_TIMEOUT.count())));
-    }
+    set_active_brightness(
+        appconfig[KEY_BRIGHTNESS_ACT].toInt(DEFAULT_BRIGHTNESS));
 
-    auto wpa_sock = appconfig[KEY_WPA_SOCKET_NAME];
-    wpa_socket_name = wpa_sock.toString(WPA_CONTROL_SOCKET_PATH);
+    set_standby_brightness(
+        appconfig[KEY_BRIGHTNESS_SB].toInt(DEFAULT_BRIGHTNESS));
+
+    set_volume(appconfig[KEY_VOLUME].toInt(DEFAULT_VOLUME));
+
+    set_sleep_timeout(std::chrono::minutes(
+        appconfig[KEY_SLEEP_TIMEOUT].toInt(DEFAULT_SLEEP_TIMEOUT.count())));
+
+    wpa_socket_name =
+        appconfig[KEY_WPA_SOCKET_NAME].toString(WPA_CONTROL_SOCKET_PATH);
+    /* Read subsections */
     read_radio_streams(appconfig);
     read_podcasts(appconfig);
     read_alarms(appconfig);
@@ -240,20 +231,25 @@ void ConfigurationManager::read_podcasts(const QJsonObject& appconfig) {
     QJsonArray podcasts =
         appconfig[DigitalRooster::KEY_GROUP_PODCAST_SOURCES].toArray();
     for (const auto pc : podcasts) {
-        auto ps = PodcastSource::from_json_object(pc.toObject());
-        auto serializer = std::make_unique<PodcastSerializer>(
-            application_cache_dir, ps.get());
-        // populate podcast source from cached info
-        serializer->restore_info();
-        // Move ownership to Podcast Source and setup signal/slot connections
-        ps->set_serializer(std::move(serializer));
+        try {
+            auto ps = PodcastSource::from_json_object(pc.toObject());
+            auto serializer = std::make_unique<PodcastSerializer>(
+                application_cache_dir, ps.get());
+            // populate podcast source from cached info
+            serializer->restore_info();
+            // Move ownership to Podcast Source and setup signal/slot
+            // connections
+            ps->set_serializer(std::move(serializer));
 
-        ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
+            ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
 
-        // Get notifications if name etc. changes
-        connect(ps.get(), &PodcastSource::dataChanged, this,
-            &ConfigurationManager::dataChanged);
-        podcast_sources.push_back(ps);
+            // Get notifications if name etc. changes
+            connect(ps.get(), &PodcastSource::dataChanged, this,
+                &ConfigurationManager::dataChanged);
+            podcast_sources.push_back(ps);
+        } catch (std::invalid_argument& exc) {
+            qCDebug(CLASS_LC) << "invalid argument" << exc.what();
+        }
     }
     std::sort(podcast_sources.begin(), podcast_sources.end(),
         [](const std::shared_ptr<PodcastSource>& lhs,
@@ -284,10 +280,7 @@ void ConfigurationManager::read_alarms(const QJsonObject& appconfig) {
 
 /*****************************************************************************/
 void ConfigurationManager::read_weather(const QJsonObject& appconfig) {
-    if (appconfig[KEY_WEATHER].isNull()) {
-        qCWarning(CLASS_LC) << "no weather configuration found!";
-        return;
-    }
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject json_weather = appconfig[KEY_WEATHER].toObject();
     try {
         weather_cfg = WeatherConfig::from_json_object(json_weather);

@@ -125,11 +125,11 @@ public:
     }
     /**
      * Create PlayableItem/Radio Station from JSON JSonObject
-     * @param json_radio json representation
+     * @param json radio station JSON object
      * @return Station object - default initialized if fields are missing
      */
     static std::shared_ptr<PlayableItem> from_json_object(
-        const QJsonObject& json_radio);
+        const QJsonObject& json);
 
     /**
      * JSon Representation of Internet Radio station

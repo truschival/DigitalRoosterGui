@@ -15,6 +15,10 @@
 #include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QLoggingCategory>
+#include <QUrl>
+#include <QUuid>
+
+#include <QString>
 
 #include "appconstants.hpp"
 #include "logger.hpp"
@@ -86,5 +90,24 @@ void setup_log_facility(const QCommandLineParser& cmdline) {
 }
 
 /*****************************************************************************/
+QUrl valid_url_from_string(const QString& urlstr) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto url = QUrl::fromEncoded(urlstr.toLocal8Bit(), QUrl::StrictMode);
+    if (!url.isValid()) {
+        throw std::invalid_argument("Url invalid!");
+    }
+    return url;
+}
 
+/*****************************************************************************/
+QUuid valid_uuid_from_String(const QString& uuidstr) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto id = QUuid::fromString(uuidstr);
+    if (id.isNull()) {
+        throw std::invalid_argument("id cannot be converted into UUID!");
+    }
+    return id;
+}
+
+/*****************************************************************************/
 } // namespace DigitalRooster
