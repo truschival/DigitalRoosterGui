@@ -375,12 +375,24 @@ TEST(WeatherCfg, fromJsonGood) {
 }
 
 /*****************************************************************************/
+TEST(WeatherCfg, throwEmptyJson) {
+    auto json_string = QString(R"(
+        {}
+        )");
+    auto jdoc = QJsonDocument::fromJson(json_string.toUtf8());
+
+    ASSERT_THROW(
+        WeatherConfig::from_json_object(jdoc.object()), std::invalid_argument);
+}
+
+
+/*****************************************************************************/
 TEST(WeatherCfg, throwEmptyLocation) {
     auto json_string = QString(R"(
         {
-            "API-Key": "Secret",
-	    "locationID": "",
-            "updateInterval": 123
+		"API-Key": "Secret",
+		"locationID": "",
+		"updateInterval": 123
         }
         )");
     auto jdoc = QJsonDocument::fromJson(json_string.toUtf8());
@@ -393,8 +405,8 @@ TEST(WeatherCfg, throwEmptyLocation) {
 TEST(WeatherCfg, throwNoApiToken) {
     auto json_string = QString(R"(
         {
-        "locationID": "ABCD",
-                "updateInterval": 123
+		"locationID": "ABCD",
+		"updateInterval": 123
         }
         )");
     auto jdoc = QJsonDocument::fromJson(json_string.toUtf8());

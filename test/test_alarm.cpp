@@ -12,6 +12,7 @@
 #include <QDateTime>
 #include <QDebug>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QSignalSpy>
 #include <QTime>
 #include <QUrl>
@@ -80,7 +81,7 @@ TEST(Alarm, fullConstructorEnabled) {
 
 /*****************************************************************************/
 TEST(StringToPeriodEnum, mapping_bad) {
-    EXPECT_THROW(json_string_to_alarm_period("Foobar"), std::invalid_argument);
+    EXPECT_THROW(string_to_alarm_period("Foobar"), std::invalid_argument);
 }
 
 /*****************************************************************************/
@@ -154,7 +155,7 @@ TEST(Alarm, from_json_ivalid) {
 }
 
 /*****************************************************************************/
-TEST(Alarm, from_json_ivalid_uuid) {
+TEST(Alarm, from_json_invalid_uuid) {
     QString json_string(R"(
         {
 	        "id": "123-432-ABCD",
@@ -170,7 +171,7 @@ TEST(Alarm, from_json_ivalid_uuid) {
 }
 
 /*****************************************************************************/
-TEST(Alarm, from_json_ivalid_url) {
+TEST(Alarm, from_json_invalid_url) {
     QString json_string(R"(
         {
 	        "id": "247c4f9d-9626-4061-a8cc-1bd2249a0a20",
@@ -184,7 +185,7 @@ TEST(Alarm, from_json_ivalid_url) {
 }
 
 /*****************************************************************************/
-TEST(Alarm, from_json_ivalid_time) {
+TEST(Alarm, from_json_invalid_time) {
     QString json_string(R"(
         {
 	        "id": "247c4f9d-9626-4061-a8cc-1bd2249a0a20",
