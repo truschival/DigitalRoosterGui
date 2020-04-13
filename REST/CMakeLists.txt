@@ -6,8 +6,6 @@ set(LIBRARY_NAME restconfig)
 set(COMPONENT_NAME ${LIBRARY_NAME})
 # Interface/binary version
 SET(COMPONENT_VERSION ${PROJECT_VERSION})
-#includes etc. in folder
-SET(COMPONENT_PATH REST)
 
 # Check if Pistache is installed
 # Pistache does not yet provide a CMake Findpackage
@@ -36,14 +34,14 @@ SET(SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/AlarmApi.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/PodcastApi.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/RadioApi.cpp
-  ) 
+  )
 
 #------------------------------
 # Output a library
-#------------------------------ 
+#------------------------------
 ADD_LIBRARY(${COMPONENT_NAME} SHARED
-    ${SRCS} 
-    )
+  ${SRCS}
+  )
 
 SET_TARGET_PROPERTIES(
   ${COMPONENT_NAME} PROPERTIES
@@ -60,10 +58,10 @@ TARGET_INCLUDE_DIRECTORIES(${COMPONENT_NAME}
   )
 
 TARGET_COMPILE_DEFINITIONS(${COMPONENT_NAME}
-  PUBLIC ${CPP_DEFS} 
+  PUBLIC ${CPP_DEFS}
   )
 
-TARGET_COMPILE_OPTIONS(${COMPONENT_NAME} 
+TARGET_COMPILE_OPTIONS(${COMPONENT_NAME}
   PRIVATE
   $<$<COMPILE_LANGUAGE:CXX>:${CUSTOM_CXX_FLAGS}>
   $<$<COMPILE_LANGUAGE:C>:${CUSTOM_C_FLAGS}>
@@ -78,6 +76,7 @@ TARGET_LINK_LIBRARIES(${COMPONENT_NAME}
   PRIVATE
   ${CMAKE_THREAD_LIBS_INIT}
   )
+
 #-----
 # Install
 #-----
