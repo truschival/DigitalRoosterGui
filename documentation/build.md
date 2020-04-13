@@ -15,7 +15,7 @@ QT5.10 is included in Debian Buster or later. Ubuntu should also work.
 
 1.Setup the basic development environment.
 
-    ```sh
+    ``` sh
     apt-get install -y \
         bc cmake curl git \
         build-essential g++ gcc \
@@ -27,7 +27,7 @@ QT5.10 is included in Debian Buster or later. Ubuntu should also work.
 
 2.Install QT5 development libraries
 
-    ```sh
+    ``` sh
     apt-get install -y \
        qt5-default qtbase5-dev-tools \
        qtdeclarative5-dev qtmultimedia5-dev \
@@ -40,7 +40,7 @@ If you don't want to install packages on your machine the docker image
 `ruschi/devlinuxqtquick2:latest` includes all dependencies to build and run
 DigitalRooster.
 
-    ```sh
+    ``` sh
     docker pull ruschi/devlinuxqtquick2:latest
     docker run -it --privileged --name build_container ruschi/devlinuxqtquick2
     ```
@@ -52,8 +52,8 @@ in privileged mode using `--privileged`.
 
 ## Build Steps (on Linux)
 
-All steps to build it on your machine in a docker container and run tests are listed
-in the script [buildscripts/build_local.sh](../buildscripts/build_local.sh)
+All steps to build and run unit tests on your machine in a docker container are
+listed the script [buildscripts/build_local.sh](../buildscripts/build_local.sh)
 
 ### Options & Defaults (compilation flags & targets)
 
@@ -75,7 +75,7 @@ build directory in `/tmp/build/` configure and build DigitalRooster.
 
 1.Setup directories and checkout
 
-    ```sh
+    ``` sh
     export SRC_DIR=/tmp/checkout
     export BUILD_DIR=/tmp/build
     git clone https://github.com/truschival/DigitalRoosterGui.git $SRC_DIR
@@ -83,7 +83,7 @@ build directory in `/tmp/build/` configure and build DigitalRooster.
 
 2.Configuration
 
-    ```sh
+    ``` sh
     cmake -G "Eclipse CDT4 - Unix Makefiles"  \
     -H$SRC_DIR -B$BUILD_DIR  \
     -DCMAKE_BUILD_TYPE=Debug \
@@ -96,7 +96,7 @@ build directory in `/tmp/build/` configure and build DigitalRooster.
 
 3.Build
 
-    ```sh
+    ``` sh
     cmake --build $BUILD_DIR
     ```
 
@@ -105,26 +105,26 @@ build directory in `/tmp/build/` configure and build DigitalRooster.
 1.Run Tests
     The tests must be executed in the build directory.
 
-    ```sh
+    ``` sh
     cd $BUILD_DIR
     ctest -V
     ```
 
 or with lcov coverage output as HTML:
 
-    ```
+    ``` sh
     cmake --build $BUILD_DIR --target DigitalRooster_gtest_coverage
     ```
 
 2.Create Doxygen documentation (if Doxygen is installed)
 
-   ```sh
+   ``` sh
    cmake --build $BUILD_DIR --target DOC
    ```
 
 3.Packaging (optional)
 
-    ```sh
+    ``` sh
     cd $BUILD_DIR
     cpack
     ```

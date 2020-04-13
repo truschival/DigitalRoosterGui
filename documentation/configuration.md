@@ -4,12 +4,12 @@
 
 DigitalRooster accepts some command line arguments for its runtime behaviour.
 
--   `-s, --stdout`                 log to stdout
--   `-c, --confpath <confpath>`  configuration file path see [Configuration file](#configuration-file)
--   `-l, --logfile <logfile> `   application log <file> see [Log file](#logging-configuration)
--   `-d, --cachedir <cachedir>`  application cache <directory>
--   `-h, --help`                   Displays this help.
--   `-v, --version`                Displays version information.
+-   `-s, --stdout`               log to stdout
+-   `-c, --confpath <confpath>`  path of[configuration file](#configuration-file)
+-   `-l, --logfile <logfile> `   path of application [log file](#logging-configuration)
+-   `-d, --cachedir <cachedir>`  application cache directory
+-   `-h, --help`                 displays this help.
+-   `-v, --version`              displays version information.
 
 ## Configuration file
 
@@ -26,7 +26,7 @@ You can update the file with a text editor upon save the configuration will
 be reloaded automatically. There is no need to restart the program.
 
 Using the REST API you can configure alarms, podcasts and radio stations.
-For more details refer to [documentation/rest.md](./documentation/rest.md)
+For more details refer to [documentation/rest.md](rest.md)
 
 ### Global configuration and common properties of objects
 
@@ -94,10 +94,11 @@ form [openweathermap.org](https://api.openweathermap.org)
 -   `LocationId` identifier for the geographic location, see [http://bulk.openweathermap.org/sample/city.list.json.gz](http://bulk.openweathermap.org/sample/city.list.json.gz)
      e.g. Esslingen: `"LocationId" = "2928751"` or Porto Alegre: `"LocationID" = "3452925"`
 
--   `apiKey` access token to the openweather api. You have to get your own key from [https://openweathermap.org](https://openweathermap.org)
-
+-   `apiKey` access token to the openweather api.  **Get your personal key**
+     by signing up to [https://openweathermap.org](https://home.openweathermap.org/users/sign_up)
 
 ### Example configuration file
+
 ```JSON
 {
     "AlarmTimeout": 15,
@@ -181,6 +182,7 @@ Setting the input event interfaces directly:
 Setting the input device names to look for using ``ioctl(EVIOCGNAME)``:
 -   ``DR_PUSH_EVENT_NAME``  name of gpio-keys in device tree
      e.g. ``'gpio-keys'``
+
 -   ``DR_ROTARY_EVENT_NAME`` name of rotary encoder in device tree
      e.g. ``'rotary_abs'``
 
