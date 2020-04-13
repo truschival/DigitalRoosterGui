@@ -189,32 +189,37 @@ CONFIGURE_FILE(
 # Unit test sources, TestDoubles, Mocks etc.
 #-------------------------------------------------------------------------------
 SET(TEST_HARNESS_SRCS
-  ${CMAKE_CURRENT_SOURCE_DIR}/testcommon.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_settings.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_reader.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_update_task.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcastsource.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_alarm.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_mediaplayerproxy.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_alarmdispatcher.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_alarmmonitor.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_weather.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_brightness.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_playableitem.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_volume_button.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_serializer.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_sleeptimer.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_powercontrol.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/testcommon.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_hardware_config.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_restapihandler.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_mediaplayerproxy.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_playableitem.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_reader.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_serializer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcastsource.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_powercontrol.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_settings.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_sleeptimer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_update_task.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_volume_button.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_weather.cpp
   )
 
+IF(REST_API)
+  LIST(APPEND TEST_HARNESS_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_restapihandler.cpp
+    )
+ENDIF()
+
 IF(HAS_WPA_SUPPLICANT)
-	LIST(APPEND TEST_HARNESS_SRCS
-		${CMAKE_CURRENT_SOURCE_DIR}/test_wpa_ctrl.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/test_wifi_control.cpp
-	)
+  LIST(APPEND TEST_HARNESS_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_wpa_ctrl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_wifi_control.cpp
+    )
 ENDIF()
 
 #------------------------------

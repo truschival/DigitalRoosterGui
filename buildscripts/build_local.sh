@@ -32,10 +32,11 @@ export TEST_ARTIFACT=test-trace.tgz
 mkdir -p $BUILD_DIR_HOST
 chmod o+w $BUILD_DIR_HOST
 
-
 log_step "HOST: Cloning to $GITHUB_WORKSPACE"
 git clone /home/ruschi/Coding/DigitalRooster $GITHUB_WORKSPACE
-cd $GITHUB_WORKSPACE && git checkout feature/RESTcontrol
+
+log_step "HOST: switching branch to develop"
+cd $GITHUB_WORKSPACE && git checkout develop
 
 log_step "Check & pull docker image"
 docker --version
@@ -78,9 +79,12 @@ docker exec -w $BUILD_DIR  $CONTAINER_NAME \
        --output-file $BUILD_DIR/coverage.info \
        "/usr/*" "*/GTestExternal/*" "*/__/*"
 
+
+log_step "HOST: create coverage repor"
+genhtml  $BUILD_DIR/coverage.info --output-directory  $BUILD_DIR/lcov_html
+
 log_step "HOST: Cleanup"
 docker stop $CONTAINER_NAME
 docker rm $CONTAINER_NAME
-# rm -rf $tempdir
 
-# genhtml  $BUILD_DIR/coverage.info --output-directory  $BUILD_DIR/lcov_html
+# rm -rf $tempdir
