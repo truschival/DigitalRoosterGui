@@ -42,8 +42,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 ### Third party work used in DigitalRooster
 
-The icons of DigitalRooster use the font "materialdesignicons-webfont.ttf"
-
+The icons of DigitalRooster use the font "materialdesignicons-webfont.ttf". \
 "Materialdesignicons-webfont" copyright (c) 2014, Austin Andrews
 is licensed under [SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
 
@@ -55,8 +54,7 @@ Parts of QML in DigitalRooster are inspired by [Qmlbridgeformaterialfonts](https
 by Kevin Carlso licenced under the [SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
 
 DigitalRooster uses ``include/wpa_ctrl/wpa_ctrl.h`` and ``wpa_ctrl/wpa_ctrl.c``
-to interface with [wpa_supplicant](https://w1.fi/wpa_supplicant/)
-
+to interface with [wpa_supplicant](https://w1.fi/wpa_supplicant/)\
 Copyright (c) 2002-2018, Jouni Malinen <j@w1.fi> and contributors
 licensed under BSD license.
 
@@ -65,8 +63,7 @@ licensed under BSD license.
 
 The fallback alarm sound "TempleBell" copyright (c) by Mike Koenig downloaded
 from [www.soundbible.com](http://soundbible.com/1531-Temple-Bell.html)
-
-"Temple Bell" is licensed under Creative Commons Attribution
+"Temple Bell" is licensed under Creative Commons Attribution.
 
 All license texts can be found in the directory [licenses](licenses).
 
