@@ -67,7 +67,7 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: $TEST_ARTIFACT
-        path: $TEST_ARTIFACT
+        path: $BUILD_DIR_HOST/$TEST_ARTIFACT
     - name: Collect coverage
       run: >
         docker exec -w $BUILD_DIR $CONTAINER_NAME
