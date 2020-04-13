@@ -54,7 +54,7 @@ required. Please refer the the openapi spec what properties are required for
 the individual resources.
 
 ``` sh
-    curl -X POST localhost:6666/api/1.0/radios/ \
+curl -X POST localhost:6666/api/1.0/radios/ \
     -d "{\"url\":\"http://foo.bar\", \"name\":\"FooRadio\"}"
 ```
 It will return you the Id of the created resource:
@@ -78,7 +78,7 @@ curl -X GET \
 Using the Id of the ressource you can delete it.
 
 ``` sh
-    curl -X DELETE \
+curl -X DELETE \
     http://localhost:6666/api/1.0/radios/ce0087c7-97ff-4794-b54a-31e137abb738
 ```
 
