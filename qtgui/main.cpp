@@ -47,16 +47,19 @@
 #include "powercontrol.hpp"
 #include "sleeptimer.hpp"
 #include "timeprovider.hpp"
+#include "util.hpp"
 #include "volume_button.hpp"
 #include "weather.hpp"
 #include "wifi_control.hpp"
 #include "wifilistmodel.hpp"
 
+// REST interface - optional
+#include "RestApi.hpp"
+
 using namespace DigitalRooster;
 
 Q_DECLARE_LOGGING_CATEGORY(MAIN)
-Q_LOGGING_CATEGORY(MAIN, "DigitalRooster.main")
-
+Q_LOGGING_CATEGORY(MAIN, "qtgui")
 
 /*****************************************************************************
  * Application constants
@@ -64,7 +67,7 @@ Q_LOGGING_CATEGORY(MAIN, "DigitalRooster.main")
 /**
  * Log file path
  */
-const QString DigitalRooster::DEFAULT_LOG_PATH(
+const QString DigitalRooster::DEFAULT_LOG_FILE(
     QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
         .filePath(APPLICATION_NAME + ".log"));
 
@@ -90,7 +93,7 @@ std::shared_ptr<TimeProvider> DigitalRooster::wallclock =
 
 /*****************************************************************************/
 int main(int argc, char* argv[]) {
-    //QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+    // QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     /* Force 96 DPI independent of display DPI by OS */
     // QCoreApplication::setAttribute(Qt::AA_Use96Dpi);
     QCoreApplication::setApplicationName(APPLICATION_NAME);
@@ -100,51 +103,22 @@ int main(int argc, char* argv[]) {
     /*
      * Setup Commandline Parser
      */
-    QCommandLineParser cmdline;
-    QCommandLineOption logstdout({"s", "stdout"}, QString("log to stdout"));
-    QCommandLineOption logfile({"l", "logfile"},
-        QString("application log <file>"), // description
-        QString("logfile")                 // value name
-    );
-    QCommandLineOption confpath({"c", "confpath"},
-        QString("configuration file path (default: ") +
-            DEFAULT_CONFIG_FILE_PATH,
-        QString("confpath"), DEFAULT_CONFIG_FILE_PATH);
-    QCommandLineOption cachedir({"d", "cachedir"},
-        QString("application cache <directory> (default: ") +
-            DEFAULT_CACHE_DIR_PATH,
-        QString("cachedir"), DEFAULT_CACHE_DIR_PATH);
-
-    cmdline.addOption(logstdout);
-    cmdline.addOption(confpath);
-    cmdline.addOption(logfile);
-    cmdline.addOption(cachedir);
-    cmdline.addHelpOption();
-    cmdline.addVersionOption();
-    cmdline.process(app);
+    const auto& cmdline = get_commandline_options(app,
+        "DigitalRooster - Your hackable alarm clock, podcast player and "
+        "Internet radio"
+        "\n\tCopyright (c) 2020 Thomas Ruschival");
     /*
      * Setup Logfacility
      */
-    if (cmdline.isSet(logstdout)) {
-        setup_logger_stdout(); // Write log to stdout
-    } else if (cmdline.isSet(logfile)) {
-        try {
-            setup_logger_file(cmdline.value(logfile));
-        } catch (std::system_error& exc) {
-            setup_logger_stdout(); // Write log to stdout
-        }
-    } else { // Default behavour as before
-        setup_logger_file(DEFAULT_LOG_PATH);
-    }
+    setup_log_facility(cmdline);
 
     double dpi = QGuiApplication::primaryScreen()->logicalDotsPerInch();
-    qCInfo(MAIN) << "DPI (physical):" << QGuiApplication::primaryScreen()->physicalDotsPerInch();
+    qCInfo(MAIN) << "DPI (physical):"
+                 << QGuiApplication::primaryScreen()->physicalDotsPerInch();
     qCInfo(MAIN) << "DPI (logical):" << dpi;
     qCInfo(MAIN) << "Screen Size:" << QGuiApplication::primaryScreen()->size();
-    qCInfo(MAIN) << "DevicePixelRatio:" << QGuiApplication::primaryScreen()->devicePixelRatio();
-
-    qCInfo(MAIN) << "confpath: " << cmdline.value(confpath);
-    qCInfo(MAIN) << "cachedir: " << cmdline.value(cachedir);
+    qCInfo(MAIN) << "DevicePixelRatio:"
+                 << QGuiApplication::primaryScreen()->devicePixelRatio();
     qCInfo(MAIN) << APPLICATION_NAME << " - " << GIT_REVISION;
     qCDebug(MAIN) << "SSL Support: " << QSslSocket::supportsSsl()
                   << QSslSocket::sslLibraryVersionString();
@@ -158,7 +132,8 @@ int main(int argc, char* argv[]) {
     /*
      * Read configuration
      */
-    ConfigurationManager cm(cmdline.value(confpath), cmdline.value(cachedir));
+    ConfigurationManager cm(
+        cmdline.value(CMD_ARG_CONFIG_FILE), cmdline.value(CMD_ARG_CACHE_DIR));
     cm.update_configuration();
 
     // Initialize Player
@@ -239,6 +214,9 @@ int main(int argc, char* argv[]) {
     /* we start in standby */
     power.standby();
 
+#ifdef REST_API
+    RestApi rest(cm, cm, cm, cm, cm);
+#endif
     /*
      * QML Setup dynamically createable types
      * All Elements/Lists are created in C++
@@ -283,8 +261,7 @@ int main(int argc, char* argv[]) {
 
     ctxt->setContextProperty(
         "DEFAULT_ICON_WIDTH", QVariant::fromValue(DEFAULT_ICON_WIDTH));
-    ctxt->setContextProperty(
-            "FONT_SCALING", QVariant::fromValue(dpi));
+    ctxt->setContextProperty("FONT_SCALING", QVariant::fromValue(dpi));
 
     view.load(QUrl("qrc:/main.qml"));
 

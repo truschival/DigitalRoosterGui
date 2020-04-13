@@ -112,8 +112,8 @@
 		}
 	],
 	"Weather": {
-		"API-Key": "a904431b4e0eae431bcc1e075c761abb",
-		"locationID": "2928751",
+		"apiKey": "a904431b4e0eae431bcc1e075c761abb",
+		"locationId": "2928751",
 		"updateInterval": 3600
 	},
 	"alarmTimeout": 30,

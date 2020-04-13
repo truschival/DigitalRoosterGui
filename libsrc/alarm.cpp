@@ -17,10 +17,11 @@
 #include "alarm.hpp"
 #include "appconstants.hpp"
 #include "timeprovider.hpp"
+#include "util.hpp"
 
 using namespace DigitalRooster;
 
-static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.Alarm");
+static Q_LOGGING_CATEGORY(CLASS_LC, "Alarm");
 
 /*****************************************************************************/
 Alarm::Alarm()
@@ -33,17 +34,18 @@ Alarm::Alarm()
 
 /*****************************************************************************/
 // Alarm from time with media etc.
-Alarm::Alarm(const QUrl& media, const QTime& timepoint, Alarm::Period period,
+Alarm::Alarm(const QUrl& url, const QTime& timepoint, Alarm::Period period,
     bool enabled, const QUuid& uid, QObject* parent)
     : QObject(parent)
     , id(uid)
-    , media(std::make_shared<PlayableItem>("Alarm", media))
+    , media(std::make_shared<PlayableItem>("Alarm", url))
     , period(period)
     , alarm_time(timepoint)
     , enabled(enabled)
     , timeout(DEFAULT_ALARM_TIMEOUT) {
 
-    qCDebug(CLASS_LC) << Q_FUNC_INFO << "trigger:" << alarm_time;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << "time:" << alarm_time << "URL:" << url
+                      << "period:" << alarm_period_to_string(period);
 }
 
 
@@ -64,18 +66,7 @@ QUrl Alarm::get_media_url() const {
 /*****************************************************************************/
 QString Alarm::get_period_string() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    switch (get_period()) {
-    case Alarm::Once:
-        return QString(tr("once"));
-    case Alarm::Weekend:
-        return QString(tr("weekend"));
-    case Alarm::Workdays:
-        return QString(tr("workdays"));
-    case Alarm::Daily:
-        return QString(tr("daily"));
-    default:
-        return QString(tr("ERROR"));
-    }
+    return alarm_period_to_string(this->period);
 }
 
 /*****************************************************************************/
@@ -107,8 +98,7 @@ void Alarm::update_media_url(const QUrl& url) {
 }
 
 /*****************************************************************************/
-Alarm::Period DigitalRooster::json_string_to_alarm_period(
-    const QString& literal) {
+Alarm::Period DigitalRooster::string_to_alarm_period(const QString& literal) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto res = std::find_if(period_to_string.begin(), period_to_string.end(),
         [&](const std::pair<Alarm::Period, QString>& item) {
@@ -123,8 +113,7 @@ Alarm::Period DigitalRooster::json_string_to_alarm_period(
 }
 /*****************************************************************************/
 
-QString DigitalRooster::alarm_period_to_json_string(
-    const Alarm::Period period) {
+QString DigitalRooster::alarm_period_to_string(const Alarm::Period period) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto res = std::find_if(period_to_string.begin(), period_to_string.end(),
         [&](const std::pair<Alarm::Period, QString>& item) {
@@ -139,45 +128,41 @@ QString DigitalRooster::alarm_period_to_json_string(
 }
 
 /*****************************************************************************/
-std::shared_ptr<Alarm> Alarm::from_json_object(const QJsonObject& json_alarm) {
+std::shared_ptr<Alarm> Alarm::from_json_object(const QJsonObject& json) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (json_alarm.isEmpty()) {
+    if (json.isEmpty()) {
         throw std::invalid_argument("Empty Alarm JSON object!");
     }
+    auto urlstr = json[KEY_URI].toString();
+    auto url = valid_url_from_string(urlstr);
 
-    QUrl url(json_alarm[KEY_URI].toString());
-    if (!url.isValid()) {
-        qCWarning(CLASS_LC) << "Invalid URI " << json_alarm[KEY_URI].toString();
-        throw std::invalid_argument("Alarm URL invalid!");
-    }
-    auto period = json_string_to_alarm_period(
-        json_alarm[KEY_ALARM_PERIOD].toString(KEY_ALARM_DAILY));
-    auto timepoint =
-        QTime::fromString(json_alarm[KEY_TIME].toString(), "hh:mm");
+    auto period = string_to_alarm_period(
+        json[KEY_ALARM_PERIOD].toString(KEY_ALARM_DAILY));
+
+    auto timepoint = QTime::fromString(json[KEY_TIME].toString(), "hh:mm");
     if (!timepoint.isValid()) {
-        qCWarning(CLASS_LC)
-            << "Invalid Time " << json_alarm[KEY_TIME].toString();
-        throw std::invalid_argument("Alarm Time invalid!");
+        qCWarning(CLASS_LC) << "Invalid Time " << json[KEY_TIME].toString();
+        throw std::invalid_argument("Alarm time invalid!");
     }
 
-    auto enabled = json_alarm[KEY_ENABLED].toBool(true);
-    auto media = QUrl(json_alarm[KEY_URI].toString());
-    auto id = QUuid::fromString(
-        json_alarm[KEY_ID].toString(QUuid::createUuid().toString()));
+    auto enabled = json[KEY_ENABLED].toBool(true);
+    /* if json[KEY_ID] is empty create a new UUID */
+    auto id = valid_uuid_from_String(
+        json[KEY_ID].toString(QUuid::createUuid().toString()));
     /*
      * Create alarm with essential information
      */
-    auto alarm = std::make_shared<Alarm>(media, timepoint, period, enabled, id);
+    auto alarm = std::make_shared<Alarm>(url, timepoint, period, enabled, id);
 
     /* Set volume if configured */
-    if (json_alarm.contains(KEY_VOLUME)) {
-        auto volume = json_alarm[KEY_VOLUME].toInt(DEFAULT_ALARM_VOLUME);
+    if (json.contains(KEY_VOLUME)) {
+        auto volume = json[KEY_VOLUME].toInt(DEFAULT_ALARM_VOLUME);
         alarm->set_volume(volume);
     }
     /* if no specific alarm timeout is given take application default */
-    if (json_alarm.contains(KEY_ALARM_TIMEOUT)) {
+    if (json.contains(KEY_ALARM_TIMEOUT)) {
         auto timeout =
-            json_alarm[KEY_ALARM_TIMEOUT].toInt(DEFAULT_ALARM_TIMEOUT.count());
+            json[KEY_ALARM_TIMEOUT].toInt(DEFAULT_ALARM_TIMEOUT.count());
         alarm->set_timeout(std::chrono::minutes(timeout));
     }
     return alarm;
@@ -187,9 +172,8 @@ std::shared_ptr<Alarm> Alarm::from_json_object(const QJsonObject& json_alarm) {
 QJsonObject Alarm::to_json_object() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject alarmcfg;
-    alarmcfg[KEY_ID] = this->get_id().toString();
-    alarmcfg[KEY_ALARM_PERIOD] =
-        alarm_period_to_json_string(this->get_period());
+    alarmcfg[KEY_ID] = this->get_id().toString(QUuid::WithoutBraces);
+    alarmcfg[KEY_ALARM_PERIOD] = alarm_period_to_string(this->get_period());
     alarmcfg[KEY_TIME] = this->get_time().toString("hh:mm");
     alarmcfg[KEY_VOLUME] = this->get_volume();
     alarmcfg[KEY_URI] = this->get_media_url().toString();

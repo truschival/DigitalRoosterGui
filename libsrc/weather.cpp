@@ -200,6 +200,9 @@ QJsonObject WeatherConfig::to_json_object() const {
 /*****************************************************************************/
 WeatherConfig WeatherConfig::from_json_object(const QJsonObject& json) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    if (json.isEmpty()) {
+        throw std::invalid_argument("Empty Alarm JSON object!");
+    }
     if (json[KEY_WEATHER_LOCATION_ID].toString().isEmpty()) {
         throw std::invalid_argument("Json Weather has no location id");
     }

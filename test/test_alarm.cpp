@@ -11,11 +11,12 @@
  *****************************************************************************/
 #include <QDateTime>
 #include <QDebug>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QSignalSpy>
 #include <QTime>
 #include <QUrl>
 #include <QUuid>
-#include <QJsonDocument>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -80,7 +81,7 @@ TEST(Alarm, fullConstructorEnabled) {
 
 /*****************************************************************************/
 TEST(StringToPeriodEnum, mapping_bad) {
-    EXPECT_THROW(json_string_to_alarm_period("Foobar"), std::invalid_argument);
+    EXPECT_THROW(string_to_alarm_period("Foobar"), std::invalid_argument);
 }
 
 /*****************************************************************************/
@@ -141,4 +142,58 @@ TEST(Alarm, construct_from_json) {
         QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"));
     ASSERT_EQ(alarm->get_timeout(), std::chrono::minutes(45));
     ASSERT_EQ(alarm->get_volume(), 40);
+}
+
+/*****************************************************************************/
+TEST(Alarm, from_json_ivalid) {
+    QString json_string(R"(
+        {
+        }
+	)");
+    auto jdoc = QJsonDocument::fromJson(json_string.toUtf8());
+    ASSERT_THROW(Alarm::from_json_object(jdoc.object()), std::invalid_argument);
+}
+
+/*****************************************************************************/
+TEST(Alarm, from_json_invalid_uuid) {
+    QString json_string(R"(
+        {
+	        "id": "123-432-ABCD",
+            "period": "workdays",
+            "time": "06:30",
+            "url": "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"
+        }
+	)");
+    QJsonParseError perr;
+    auto jdoc = QJsonDocument::fromJson(json_string.toUtf8(), &perr);
+    ASSERT_EQ(perr.error, QJsonParseError::NoError);
+    ASSERT_THROW(Alarm::from_json_object(jdoc.object()), std::invalid_argument);
+}
+
+/*****************************************************************************/
+TEST(Alarm, from_json_invalid_url) {
+    QString json_string(R"(
+        {
+	        "id": "247c4f9d-9626-4061-a8cc-1bd2249a0a20",
+            "period": "once",
+            "time": "06:30",
+            "url": "something definitely not an url"
+        }
+	)");
+    auto jdoc = QJsonDocument::fromJson(json_string.toUtf8());
+    ASSERT_THROW(Alarm::from_json_object(jdoc.object()), std::invalid_argument);
+}
+
+/*****************************************************************************/
+TEST(Alarm, from_json_invalid_time) {
+    QString json_string(R"(
+        {
+	        "id": "247c4f9d-9626-4061-a8cc-1bd2249a0a20",
+            "period": "daily",
+            "time": "25:30",
+            "url": "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"
+        }
+	)");
+    auto jdoc = QJsonDocument::fromJson(json_string.toUtf8());
+    ASSERT_THROW(Alarm::from_json_object(jdoc.object()), std::invalid_argument);
 }

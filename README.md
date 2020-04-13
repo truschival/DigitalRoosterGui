@@ -17,6 +17,7 @@ Microsoft Windows and Desktop GNU/Linux systems are supported for development.
 ![DigitalRooster on hardware](./documentation/figs/Demo_on_hardware.jpg)
 
 ## Some Screenshots
+
 ![Default screen with clock and weather information](./documentation/figs/Main.png)
 ![Podcast source selection](./documentation/figs/Podcasts.png)
 ![Alarms](./documentation/figs/Alarms.png)
@@ -87,3 +88,20 @@ default paths etc. For detailed description see
 [documentation/configuration.md](./documentation/configuration.md)
 
 ---
+
+## User interface
+
+I Hope the user interface is pretty intuitive - but I am no expert on UI/UX.
+I tried to minimize menus and use icons whereever possible. To get an overview
+where you can find interactive widgets have a look [documentation/gui.md](./documentation/gui.md)
+
+---
+
+## REST interface
+
+Apart from the configuration file DigitalRooster implements a REST server to
+conveniently configure alarms, podcasts and Internet radio stations.
+If DigitalRoosterGui was configured with ``-DREST_API=On`` you will find the
+REST endpoint at ``http://<your_ip>:6666/api/1.0/``
+The REST API is described in [REST/openapi.yml](REST/openapi.yml)
+For more details refer to [documentation/rest.md](documentation/rest.md)

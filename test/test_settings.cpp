@@ -76,12 +76,20 @@ protected:
         dradio[KEY_NAME] = "DRadio";
         dradio[KEY_ID] = "a754affb-fd4b-4825-9eba-32b64fd7d50c";
         dradio[KEY_URI] = "http://dradio.de";
+        radiosources.append(dradio);
+
         QJsonObject swr2;
         swr2[KEY_NAME] = "SWR2";
         swr2[KEY_ID] = "c98a9c37-f990-47eb-ab73-21daf48d43c0";
         swr2[KEY_URI] = "http://swr2.de";
-        radiosources.append(dradio);
         radiosources.append(swr2);
+
+        QJsonObject badStation;
+        badStation[KEY_NAME] = "BadStation";
+        badStation[KEY_ID] = "Not An UUID!";
+        badStation[KEY_URI] = "http://swr2.de";
+        radiosources.append(badStation);
+
         root[KEY_GROUP_IRADIO_SOURCES] = radiosources;
     }
 
@@ -91,13 +99,21 @@ protected:
         pc1[KEY_NAME] = "Alternativlos";
         pc1[KEY_ID] = "ab25693c-aae1-40dc-8946-8d2b670d4598";
         pc1[KEY_URI] = "https://alternativlos.org/alternativlos.rss";
+        pcsources.append(pc1);
+
         QJsonObject pc2;
         pc2[KEY_NAME] = "Dradio Essay&Diskurs";
         pc2[KEY_ID] = "a754affb-fd4b-4825-9eba-32b64fd7d50c";
         pc2[KEY_URI] = "http://www.deutschlandfunk.de/"
                        "podcast-essay-und-diskurs.1185.de.podcast.xml";
-        pcsources.append(pc1);
         pcsources.append(pc2);
+
+        QJsonObject pc3;
+        pc3[KEY_NAME] = "Bad Station";
+        pc3[KEY_ID] = "a754affb-fd4b-4825-9eba-32b64fd7d50c";
+        pc3[KEY_URI] = "Not An URL - Throws!";
+        pcsources.append(pc3);
+
         root[KEY_GROUP_PODCAST_SOURCES] = pcsources;
     }
 
@@ -158,6 +174,14 @@ protected:
         al7[KEY_ENABLED] = true;
         al7[KEY_ID] = "694485e9-ac44-46f5-bc45-730a7a0a2387";
         alarms.append(al7);
+
+        QJsonObject al8;
+        al8[KEY_TIME] = "12:34";
+        al8[KEY_URI] = "";
+        al8[KEY_ALARM_PERIOD] = "once";
+        al8[KEY_ENABLED] = true;
+        al8[KEY_ID] = "BadUID-Throws";
+        alarms.append(al8);
 
         root[KEY_GROUP_ALARMS] = alarms;
     }
@@ -360,10 +384,10 @@ TEST_F(SettingsFixture, podcastSource_incomplete) {
 
 /*****************************************************************************/
 TEST(StringToPeriodEnum, mapping_good) {
-    ASSERT_EQ(Alarm::Once, json_string_to_alarm_period(KEY_ALARM_ONCE));
-    ASSERT_EQ(Alarm::Daily, json_string_to_alarm_period(KEY_ALARM_DAILY));
-    ASSERT_EQ(Alarm::Weekend, json_string_to_alarm_period(KEY_ALARM_WEEKEND));
-    ASSERT_EQ(Alarm::Workdays, json_string_to_alarm_period(KEY_ALARM_WORKDAYS));
+    ASSERT_EQ(Alarm::Once, string_to_alarm_period(KEY_ALARM_ONCE));
+    ASSERT_EQ(Alarm::Daily, string_to_alarm_period(KEY_ALARM_DAILY));
+    ASSERT_EQ(Alarm::Weekend, string_to_alarm_period(KEY_ALARM_WEEKEND));
+    ASSERT_EQ(Alarm::Workdays, string_to_alarm_period(KEY_ALARM_WORKDAYS));
 }
 
 /*****************************************************************************/

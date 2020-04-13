@@ -64,6 +64,7 @@ SET(SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/podcast_serializer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/wifi_control.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/sleeptimer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/util.cpp
 	)
 
 #------------------------------

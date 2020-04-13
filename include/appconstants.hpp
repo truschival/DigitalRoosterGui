@@ -140,12 +140,12 @@ const QString KEY_WEATHER("Weather");
 /**
  * property keyword Location ID for openweathermaps property
  */
-const QString KEY_WEATHER_LOCATION_ID("locationID");
+const QString KEY_WEATHER_LOCATION_ID("locationId");
 
 /**
  * API key to access openweathermaps
  */
-const QString KEY_WEATHER_API_KEY("API-Key");
+const QString KEY_WEATHER_API_KEY("apiKey");
 
 /**
  * key for any free text description property
@@ -299,13 +299,45 @@ const QString CONFIG_JSON_FILE_NAME(STR_VALUE(CMAKE_SETTINGS_FILE_NAME));
  */
 const QString WPA_CONTROL_SOCKET_PATH(STR_VALUE(WIFI_INTERFACE_PATH));
 
+/**
+ * Port for REST API
+ */
+const int REST_API_PORT(REST_API_LISTEN_PORT);
+
+/****************************************************************************/
+
+/**
+ * Command line option for logfile
+ * -l  --logfile
+ */
+const QString CMD_ARG_LOG_FILE("logfile");
+
+/**
+ * Command line option logging to stdout (takes precedence over --logfile)
+ * -s --stdout
+ */
+const QString CMD_ARG_LOG_STDOUT("stdout");
+
+/**
+ * Command line option for cache directory of podcasts
+ * -c --cachedir
+ */
+const QString CMD_ARG_CACHE_DIR("cachedir");
+
+/**
+ * Command line option for configuration file digitalrooster.json
+ * -c --config
+ */
+const QString CMD_ARG_CONFIG_FILE("config");
+
+
 /****************************************************************************/
 
 /**
  * Log file path
  * initialized in main.cpp or test.cpp
  */
-extern const QString DEFAULT_LOG_PATH;
+extern const QString DEFAULT_LOG_FILE;
 
 /**
  * Default configuration file path
@@ -319,6 +351,7 @@ extern const QString DEFAULT_CONFIG_FILE_PATH;
  */
 extern const QString DEFAULT_CACHE_DIR_PATH;
 
+/****************************************************************************/
 } // namespace DigitalRooster
 
 #endif /* _APPCONSTANTS_HPP_ */

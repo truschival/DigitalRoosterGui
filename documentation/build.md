@@ -15,24 +15,24 @@ QT5.10 is included in Debian Buster or later. Ubuntu should also work.
 
 1.Setup the basic development environment.
 
-    ```sh
-    apt-get install -y \
+``` sh
+apt-get install -y \
         bc cmake curl git \
         build-essential g++ gcc \
         doxygen lcov gcovr \
         autoconf automake libtool pkg-config \
         flex bison zip unzip \
         libssl-dev uuid-dev
-    ```
+```
 
 2.Install QT5 development libraries
 
-    ```sh
-    apt-get install -y \
+``` sh
+apt-get install -y \
        qt5-default qtbase5-dev-tools \
        qtdeclarative5-dev qtmultimedia5-dev \
        qtquickcontrols2-5-dev qtdeclarative5-dev-tools
-    ```
+```
 
 ## Docker container for build
 
@@ -40,10 +40,10 @@ If you don't want to install packages on your machine the docker image
 `ruschi/devlinuxqtquick2:latest` includes all dependencies to build and run
 DigitalRooster.
 
-    ```sh
-    docker pull ruschi/devlinuxqtquick2:latest
-    docker run -it --privileged --name build_container ruschi/devlinuxqtquick2
-    ```
+``` sh
+docker pull ruschi/devlinuxqtquick2:latest
+docker run -it --privileged --name build_container ruschi/devlinuxqtquick2
+```
 
 Some versions of [docker do not allow the statx system
 call](https://github.com/docker/for-linux/issues/208) which is used by the QT
@@ -51,6 +51,9 @@ buildtools during MOC generation.  A workaround is to start the docker container
 in privileged mode using `--privileged`.
 
 ## Build Steps (on Linux)
+
+All steps to build and run unit tests on your machine in a docker container are
+listed the script [buildscripts/build_local.sh](../buildscripts/build_local.sh)
 
 ### Options & Defaults (compilation flags & targets)
 
@@ -61,6 +64,10 @@ in privileged mode using `--privileged`.
 
 -   `-DTEST_COVERAGE=Off`        code coverage
 
+-   `-DREST_API=On`               provide a REST API for json configuration
+
+-   `-DREST_API_PORT=6666`       Default TCP listen port for REST API
+
 -   `-DPROFILING=On`              profiling build for Visual Studio
 
 The following commands will checkout the sources to `/tmp/checkout/`, create a
@@ -68,16 +75,16 @@ build directory in `/tmp/build/` configure and build DigitalRooster.
 
 1.Setup directories and checkout
 
-    ```sh
-    export SRC_DIR=/tmp/checkout
-    export BUILD_DIR=/tmp/build
-    git clone https://github.com/truschival/DigitalRoosterGui.git $SRC_DIR
-    ```
+``` sh
+export SRC_DIR=/tmp/checkout
+export BUILD_DIR=/tmp/build
+git clone https://github.com/truschival/DigitalRoosterGui.git $SRC_DIR
+```
 
 2.Configuration
 
-    ```sh
-    cmake -G "Eclipse CDT4 - Unix Makefiles"  \
+``` sh
+cmake -G "Eclipse CDT4 - Unix Makefiles"  \
     -H$SRC_DIR -B$BUILD_DIR  \
     -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_ECLIPSE_MAKE_ARGUMENTS=-j4 \
@@ -85,39 +92,39 @@ build directory in `/tmp/build/` configure and build DigitalRooster.
     -DBUILD_TESTS=On \
     -DBUILD_GTEST_FROM_SRC=On \
     -DTEST_COVERAGE=On
-    ```
+```
 
 3.Build
 
-    ```sh
-    cmake --build $BUILD_DIR
-    ```
+``` sh
+cmake --build $BUILD_DIR
+```
 
 ### Optional post build steps
 
 1.Run Tests
     The tests must be executed in the build directory.
 
-    ```sh
-    cd $BUILD_DIR
-    bin/DigitalRooster_gtest
-    ```
+``` sh
+cd $BUILD_DIR
+ctest -V
+```
 
-    or with lcov coverage output as HTML:
+or with lcov coverage output as HTML:
 
-    ```
-    cmake --build $BUILD_DIR --target DigitalRooster_gtest_coverage
-    ```
+``` sh
+cmake --build $BUILD_DIR --target DigitalRooster_gtest_coverage
+```
 
 2.Create Doxygen documentation (if Doxygen is installed)
 
-   ```sh
-   cmake --build $BUILD_DIR --target DOC
-   ```
+``` sh
+make --build $BUILD_DIR --target DOC
+```
 
 3.Packaging (optional)
 
-    ```sh
-    cd $BUILD_DIR
-    cpack
-    ```
+``` sh
+cd $BUILD_DIR
+cpack
+```

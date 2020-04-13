@@ -5,7 +5,6 @@ SET(BINARY_NAME "DigitalRoosterGui")
 set(COMPONENT_NAME ${BINARY_NAME})
 # Interface/binary version
 SET(COMPONENT_VERSION ${PROJECT_VERSION})
-
 # Gui has extra QT dependencies: QML and QTquick
 find_package(Qt5 COMPONENTS Qml Quick REQUIRED)
 #Find includes in corresponding build directories
@@ -14,15 +13,23 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 #-------------------------------------------------------------------------------
 # App Depends on library
 #-------------------------------------------------------------------------------
-
+SET(OTHER_LIBS "")
 SET(PROJECT_CORE_LIB "")
 if(TARGET digitalrooster)
   add_library(${PROJECT_NAME}::digitalrooster ALIAS digitalrooster)
 else()
-    find_package(${PROJECT_NAME} COMPONENTS digitalrooster CONFIG REQUIRED)
+  find_package(${PROJECT_NAME} COMPONENTS digitalrooster CONFIG REQUIRED)
 endif()
 LIST(APPEND PROJECT_CORE_LIB digitalrooster)
 
+if(REST_API)
+  if(TARGET restconfig)
+    add_library(${PROJECT_NAME}::restconfig ALIAS restconfig)
+  else()
+    find_package(${PROJECT_NAME} COMPONENTS restconfig CONFIG REQUIRED)
+  endif()
+  LIST(APPEND REST_LIB restconfig)
+endif(REST_API)
 
 #-------------------------------------------------------------------------------
 # C++ Srcs
@@ -61,6 +68,10 @@ SET(QRC_SRC
 SET(CPP_DEFS "")
 LIST(APPEND CPP_DEFS "" )
 
+if(REST_API)
+	LIST(APPEND CPP_DEFS "REST_API")
+endif(REST_API)
+
 #------------------------------
 # Binary
 #------------------------------
@@ -93,6 +104,7 @@ TARGET_COMPILE_OPTIONS(${COMPONENT_NAME}
 TARGET_LINK_LIBRARIES(${COMPONENT_NAME}
   PRIVATE
   ${PROJECT_CORE_LIB}
+  ${REST_LIB}
   Qt5::Quick
   Qt5::Qml
   ${CUSTOM_LINK_FLAGS}
