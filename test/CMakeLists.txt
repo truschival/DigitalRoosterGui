@@ -22,20 +22,20 @@ find_package(Threads REQUIRED)
 
 SET(DUT_LIBS "")
 IF(TARGET digitalrooster)
-	add_library(${PROJECT_NAME}::digitalrooster ALIAS digitalrooster)
+  add_library(${PROJECT_NAME}::digitalrooster ALIAS digitalrooster)
 ELSE()
-	find_package(${PROJECT_NAME} COMPONENTS digitalrooster CONFIG REQUIRED)
+  find_package(${PROJECT_NAME} COMPONENTS digitalrooster CONFIG REQUIRED)
 ENDIF()
 LIST(APPEND DUT_LIBS digitalrooster)
 
 IF(UNIX)
-	# target wpa_ctrl only exist ifdef UNIX
-	IF(TARGET wpa_ctrl)
-		add_library(${PROJECT_NAME}::wpa_ctrl ALIAS wpa_ctrl)
-	ELSE()
-		find_package(${PROJECT_NAME} COMPONENTS wpa_ctrl CONFIG REQUIRED)
-	ENDIF()
-	LIST(APPEND DUT_LIBS wpa_ctrl)
+  # target wpa_ctrl only exist ifdef UNIX
+  IF(TARGET wpa_ctrl)
+    add_library(${PROJECT_NAME}::wpa_ctrl ALIAS wpa_ctrl)
+  ELSE()
+    find_package(${PROJECT_NAME} COMPONENTS wpa_ctrl CONFIG REQUIRED)
+  ENDIF()
+  LIST(APPEND DUT_LIBS wpa_ctrl)
 ENDIF(UNIX)
 
 if(REST_API)
@@ -77,18 +77,18 @@ ELSE(NOT BUILD_GTEST_FROM_SRC)
 
   message(STATUS "Executing cmake on generated Download CMakeLists.txt")
   execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"  .
-	RESULT_VARIABLE result
-	WORKING_DIRECTORY ${GTEST_PREFIX} )
+    RESULT_VARIABLE result
+    WORKING_DIRECTORY ${GTEST_PREFIX} )
   if(result)
-  	message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
   endif()
 
   message(STATUS "Building google test" )
   execute_process(COMMAND ${CMAKE_COMMAND} --build  ${GTEST_PREFIX}
-	RESULT_VARIABLE result
-	WORKING_DIRECTORY ${GTEST_PREFIX}/googletest-build )
+    RESULT_VARIABLE result
+    WORKING_DIRECTORY ${GTEST_PREFIX}/googletest-build )
   if(result)
-	message(FATAL_ERROR "Build step for googletest failed: ${result}")
+    message(FATAL_ERROR "Build step for googletest failed: ${result}")
   endif()
 
   # Prevent overriding the parent project's compiler/linker
@@ -98,7 +98,7 @@ ELSE(NOT BUILD_GTEST_FROM_SRC)
   # Add googletest directly to our build. This defines
   # the gtest and gtest_main targets.
   add_subdirectory(
-	${GTEST_PREFIX}/googletest-src
+    ${GTEST_PREFIX}/googletest-src
     ${GTEST_PREFIX}/googletest-build
     EXCLUDE_FROM_ALL)
 
@@ -116,31 +116,31 @@ ELSE(NOT BUILD_GTEST_FROM_SRC)
 
   add_library(GTest IMPORTED STATIC GLOBAL)
   set_target_properties(GTest PROPERTIES
-  	IMPORTED_LOCATION "${GTEST_LIBRARY}${LIBSUFFIX}"
-   	IMPORTED_LOCATION_DEBUG  "${GTEST_LIBRARY}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
-  	INTERFACE_INCLUDE_DIRECTORIES     "${GTEST_INCLUDES};${GMOCK_INCLUDES}"
-  	IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}")
+    IMPORTED_LOCATION "${GTEST_LIBRARY}${LIBSUFFIX}"
+    IMPORTED_LOCATION_DEBUG  "${GTEST_LIBRARY}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
+    INTERFACE_INCLUDE_DIRECTORIES     "${GTEST_INCLUDES};${GMOCK_INCLUDES}"
+    IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}")
 
   add_library(GTestMain IMPORTED STATIC GLOBAL)
   set_target_properties(GTestMain PROPERTIES
- 	IMPORTED_LOCATION "${GTEST_MAINLIB}${LIBSUFFIX}"
-   	IMPORTED_LOCATION_DEBUG  "${GTEST_MAINLIB}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
- 	INTERFACE_INCLUDE_DIRECTORIES      "${GTEST_INCLUDES}"
-  	IMPORTED_LINK_INTERFACE_LIBRARIES  GTest)
+    IMPORTED_LOCATION "${GTEST_MAINLIB}${LIBSUFFIX}"
+    IMPORTED_LOCATION_DEBUG  "${GTEST_MAINLIB}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
+    INTERFACE_INCLUDE_DIRECTORIES      "${GTEST_INCLUDES}"
+    IMPORTED_LINK_INTERFACE_LIBRARIES  GTest)
 
   add_library(GMock IMPORTED STATIC GLOBAL)
   set_target_properties(GMock PROPERTIES
-	IMPORTED_LOCATION "${GMOCK_LIBRARY}${LIBSUFFIX}"
-   	IMPORTED_LOCATION_DEBUG  "${GMOCK_LIBRARY}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
-   	INTERFACE_INCLUDE_DIRECTORIES     "${GTEST_INCLUDES};${GMOCK_INCLUDES}"
-   	IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}")
+    IMPORTED_LOCATION "${GMOCK_LIBRARY}${LIBSUFFIX}"
+    IMPORTED_LOCATION_DEBUG  "${GMOCK_LIBRARY}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
+    INTERFACE_INCLUDE_DIRECTORIES     "${GTEST_INCLUDES};${GMOCK_INCLUDES}"
+    IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}")
 
   add_library(GMockMain IMPORTED STATIC GLOBAL)
   set_target_properties(GMockMain PROPERTIES
-	IMPORTED_LOCATION "${GMOCK_MAINLIB}${LIBSUFFIX}"
-   	IMPORTED_LOCATION_DEBUG  "${GMOCK_MAINLIB}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
-   	INTERFACE_INCLUDE_DIRECTORIES      "${GTEST_INCLUDES};${GMOCK_INCLUDES}"
-   	IMPORTED_LINK_INTERFACE_LIBRARIES  GMock )
+    IMPORTED_LOCATION "${GMOCK_MAINLIB}${LIBSUFFIX}"
+    IMPORTED_LOCATION_DEBUG  "${GMOCK_MAINLIB}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
+    INTERFACE_INCLUDE_DIRECTORIES      "${GTEST_INCLUDES};${GMOCK_INCLUDES}"
+    IMPORTED_LINK_INTERFACE_LIBRARIES  GMock )
 
   add_dependencies(GTest gtest_main gtest)
   add_dependencies(GMock gmock_main gmock)
@@ -222,11 +222,10 @@ IF(HAS_WPA_SUPPLICANT)
     )
 ENDIF()
 
-#------------------------------
-# Gtest binary
-#------------------------------
-
-# Standard unit test binary using google test
+#---------------------------------------------
+# DigitalRooster_gtest
+# Unit test binary using google test
+#---------------------------------------------
 add_executable(${GEST_BINARY_NAME}
   ${TEST_HARNESS_SRCS}
   )
@@ -280,15 +279,23 @@ IF(TEST_COVERAGE)
   ENDIF(NOT MSVC)
 ENDIF(TEST_COVERAGE)
 
+# CTest configuration
 ADD_TEST(NAME gtest
   COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${GEST_BINARY_NAME}
   --gtest_output=xml:gtest_results.xml
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
+# Test should be done in max 30s - currently it is about 18s
+SET_PROPERTY(TEST gtest
+  APPEND PROPERTY
+  TIMEOUT 30
+  )
+
 #------------------------------
-# Rest Server binary
+# REST Api Tests
 #------------------------------
 IF(REST_API)
+  # Build a rest server
   add_executable(${RESTSERVER_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}/restserver.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/testcommon.cpp
@@ -302,22 +309,28 @@ IF(REST_API)
     ${CUSTOM_LINK_FLAGS}
     )
 
-  #------------------------------
-  # Python integration tests for API
-  #------------------------------
-  ADD_TEST(NAME restapi
-    COMMAND python3 
+  #----------------------------------------------
+  # Python integration tests for API using pytest
+  #----------------------------------------------
+  ADD_TEST(NAME ApiTest
+    COMMAND python3
     -m pytest -v ${CMAKE_SOURCE_DIR}/test/api-tests
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )
 
+  # Test should be done in max 25s - currently api tests take about 12s
+  SET_PROPERTY(TEST ApiTest
+    APPEND PROPERTY
+    TIMEOUT 25
+    )
+
   # Set python path to generated API
-  SET_PROPERTY(TEST restapi
+  SET_PROPERTY(TEST ApiTest
     APPEND PROPERTY
     ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/python-client
     )
   # make sure python test find the binary to run server
-  SET_PROPERTY(TEST restapi
+  SET_PROPERTY(TEST ApiTest
     APPEND PROPERTY
     ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}:$ENV{PATH}
     )
