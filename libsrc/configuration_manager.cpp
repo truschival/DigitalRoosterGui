@@ -27,7 +27,7 @@
 #include "configuration_manager.hpp"
 
 using namespace DigitalRooster;
-static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
+static Q_LOGGING_CATEGORY(CLASS_LC, "ConfigurationManager");
 
 /*****************************************************************************/
 bool DigitalRooster::is_writable_directory(const QString& dirname) {
@@ -50,19 +50,21 @@ bool DigitalRooster::create_writable_directory(const QString& dirname) {
 
 /*****************************************************************************/
 template <typename T>
-T* find_by_id(const QVector<std::shared_ptr<T>>& container, const QUuid& id) {
+T* find_by_id(
+    const std::vector<std::shared_ptr<T>>& container, const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto item = std::find_if(container.begin(), container.end(),
         [&](const std::shared_ptr<T> item) { return item->get_id() == id; });
     if (item == container.end()) {
-        throw std::out_of_range(Q_FUNC_INFO);
+        qCCritical(CLASS_LC) << "no such item:" << id;
+        throw std::out_of_range(id.toString().toStdString());
     }
     return item->get();
 }
 
 /*****************************************************************************/
 template <typename T>
-void delete_by_id(QVector<std::shared_ptr<T>>& container, const QUuid& id) {
+void delete_by_id(std::vector<std::shared_ptr<T>>& container, const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto old_end = container.end();
     container.erase(std::remove_if(container.begin(), container.end(),
@@ -116,13 +118,24 @@ ConfigurationManager::ConfigurationManager(
     auto path = check_and_create_config();
     filewatcher.addPath(path);
 
-    writeTimer.setInterval(std::chrono::seconds(5));
-    writeTimer.setSingleShot(true);
-    connect(&writeTimer, SIGNAL(timeout()), this, SLOT(store_current_config()));
     // store connection to disconnect during write_config_file
     fwConn = connect(&filewatcher, &QFileSystemWatcher::fileChanged, this,
         &ConfigurationManager::fileChanged);
+
+    // Event loop timer every 5 seconds to update remaining time
+    evt_timer_id = startTimer(std::chrono::seconds(5));
 };
+
+/*****************************************************************************/
+void ConfigurationManager::timerEvent(QTimerEvent* evt) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    if (evt->timerId() == evt_timer_id && dirty) {
+        store_current_config();
+        dirty = !dirty; // toggle
+    } else {
+        QObject::timerEvent(evt);
+    }
+}
 
 /*****************************************************************************/
 void ConfigurationManager::refresh_configuration() {
@@ -160,36 +173,27 @@ void ConfigurationManager::parse_json(const QByteArray& json) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonDocument doc = QJsonDocument::fromJson(json);
     QJsonObject appconfig = doc.object();
-    /* get application config */
-    auto at = appconfig[DigitalRooster::KEY_ALARM_TIMEOUT];
-    if (!at.isUndefined()) {
-        global_alarm_timeout =
-            std::chrono::minutes(at.toInt(DEFAULT_ALARM_TIMEOUT.count()));
-    } else {
-        global_alarm_timeout =
-            std::chrono::minutes(DEFAULT_ALARM_TIMEOUT.count());
-    }
-    auto bright_act = appconfig[KEY_BRIGHTNESS_ACT];
-    if (!bright_act.isUndefined()) {
-        set_active_brightness(bright_act.toInt(DEFAULT_BRIGHTNESS));
-    }
-    auto bright_sb = appconfig[KEY_BRIGHTNESS_SB];
-    if (!bright_sb.isUndefined()) {
-        set_standby_brightness(bright_sb.toInt(DEFAULT_BRIGHTNESS));
-    }
-    auto vol = appconfig[KEY_VOLUME];
-    if (!vol.isUndefined()) {
-        set_volume(vol.toInt(DEFAULT_VOLUME));
-    }
+    /*
+     * get application config
+     */
+    global_alarm_timeout =
+        std::chrono::minutes(appconfig[DigitalRooster::KEY_ALARM_TIMEOUT].toInt(
+            DEFAULT_ALARM_TIMEOUT.count()));
 
-    auto sleep_to = appconfig[KEY_SLEEP_TIMEOUT];
-    if (!sleep_to.isUndefined()) {
-        set_sleep_timeout(std::chrono::minutes(
-            sleep_to.toInt(DEFAULT_SLEEP_TIMEOUT.count())));
-    }
+    set_active_brightness(
+        appconfig[KEY_BRIGHTNESS_ACT].toInt(DEFAULT_BRIGHTNESS));
 
-    auto wpa_sock = appconfig[KEY_WPA_SOCKET_NAME];
-    wpa_socket_name = wpa_sock.toString(WPA_CONTROL_SOCKET_PATH);
+    set_standby_brightness(
+        appconfig[KEY_BRIGHTNESS_SB].toInt(DEFAULT_BRIGHTNESS));
+
+    set_volume(appconfig[KEY_VOLUME].toInt(DEFAULT_VOLUME));
+
+    set_sleep_timeout(std::chrono::minutes(
+        appconfig[KEY_SLEEP_TIMEOUT].toInt(DEFAULT_SLEEP_TIMEOUT.count())));
+
+    wpa_socket_name =
+        appconfig[KEY_WPA_SOCKET_NAME].toString(WPA_CONTROL_SOCKET_PATH);
+    /* Read subsections */
     read_radio_streams(appconfig);
     read_podcasts(appconfig);
     read_alarms(appconfig);
@@ -227,20 +231,25 @@ void ConfigurationManager::read_podcasts(const QJsonObject& appconfig) {
     QJsonArray podcasts =
         appconfig[DigitalRooster::KEY_GROUP_PODCAST_SOURCES].toArray();
     for (const auto pc : podcasts) {
-        auto ps = PodcastSource::from_json_object(pc.toObject());
-        auto serializer = std::make_unique<PodcastSerializer>(
-            application_cache_dir, ps.get());
-        // populate podcast source from cached info
-        serializer->restore_info();
-        // Move ownership to Podcast Source and setup signal/slot connections
-        ps->set_serializer(std::move(serializer));
+        try {
+            auto ps = PodcastSource::from_json_object(pc.toObject());
+            auto serializer = std::make_unique<PodcastSerializer>(
+                application_cache_dir, ps.get());
+            // populate podcast source from cached info
+            serializer->restore_info();
+            // Move ownership to Podcast Source and setup signal/slot
+            // connections
+            ps->set_serializer(std::move(serializer));
 
-        ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
+            ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
 
-        // Get notifications if name etc. changes
-        connect(ps.get(), &PodcastSource::dataChanged, this,
-            &ConfigurationManager::dataChanged);
-        podcast_sources.push_back(ps);
+            // Get notifications if name etc. changes
+            connect(ps.get(), &PodcastSource::dataChanged, this,
+                &ConfigurationManager::dataChanged);
+            podcast_sources.push_back(ps);
+        } catch (std::invalid_argument& exc) {
+            qCDebug(CLASS_LC) << "invalid argument" << exc.what();
+        }
     }
     std::sort(podcast_sources.begin(), podcast_sources.end(),
         [](const std::shared_ptr<PodcastSource>& lhs,
@@ -271,22 +280,19 @@ void ConfigurationManager::read_alarms(const QJsonObject& appconfig) {
 
 /*****************************************************************************/
 void ConfigurationManager::read_weather(const QJsonObject& appconfig) {
-    if (appconfig[KEY_WEATHER].isNull()) {
-        qCWarning(CLASS_LC) << "no weather configuration found!";
-        return;
-    }
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject json_weather = appconfig[KEY_WEATHER].toObject();
     try {
         weather_cfg = WeatherConfig::from_json_object(json_weather);
     } catch (std::invalid_argument& exc) {
-        qCWarning(CLASS_LC) << "cannot parse weather config!";
+        qCWarning(CLASS_LC) << "parsing weather json failed!" << exc.what();
     }
 }
 
 /*****************************************************************************/
 void ConfigurationManager::dataChanged() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    writeTimer.start();
+    dirty = true;
 }
 
 /*****************************************************************************/
@@ -300,7 +306,7 @@ void ConfigurationManager::set_volume(int vol) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << vol;
     if (vol >= 0 && vol <= 100) {
         this->volume = vol;
-        writeTimer.start();
+        dirty = true;
     } else {
         qCWarning(CLASS_LC) << "invalid volume value: " << vol;
     }
@@ -311,7 +317,7 @@ void ConfigurationManager::set_standby_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
     if (brightness >= 0 && brightness <= 100) {
         this->brightness_sb = brightness;
-        writeTimer.start();
+        dirty = true;
     } else {
         qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
     }
@@ -328,7 +334,7 @@ void ConfigurationManager::do_set_brightness_act(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
     if (brightness >= 0 && brightness <= 100) {
         this->brightness_act = brightness;
-        writeTimer.start();
+        dirty = true;
     } else {
         qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
     }
@@ -410,11 +416,14 @@ void ConfigurationManager::write_config_file(const QJsonObject& appconfig) {
 /*****************************************************************************/
 void ConfigurationManager::create_default_configuration() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    /* Alarm */
-    auto alm = std::make_shared<DigitalRooster::Alarm>(
-        QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
-        QTime::fromString("06:30", "hh:mm"), Alarm::Workdays);
-    alarms.push_back(alm);
+    /* 2 Alarms */
+    alarms.push_back(std::make_shared<DigitalRooster::Alarm>(
+        QUrl("https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3"),
+        QTime::fromString("06:30", "hh:mm"), Alarm::Workdays));
+
+    alarms.push_back(std::make_shared<DigitalRooster::Alarm>(
+        QUrl("https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3"),
+        QTime::fromString("09:00", "hh:mm"), Alarm::Weekend, false));
 
     /* Podcasts */
     podcast_sources.push_back(std::make_shared<PodcastSource>(
@@ -426,20 +435,9 @@ void ConfigurationManager::create_default_configuration() {
     podcast_sources.push_back(std::make_shared<PodcastSource>(
         QUrl("https://alternativlos.org/alternativlos.rss")));
 
-    podcast_sources.push_back(std::make_shared<PodcastSource>(
-        QUrl("http://www.podcastone.com/podcast?categoryID2=1225")));
-
     /* Radio Streams */
     stream_sources.push_back(std::make_shared<PlayableItem>("Deutschlandfunk",
-        QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg")));
-
-    stream_sources.push_back(
-        std::make_shared<PlayableItem>("Deutschlandfunk Nova",
-            QUrl("http://st03.dlf.de/dlf/03/104/ogg/stream.ogg")));
-
-    stream_sources.push_back(std::make_shared<PlayableItem>("SWR2",
-        QUrl("http://swr-swr2-live.cast.addradio.de/swr/swr2/live/mp3/256/"
-             "stream.mp3")));
+        QUrl("https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3")));
 
     stream_sources.push_back(std::make_shared<PlayableItem>(
         "FM4", QUrl("https://fm4shoutcast.sf.apa.at")));
@@ -447,9 +445,6 @@ void ConfigurationManager::create_default_configuration() {
     stream_sources.push_back(
         std::make_shared<PlayableItem>("BBC World Service News",
             QUrl("http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-einws")));
-
-    stream_sources.push_back(std::make_shared<PlayableItem>("BBC World Service",
-        QUrl("http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk")));
 
     store_current_config();
 }
@@ -514,7 +509,7 @@ const Alarm* ConfigurationManager::get_alarm(const QUuid& id) const {
 }
 
 /*****************************************************************************/
-const QVector<std::shared_ptr<Alarm>>&
+const std::vector<std::shared_ptr<Alarm>>&
 ConfigurationManager::get_alarms() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return alarms;
@@ -549,7 +544,7 @@ const PlayableItem* ConfigurationManager::get_station(const QUuid& id) const {
 }
 
 /*****************************************************************************/
-const QVector<std::shared_ptr<PlayableItem>>&
+const std::vector<std::shared_ptr<PlayableItem>>&
 ConfigurationManager::get_stations() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return stream_sources;
@@ -585,7 +580,7 @@ const PodcastSource* ConfigurationManager::get_podcast_source(
 }
 
 /*****************************************************************************/
-const QVector<std::shared_ptr<PodcastSource>>&
+const std::vector<std::shared_ptr<PodcastSource>>&
 ConfigurationManager::get_podcast_sources() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return podcast_sources;
@@ -601,10 +596,12 @@ PodcastSource* ConfigurationManager::get_podcast_source_by_index(
 /*****************************************************************************/
 void ConfigurationManager::remove_podcast_source_by_index(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    podcast_sources.remove(index);
+    assert((index >= 0) &&
+        (podcast_sources.begin() + index < podcast_sources.end()));
+    podcast_sources.erase(podcast_sources.begin() + index);
     emit podcast_sources_changed();
     emit dataChanged();
-    writeTimer.start(); // start delayed write
+    dirty = true;
 }
 /*****************************************************************************
  * Implementation of IBrightnessStore
@@ -631,7 +628,7 @@ std::chrono::minutes ConfigurationManager::get_sleep_timeout() const {
 void ConfigurationManager::set_sleep_timeout(std::chrono::minutes timeout) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     sleep_timeout = timeout;
-    writeTimer.start();
+    dirty = true;
 }
 
 /*****************************************************************************/

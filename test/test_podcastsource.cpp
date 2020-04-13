@@ -91,8 +91,7 @@ TEST_F(PodcastSourceFixture, add_episodeEmitsCountChanged) {
     ASSERT_EQ(spy.count(), 1);
     ASSERT_EQ(spy_data.count(), 0); // should not emit dataChanged
     // arguments of first signal, here only 1 int
-    // QSignalSpy inherits from QList<QList<QVariant>>
-    QList<QVariant> arguments = spy.takeFirst();
+    auto arguments = spy.takeFirst();
     ASSERT_EQ(arguments.at(0).toInt(), 1);
 }
 
@@ -232,7 +231,7 @@ TEST_F(PodcastSourceFixture, episode_position_triggers_delayed_write) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, from_json_object_good) {
+TEST(PodcastSource, from_json_ok) {
     QString json_string(R"(
 	{
     "id": "{5c81821d-17fc-44d5-ae45-5ab24ffd1d50}",
@@ -254,7 +253,18 @@ TEST(PodcastSource, from_json_object_good) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, from_json_object_bad_url) {
+TEST(PodcastSource, from_json_bad) {
+    QString json_string(R"(
+	{ 
+	"aKeyWithoutValue"
+	})");
+    auto jdoc = QJsonDocument::fromJson(json_string.toUtf8());
+    EXPECT_THROW(
+        PodcastSource::from_json_object(jdoc.object()), std::invalid_argument);
+}
+
+/******************************************************************************/
+TEST(PodcastSource, from_json_invalid_url) {
     QString json_string(R"(
 	{
     "id": "{5c81821d-17fc-44d5-ae45-5ab24ffd1d50}",

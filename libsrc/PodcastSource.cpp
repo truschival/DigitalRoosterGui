@@ -23,6 +23,7 @@
 #include "appconstants.hpp"
 #include "httpclient.hpp"
 #include "podcast_serializer.hpp"
+#include "util.hpp"
 
 using namespace DigitalRooster;
 
@@ -155,9 +156,9 @@ void PodcastSource::set_serializer(std::unique_ptr<PodcastSerializer>&& pser) {
 }
 
 /*****************************************************************************/
-QVector<QString> PodcastSource::get_episodes_names() {
+std::vector<QString> PodcastSource::get_episodes_names() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto ret = QVector<QString>();
+    auto ret = std::vector<QString>();
     for (const auto& e : episodes) {
         ret.push_back(e->get_display_name());
     }
@@ -198,8 +199,8 @@ void PodcastSource::purge() {
     purge_episodes();
     purge_icon_cache();
     // Remove cache file
-    if(serializer){
-    	serializer->delete_cached_info();
+    if (serializer) {
+        serializer->delete_cached_info();
     }
 }
 
@@ -233,7 +234,7 @@ std::shared_ptr<PodcastEpisode> PodcastSource::get_episode_by_id_impl(
 }
 
 /*****************************************************************************/
-const QVector<std::shared_ptr<PodcastEpisode>>&
+const std::vector<std::shared_ptr<PodcastEpisode>>&
 PodcastSource::get_episodes_impl() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return episodes;
@@ -295,18 +296,21 @@ void PodcastSource::store_image(QByteArray data) {
 std::shared_ptr<PodcastSource> PodcastSource::from_json_object(
     const QJsonObject& json) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-
-    auto uid = QUuid::fromString(
-        json[KEY_ID].toString(QUuid::createUuid().toString()));
-    QUrl url(json[KEY_URI].toString());
-    if (!url.isValid()) {
-        throw std::invalid_argument("invalid URL for podcast");
+    if (json.isEmpty()) {
+        throw std::invalid_argument("Empty PodcastSource JSON object!");
     }
-    auto ps = std::make_shared<PodcastSource>(url, uid);
+
+    auto id = valid_uuid_from_String(
+        json[KEY_ID].toString(QUuid::createUuid().toString()));
+
+    auto url = valid_url_from_string(json[KEY_URI].toString());
+    auto ps = std::make_shared<PodcastSource>(url, id);
+
     auto title = json[KEY_TITLE].toString();
     auto desc = json[KEY_DESCRIPTION].toString();
     auto img_url = json[KEY_ICON_URL].toString();
     auto img_cached = json[KEY_IMAGE_CACHE].toString();
+
     ps->set_title(title);
     ps->set_description(desc);
     ps->set_image_url(img_url);
@@ -321,7 +325,7 @@ std::shared_ptr<PodcastSource> PodcastSource::from_json_object(
 QJsonObject PodcastSource::to_json_object() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject json;
-    json[KEY_ID] = get_id().toString();
+    json[KEY_ID] = get_id().toString(QUuid::WithoutBraces);
     json[KEY_URI] = get_url().toString();
     json[KEY_TITLE] = get_title();
     json[KEY_UPDATE_INTERVAL] =

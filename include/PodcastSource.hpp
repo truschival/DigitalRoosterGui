@@ -20,8 +20,9 @@
 #include <QObject>
 #include <QString>
 #include <QUuid>
-#include <QVector>
 #include <QJsonObject>
+
+#include <vector>
 #include <chrono>
 #include <limits>
 #include <memory>
@@ -216,7 +217,7 @@ public:
     /**
      * Access to \ref episodes (the Playable items)
      */
-    const QVector<std::shared_ptr<PodcastEpisode>>& get_episodes() const {
+    const std::vector<std::shared_ptr<PodcastEpisode>>& get_episodes() const {
         return get_episodes_impl();
     }
 
@@ -229,9 +230,9 @@ public:
     }
 
     /**
-     * Access to episode names  as QList (the titles for display in a list)
+     * Access to episode names (the titles for display in a list)
      */
-    QVector<QString> get_episodes_names();
+    std::vector<QString> get_episodes_names();
 
     /**
      * unique id for this Podcast RSS source (internally assigned)
@@ -337,7 +338,7 @@ private:
     /**
      * Container for Episodes of this podcast
      */
-    QVector<std::shared_ptr<PodcastEpisode>> episodes;
+    std::vector<std::shared_ptr<PodcastEpisode>> episodes;
 
     /**
      * When was this podcast source last updated (by the publisher)
@@ -406,7 +407,7 @@ private:
      * implementation of \ref get_episodes
      * @return \ref episodes
      */
-    virtual const QVector<std::shared_ptr<PodcastEpisode>>&
+    virtual const std::vector<std::shared_ptr<PodcastEpisode>>&
     get_episodes_impl() const;
 
     /**

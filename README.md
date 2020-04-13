@@ -17,6 +17,7 @@ Microsoft Windows and Desktop GNU/Linux systems are supported for development.
 ![DigitalRooster on hardware](./documentation/figs/Demo_on_hardware.jpg)
 
 ## Some Screenshots
+
 ![Default screen with clock and weather information](./documentation/figs/Main.png)
 ![Podcast source selection](./documentation/figs/Podcasts.png)
 ![Alarms](./documentation/figs/Alarms.png)
@@ -41,8 +42,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 
 ### Third party work used in DigitalRooster
 
-The icons of DigitalRooster use the font "materialdesignicons-webfont.ttf"
-
+The icons of DigitalRooster use the font "materialdesignicons-webfont.ttf". \
 "Materialdesignicons-webfont" copyright (c) 2014, Austin Andrews
 is licensed under [SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
 
@@ -54,8 +54,7 @@ Parts of QML in DigitalRooster are inspired by [Qmlbridgeformaterialfonts](https
 by Kevin Carlso licenced under the [SIL Open Font License, Version 1.1.](http://scripts.sil.org/OFL)
 
 DigitalRooster uses ``include/wpa_ctrl/wpa_ctrl.h`` and ``wpa_ctrl/wpa_ctrl.c``
-to interface with [wpa_supplicant](https://w1.fi/wpa_supplicant/)
-
+to interface with [wpa_supplicant](https://w1.fi/wpa_supplicant/)\
 Copyright (c) 2002-2018, Jouni Malinen <j@w1.fi> and contributors
 licensed under BSD license.
 
@@ -64,8 +63,7 @@ licensed under BSD license.
 
 The fallback alarm sound "TempleBell" copyright (c) by Mike Koenig downloaded
 from [www.soundbible.com](http://soundbible.com/1531-Temple-Bell.html)
-
-"Temple Bell" is licensed under Creative Commons Attribution
+"Temple Bell" is licensed under Creative Commons Attribution.
 
 All license texts can be found in the directory [licenses](licenses).
 
@@ -87,3 +85,20 @@ default paths etc. For detailed description see
 [documentation/configuration.md](./documentation/configuration.md)
 
 ---
+
+## User interface
+
+I Hope the user interface is pretty intuitive - but I am no expert on UI/UX.
+I tried to minimize menus and use icons whereever possible. To get an overview
+where you can find interactive widgets have a look [documentation/gui.md](./documentation/gui.md)
+
+---
+
+## REST interface
+
+Apart from the configuration file DigitalRooster implements a REST server to
+conveniently configure alarms, podcasts and Internet radio stations.
+If DigitalRoosterGui was configured with ``-DREST_API=On`` you will find the
+REST endpoint at ``http://<your_ip>:6666/api/1.0/``
+The REST API is described in [REST/openapi.yml](REST/openapi.yml)
+For more details refer to [documentation/rest.md](documentation/rest.md)

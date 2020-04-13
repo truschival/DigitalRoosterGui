@@ -98,7 +98,7 @@ void WifiControl::wps_pbc_auth(const WifiNetwork& network) {
 }
 
 /****************************************************************************/
-const QVector<WifiNetwork>& WifiControl::get_scan_result() {
+const std::vector<WifiNetwork>& WifiControl::get_scan_result() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return scan_results;
 }
@@ -197,7 +197,7 @@ void WifiControl::start_scan() {
 /****************************************************************************/
 WifiNetwork DigitalRooster::line_to_network(const QStringRef& line) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    QVector<QStringRef> list = line.split("\t");
+    auto list = line.split("\t");
 
     if (list.size() > 3) {
         auto name = list.at(4).toString();
@@ -212,11 +212,11 @@ WifiNetwork DigitalRooster::line_to_network(const QStringRef& line) {
 }
 
 /****************************************************************************/
-QVector<WifiNetwork> DigitalRooster::parse_scanresult(
+std::vector<WifiNetwork> DigitalRooster::parse_scanresult(
     const char* buffer, size_t len) {
     QString results(buffer);
     auto lines = results.splitRef("\n");
-    QVector<WifiNetwork> cont;
+    std::vector<WifiNetwork> cont;
     /*
      * skip first line which is header of table and the last
      * line which is a empty newline

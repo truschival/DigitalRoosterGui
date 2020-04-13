@@ -12,13 +12,14 @@
 
 #include <QString>
 #include <QTime>
-#include <memory>
 
-#include "gmock/gmock.h"
-#include "gtest/gtest.h"
+#include <memory>
+#include <vector>
 
 #include "appconstants.hpp"
 #include "configuration_manager.hpp"
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
 
 class CmMock : public DigitalRooster::ConfigurationManager {
 public:
@@ -29,11 +30,9 @@ public:
         : ConfigurationManager(configpath, cachedir) {
         qRegisterMetaType<std::shared_ptr<DigitalRooster::Alarm>>(
             "std::shared_ptr<DigitalRooster::Alarm>");
-
-
     };
     MOCK_CONST_METHOD0(
-        get_alarms, QVector<std::shared_ptr<DigitalRooster::Alarm>>&());
+        get_alarms, std::vector<std::shared_ptr<DigitalRooster::Alarm>>&());
 
     MOCK_CONST_METHOD0(
         get_weather_config, const DigitalRooster::WeatherConfig&());
@@ -47,7 +46,7 @@ public:
     MOCK_CONST_METHOD0(get_sleep_timeout, std::chrono::minutes());
 
 
-    QVector<std::shared_ptr<DigitalRooster::Alarm>> alarms;
+    std::vector<std::shared_ptr<DigitalRooster::Alarm>> alarms;
 
     std::unique_ptr<DigitalRooster::WeatherConfig> weather_cfg;
 };

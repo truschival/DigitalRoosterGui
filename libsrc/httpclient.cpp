@@ -9,11 +9,14 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
+#include <QDebug>
+#include <QLoggingCategory>
+
+#include <vector>
 
 #include "appconstants.hpp"
 #include "httpclient.hpp"
-#include <QDebug>
-#include <QLoggingCategory>
+
 using namespace DigitalRooster;
 
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HttpClient");
@@ -37,7 +40,7 @@ void HttpClient::doDownload(const QUrl& url) {
         SLOT(sslErrors(QList<QSslError>)));
 #endif
 
-    currentDownloads.append(reply);
+    currentDownloads.push_back(reply);
 }
 /*****************************************************************************/
 
@@ -76,6 +79,7 @@ void HttpClient::downloadFinished(QNetworkReply* reply) {
         }
     }
 
-    currentDownloads.removeAll(reply);
+    auto end_it = std::remove(currentDownloads.begin(), currentDownloads.end(), reply);
+    currentDownloads.erase(end_it,currentDownloads.end());
     reply->deleteLater();
 }

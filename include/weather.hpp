@@ -19,12 +19,13 @@
 #include <QTimer>
 #include <QUrl>
 #include <QtNetwork>
-#include <chrono>
-#include <httpclient.hpp>
 
+#include <array>
+#include <chrono>
 #include <mutex>
 
 #include "IWeatherConfigStore.hpp"
+#include "httpclient.hpp"
 
 namespace DigitalRooster {
 
@@ -149,8 +150,7 @@ private:
 class Weather : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString city READ get_city NOTIFY city_updated)
-    Q_PROPERTY(
-        float temp READ get_temperature NOTIFY temperature_changed)
+    Q_PROPERTY(float temp READ get_temperature NOTIFY temperature_changed)
     Q_PROPERTY(QUrl weatherIcon READ get_weather_icon_url NOTIFY icon_changed)
 public:
     /**
@@ -192,13 +192,13 @@ public:
      * copyable) and I would like to avoid raw pointers in the list so I can
      * manage resources.
      * The initial idea was a method like:
-     * Q_INVOKABLE QList<Forecast> get_forecasts() const;
-     * A QList<Forecast*> (raw pointers) would work for this case, however there
-     * is no way to assert that QML does not hold one of these Forecast pointers
-     * while the forecast is updated, the Object may be deleted and we have a
-     * dangling pointer.
+     * Q_INVOKABLE std::vector<Forecast> get_forecasts() const;
+     * A std::vector<Forecast*> (raw pointers) would work for this case, however
+     * there is no way to assert that QML does not hold one of these Forecast
+     * pointers while the forecast is updated, the Object may be deleted and we
+     * have a dangling pointer.
      * TODO: I have not figured out how to return a
-     * QList<std::shared_ptr<Forecast>>
+     * std::vector<std::shared_ptr<Forecast>>
      *
      * Instead I opted for a static array \ref weather where 0 is the current
      * weather

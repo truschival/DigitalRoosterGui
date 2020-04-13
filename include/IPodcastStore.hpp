@@ -14,6 +14,7 @@
 
 #include <QUuid>
 #include <memory>
+#include <vector>
 
 namespace DigitalRooster {
 class PodcastSource;
@@ -47,7 +48,7 @@ public:
     /**
      * get all podcast sources
      */
-    virtual const QVector<std::shared_ptr<PodcastSource>>&
+    virtual const std::vector<std::shared_ptr<PodcastSource>>&
     get_podcast_sources() const = 0;
 
     /**

@@ -57,14 +57,14 @@ public:
 
     /**
      * Construct an alarm for given time
-     * @param media what to play
+     * @param url media URL of stream to play
      * @param timepoint time of day - any time of day
      * @param period periodicity
      * @param enabled activated/deactivated
      * @param uid (optional) unique id
      * @param parent obligatory QObject parent
      */
-    Alarm(const QUrl& media, const QTime& timepoint,
+    Alarm(const QUrl& url, const QTime& timepoint,
         Alarm::Period period = Alarm::Daily, bool enabled = true,
         const QUuid& uid = QUuid::createUuid(), QObject* parent = nullptr);
 
@@ -251,14 +251,14 @@ private:
  * @param literal "daily", "once", "weekend" or "workdays"
  * @return enum value
  */
-Alarm::Period json_string_to_alarm_period(const QString& literal);
+Alarm::Period string_to_alarm_period(const QString& literal);
 
 /**
  * Get String for period
  * @param period Alarm::Once "1".... etc
  * @return QString "Once"
  */
-QString alarm_period_to_json_string(const Alarm::Period period);
+QString alarm_period_to_string(const Alarm::Period period);
 
 };     // namespace DigitalRooster
 #endif // _ALARM_HPP_

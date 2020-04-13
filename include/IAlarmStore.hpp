@@ -14,6 +14,7 @@
 
 #include <QUuid>
 #include <memory>
+#include <vector>
 
 namespace DigitalRooster {
 class Alarm;
@@ -43,7 +44,7 @@ public:
     /**
      * get Alarm List
      */
-    virtual const QVector<std::shared_ptr<Alarm>>& get_alarms() const = 0;
+    virtual const std::vector<std::shared_ptr<Alarm>>& get_alarms() const = 0;
     /**
      * virtual destructor
      */

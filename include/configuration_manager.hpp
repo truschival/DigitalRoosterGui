@@ -15,11 +15,12 @@
 #include <QFileSystemWatcher>
 #include <QObject>
 #include <QString>
-#include <QVector>
 #include <QTimer>
 
 #include <chrono>
+#include <atomic>
 #include <memory>
+#include <vector>
 
 #include "appconstants.hpp"
 /* Implemented Interfaces */
@@ -96,7 +97,7 @@ public:
     void add_alarm(std::shared_ptr<Alarm> alarm) override;
     void delete_alarm(const QUuid& id) override;
     const Alarm* get_alarm(const QUuid& id) const override;
-    const QVector<std::shared_ptr<Alarm>>& get_alarms() const override;
+    const std::vector<std::shared_ptr<Alarm>>& get_alarms() const override;
 
     /*
      * Implementation of IStationStore
@@ -104,7 +105,7 @@ public:
     virtual void add_radio_station(std::shared_ptr<PlayableItem> src) override;
     virtual void delete_radio_station(const QUuid& id) override;
     const PlayableItem* get_station(const QUuid& id) const override;
-    virtual const QVector<std::shared_ptr<PlayableItem>>&
+    virtual const std::vector<std::shared_ptr<PlayableItem>>&
     get_stations() const override;
 
     /*
@@ -115,7 +116,7 @@ public:
     virtual void delete_podcast_source(const QUuid& id) override;
     virtual const PodcastSource* get_podcast_source(
         const QUuid& id) const override;
-    virtual const QVector<std::shared_ptr<PodcastSource>>&
+    virtual const std::vector<std::shared_ptr<PodcastSource>>&
     get_podcast_sources() const override;
     virtual PodcastSource* get_podcast_source_by_index(
         int index) const override;
@@ -224,17 +225,17 @@ private:
     /**
      * Internet radio stream souces are directly read form INI file
      */
-    QVector<std::shared_ptr<PlayableItem>> stream_sources;
+    std::vector<std::shared_ptr<PlayableItem>> stream_sources;
 
     /**
      * Podcast sources (only pretty name and feed-url)
      */
-    QVector<std::shared_ptr<PodcastSource>> podcast_sources;
+    std::vector<std::shared_ptr<PodcastSource>> podcast_sources;
 
     /**
      * All Alarm objects
      */
-    QVector<std::shared_ptr<Alarm>> alarms;
+    std::vector<std::shared_ptr<Alarm>> alarms;
 
     /**
      * Duration for alarm to stop automatically
@@ -285,9 +286,17 @@ private:
     QDir application_cache_dir;
 
     /**
-     * Timer tor write configuration to disk
+     * Timer Id for writing data
+     * assigned by \ref QObject::startTimer()
+     * started in ctor
      */
-    QTimer writeTimer;
+    int evt_timer_id = -1;
+
+    /**
+     * Write operations set this flag. event timer expires
+     * configuration is written to disk
+     */
+    std::atomic<bool> dirty{false};
 
     /**
      * WPA control socket path /var/lib/wpa_supplicant/wlan0
@@ -367,6 +376,13 @@ private:
     virtual int do_get_volume() const {
         return volume;
     };
+
+    /**
+     * React to QObject Timer events
+     * check if config needs to be written to disk
+     * @param evt timer event
+     */
+    virtual void timerEvent(QTimerEvent* evt) override;
 };
 
 /**

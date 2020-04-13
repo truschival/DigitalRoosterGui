@@ -17,7 +17,7 @@
 #include <QSocketNotifier>
 #include <QString>
 #include <QStringRef>
-#include <QVector>
+#include <vector>
 
 #include <memory>
 #include <mutex>
@@ -88,7 +88,7 @@ public:
      * Read the last scan result
      * @return list of networks found
      */
-    const QVector<WifiNetwork>& get_scan_result();
+    const std::vector<WifiNetwork>& get_scan_result();
 
     /**
      * Destructor must close wpa_cli
@@ -115,7 +115,7 @@ signals:
     /**
      * Scan was successful and result is available
      */
-    void networks_found(const QVector<WifiNetwork>& network);
+    void networks_found(const std::vector<WifiNetwork>& network);
 
     /**
      * Status changed
@@ -132,7 +132,7 @@ private:
     /**
      * Holds last scan result
      */
-    QVector<WifiNetwork> scan_results;
+    std::vector<WifiNetwork> scan_results;
     /**
      * Handle for lower layer wpa_ctrl
      */
@@ -202,7 +202,7 @@ WifiNetwork line_to_network(const QStringRef& line);
  * @param buffer result
  * @param len buffer length
  */
-QVector<WifiNetwork> parse_scanresult(const char* buffer, size_t len);
+std::vector<WifiNetwork> parse_scanresult(const char* buffer, size_t len);
 
 
 /**

@@ -13,11 +13,11 @@
 #include <QDebug>
 #include <QSignalSpy>
 #include <QUrl>
-#include <QVector>
 
 #include <chrono>
 #include <memory>
 #include <thread>
+#include <vector>
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>

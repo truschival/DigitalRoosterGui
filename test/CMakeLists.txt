@@ -1,9 +1,13 @@
 MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
 
-SET(BINARY_NAME "${PROJECT_NAME}_gtest")
-set(COMPONENT_NAME ${BINARY_NAME})
+SET(GEST_BINARY_NAME "${PROJECT_NAME}_gtest")
+SET(RESTSERVER_NAME "restserver")
+
+set(COMPONENT_NAME "DigitalRooster-Test")
 # Interface/binary version
 SET(COMPONENT_VERSION ${PROJECT_VERSION})
+# only works with cmake > 3.17
+SET(CMAKE_CTEST_ARGUMENTS -V)
 
 # Extra QT5 components for tests
 find_package(Qt5 COMPONENTS Test REQUIRED)
@@ -11,27 +15,37 @@ find_package(Qt5 COMPONENTS Test REQUIRED)
 # Threading library for gtest
 # Use ${CMAKE_THREAD_LIBS_INIT} for the library
 find_package(Threads REQUIRED)
+
 #-------------------------------------------------------------------------------
 # Add libraries to test here
 #-------------------------------------------------------------------------------
 
 SET(DUT_LIBS "")
 IF(TARGET digitalrooster)
-	add_library(${PROJECT_NAME}::digitalrooster ALIAS digitalrooster)
+  add_library(${PROJECT_NAME}::digitalrooster ALIAS digitalrooster)
 ELSE()
-	find_package(${PROJECT_NAME} COMPONENTS digitalrooster CONFIG REQUIRED)
+  find_package(${PROJECT_NAME} COMPONENTS digitalrooster CONFIG REQUIRED)
 ENDIF()
 LIST(APPEND DUT_LIBS digitalrooster)
 
 IF(UNIX)
-	# target wpa_ctrl only exist ifdef UNIX
-	IF(TARGET wpa_ctrl)
-		add_library(${PROJECT_NAME}::wpa_ctrl ALIAS wpa_ctrl)
-	ELSE()
-		find_package(${PROJECT_NAME} COMPONENTS wpa_ctrl CONFIG REQUIRED)
-	ENDIF()
-	LIST(APPEND DUT_LIBS wpa_ctrl)
+  # target wpa_ctrl only exist ifdef UNIX
+  IF(TARGET wpa_ctrl)
+    add_library(${PROJECT_NAME}::wpa_ctrl ALIAS wpa_ctrl)
+  ELSE()
+    find_package(${PROJECT_NAME} COMPONENTS wpa_ctrl CONFIG REQUIRED)
+  ENDIF()
+  LIST(APPEND DUT_LIBS wpa_ctrl)
 ENDIF(UNIX)
+
+if(REST_API)
+  if(TARGET restconfig)
+    add_library(${PROJECT_NAME}::restconfig ALIAS restconfig)
+  else()
+    find_package(${PROJECT_NAME} COMPONENTS restconfig CONFIG REQUIRED)
+  endif()
+  LIST(APPEND DUT_LIBS restconfig)
+endif(REST_API)
 
 #------------------------------
 # add compile definitions
@@ -63,18 +77,18 @@ ELSE(NOT BUILD_GTEST_FROM_SRC)
 
   message(STATUS "Executing cmake on generated Download CMakeLists.txt")
   execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"  .
-	RESULT_VARIABLE result
-	WORKING_DIRECTORY ${GTEST_PREFIX} )
+    RESULT_VARIABLE result
+    WORKING_DIRECTORY ${GTEST_PREFIX} )
   if(result)
-  	message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
   endif()
 
   message(STATUS "Building google test" )
   execute_process(COMMAND ${CMAKE_COMMAND} --build  ${GTEST_PREFIX}
-	RESULT_VARIABLE result
-	WORKING_DIRECTORY ${GTEST_PREFIX}/googletest-build )
+    RESULT_VARIABLE result
+    WORKING_DIRECTORY ${GTEST_PREFIX}/googletest-build )
   if(result)
-	message(FATAL_ERROR "Build step for googletest failed: ${result}")
+    message(FATAL_ERROR "Build step for googletest failed: ${result}")
   endif()
 
   # Prevent overriding the parent project's compiler/linker
@@ -84,7 +98,7 @@ ELSE(NOT BUILD_GTEST_FROM_SRC)
   # Add googletest directly to our build. This defines
   # the gtest and gtest_main targets.
   add_subdirectory(
-	${GTEST_PREFIX}/googletest-src
+    ${GTEST_PREFIX}/googletest-src
     ${GTEST_PREFIX}/googletest-build
     EXCLUDE_FROM_ALL)
 
@@ -102,31 +116,31 @@ ELSE(NOT BUILD_GTEST_FROM_SRC)
 
   add_library(GTest IMPORTED STATIC GLOBAL)
   set_target_properties(GTest PROPERTIES
-  	IMPORTED_LOCATION "${GTEST_LIBRARY}${LIBSUFFIX}"
-   	IMPORTED_LOCATION_DEBUG  "${GTEST_LIBRARY}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
-  	INTERFACE_INCLUDE_DIRECTORIES     "${GTEST_INCLUDES};${GMOCK_INCLUDES}"
-  	IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}")
+    IMPORTED_LOCATION "${GTEST_LIBRARY}${LIBSUFFIX}"
+    IMPORTED_LOCATION_DEBUG  "${GTEST_LIBRARY}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
+    INTERFACE_INCLUDE_DIRECTORIES     "${GTEST_INCLUDES};${GMOCK_INCLUDES}"
+    IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}")
 
   add_library(GTestMain IMPORTED STATIC GLOBAL)
   set_target_properties(GTestMain PROPERTIES
- 	IMPORTED_LOCATION "${GTEST_MAINLIB}${LIBSUFFIX}"
-   	IMPORTED_LOCATION_DEBUG  "${GTEST_MAINLIB}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
- 	INTERFACE_INCLUDE_DIRECTORIES      "${GTEST_INCLUDES}"
-  	IMPORTED_LINK_INTERFACE_LIBRARIES  GTest)
+    IMPORTED_LOCATION "${GTEST_MAINLIB}${LIBSUFFIX}"
+    IMPORTED_LOCATION_DEBUG  "${GTEST_MAINLIB}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
+    INTERFACE_INCLUDE_DIRECTORIES      "${GTEST_INCLUDES}"
+    IMPORTED_LINK_INTERFACE_LIBRARIES  GTest)
 
   add_library(GMock IMPORTED STATIC GLOBAL)
   set_target_properties(GMock PROPERTIES
-	IMPORTED_LOCATION "${GMOCK_LIBRARY}${LIBSUFFIX}"
-   	IMPORTED_LOCATION_DEBUG  "${GMOCK_LIBRARY}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
-   	INTERFACE_INCLUDE_DIRECTORIES     "${GTEST_INCLUDES};${GMOCK_INCLUDES}"
-   	IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}")
+    IMPORTED_LOCATION "${GMOCK_LIBRARY}${LIBSUFFIX}"
+    IMPORTED_LOCATION_DEBUG  "${GMOCK_LIBRARY}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
+    INTERFACE_INCLUDE_DIRECTORIES     "${GTEST_INCLUDES};${GMOCK_INCLUDES}"
+    IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}")
 
   add_library(GMockMain IMPORTED STATIC GLOBAL)
   set_target_properties(GMockMain PROPERTIES
-	IMPORTED_LOCATION "${GMOCK_MAINLIB}${LIBSUFFIX}"
-   	IMPORTED_LOCATION_DEBUG  "${GMOCK_MAINLIB}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
-   	INTERFACE_INCLUDE_DIRECTORIES      "${GTEST_INCLUDES};${GMOCK_INCLUDES}"
-   	IMPORTED_LINK_INTERFACE_LIBRARIES  GMock )
+    IMPORTED_LOCATION "${GMOCK_MAINLIB}${LIBSUFFIX}"
+    IMPORTED_LOCATION_DEBUG  "${GMOCK_MAINLIB}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
+    INTERFACE_INCLUDE_DIRECTORIES      "${GTEST_INCLUDES};${GMOCK_INCLUDES}"
+    IMPORTED_LINK_INTERFACE_LIBRARIES  GMock )
 
   add_dependencies(GTest gtest_main gtest)
   add_dependencies(GMock gmock_main gmock)
@@ -175,59 +189,66 @@ CONFIGURE_FILE(
 # Unit test sources, TestDoubles, Mocks etc.
 #-------------------------------------------------------------------------------
 SET(TEST_HARNESS_SRCS
-  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_settings.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_reader.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_update_task.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcastsource.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_alarm.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_mediaplayerproxy.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_alarmdispatcher.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_alarmmonitor.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_weather.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_brightness.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_playableitem.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_volume_button.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_serializer.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_sleeptimer.cpp
-  ${CMAKE_CURRENT_SOURCE_DIR}/test_powercontrol.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/testcommon.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_hardware_config.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_mediaplayerproxy.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_playableitem.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_reader.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcast_serializer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_podcastsource.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_powercontrol.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_settings.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_sleeptimer.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_update_task.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_volume_button.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_weather.cpp
   )
 
-IF(HAS_WPA_SUPPLICANT)
-	LIST(APPEND TEST_HARNESS_SRCS
-		${CMAKE_CURRENT_SOURCE_DIR}/test_wpa_ctrl.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/test_wifi_control.cpp
-	)
+IF(REST_API)
+  LIST(APPEND TEST_HARNESS_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_restapihandler.cpp
+    )
 ENDIF()
 
-#------------------------------
-# Binary
-#------------------------------
+IF(HAS_WPA_SUPPLICANT)
+  LIST(APPEND TEST_HARNESS_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_wpa_ctrl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_wifi_control.cpp
+    )
+ENDIF()
 
-# UnitTests Executable (for target)
-add_executable(${COMPONENT_NAME}
+#---------------------------------------------
+# DigitalRooster_gtest
+# Unit test binary using google test
+#---------------------------------------------
+add_executable(${GEST_BINARY_NAME}
   ${TEST_HARNESS_SRCS}
   )
 
-SET_TARGET_PROPERTIES(${COMPONENT_NAME}
+SET_TARGET_PROPERTIES(${GEST_BINARY_NAME}
   PROPERTIES
   VERSION ${PROJECT_VERSION}
   VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
   )
 
-TARGET_COMPILE_DEFINITIONS(${COMPONENT_NAME}
-  PUBLIC ${CPP_DEFS}
-  )
-
-TARGET_COMPILE_OPTIONS(${COMPONENT_NAME}
+TARGET_COMPILE_OPTIONS(${GEST_BINARY_NAME}
   PRIVATE
   $<$<COMPILE_LANGUAGE:CXX>:${CUSTOM_CXX_FLAGS}>
   $<$<COMPILE_LANGUAGE:C>:${CUSTOM_C_FLAGS}>)
 
+# Tests may also access private component headers
+TARGET_INCLUDE_DIRECTORIES(${GEST_BINARY_NAME}
+  PRIVATE ${CMAKE_SOURCE_DIR}/REST
+  )
+
 # Linkage with gtest_main coverage etc.
 TARGET_LINK_LIBRARIES(
-  ${COMPONENT_NAME}
+  ${GEST_BINARY_NAME}
   ${DUT_LIBS}   # Units under test
   GMock # main not required, implemented in test.cpp
   GTest
@@ -239,33 +260,78 @@ TARGET_LINK_LIBRARIES(
 
 IF(TEST_COVERAGE)
   IF(NOT MSVC)
-	#Remove googletest, autogenerated QT code and headers for testcoverage
-	SET(COVERAGE_EXCLUDES
-	   '*GTestExternal/*'
-	   '*PistacheExternal/*'
-	   "*_autogen*"
-	   '/usr/*'
-	   )
-	SETUP_TARGET_FOR_COVERAGE(
-	  NAME ${COMPONENT_NAME}_coverage                # New target name
-	  EXECUTABLE ${COMPONENT_NAME} -j 4 # Executable in PROJECT_BINARY_DIR
-	  DEPENDENCIES ${COMPONENT_NAME}
-	  )
+    #Remove googletest, autogenerated QT code and headers for testcoverage
+    SET(COVERAGE_EXCLUDES
+      '*GTestExternal/*'
+      '*PistacheExternal/*'
+      "*_autogen*"
+      '/usr/*'
+      )
+
+    SETUP_TARGET_FOR_COVERAGE(
+      NAME ${GEST_BINARY_NAME}_coverage  # New target name
+      EXECUTABLE ${GEST_BINARY_NAME}     # Executable in PROJECT_BINARY_DIR
+      DEPENDENCIES ${GEST_BINARY_NAME}
+      )
   ELSE(NOT MSVC)
-	SET_PROPERTY(TARGET  ${COMPONENT_NAME} APPEND PROPERTY LINK_FLAGS
-	  /PROFILE)
+    SET_PROPERTY(TARGET ${GEST_BINARY_NAME}
+      APPEND PROPERTY LINK_FLAGS  /PROFILE)
   ENDIF(NOT MSVC)
 ENDIF(TEST_COVERAGE)
 
-# Call the testBinary with junit-xml output
-ADD_TEST(junitout
-  "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${COMPONENT_NAME}"
-  --gtest_output=xml:gtestresults.xml
-  WORKING_DIRECTORY ${PROJECT_BINARY_DIR} )
+# CTest configuration
+ADD_TEST(NAME gtest
+  COMMAND ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${GEST_BINARY_NAME}
+  --gtest_output=xml:gtest_results.xml
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
-#-----
-# Install (optional)
-#-----
-IF(INSTALL_UNIT_TEST_ON_TARGET)
-  include(IntallLibraryComponents)
-ENDIF(INSTALL_UNIT_TEST_ON_TARGET)
+# Test should be done in max 30s - currently it is about 18s
+SET_PROPERTY(TEST gtest
+  APPEND PROPERTY
+  TIMEOUT 30
+  )
+
+#------------------------------
+# REST Api Tests
+#------------------------------
+IF(REST_API)
+  # Build a rest server
+  add_executable(${RESTSERVER_NAME}
+    ${CMAKE_CURRENT_SOURCE_DIR}/restserver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/testcommon.cpp
+    )
+
+  # Link all libraries
+  TARGET_LINK_LIBRARIES(${RESTSERVER_NAME}
+    ${DUT_LIBS}   # Units under test
+    OpenSSL::Crypto
+    OpenSSL::SSL
+    ${CUSTOM_LINK_FLAGS}
+    )
+
+  #----------------------------------------------
+  # Python integration tests for API using pytest
+  #----------------------------------------------
+  ADD_TEST(NAME ApiTest
+    COMMAND python3
+    -m pytest -v ${CMAKE_SOURCE_DIR}/test/api-tests
+    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+
+  # Test should be done in max 25s - currently api tests take about 12s
+  SET_PROPERTY(TEST ApiTest
+    APPEND PROPERTY
+    TIMEOUT 25
+    )
+
+  # Set python path to generated API
+  SET_PROPERTY(TEST ApiTest
+    APPEND PROPERTY
+    ENVIRONMENT PYTHONPATH=${CMAKE_SOURCE_DIR}/python-client
+    )
+  # make sure python test find the binary to run server
+  SET_PROPERTY(TEST ApiTest
+    APPEND PROPERTY
+    ENVIRONMENT PATH=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}:$ENV{PATH}
+    )
+ENDIF(REST_API)

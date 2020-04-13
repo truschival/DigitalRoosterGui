@@ -14,6 +14,7 @@
 
 #include <QUuid>
 #include <memory>
+#include <vector>
 
 namespace DigitalRooster {
 class PlayableItem;
@@ -35,7 +36,7 @@ public:
     /**
      * get all radio stream sources
      */
-    virtual const QVector<std::shared_ptr<PlayableItem>>&
+    virtual const std::vector<std::shared_ptr<PlayableItem>>&
     get_stations() const = 0;
 
     /**

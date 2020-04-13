@@ -14,7 +14,8 @@
 
 #include <QAbstractListModel>
 #include <QObject>
-#include <QVector>
+
+#include <vector>
 
 #include "wifi_control.hpp"
 
@@ -56,7 +57,7 @@ public slots:
      * Clears current scan_results and replaces the list with
      * @param results
      */
-    void update_scan_results(const QVector<WifiNetwork>& results);
+    void update_scan_results(const std::vector<WifiNetwork>& results);
 
 protected:
     QHash<int, QByteArray> roleNames() const;
@@ -65,7 +66,7 @@ private:
     /**
      * The listmodel holds a copy of last scan results
      */
-    QVector<WifiNetwork> scan_results;
+    std::vector<WifiNetwork> scan_results;
 };
 } // namespace DigitalRooster
 

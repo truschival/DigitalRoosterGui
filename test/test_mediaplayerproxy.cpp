@@ -10,18 +10,18 @@
  *
  *****************************************************************************/
 #include <QDebug>
-#include <QList>
 #include <QMediaPlayer>
 #include <QSignalSpy>
 #include <QUrl>
 #include <QVariant>
+
 #include <memory>
 
 #include <gtest/gtest.h>
-#include <mediaplayerproxy.hpp>
 
 #include "PlayableItem.hpp"
 #include "appconstants.hpp"
+#include "mediaplayerproxy.hpp"
 
 using namespace DigitalRooster;
 

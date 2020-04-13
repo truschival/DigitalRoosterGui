@@ -31,8 +31,8 @@ static void messageHandler(
 
     if (!initialized) {
         out << "\n ======= "
-            << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz ")
-            << " ======= " << endl;
+            << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")
+            << " =======" << endl;
         initialized = true;
     }
     out << QDateTime::currentDateTime().toString("hh:mm:ss.zzz ");

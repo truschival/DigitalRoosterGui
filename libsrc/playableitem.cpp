@@ -17,6 +17,7 @@
 
 #include "PlayableItem.hpp"
 #include "appconstants.hpp"
+#include "util.hpp"
 
 using namespace DigitalRooster;
 
@@ -87,29 +88,29 @@ void PlayableItem::set_seekable(bool seek) {
     seekable = seek;
 }
 
-
-
 /***********************************************************************/
 std::shared_ptr<PlayableItem> PlayableItem::from_json_object(
-    const QJsonObject& json_radio) {
+    const QJsonObject& json) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    QString name(json_radio[KEY_NAME].toString());
-    QUrl url(json_radio[KEY_URI].toString());
-    auto uid = QUuid::fromString(
-        json_radio[KEY_ID].toString(QUuid::createUuid().toString()));
-    if (!url.isValid()) {
-        throw std::invalid_argument("invalid URL for RadioStation");
+    if (json.isEmpty()) {
+        throw std::invalid_argument("Empty PlayableItem JSON object!");
     }
-    return std::make_shared<PlayableItem>(name, url, uid);
+    auto url = valid_url_from_string(json[KEY_URI].toString());
+    /* if json[KEY_ID] is empty create a new UUID */
+    auto id = valid_uuid_from_String(
+        json[KEY_ID].toString(QUuid::createUuid().toString()));
+
+    QString name(json[KEY_NAME].toString());
+    return std::make_shared<PlayableItem>(name, url, id);
 }
 
 /***********************************************************************/
-QJsonObject PlayableItem::to_json_object() {
+QJsonObject PlayableItem::to_json_object() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject irconfig;
     irconfig[KEY_NAME] = this->get_display_name();
     irconfig[KEY_URI] = this->get_url().toString();
-    irconfig[KEY_ID] = this->get_id().toString();
+    irconfig[KEY_ID] = this->get_id().toString(QUuid::WithoutBraces);
     return irconfig;
 }
 
@@ -155,7 +156,7 @@ void PodcastEpisode::set_description(const QString& desc) {
 
 /***********************************************************************/
 QString PodcastEpisode::get_guid() const {
-//    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    //    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (guid.isEmpty()) {
         return get_url().toString();
     }
@@ -236,7 +237,8 @@ std::shared_ptr<PodcastEpisode> PodcastEpisode::from_json_object(
         QDateTime::fromString(json_episode[KEY_PUBLISHED].toString()));
     ep->set_publisher(json_episode[KEY_PUBLISHER].toString());
     ep->set_description(json_episode[KEY_DESCRIPTION].toString());
-    /* pubisher assinged id, can be url format hence a string not a QUuid */
+
+    /* publisher assinged id, can be url format hence a string not a QUuid */
     ep->set_guid(json_episode[KEY_ID].toString());
     return ep;
 }

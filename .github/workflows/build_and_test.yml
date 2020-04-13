@@ -15,6 +15,9 @@ jobs:
       BUILD_DIR_HOST: /tmp/build
       BUILD_DIR: /build
       SRC_DIR: /src
+      BUILD_IMAGE: ruschi/devlinuxqt-pistache
+      CONTAINER_NAME: buildc
+      TEST_ARTIFACT: test-trace.tgz
     steps:
     - name: Clone Repository
       uses: actions/checkout@v1
@@ -27,44 +30,52 @@ jobs:
         echo "container build dir: $BUILD_DIR"
         echo "container src_dir: $SRC_DIR"
     - name: Create build dir
-      run: | 
+      run: |
         mkdir -p $BUILD_DIR_HOST
         chmod o+w $BUILD_DIR_HOST
         touch $BUILD_DIR_HOST/created
         ls -la $BUILD_DIR_HOST
     - name: Pull docker container
-      run: docker pull ruschi/devlinuxqtquick2:latest
+      run: docker pull $BUILD_IMAGE
       timeout-minutes: 5
     - name: Start Docker
       run: >
-        docker run -itd -u $UID:$GID --privileged --name build_container
+        docker run -itd -u $UID:$GID --privileged --name $CONTAINER_NAME
         -v$GITHUB_WORKSPACE:$SRC_DIR -v$BUILD_DIR_HOST:$BUILD_DIR
-        ruschi/devlinuxqtquick2
+        $BUILD_IMAGE
     - name: Configure
       run: >
-        docker exec build_container cmake
+        docker exec $CONTAINER_NAME cmake
         -DCMAKE_BUILD_TYPE=Debug
         -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY=On
         -H$SRC_DIR -B$BUILD_DIR
         -DBUILD_TESTS=On -DTEST_COVERAGE=On -DBUILD_GTEST_FROM_SRC=On
+        -DREST_API=On
     - name: Build
-      run: docker exec build_container cmake --build $BUILD_DIR --parallel
+      run: docker exec $CONTAINER_NAME cmake --build $BUILD_DIR --parallel
+    - name: Get OpenAPI client
+      run: |
+        docker exec -w $SRC_DIR $CONTAINER_NAME buildscripts/get_openapi_client.py
     - name: Run tests
-      run: docker exec -w $BUILD_DIR build_container  bin/DigitalRooster_gtest
-    - name: Upload test results
+      run: docker exec -w $BUILD_DIR $CONTAINER_NAME ctest -V
+    - name: Package Test output for analysis
+      if: failure()
+      run: >
+        tar -C $BUILD_DIR_HOST -czf $TEST_ARTIFACT test_trace.log gtest_results.xml
+    - name: Upload program trace
       if: failure()
       uses: actions/upload-artifact@v1
       with:
-        name: tests.log
-        path: /tmp/build/Digitalrooster_tests.log
+        name: $TEST_ARTIFACT
+        path: $BUILD_DIR_HOST/$TEST_ARTIFACT
     - name: Collect coverage
       run: >
-        docker exec -w $BUILD_DIR build_container
+        docker exec -w $BUILD_DIR $CONTAINER_NAME
         lcov --directory .
         --capture --output-file $BUILD_DIR/coverage.info
     - name: Prune 3rd party code from coverage info
       run: >
-        docker exec -w $BUILD_DIR build_container
+        docker exec -w $BUILD_DIR $CONTAINER_NAME
         lcov --remove $BUILD_DIR/coverage.info
         --output-file $BUILD_DIR/coverage.info
         "/usr/*" "*/GTestExternal/*" "*/__/*"

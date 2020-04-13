@@ -71,7 +71,7 @@ TEST(WifiControl, startScan){
 	spy.wait(3000);
 	ASSERT_EQ(spy.count(),2);
 
-	QList<QVariant> arguments = spy.takeFirst();
+	auto arguments = spy.takeFirst();
     EXPECT_EQ(arguments.at(0).toString(), QString("Scanning"));
 	arguments = spy.takeFirst();
 	EXPECT_EQ(arguments.at(0).toInt(), WifiControl::ScanOk);

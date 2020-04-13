@@ -14,9 +14,9 @@
 
 #include <QAbstractListModel>
 #include <QObject>
-#include <QVector>
-#include <memory>
 
+#include <memory>
+#include <vector>
 
 namespace DigitalRooster {
 
@@ -33,7 +33,7 @@ class PodcastEpisodeModel : public QAbstractListModel {
             NOTIFY current_index_changed)
 public:
     PodcastEpisodeModel(
-        const QVector<std::shared_ptr<PodcastEpisode>>* episodes,
+        const std::vector<std::shared_ptr<PodcastEpisode>>* episodes,
         MediaPlayer& mp, QObject* parent = nullptr);
 
     enum PodcastEpisodeRoles {
@@ -51,7 +51,8 @@ public:
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
-    void set_episodes(const QVector<std::shared_ptr<PodcastEpisode>>* episodes);
+    void set_episodes(
+        const std::vector<std::shared_ptr<PodcastEpisode>>* episodes);
 
     const QString& getName() {
         return name;
@@ -80,7 +81,7 @@ protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
-    const QVector<std::shared_ptr<PodcastEpisode>>* episodes;
+    const std::vector<std::shared_ptr<PodcastEpisode>>* episodes;
     MediaPlayer& mpp;
     int currentIndex = -1;
     QString name;

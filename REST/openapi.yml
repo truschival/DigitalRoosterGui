@@ -1,0 +1,414 @@
+openapi: "3.0.0"
+info:
+  description: Open API for Digital Rooster
+  version: "0.8.0"
+  title: DigitalRooster
+  license:
+    name: GPLv3
+
+servers:
+  - url: '{server}/v1'
+    variables:
+      server:
+        default: http://0.0.0.0:8080
+    
+###############################################################################
+components:
+  # HTTP responses in case of errors
+  responses:
+    Success:
+      description: Request processed with success!
+    SuccessCreated:
+      description: Resource created with success!
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResourceUuid'  
+    InvalidRequest:
+      description: Invalid request parameters!
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'  
+    NotFound:
+      description: The specified resource was not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+             
+  # Objects #
+  schemas:
+    # Schema for error response body
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message
+   # UUid of created resource
+    ResourceUuid:
+      type: object
+      properties:
+        id:
+          type: string
+          description: 'Uuid of created resource'
+      required:
+        - id
+    # Station definition
+    Station:
+      required:
+        - name
+        - url
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        url:
+          type: string
+    # Array of Stations
+    Stations:
+      type: array
+      items:
+        $ref: '#/components/schemas/Station'
+   
+    # PodcastSource definition
+    Podcast:
+      required:
+        - title
+        - url
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        url:
+          type: string
+        updateInterval:
+          type: integer  
+    
+    # Array of PodcastSources
+    Podcasts:
+      type: array
+      items:
+        $ref: '#/components/schemas/Podcast'
+    
+    # Alarm definition
+    Alarm:
+      required:
+        - time
+        - period
+        - url
+        - enabled
+      properties:
+        time:
+          type: string
+        period:
+          type: string
+          enum:
+            - once
+            - daily
+            - workdays
+            - weekend
+        url:
+          type: string
+        enabled:
+          type: boolean
+        volume:
+          type: integer
+        id:
+          type: string
+    
+    # Alarm array
+    Alarms:
+      type: array
+      items:
+        $ref: '#/components/schemas/Alarm'
+# parameters for functions #########################################
+  parameters:
+    ArrayLength:
+      name: length
+      in: query
+      description: number of items if omitted or invalid all remaining elements will be assumed
+      required: false
+      schema:
+        type: integer
+    ArrayOffset:
+      name: offset
+      in: query
+      description: offset from start of list if omitted or invalid 0 will be assumed
+      required: false
+      schema:
+        type: integer
+    id:
+      name: id
+      in: path
+      description: unique id to identify item
+      required: true
+      schema:
+        type: string
+
+###############################################################################
+# Paths as API Endpoints
+###############################################################################
+paths:
+# Internet Radio Streams
+  /radios:
+    get: # Get All Streams
+      operationId: iradio.read_all
+      tags:
+        - Internet Radio
+      summary: Read all Internet radio streams
+      description: returns a list of Internet radio streams
+      parameters:
+        - $ref: '#/components/parameters/ArrayLength'
+        - $ref: '#/components/parameters/ArrayOffset'
+      responses:
+        200:
+          description: Successfully read stream list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stations'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'        
+                
+    post: # Create a stream
+      operationId: iradio.create
+      tags:
+        - Internet Radio
+      summary: Create a station info and add it to the list
+      requestBody:
+        description: Internet radio station to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Station'
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessCreated'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/InvalidRequest' 
+        404:
+          $ref: '#/components/responses/NotFound'  
+          
+# Manipulate single Internet Radio Stream
+  /radios/{id}:
+
+    get: # read single stream by id
+      operationId: iradio.read_one
+      tags:
+        - Internet Radio
+      summary: Read one Internet radio station
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          description: Successfully read a single radio station
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Station'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/InvalidRequest' 
+        404:
+          $ref: '#/components/responses/NotFound' 
+
+    delete: # delete stream identified by id
+      operationId: iradio.delete
+      tags:
+        - Internet Radio
+      summary: Delete Internet radio station from list
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/Success'        
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'  
+
+###############################################################################
+# Podcast Sources
+  /podcasts:
+    get: # Get all podcasts
+      operationId: podcasts.read_all
+      tags:
+        - Podcasts
+      summary: Read all podcast rss sources
+      parameters:
+        - $ref: '#/components/parameters/ArrayLength'
+        - $ref: '#/components/parameters/ArrayOffset'
+      responses:
+        200:
+          description: successfully read list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Podcasts'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/InvalidRequest' 
+        404:
+          $ref: '#/components/responses/NotFound' 
+
+    post: # Add a podcast source with RSS feed
+      operationId: podcasts.create
+      tags:
+        - Podcasts
+      summary: Add a podcast source with RSS feed and add it to the list
+      requestBody:
+        description: Podcast source to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Podcast'
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessCreated'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/InvalidRequest' 
+
+  /podcasts/{id}:
+    get: # read single podcast by id
+      operationId: podcasts.read_one
+      tags:
+        - Podcasts
+      summary: Read one Podcast identified by id
+      parameters:
+       - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          description: Successfully read Podcast
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Podcast'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/InvalidRequest' 
+        404:
+          $ref: '#/components/responses/NotFound' 
+
+    delete: # delete podcasts identified by id
+      operationId: podcasts.delete
+      tags:
+        - Podcasts
+      summary: Delete Podcast from list
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/InvalidRequest' 
+        404:
+          $ref: '#/components/responses/NotFound'        
+          
+################################################################################
+# Alarms
+  /alarms:
+    get: # Get all Alarms
+      operationId: alarms.read_all
+      tags:
+        - Alarms
+      summary: Read all Alarms
+      parameters:
+        - $ref: '#/components/parameters/ArrayLength'
+        - $ref: '#/components/parameters/ArrayOffset'
+      responses:
+        200:
+          description: Successfully read alarm list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alarms'
+        404:
+          description: Wrong length/offset
+
+    post: # Create new alarm
+      operationId: alarms.create
+      tags:
+        - Alarms
+      summary: Create a new alarm entry and add it to the list
+      requestBody:
+        description: Alarm object to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Alarm'
+      responses:
+        200:
+          $ref: '#/components/responses/SuccessCreated'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/InvalidRequest' 
+        404:
+          $ref: '#/components/responses/NotFound' 
+
+  /alarms/{id}:
+    get: # read single alarm by id
+      operationId: alarms.read_one
+      tags:
+        - Alarms
+      summary: Read one Alarm
+      parameters:
+       - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          description: Successfully read Alarm
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alarm'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/InvalidRequest' 
+        404:
+          $ref: '#/components/responses/NotFound'
+
+    delete: # delete alarm identified by id
+      operationId: alarms.delete
+      tags:
+        - Alarms
+      summary: Delete alarm from list
+      parameters:
+        - $ref: '#/components/parameters/id'
+      responses:
+        200:
+          $ref: '#/components/responses/Success'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        403:
+          $ref: '#/components/responses/InvalidRequest' 
+        404:
+          $ref: '#/components/responses/NotFound' 

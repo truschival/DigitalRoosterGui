@@ -15,10 +15,11 @@
 #include <QLoggingCategory>
 #include <QString>
 #include <QTime>
-#include <QVector>
 #include <QXmlStreamReader>
+
 #include <memory>
 #include <stdexcept> // std::system_error
+#include <vector>
 
 #include "appconstants.hpp"
 #include "rss2podcastsource.hpp"
@@ -29,7 +30,7 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.RSSParser");
 /*****************************************************************************/
 static QTime tryParse(const QString& timestring) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    QVector<QString> formats{"hh:mm:ss", "h:mm:ss", "mm:ss", "m:ss"};
+    std::vector<QString> formats{"hh:mm:ss", "h:mm:ss", "mm:ss", "m:ss"};
     for (const auto& f : formats) {
         auto time = QTime::fromString(timestring, f);
         if (time.isValid()) {
