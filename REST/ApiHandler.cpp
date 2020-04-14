@@ -32,7 +32,7 @@ using namespace Pistache::Rest;
 using namespace DigitalRooster;
 using namespace DigitalRooster::REST;
 
-static Q_LOGGING_CATEGORY(CLASS_LC, "RestAdapter");
+static Q_LOGGING_CATEGORY(CLASS_LC, "ApiHandler");
 
 /*****************************************************************************/
 
