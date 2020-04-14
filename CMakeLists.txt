@@ -35,7 +35,7 @@ endif()
 #-------------------------------------------------------------------------------
 option(BUILD_TESTS "Build Tests" On)
 option(HAS_WPA_SUPPLICANT "Target has wpa_supplicant" Off)
-option(REST_API "Use the REST API" On)
+option(REST_API "Use the REST API" Off)
 option(PROFILE "Build with Profiling" Off)
 option(TEST_COVERAGE "Test Coverage" Off)
 option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" On)
