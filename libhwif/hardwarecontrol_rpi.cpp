@@ -33,7 +33,7 @@
 #include "hwif/hardware_control.hpp"
 
 using namespace Hal;
-static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HAL");
+static Q_LOGGING_CATEGORY(CLASS_LC, "HardwareControl");
 
 static const int PWM_RANGE = 512; // 2 to 4095 (1024 default)
 static const int CLOCK_DIV = 64;  // 1 to 4096
