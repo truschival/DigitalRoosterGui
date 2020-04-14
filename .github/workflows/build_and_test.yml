@@ -13,11 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       BUILD_DIR_HOST: /tmp/build
+      INSTALL_DIR_HOST: /tmp/install
       BUILD_DIR: /build
       SRC_DIR: /src
       BUILD_IMAGE: ruschi/devlinuxqt-pistache
       CONTAINER_NAME: buildc
       TEST_ARTIFACT: test-trace.tgz
+      INSTALL_DIR: /tmp/install
     steps:
     - name: Clone Repository
       uses: actions/checkout@v1
@@ -32,16 +34,17 @@ jobs:
     - name: Create build dir
       run: |
         mkdir -p $BUILD_DIR_HOST
-        chmod o+w $BUILD_DIR_HOST
-        touch $BUILD_DIR_HOST/created
-        ls -la $BUILD_DIR_HOST
+        mkdir -p $INSTALL_DIR_HOST
+        chmod 777 $BUILD_DIR_HOST $INSTALL_DIR_HOST
     - name: Pull docker container
       run: docker pull $BUILD_IMAGE
       timeout-minutes: 5
     - name: Start Docker
       run: >
         docker run -itd -u $UID:$GID --privileged --name $CONTAINER_NAME
-        -v$GITHUB_WORKSPACE:$SRC_DIR -v$BUILD_DIR_HOST:$BUILD_DIR
+        -v$GITHUB_WORKSPACE:$SRC_DIR
+        -v$BUILD_DIR_HOST:$BUILD_DIR
+        -v$INSTALL_DIR_HOST:$INSTALL_DIR
         $BUILD_IMAGE
     - name: Configure
       run: >
@@ -84,3 +87,7 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         file: /tmp/build/coverage.info
+    - name: Test make install
+      run: >
+        docker exec -w $BUILD_DIR -eDESTDIR=$INSTALL_DIR $CONTAINER_NAME
+        cmake --build $BUILD_DIR --target install
