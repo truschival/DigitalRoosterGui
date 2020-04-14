@@ -23,7 +23,7 @@
 
 using namespace DigitalRooster;
 
-static Q_LOGGING_CATEGORY(CLASS_LC, "IRadioListModel");
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.IRadioListModel");
 /*****************************************************************************/
 IRadioListModel::IRadioListModel(
     IStationStore& store, MediaPlayer& mp, QObject* parent)

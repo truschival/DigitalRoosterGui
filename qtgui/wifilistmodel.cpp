@@ -20,7 +20,7 @@
 
 using namespace DigitalRooster;
 
-static Q_LOGGING_CATEGORY(CLASS_LC, "WifiListModel");
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.WifiListModel");
 
 /******************************************************************************/
 WifiListModel::WifiListModel(QObject* parent)

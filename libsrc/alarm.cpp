@@ -21,7 +21,7 @@
 
 using namespace DigitalRooster;
 
-static Q_LOGGING_CATEGORY(CLASS_LC, "Alarm");
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.Alarm");
 
 /*****************************************************************************/
 Alarm::Alarm()

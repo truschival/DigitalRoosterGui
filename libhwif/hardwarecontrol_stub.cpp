@@ -19,7 +19,7 @@
 
 
 using namespace Hal;
-static Q_LOGGING_CATEGORY(CLASS_LC, "HardwareControl");
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HardwareControl");
 
 /*****************************************************************************/
 HardwareControl::HardwareControl(

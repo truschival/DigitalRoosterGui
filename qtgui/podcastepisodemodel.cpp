@@ -23,7 +23,7 @@
 
 using namespace DigitalRooster;
 
-static Q_LOGGING_CATEGORY(CLASS_LC, "PodcastEpisodeModel");
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.PodcastEpisodeModel");
 /*****************************************************************************/
 PodcastEpisodeModel::PodcastEpisodeModel(
     const std::vector<std::shared_ptr<PodcastEpisode>>* ep, MediaPlayer& mp,

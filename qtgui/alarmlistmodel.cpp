@@ -20,7 +20,7 @@
 
 using namespace DigitalRooster;
 
-static Q_LOGGING_CATEGORY(CLASS_LC, "AlarmListModel");
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.AlarmListModel");
 
 /******************************************************************************/
 AlarmListModel::AlarmListModel(IAlarmStore& store, QObject* parent)

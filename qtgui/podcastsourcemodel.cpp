@@ -22,7 +22,7 @@
 
 using namespace DigitalRooster;
 
-static Q_LOGGING_CATEGORY(CLASS_LC, "PodcastSourceModel");
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.PodcastSourceModel");
 
 /*****************************************************************************/
 PodcastSourceModel::PodcastSourceModel(
