@@ -14,6 +14,7 @@
 #include <QByteArray>
 #include <QDebug>
 #include <QHash>
+#include <QLoggingCategory>
 #include <QQmlEngine>
 
 #include "PlayableItem.hpp"
@@ -22,9 +23,10 @@
 
 using namespace DigitalRooster;
 
+static Q_LOGGING_CATEGORY(CLASS_LC, "IRadioListModel");
 /*****************************************************************************/
-IRadioListModel::IRadioListModel(IStationStore& store,
-    MediaPlayer& mp, QObject* parent)
+IRadioListModel::IRadioListModel(
+    IStationStore& store, MediaPlayer& mp, QObject* parent)
     : QAbstractListModel(parent)
     , cm(store)
     , mpp(mp) {
@@ -40,11 +42,7 @@ QHash<int, QByteArray> IRadioListModel::roleNames() const {
 
 /*****************************************************************************/
 int IRadioListModel::rowCount(const QModelIndex& /*parent */) const {
-    // qDebug() << __FUNCTION__;
     auto sz = cm.get_stations().size();
-    if (sz <= 0) {
-        qWarning() << " no stations ";
-    }
     return sz;
 }
 
@@ -63,13 +61,13 @@ void IRadioListModel::send_to_player(int index) {
 
 /*****************************************************************************/
 QVariant IRadioListModel::data(const QModelIndex& index, int role) const {
-    // qDebug() << __FUNCTION__ << "(" << index.row() << ")";
-	auto sz = cm.get_stations().size();
-	if (sz <= 0)
-        return QVariant();
+    auto sz = cm.get_stations().size();
 
-    if (index.row() < 0 || index.row() >= sz)
+    /* static cast only if index.row() is >= 0 and thus can be converted */
+    if (index.row() < 0 || static_cast<size_t>(index.row()) >= sz) {
+        qCCritical(CLASS_LC) << Q_FUNC_INFO << "index out of range " << index;
         return QVariant();
+    }
 
     auto station = cm.get_stations().at(index.row());
 

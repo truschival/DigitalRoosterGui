@@ -22,7 +22,7 @@
 
 using namespace DigitalRooster;
 
-static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.PodcastSourceModel");
+static Q_LOGGING_CATEGORY(CLASS_LC, "PodcastSourceModel");
 
 /*****************************************************************************/
 PodcastSourceModel::PodcastSourceModel(
@@ -68,10 +68,15 @@ PodcastEpisodeModel* PodcastSourceModel::get_episodes(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     auto v = cm.get_podcast_sources();
-    if (index < 0 || index >= v.size())
-        return nullptr;
+    /* static cast only if index >= 0 and thus can be converted */
+    if (index < 0 || static_cast<size_t>(index) >= v.size()){
+    	qCCritical(CLASS_LC) << Q_FUNC_INFO << "index out of range " << index;
+    	return nullptr;
+    }
 
-    /* Lifetime will be managed in QML! */
+    /* Lifetime will be managed in QML!
+     * TODO: check logs for dtor call*/
+    qCInfo(CLASS_LC) << "Creating new PodcastEpisodeModel";
     return new PodcastEpisodeModel(&(v[index]->get_episodes()), mpp, this);
 }
 
@@ -79,8 +84,12 @@ PodcastEpisodeModel* PodcastSourceModel::get_episodes(int index) {
 QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto v = cm.get_podcast_sources();
-    if (index.row() < 0 || index.row() >= v.size())
-        return QVariant();
+
+    /* static cast only if index.row() is >= 0 and thus can be converted */
+    if (index.row() < 0 || static_cast<size_t>(index.row()) >= v.size()){
+    	qCCritical(CLASS_LC) << Q_FUNC_INFO << "index out of range " << index;
+    	return QVariant();
+    }
     QString desc;
     auto ps = v[index.row()];
 
