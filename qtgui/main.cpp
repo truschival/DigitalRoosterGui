@@ -76,7 +76,7 @@ const QString DigitalRooster::DEFAULT_LOG_FILE(
  */
 const QString DigitalRooster::DEFAULT_CONFIG_FILE_PATH(
     QDir(QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation))
-        .filePath(CONFIG_JSON_FILE_NAME.toLower()));
+        .filePath(CONFIG_JSON_FILE_NAME));
 
 /**
  * Cache directory

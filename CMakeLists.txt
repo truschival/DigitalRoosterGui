@@ -49,7 +49,7 @@ ENDIF(UNIX)
 
 SET(SYSTEM_TARGET_NAME "Host"
   CACHE STRING "Target: {Host|Rpi}")
-SET(SETTINGS_FILE_NAME "${CMAKE_PROJECT_NAME}.json"
+SET(SETTINGS_FILE_NAME "digitalrooster.json"
   CACHE STRING "application configuration file name")
 SET(WIFI_INTERFACE "/var/run/wpa_supplicant/wlp2s0"
   CACHE STRING "wpa_supplicant interface contrl socket path")
@@ -59,7 +59,7 @@ SET(GENERATED_DIR  "${CMAKE_BINARY_DIR}/generated" CACHE INTERNAL "" )
 SET(REST_API_PORT "6666" CACHE STRING "Rest API TCP Port")
 
 #-------------------------------------------------------------------------------
-# Command line parameters  or default
+# Command line parameters or default
 #-------------------------------------------------------------------------------
 IF(NOT CMAKE_BUILD_TYPE)
   #Default to Release-Build
@@ -248,13 +248,6 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/qtgui/)
 #-------------------------------------------------------------------------------
 # configuration install
 #-------------------------------------------------------------------------------
-
-#default configuration installation
-configure_file(
-  "${CMAKE_CURRENT_SOURCE_DIR}/config/digitalrooster.json"
-  "${SETTINGS_PATH}/${SETTINGS_FILE_NAME}"
-  COPYONLY
-  )
 
 # Tests
 if(BUILD_TESTS)
