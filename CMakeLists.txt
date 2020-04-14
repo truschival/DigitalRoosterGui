@@ -1,12 +1,11 @@
 ##
 # Top-level CMakeLists.txt
 ##
-
-cmake_minimum_required (VERSION 3.10)
-SET(CMAKE_CXX_STANDARD 14)
-set(CMAKE_VERBOSE_MAKEFILE  OFF)
-set(CMAKE_COLOR_MAKEFILE ON)
-set(CMAKE_WARN_DEPRECATED ON)
+cmake_minimum_required(VERSION 3.10)
+SET(CMAKE_CXX_STANDARD      14)
+SET(CMAKE_VERBOSE_MAKEFILE  OFF)
+SET(CMAKE_COLOR_MAKEFILE    ON)
+SET(CMAKE_WARN_DEPRECATED   ON)
 SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Add local macros
@@ -26,8 +25,8 @@ STRING(TIMESTAMP CMAKE_CONFIGURATION_TIME "%Y-%m-%d %H:%M:%S"  UTC)
 # Package-Config for components that CMake does not support directly
 # include(FindPkgConfig)
 if(POLICY CMP0071)
-# POLICY since CMake 3.10 (https://cmake.org/cmake/help/git-stage/policy/CMP0071.html)
-	cmake_policy(SET CMP0071 NEW)
+  #CMake >=3.10 (https://cmake.org/cmake/help/git-stage/policy/CMP0071.html)
+  cmake_policy(SET CMP0071 NEW)
 endif()
 
 #-------------------------------------------------------------------------------
@@ -42,11 +41,11 @@ option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" On)
 option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." Off)
 
 # most likely we have wpa_supplicant on Unix,linux etc.
-if(UNIX)
-option(HAS_WPA_SUPPLICANT "Target has wpa_supplicant" On)
-else(UNIX)
-option(HAS_WPA_SUPPLICANT "Target has wpa_supplicant" Off)
-endif(UNIX)
+IF(UNIX)
+  option(HAS_WPA_SUPPLICANT "Target has wpa_supplicant" On)
+ELSE(UNIX)
+  option(HAS_WPA_SUPPLICANT "Target has wpa_supplicant" Off)
+ENDIF(UNIX)
 
 SET(SYSTEM_TARGET_NAME "Host"
   CACHE STRING "Target: {Host|Rpi}")
@@ -63,10 +62,10 @@ SET(REST_API_PORT "6666" CACHE STRING "Rest API TCP Port")
 # Command line parameters  or default
 #-------------------------------------------------------------------------------
 IF(NOT CMAKE_BUILD_TYPE)
-    #Default to Release-Build
-    SET(CMAKE_BUILD_TYPE Release
-		CACHE STRING "Choose the type of build : Debug Release RelWithDebInfo"
-		FORCE)
+  #Default to Release-Build
+  SET(CMAKE_BUILD_TYPE Release
+    CACHE STRING "Choose the type of build : Debug Release RelWithDebInfo"
+    FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
 # User did not provide install prefix via cmake commandline
@@ -176,18 +175,18 @@ ELSEIF(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
   SET(WARNING_FLAGS   -Wall -Wextra -fmessage-length=0 -Wno-unused-parameter )
 
   LIST(APPEND CUSTOM_C_FLAGS   -ffunction-sections -fdata-sections )
-  LIST(APPEND CUSTOM_CXX_FLAGS   -ffunction-sections -fdata-sections )
+  LIST(APPEND CUSTOM_CXX_FLAGS -ffunction-sections -fdata-sections )
 
   # Link final Executable with Map, clean up unused sections
-  LIST(APPEND CUSTOM_LINK_FLAGS	 -Wl,--gc-sections -Wl,-Map,Symbols.map )
+  LIST(APPEND CUSTOM_LINK_FLAGS -Wl,--gc-sections -Wl,-Map,Symbols.map )
 ENDIF()
 
 LIST(APPEND CUSTOM_C_FLAGS   ${WARNING_FLAGS})
 LIST(APPEND CUSTOM_CXX_FLAGS ${WARNING_FLAGS})
 
 IF(TEST_COVERAGE AND NOT MSVC)
-	include(CodeCoverage) # does not work for MSVC
-	APPEND_COVERAGE_COMPILER_FLAGS()
+  include(CodeCoverage) # does not work for MSVC
+  APPEND_COVERAGE_COMPILER_FLAGS()
 ENDIF()
 
 IF(PROFILE)
@@ -241,7 +240,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/libhwif/)
 add_subdirectory(${PROJECT_SOURCE_DIR}/libsrc/) #libsrc depends on libhwif
 
 if(REST_API)
-	add_subdirectory(${PROJECT_SOURCE_DIR}/REST/)
+  add_subdirectory(${PROJECT_SOURCE_DIR}/REST/)
 endif(REST_API)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/qtgui/)
@@ -269,7 +268,8 @@ endif(BUILD_TESTS)
 # --------------------------------------------------------------------
 #SET(CPACK_GENERATOR TGZ)
 SET(CPACK_PACKAGE_NAME ${PROJECT_NAME})
-SET(CPACK_PACKAGE_VENDOR "Thomas Ruschival")
+SET(CPACK_PACKAGE_VENDOR  "Thomas Ruschival")
+SET(CPACK_PACKAGE_CONTACT "thomas@ruschival.de")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY ${PROJECT_DESCRIPTION})
 SET(CPACK_PACKAGE_VERSION ${PROJECT_VERSION})
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY ${PROJECT_NAME}-${PROJECT_VERSION})
@@ -280,7 +280,5 @@ SET(CPACK_COMPONENT_DEVELOP_DESCRIPTION "Components needed for development")
 SET(CPACK_COMPONENT_APIDOC_DESCRIPTION  "API Documentation")
 SET(CPACK_NSIS_CONTACT "thomas@ruschival.de")
 SET(CPACK_NSIS_MODIFY_PATH ON)
-
 INCLUDE(CPack)
-
 MESSAGE(STATUS "** end CMakeLists.txt **\n")
