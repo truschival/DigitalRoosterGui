@@ -15,6 +15,7 @@ DigitalRooster accepts some command line arguments for its runtime behaviour.
 
 DigitalRooster runs from any directory and generates on the first start a
 default configuration is generated if no config is found.
+**Note: The generated config does not include Weather locationId and apiKey**
 
 The configuration path is derived from
 [QStandardPaths::ConfigLocation](http://doc.qt.io/qt-5/qstandardpaths.html)
@@ -35,10 +36,8 @@ For more details refer to [documentation/rest.md](rest.md)
 -   `name` is updated according to infromation form RSS (for podcasts)
             or shoutcast information for radio streams (if available)
 
--   `AlarmTimeout` time in minutes an alarm should play until it is
+-   `alarmTimeout` time in minutes an alarm should play until it is
                      automatically stopped.
-
--   `SleepTimeout` is not yet implemented.
 
 -   `brightnessActive` is the display background when active (0-100%)
 
@@ -46,10 +45,10 @@ For more details refer to [documentation/rest.md](rest.md)
 
 -   `volume` is the default volume
 
--   `Version` project version for this config file
+-   `version` project version for this config file
                (upgrades and backward compatibility not yet implemented)
 
--   `SleepTimeout` time in minutes after which standby is activated
+-   `sleepTimeout` time in minutes after which standby is activated
 
 ### Alarm objects
 `Alarms` is an array of alarm objects.
@@ -74,7 +73,7 @@ errors a fallback sound will be played.
 `Podcasts` is an array containing individual RSS sources for podcasts.
 The only mandatory property is `url` others are optional:
 -   `id` unique identifier - auto generated if not present
--   `title` human readable identifier, updated according to RSS XML
+-   `title` human readable identifier, will be updated according to RSS XML
 -   `url` RSS url
 
 ### Internet Stream objects
@@ -83,7 +82,7 @@ The only mandatory property is `url` others are optional:
 -   `id` unique identifier - auto generated if not present
 
 -   `name` human readable identifier, updated according to shoutcast
-            information when played (if available)
+    information when played (if available)
 
 -   `url` stream url
 
@@ -91,8 +90,8 @@ The only mandatory property is `url` others are optional:
 The `Weather` object configures the displayed weather information
 form [openweathermap.org](https://api.openweathermap.org)
 
--   `LocationId` identifier for the geographic location, see [http://bulk.openweathermap.org/sample/city.list.json.gz](http://bulk.openweathermap.org/sample/city.list.json.gz)
-     e.g. Esslingen: `"LocationId" = "2928751"` or Porto Alegre: `"LocationID" = "3452925"`
+-   `locationId` identifier for the geographic location, see [http://bulk.openweathermap.org/sample/city.list.json.gz](http://bulk.openweathermap.org/sample/city.list.json.gz)
+     e.g. Esslingen: `"locationId" = "2928751"` or Porto Alegre: `"locationId" = "3452925"`
 
 -   `apiKey` access token to the openweather api.  **Get your personal key**
      by signing up to [https://openweathermap.org](https://home.openweathermap.org/users/sign_up)
@@ -101,63 +100,73 @@ form [openweathermap.org](https://api.openweathermap.org)
 
 ```JSON
 {
-    "AlarmTimeout": 15,
     "Alarms": [
         {
             "enabled": true,
-            "id": "{43eac57e-2c63-45f6-9748-b18e7d7a8666}",
+            "id": "1f2e926d-c4c1-4434-b130-a3fec3412352",
             "period": "workdays",
-            "time": "17:58",
-            "url": "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3",
+            "time": "06:30",
+            "url": "https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3",
             "volume": 30
         },
         {
-            "enabled": true,
-            "id": "{455c0cb6-291f-4326-ba97-cd0e0d5adbf6}",
+            "enabled": false,
+            "id": "c61eb7bb-94f4-4619-bc89-a22016786899",
             "period": "weekend",
-            "time": "18:04",
-            "url": "http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk",
+            "time": "09:00",
+            "url": "https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3",
             "volume": 30
         }
     ],
     "InternetRadio": [
         {
-            "id": "{a258d2f2-f36e-4620-9e1f-9d5f7875a747}",
-            "name": "Deutschlandfunk Nova",
-            "url": "http://st03.dlf.de/dlf/03/104/ogg/stream.ogg"
+            "id": "7fccbecd-c3f0-47cf-a69c-993a12b630a6",
+            "name": "BBC World Service News",
+            "url": "http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-einws"
         },
         {
-            "id": "{de2c79da-c250-4c78-a2db-5db398c0cbd9}",
-            "name": "Radio FM4",
+            "id": "5f55f5b0-1439-4ebe-99b7-581bbcc810d4",
+            "name": "Deutschlandfunk",
+            "url": "https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3"
+        },
+        {
+            "id": "7cfb3f7c-24c3-4741-89e3-97cff2df71d0",
+            "name": "FM4",
             "url": "https://fm4shoutcast.sf.apa.at"
-        },
-        {
-            "id": "{0bad5cdd-4b4f-411b-929c-be9d634ba76a}",
-            "name": "BBC Service",
-            "url": "http://bbcwssc.ic.llnwd.net/stream/bbcwssc_mp1_ws-eieuk"
         }
     ],
     "Podcasts": [
         {
-            "id": "{b10f3ffc-51cb-4935-ae89-39a8dfb01ddd}",
-            "title": "Alternativlos",
-            "url": "https://alternativlos.org/alternativlos.rss"
+            "id": "b890ca9b-30af-4d42-8d51-24fcc7b8feeb",
+            "title": "Arms Control Wonk",
+            "updateInterval": 3600,
+            "url": "http://armscontrolwonk.libsyn.com/rss"
         },
         {
-            "id": "{e153f4b9-13a1-4313-a6f2-ed97cdce88a4}",
-            "title": "Arms Control Wonk",
-            "url": "http://armscontrolwonk.libsyn.com/rss"
+            "id": "19d2dcee-ec2f-4489-b2f7-461274c7644f",
+            "title": "My Dad Wrote A Porno",
+            "updateInterval": 3600,
+            "url": "https://rss.acast.com/mydadwroteaporno"
+        },
+        {
+            "id": "51e245e9-df28-4d72-bb40-5cba688c1b2e",
+            "title": "Alternativlos",
+            "updateInterval": 3600,
+            "url": "https://alternativlos.org/alternativlos.rss"
         }
     ],
-    "SleepTimeout": 60,
-    "Version": "0.9.0",
     "Weather": {
-        "apiKey": "xxx",
-        "LocationId": "2928751"
+        "apiKey": "__PROVIDE_YOUR_OWN_API_KEY__",
+        "locationId": "__PROVIDE_YOUR_LOCATION_ID__HERE__",
+        "updateInterval": 3600
     },
-    "brightnessActive": 60,
-    "brightnessStandby": 15,
-    "volume": 30
+    "alarmTimeout": 30,
+    "brightnessActive": 25,
+    "brightnessStandby": 25,
+    "sleepTimeout": 60,
+    "version": "0.10",
+    "volume": 30,
+    "wpa_ctrl": "/var/run/wpa_supplicant/wlp2s0"
 }
 
 ```

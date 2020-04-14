@@ -27,7 +27,7 @@
 #include "configuration_manager.hpp"
 
 using namespace DigitalRooster;
-static Q_LOGGING_CATEGORY(CLASS_LC, "ConfigurationManager");
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
 
 /*****************************************************************************/
 bool DigitalRooster::is_writable_directory(const QString& dirname) {

@@ -74,6 +74,8 @@ public:
     Q_INVOKABLE DigitalRooster::PodcastEpisode* get_episode(int index);
     Q_INVOKABLE void send_to_player(int index);
 
+    virtual ~PodcastEpisodeModel();
+
 signals:
     void current_index_changed(int newIndex);
 

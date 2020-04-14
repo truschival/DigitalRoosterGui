@@ -6,10 +6,11 @@ set(LIBRARY_NAME restconfig)
 set(COMPONENT_NAME ${LIBRARY_NAME})
 # Interface/binary version
 SET(COMPONENT_VERSION ${PROJECT_VERSION})
+#includes etc. in folder (no subfolder here)
+SET(COMPONENT_PATH "")
 
 # Check if Pistache is installed
-# Pistache does not yet provide a CMake Findpackage
-# --> fall back to pkgconfig
+# Pistache does not yet provide a CMake Findpackage  --> fall back to pkgconfig
 include(FindPkgConfig)
 pkg_search_module(PISTACHE REQUIRED libpistache>=0.0.2)
 

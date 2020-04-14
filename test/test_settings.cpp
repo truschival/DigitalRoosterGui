@@ -481,35 +481,6 @@ TEST_F(SettingsFixture, emitConfigChanged) {
 }
 
 /*****************************************************************************/
-TEST(ConfigManager, CreateDefaultConfigDir) {
-    auto config_path =
-        QDir(QDir::tempPath()).filePath(QString("testdir_to_delete"));
-    auto config_file_name = QDir(config_path).filePath(CONFIG_JSON_FILE_NAME);
-
-    QDir config_dir(config_path);
-    config_dir.removeRecursively();
-
-    ConfigurationManager cm(config_file_name, DEFAULT_CACHE_DIR_PATH);
-    cm.update_configuration();
-    ASSERT_TRUE(QDir(config_path).exists());
-}
-
-/*****************************************************************************/
-TEST(ConfigManager, CreateDefaultConfig) {
-    auto config_path =
-        QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
-    QDir config_dir(config_path);
-    config_dir.removeRecursively();
-    auto file_path = config_dir.filePath(CONFIG_JSON_FILE_NAME);
-
-    ConfigurationManager cm(file_path, DEFAULT_CACHE_DIR_PATH);
-    cm.update_configuration();
-
-    QFile config_file(file_path);
-    ASSERT_GT(config_file.size(), 0);
-}
-
-/*****************************************************************************/
 TEST(ConfigManager, DefaultForNotWritableCache) {
     QDir default_cache_dir(DEFAULT_CACHE_DIR_PATH);
     default_cache_dir.removeRecursively();

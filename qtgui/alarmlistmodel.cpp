@@ -31,8 +31,9 @@ AlarmListModel::AlarmListModel(IAlarmStore& store, QObject* parent)
 /******************************************************************************/
 bool AlarmListModel::check_selection(int row) const {
     auto sz = cm.get_alarms().size();
-    if (row < 0 || row >= sz) {
-        qWarning() << "Invalid Selection";
+    /* static cast only if index >= 0 and thus can be converted */
+    if (row < 0 || static_cast<size_t>(row) >= sz) {
+        qCCritical(CLASS_LC) << Q_FUNC_INFO << "invalid row " << row;
         return false;
     }
     return true;
@@ -54,7 +55,7 @@ QHash<int, QByteArray> AlarmListModel::roleNames() const {
 int AlarmListModel::rowCount(const QModelIndex& /*parent */) const {
     auto sz = cm.get_alarms().size();
     if (sz <= 0) {
-        qWarning() << "no alarms configured ";
+        qCInfo(CLASS_LC) << "no alarms configured ";
     }
     return sz;
 }
@@ -114,7 +115,6 @@ void AlarmListModel::update_row(int row) {
 }
 
 /*****************************************************************************/
-
 bool AlarmListModel::removeRows(
     int row, int count, const QModelIndex& /*parent */) {
     qCWarning(CLASS_LC) << Q_FUNC_INFO << "is not implemented!";
@@ -143,9 +143,11 @@ int AlarmListModel::delete_alarm(qint64 row) {
 DigitalRooster::Alarm* AlarmListModel::create_alarm() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto new_alarm = std::make_shared<Alarm>();
-    // TODO: Can we do without access to streamsources?
-    // new_alarm->set_media(cm->get_stream_sources().at(0));
-
+    /**
+     * FIXME: this is bad. we create a new alarm and add it to the list
+     * it instantly appears and the dialog is opened. The alarm exists even if
+     * the user pressed cancel
+     */
     new_alarm->set_time(QTime::fromString("06:30", "hh:mm"));
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     QQmlEngine::setObjectOwnership(new_alarm.get(), QQmlEngine::CppOwnership);

@@ -1,16 +1,16 @@
 openapi: "3.0.0"
 info:
   description: Open API for Digital Rooster
-  version: "0.8.0"
+  version: "1.0"
   title: DigitalRooster
   license:
     name: GPLv3
 
 servers:
-  - url: '{server}/v1'
+  - url: '{server}/api/1.0/'
     variables:
       server:
-        default: http://0.0.0.0:8080
+        default: http://0.0.0.0:6666
     
 ###############################################################################
 components:

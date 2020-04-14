@@ -22,18 +22,14 @@ using namespace DigitalRooster;
 
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.WifiListModel");
 
-
 /******************************************************************************/
-
 WifiListModel::WifiListModel(QObject* parent)
     : QAbstractListModel(parent) {
 }
 
 /******************************************************************************/
-
 QHash<int, QByteArray> WifiListModel::roleNames() const {
     QHash<int, QByteArray> roles;
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     roles[BssidRole] = "bssid";
     roles[NameRole] = "name";
     roles[WpsRole] = "wps";
@@ -41,23 +37,20 @@ QHash<int, QByteArray> WifiListModel::roleNames() const {
     roles[ConnectedRole] = "connected";
     return roles;
 }
-/******************************************************************************/
 
+/******************************************************************************/
 int WifiListModel::rowCount(const QModelIndex& /*parent */) const {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return scan_results.size();
 }
 
 /******************************************************************************/
 QVariant WifiListModel::data(const QModelIndex& index, int role) const {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (scan_results.size() <= 0) {
+    /* static cast only if index.row() is >= 0 and thus can be converted */
+    if (index.row() < 0 ||
+        static_cast<size_t>(index.row()) >= scan_results.size()) {
+        qCCritical(CLASS_LC) << Q_FUNC_INFO << "index out of range " << index;
         return QVariant();
     }
-
-    if (index.row() < 0 || index.row() >= scan_results.size())
-        return QVariant();
-
     auto network = scan_results.at(index.row());
 
     switch (role) {
@@ -75,11 +68,11 @@ QVariant WifiListModel::data(const QModelIndex& index, int role) const {
     return QVariant();
 }
 
-
 /*****************************************************************************/
 void WifiListModel::wps_connect(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (index < 0 || index >= scan_results.size()) {
+    /* static cast only if index >= 0 and thus can be converted */
+    if (index < 0 || static_cast<size_t>(index) >= scan_results.size()) {
         qCCritical(CLASS_LC) << " index out of bounds";
         return;
     }
@@ -87,7 +80,8 @@ void WifiListModel::wps_connect(int index) {
 }
 
 /******************************************************************************/
-void WifiListModel::update_scan_results(const std::vector<WifiNetwork>& results) {
+void WifiListModel::update_scan_results(
+    const std::vector<WifiNetwork>& results) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     beginResetModel();
     scan_results = results;

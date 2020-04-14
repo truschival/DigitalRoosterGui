@@ -24,7 +24,7 @@
 #include "logger.hpp"
 
 using namespace DigitalRooster;
-static Q_LOGGING_CATEGORY(CLASS_LC, "util");
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.util");
 /*****************************************************************************/
 namespace DigitalRooster {
 /**

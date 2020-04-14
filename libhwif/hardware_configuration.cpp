@@ -24,7 +24,7 @@
 
 using namespace Hal;
 
-static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HAL");
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HardwareControl");
 
 /*****************************************************************************/
 static bool override_if_env_var_exists(

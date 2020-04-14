@@ -19,7 +19,7 @@
 
 
 using namespace Hal;
-static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HAL");
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HardwareControl");
 
 /*****************************************************************************/
 HardwareControl::HardwareControl(
@@ -40,12 +40,14 @@ void HardwareControl::generate_rotary_event(int file_handle) {
 
 /*****************************************************************************/
 void HardwareControl::system_reboot() {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    qCInfo(CLASS_LC) << Q_FUNC_INFO;
+    exit(0);
 }
 
 /*****************************************************************************/
 void  HardwareControl::system_poweroff() {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    qCInfo(CLASS_LC) << Q_FUNC_INFO;
+    exit(0);
 }
 
 /*****************************************************************************/

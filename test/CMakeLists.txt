@@ -3,7 +3,7 @@ MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
 SET(GEST_BINARY_NAME "${PROJECT_NAME}_gtest")
 SET(RESTSERVER_NAME "restserver")
 
-set(COMPONENT_NAME "DigitalRooster-Test")
+SET(COMPONENT_NAME "DigitalRooster-Test")
 # Interface/binary version
 SET(COMPONENT_VERSION ${PROJECT_VERSION})
 # only works with cmake > 3.17
@@ -38,14 +38,14 @@ IF(UNIX)
   LIST(APPEND DUT_LIBS wpa_ctrl)
 ENDIF(UNIX)
 
-if(REST_API)
-  if(TARGET restconfig)
+IF(REST_API)
+  IF(TARGET restconfig)
     add_library(${PROJECT_NAME}::restconfig ALIAS restconfig)
-  else()
+  ELSE()
     find_package(${PROJECT_NAME} COMPONENTS restconfig CONFIG REQUIRED)
-  endif()
+  ENDIF()
   LIST(APPEND DUT_LIBS restconfig)
-endif(REST_API)
+ENDIF(REST_API)
 
 #------------------------------
 # add compile definitions
@@ -70,7 +70,7 @@ ELSE(NOT BUILD_GTEST_FROM_SRC)
   # http://www.kitware.com/media/html/BuildingExternalProjectsWithCMake2.8.html
   # https://github.com/google/googletest/tree/master/googletest#incorporating-into-an-existing-cmake-project
   #--------------------------------------------------------------------------
-  set(GTEST_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/GTestExternal/")
+  SET(GTEST_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/GTestExternal/")
 
   # Download and unpack googletest at configure time
   configure_file(CMakeLists.txt.in ${GTEST_PREFIX}/CMakeLists.txt)
@@ -79,21 +79,22 @@ ELSE(NOT BUILD_GTEST_FROM_SRC)
   execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"  .
     RESULT_VARIABLE result
     WORKING_DIRECTORY ${GTEST_PREFIX} )
-  if(result)
+  IF(result)
     message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-  endif()
+  ENDIF()
 
   message(STATUS "Building google test" )
   execute_process(COMMAND ${CMAKE_COMMAND} --build  ${GTEST_PREFIX}
     RESULT_VARIABLE result
     WORKING_DIRECTORY ${GTEST_PREFIX}/googletest-build )
-  if(result)
+
+  IF(result)
     message(FATAL_ERROR "Build step for googletest failed: ${result}")
-  endif()
+  ENDIF()
 
   # Prevent overriding the parent project's compiler/linker
   # settings on Windows
-  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+  SET(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
   # Add googletest directly to our build. This defines
   # the gtest and gtest_main targets.
@@ -145,7 +146,7 @@ ELSE(NOT BUILD_GTEST_FROM_SRC)
   add_dependencies(GTest gtest_main gtest)
   add_dependencies(GMock gmock_main gmock)
 
-endif(NOT BUILD_GTEST_FROM_SRC)
+ENDIF(NOT BUILD_GTEST_FROM_SRC)
 
 #------------------------------
 # Test input files
