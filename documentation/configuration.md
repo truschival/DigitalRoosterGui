@@ -175,7 +175,7 @@ form [openweathermap.org](https://api.openweathermap.org)
 
 This part is only works on the embedded linux build. There are a few
 environment variables that allow for configuration of the actually used
-input event interfaces.
+input event interfaces or backlight control.
 
 Usually you don't need to set any of these variables if you use the device
 tree provided during build with buildroot_extenal. For development purposes
@@ -198,6 +198,15 @@ Setting the input device names to look for using ``ioctl(EVIOCGNAME)``:
 If ``DR_PUSH_EVENT_PATH`` or ``DR_ROTARY_EVENT_PATH`` are set this
 value is taken regardless if the device node exists or if it is
 the *correct* device.
+
+### Backlight control
+
+The backlight control on a embedded device using DigitalRooster-Audio-Mk3
+is implemented on an external TI TLC59208F LED driver chip. 
+The backlight channel is created at ``/sys/class/leds/bl/brightness``.
+
+Using the environment variable ``BACKLIGHT_PATH`` the path can be adjusted.
+Make sure you include the full path to the device
 
 ## Logging configuration
 

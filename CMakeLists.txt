@@ -48,7 +48,7 @@ ELSE(UNIX)
 ENDIF(UNIX)
 
 SET(SYSTEM_TARGET_NAME "Host"
-  CACHE STRING "Target: {Host|Rpi}")
+  CACHE STRING "Target: {Host|Embedded}")
 SET(SETTINGS_FILE_NAME "digitalrooster.json"
   CACHE STRING "application configuration file name")
 SET(WIFI_INTERFACE "/var/run/wpa_supplicant/wlp2s0"
@@ -236,8 +236,7 @@ endif(DOXYGEN_FOUND)
 
 # control interface for wpa_supplicant
 add_subdirectory(${PROJECT_SOURCE_DIR}/wpa_ctrl/)
-add_subdirectory(${PROJECT_SOURCE_DIR}/libhwif/)
-add_subdirectory(${PROJECT_SOURCE_DIR}/libsrc/) #libsrc depends on libhwif
+add_subdirectory(${PROJECT_SOURCE_DIR}/libsrc/)
 
 if(REST_API)
   add_subdirectory(${PROJECT_SOURCE_DIR}/REST/)

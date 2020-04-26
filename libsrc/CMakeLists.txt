@@ -19,12 +19,6 @@ find_package(Qt5 COMPONENTS Core Multimedia Network REQUIRED)
 #------------------------------------------------------------------------------
 
 SET(OTHER_LIBS "")
-IF(TARGET hwif)
-	add_library(${PROJECT_NAME}::hwif ALIAS hwif)
-ELSE()
-	find_package(${PROJECT_NAME} COMPONENTS hwif CONFIG REQUIRED)
-ENDIF()
-LIST(APPEND OTHER_LIBS hwif)
 
 # target wpa_ctrl always exists (the content depends on HAS_WPA_SUPPLICANT)
 IF(TARGET wpa_ctrl)
@@ -65,7 +59,14 @@ SET(SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/wifi_control.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/sleeptimer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/hardware_configuration.cpp
 	)
+
+if(${SYSTEM_TARGET_NAME} STREQUAL "Embedded" )
+	LIST(APPEND SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_mk3.cpp )
+else()
+	LIST(APPEND SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_stub.cpp )
+endif()
 
 #------------------------------
 # QT MOC, UIC RCC input
@@ -90,7 +91,8 @@ SET(MOC_SRC
 	${PROJECT_INCLUDE_DIR}/podcast_serializer.hpp
 	${PROJECT_INCLUDE_DIR}/wifi_control.hpp
 	${PROJECT_INCLUDE_DIR}/sleeptimer.hpp
-)
+	${PROJECT_INCLUDE_DIR}/hardware_control.hpp
+	)
 
 #------------------------------
 # Output a library

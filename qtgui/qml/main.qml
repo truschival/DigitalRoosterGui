@@ -133,47 +133,47 @@ ApplicationWindow {
             repeat: false
             onTriggered: drawer.close();
         }
-    }
 
-    ListView {
-        id: listView
-        anchors.fill: parent
-        spacing: Style.itemSpacings.dense;
-        anchors.margins: Style.itemMargins.slim;
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.verticalCenter: parent.verticalCenter
+	ListView {
+            id: listView
+            anchors.fill: parent
+            spacing: Style.itemSpacings.dense;
+            anchors.margins: Style.itemMargins.slim;
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
 
-        focus: true;
-        currentIndex: -1;
+            focus: true;
+            currentIndex: -1;
 
-        delegate: IconButton {
-            text: model.title
-            highlighted: listView.currentIndex == index
+            delegate: IconButton {
+		text: model.title
+		highlighted: listView.currentIndex == index
 
-            onClicked: {
-                if( stackView.depth > 1){
-                    stackView.pop(null)
-                }
-                listView.currentIndex = index
-                drawer.close()
-                /* Special item: power off button */
-                if(index === listView.count -1 ){
-                    powerOffMenu.popup((applicationWindow.width-powerOffMenu.width)/2,
-                                       (applicationWindow.height-powerOffMenu.height)/2 - Style.itemMargins.extrawide)
-                    return; // nothing to do
-                }
-                stackView.push(model.source)
+		onClicked: {
+                    if( stackView.depth > 1){
+			stackView.pop(null)
+                    }
+                    listView.currentIndex = index
+                    drawer.close()
+                    /* Special item: power off button */
+                    if(index === listView.count -1 ){
+			powerOffMenu.popup((applicationWindow.width-powerOffMenu.width)/2,
+					   (applicationWindow.height-powerOffMenu.height)/2 - Style.itemMargins.extrawide)
+			return; // nothing to do
+                    }
+                    stackView.push(model.source)
+		}
             }
-        }
 
-        model: ListModel {
-            ListElement { title: "\uf223"; source: "qrc:/PodcastList.qml"; objectName:"PodcastList"; }
-            ListElement { title: "\uf43B"; source: "qrc:/IRadioList.qml"; objectName:"InternetRadio"; }
-            ListElement { title: "\uf020"; source: "qrc:/AlarmList.qml"; objectName:"AlarmList"; }
-            ListElement { title: "\uf62e"; source: "qrc:/SettingsPage.qml"; objectName:"Settings"; }
-            ListElement { title: "\uf425"; source: ""; objectName:"PowerOff"; }
-        }
-    }
+            model: ListModel {
+		ListElement { title: "\uf223"; source: "qrc:/PodcastList.qml"; objectName:"PodcastList"; }
+		ListElement { title: "\uf43B"; source: "qrc:/IRadioList.qml"; objectName:"InternetRadio"; }
+		ListElement { title: "\uf020"; source: "qrc:/AlarmList.qml"; objectName:"AlarmList"; }
+		ListElement { title: "\uf62e"; source: "qrc:/SettingsPage.qml"; objectName:"Settings"; }
+		ListElement { title: "\uf425"; source: ""; objectName:"PowerOff"; }
+            }
+	}
+    } //Drawer
 
     PowerMenu {
         id: powerOffMenu;

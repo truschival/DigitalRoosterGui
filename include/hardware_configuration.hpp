@@ -18,6 +18,11 @@
 namespace Hal {
 
 /**
+ * Name of environment variable for backlight device
+ */
+const QString BACKLIGHT_PATH_ENV_VAR_NAME{"BACKLIGHT_PATH"};
+
+/**
  * Name of environment variable to set push button event path
  */
 const QString PUSH_BUTTON_PATH_ENV_VAR_NAME{"DR_PUSH_EVENT_PATH"};
@@ -62,6 +67,14 @@ public:
     HardwareConfiguration();
 
     /**
+     * Path to /sys/class/leds/.... that controls the backlight
+     * @return \ref sys_backlight_path
+     */
+    QString get_backlight_path() const{
+    	return sys_backlight_path;
+    };
+
+    /**
      * Path to rotary encoder event input device
      * @return \ref dev_rotary_event_path
      */
@@ -84,6 +97,11 @@ private:
      * @return absolute path
      */
     QString resolve_name_to_path(const QString& dev_name);
+
+    /**
+     * Path in /sys for backlight control
+     */
+    QString sys_backlight_path{"/sys/class/leds/bl/brightness"};
 
     /**
      * Dev-File path for rotary events

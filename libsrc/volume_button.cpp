@@ -9,11 +9,10 @@
  * 			 SPDX-License-Identifier: GPL-3.0-or-later}
  *
  *****************************************************************************/
-
-#include "volume_button.hpp"
-#include "configuration_manager.hpp"
 #include <QLoggingCategory>
-#include <hwif/hardware_control.hpp>
+
+#include "configuration_manager.hpp"
+#include "volume_button.hpp"
 
 using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.VolumeButton");
@@ -33,12 +32,13 @@ VolumeButton::~VolumeButton() {
 }
 
 /*****************************************************************************/
-void DigitalRooster::VolumeButton::process_rotary_event(const Hal::InputEvent& evt) {
+void DigitalRooster::VolumeButton::process_rotary_event(
+    const Hal::InputEvent& evt) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
-    if(!enable_volume_changes){
-    	qCDebug(CLASS_LC) << "ignoring volume change events";
-    	return;
+    if (!enable_volume_changes) {
+        qCDebug(CLASS_LC) << "ignoring volume change events";
+        return;
     }
     // only react on -1 or 1 events
     if (evt.value < 0) {
@@ -52,11 +52,12 @@ void DigitalRooster::VolumeButton::process_rotary_event(const Hal::InputEvent& e
 /*****************************************************************************/
 void DigitalRooster::VolumeButton::monitor_rotary_button(bool active) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    enable_volume_changes =active;
+    enable_volume_changes = active;
 }
 
 /*****************************************************************************/
-void DigitalRooster::VolumeButton::process_key_event(const Hal::InputEvent& evt) {
+void DigitalRooster::VolumeButton::process_key_event(
+    const Hal::InputEvent& evt) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     /*
      * Type=(0x01 EV_KEY), value=(1 pressed, 0 released), code=(102 KEY_HOME)

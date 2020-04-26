@@ -14,8 +14,8 @@
 #include <exception>
 #include <memory>
 
-#include "hwif/hardware_configuration.hpp"
-#include "hwif/hardware_control.hpp"
+#include "hardware_configuration.hpp"
+#include "hardware_control.hpp"
 
 
 using namespace Hal;
@@ -23,8 +23,9 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HardwareControl");
 
 /*****************************************************************************/
 HardwareControl::HardwareControl(
-    Hal::HardwareConfiguration& cfg, QObject* parent)
-    : QObject(parent) {
+    const Hal::HardwareConfiguration& cfg, QObject* parent)
+    : QObject(parent)
+    , hwconf(cfg) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }
 
@@ -45,7 +46,7 @@ void HardwareControl::system_reboot() {
 }
 
 /*****************************************************************************/
-void  HardwareControl::system_poweroff() {
+void HardwareControl::system_poweroff() {
     qCInfo(CLASS_LC) << Q_FUNC_INFO;
     exit(0);
 }
