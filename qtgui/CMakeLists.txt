@@ -7,6 +7,9 @@ set(COMPONENT_NAME ${BINARY_NAME})
 SET(COMPONENT_VERSION ${PROJECT_VERSION})
 # Gui has extra QT dependencies: QML and QTquick
 find_package(Qt5 COMPONENTS Qml Quick REQUIRED)
+# QTQuickCompiler for compile-time QML
+find_package(Qt5QuickCompiler)
+
 #Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -57,10 +60,10 @@ SET(MOC_SRC
   ${CMAKE_CURRENT_SOURCE_DIR}/wifilistmodel.hpp
   )
 
-SET(QRC_SRC
-  qml/qml.qrc
-  externalRes/external.qrc
-  )
+# Data resources (fonts,images etc.)
+qt5_add_resources(QRC_DATA externalRes/external.qrc)
+# QML sources for Qt5QuickCompiler
+qtquick_compiler_add_resources(QML_QRC_OBJECTS qml/qml.qrc)
 
 #------------------------------
 # add compile definitions
@@ -69,7 +72,7 @@ SET(CPP_DEFS "")
 LIST(APPEND CPP_DEFS "" )
 
 if(REST_API)
-	LIST(APPEND CPP_DEFS "REST_API")
+  LIST(APPEND CPP_DEFS "REST_API")
 endif(REST_API)
 
 #------------------------------
@@ -80,7 +83,8 @@ ADD_EXECUTABLE(${COMPONENT_NAME}
   ${SRCS}
   ${UI_HDRS}
   ${MOC_SRC}
-  ${QRC_SRC}
+  ${QML_QRC_OBJECTS}
+  ${QRC_DATA}
   )
 
 SET_TARGET_PROPERTIES(${COMPONENT_NAME}
@@ -94,7 +98,7 @@ TARGET_COMPILE_DEFINITIONS(${COMPONENT_NAME}
   ${CPP_DEFS}
   )
 
-TARGET_COMPILE_OPTIONS(${COMPONENT_NAME} 
+TARGET_COMPILE_OPTIONS(${COMPONENT_NAME}
   PRIVATE
   $<$<COMPILE_LANGUAGE:CXX>:${CUSTOM_CXX_FLAGS}>
   $<$<COMPILE_LANGUAGE:C>:${CUSTOM_C_FLAGS}>
