@@ -46,7 +46,6 @@ Page {
             text: "\uf0de";
             Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
             onClicked: {
-                console.log("change brightness")
                 brightnessMenu.popup((applicationWindow.width- brightnessMenu.width)/2,
                                      (applicationWindow.height- brightnessMenu.height)/2
                                      - Style.itemMargins.extrawide)
@@ -58,16 +57,15 @@ Page {
             color: "white"
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
-        
+
         IconButton {
             id: sleeptimeoutBtn;
             text: "\uf51b";
             Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
             onClicked: {
-                console.log("change sleep timeout")
                 sleepTimeoutMenu.popup((applicationWindow.width- sleepTimeoutMenu.width)/2,
-                               (applicationWindow.height- sleepTimeoutMenu.height)/2
-                               - Style.itemMargins.extrawide);
+                                       (applicationWindow.height- sleepTimeoutMenu.height)/2
+                                       - Style.itemMargins.extrawide);
             }
         }
         Text{
@@ -76,13 +74,12 @@ Page {
             color: "white"
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
-        
+
         IconButton {
             id: wifiBtn;
             text: "\uf5a9";
             Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
             onClicked: {
-                console.log("change wifi")
                 wifiMenu.popup((applicationWindow.width- wifiMenu.width)/2,
                                (applicationWindow.height- wifiMenu.height)/2
                                - Style.itemMargins.extrawide);
@@ -94,5 +91,5 @@ Page {
             color: "white"
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
-    }// GridLayout   
+    }// GridLayout
 }

@@ -19,7 +19,6 @@ Rectangle{
         anchors.fill: parent
         onPressAndHold:  {
             alarmlistmodel.currentIndex =index;
-            console.log("Alarm pressed : "+index);
             alarmEditDlg.index = index;
             alarmEditDlg.currentAlarm = alarmlistmodel.get_alarm(
                 alarmlistmodel.currentIndex)
@@ -73,7 +72,6 @@ Rectangle{
             }
 
             onActivated:{
-                console.log("Deleting idx: " + index)
                 alarmlistmodel.delete_alarm(index);
             }
         }

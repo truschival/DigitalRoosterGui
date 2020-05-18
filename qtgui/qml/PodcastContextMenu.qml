@@ -44,7 +44,6 @@ Menu {
             Layout.preferredWidth: podcastDeleteBtn.width;
             
             onClicked: {
-                console.log("refresh "+podcastlist.currentIndex)
                 podcastlist.model.refresh(podcastlist.currentIndex);
             }
         }
@@ -63,7 +62,6 @@ Menu {
             Layout.preferredWidth: podcastDeleteBtn.width;
 
             onClicked: {
-                console.log("purge local"+ podcastlist.currentIndex)
                 podcastlist.model.purge(podcastlist.currentIndex);
                 podcastlist.model.refresh(podcastlist.currentIndex);
             }
@@ -89,7 +87,6 @@ Menu {
             }
 
             onActivated:{
-                console.log("Deleting idx: "  + podcastlist.currentIndex)
                 podcastlist.model.remove(podcastlist.currentIndex);
                 podcastControl.close()
             }

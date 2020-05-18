@@ -46,7 +46,6 @@ Page {
     }// Gridlayout
 
     function update_forecast(){
-        console.log("update_forecast")
         fc0h.update(weather.get_weather(0));
         fc6h.update(weather.get_weather(2));
         fc12h.update(weather.get_weather(4));
