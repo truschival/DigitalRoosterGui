@@ -161,14 +161,42 @@ TEST_F(PodcastSourceFixture, emit_Description_Title_Changed) {
 }
 
 /******************************************************************************/
+TEST_F(PodcastSourceFixture, returnIconUrlIfNotStored) {
+    auto image_url = QUrl(
+        "https://www.ruschival.de/wp-content/uploads/2013/12/424504199718.jpg");
+    ps.set_image_url(image_url);
+    ASSERT_EQ(ps.get_icon(), image_url);
+}
+
+/******************************************************************************/
+TEST_F(PodcastSourceFixture, returnLocalIconIfStored) {
+    auto image_url = QUrl(
+        "https://www.ruschival.de/wp-content/uploads/2013/12/424504199718.jpg");
+    auto file_name = image_url.fileName();
+    QFile cache_file(cache_dir.filePath(file_name));
+    cache_file.open(QIODevice::WriteOnly);
+    cache_file.write("foo");
+    cache_file.close();
+    ASSERT_TRUE(cache_file.exists());
+
+    ps.set_image_url(image_url);
+    ps.set_image_file_path(cache_dir.filePath(file_name));
+
+    ASSERT_EQ(
+        ps.get_icon(), QUrl::fromLocalFile(cache_dir.filePath(file_name)));
+}
+
+/******************************************************************************/
 TEST_F(PodcastSourceFixture, storeIconCache) {
     auto image_url = QUrl(
         "https://www.ruschival.de/wp-content/uploads/2013/12/424504199718.jpg");
     auto file_name = image_url.fileName();
     QFile cache_file(cache_dir.filePath(file_name));
-
     ps.set_image_url(image_url);
+    // For downloading cache PodcastSource needs a Serializer
+    ps.set_serializer(std::make_unique<PodcastSerializer>(cache_dir, &ps));
     QSignalSpy spy(&ps, SIGNAL(icon_changed()));
+
     // First time return image_url - data not yet cached
     ASSERT_EQ(ps.get_icon(), image_url);
     spy.wait(); // after download icon_changed() is emitted
@@ -187,19 +215,17 @@ TEST_F(PodcastSourceFixture, purgeIconCache) {
         "https://www.ruschival.de/wp-content/uploads/2013/12/424504199718.jpg");
     auto file_name = image_url.fileName();
     QFile cache_file(cache_dir.filePath(file_name));
-
+    cache_file.open(QIODevice::WriteOnly);
+    cache_file.write("foo");
+    cache_file.close();
+    ASSERT_TRUE(cache_file.exists());
     ps.set_image_url(image_url);
-    QSignalSpy spy(&ps, SIGNAL(icon_changed()));
-
-    // First time return image_url - data not yet cached
-    ASSERT_EQ(ps.get_icon(), image_url);
-    spy.wait(); // after download icon_changed() is emitted
-    ASSERT_EQ(spy.count(), 1);
-    // File should be deleted and the URL is returned
+    ps.set_image_file_path(cache_dir.filePath(file_name));
+    // delete icon cache
     ps.purge_icon_cache();
 
-    ASSERT_EQ(ps.get_icon(), image_url); // URL not local cache
     ASSERT_FALSE(cache_file.exists());   // file is deleted
+    ASSERT_EQ(ps.get_icon(), image_url); // URL not local cache
 }
 
 /******************************************************************************/

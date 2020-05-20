@@ -10,6 +10,7 @@
  *
  *****************************************************************************/
 #include <QFile>
+#include <QImage>
 #include <QLoggingCategory>
 #include <QUuid>
 #include <exception>
@@ -44,7 +45,9 @@ PodcastSerializer::~PodcastSerializer() {
 void PodcastSerializer::restore_info() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (ps != nullptr) {
-        auto cache_file = cache_dir.filePath(ps->get_id().toString());
+        // no braces in the file path
+        auto cache_file =
+            cache_dir.filePath(ps->get_id_string());
         try {
             read_from_file(ps, cache_file);
         } catch (std::system_error& exc) {
@@ -63,14 +66,14 @@ void PodcastSerializer::set_podcast_source(PodcastSource* source) {
 void PodcastSerializer::write() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (ps != nullptr) {
-    	write_cache();
+        write_cache();
     }
 }
 
 /*****************************************************************************/
-void PodcastSerializer::write_cache(){
-	qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto cache_file = cache_dir.filePath(ps->get_id().toString());
+void PodcastSerializer::write_cache() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto cache_file = cache_dir.filePath(ps->get_id_string());
     store_to_file(ps, cache_file);
 }
 
@@ -78,13 +81,13 @@ void PodcastSerializer::write_cache(){
 void PodcastSerializer::delete_cached_info() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (ps != nullptr) {
-    	delete_cache();
+        delete_cache();
     }
 }
 
 /*****************************************************************************/
-void PodcastSerializer::delete_cache(){
-	qCDebug(CLASS_LC) << Q_FUNC_INFO;
+void PodcastSerializer::delete_cache() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QFile cache_file(cache_dir.filePath(ps->get_id().toString()));
     cache_file.remove();
 }
@@ -94,6 +97,22 @@ void PodcastSerializer::delayed_write() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (!writeTimer.isActive()) {
         writeTimer.start(); // start delayed write
+    }
+}
+
+/*****************************************************************************/
+void PodcastSerializer::store_image(QByteArray data) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto image_file_path = cache_dir.filePath(ps->get_image_url().fileName());
+    /* Resize image and save file */
+    auto image_data = QImage::fromData(data);
+    auto small_image = image_data.scaled(DEFAULT_ICON_WIDTH, DEFAULT_ICON_WIDTH,
+        Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    qCDebug(CLASS_LC) << "image_file_path:" << image_file_path;
+    if (small_image.save(image_file_path)) {
+        ps->set_image_file_path(image_file_path);
+    } else {
+        qCCritical(CLASS_LC) << "save image failed" << image_file_path;
     }
 }
 

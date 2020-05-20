@@ -11,7 +11,6 @@
  *****************************************************************************/
 
 #include <QDateTime>
-#include <QImage>
 #include <QLoggingCategory>
 #include <QMediaPlayer>
 #include <QStandardPaths>
@@ -258,38 +257,25 @@ void PodcastSource::set_image_file_path(const QString& path) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     image_file_path = path;
     emit icon_changed();
+    emit dataChanged();
 }
 
 /*****************************************************************************/
 QUrl PodcastSource::get_icon_impl() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (!image_file_path.isEmpty() && QFile(image_file_path).exists()) {
+        qCDebug(CLASS_LC) << "found cached icon:" << image_file_path;
         return QUrl::fromLocalFile(image_file_path);
     } else {
+        qCDebug(CLASS_LC) << "start download for icon cache:";
         /* Download for next time */
         icon_downloader = std::make_unique<HttpClient>();
-        download_cnx = connect(icon_downloader.get(),
-            &HttpClient::dataAvailable, this, &PodcastSource::store_image);
+        download_cnx =
+            connect(icon_downloader.get(), &HttpClient::dataAvailable,
+                serializer.get(), &PodcastSerializer::store_image);
         icon_downloader->doDownload(icon_url);
         return icon_url;
     }
-}
-
-/*****************************************************************************/
-void PodcastSource::store_image(QByteArray data) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto file_name = QDir(DEFAULT_CACHE_DIR_PATH).filePath(icon_url.fileName());
-    /* Resize image and save file */
-    auto image_data = QImage::fromData(data);
-    auto small_image = image_data.scaled(DEFAULT_ICON_WIDTH, DEFAULT_ICON_WIDTH,
-        Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    small_image.save(file_name);
-    image_file_path = file_name;
-    emit icon_changed();
-    // disable receiving signals form downloader
-    disconnect(download_cnx);
-    icon_downloader.get()->deleteLater();
-    icon_downloader.release(); // let QT manage the object
 }
 
 /*****************************************************************************/
@@ -325,7 +311,7 @@ std::shared_ptr<PodcastSource> PodcastSource::from_json_object(
 QJsonObject PodcastSource::to_json_object() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject json;
-    json[KEY_ID] = get_id().toString(QUuid::WithoutBraces);
+    json[KEY_ID] = get_id_string();
     json[KEY_URI] = get_url().toString();
     json[KEY_TITLE] = get_title();
     json[KEY_UPDATE_INTERVAL] =

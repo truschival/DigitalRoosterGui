@@ -243,6 +243,14 @@ public:
     }
 
     /**
+     * For clients that just want the id without braces
+     * @return
+     */
+    QString get_id_string() const {
+    	return id.toString(QUuid::WithoutBraces);
+    }
+
+    /**
      * Remove local icon cache file
      */
     void purge_icon_cache();
@@ -421,13 +429,6 @@ private:
      * @return icon url or file path
      */
     virtual QUrl get_icon_impl();
-
-private slots:
-	/**
-	 * save downloaded byte array in local image file
-	 * @param data
-	 */
-	void store_image(QByteArray data);
 
 };
 } // namespace DigitalRooster

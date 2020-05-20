@@ -81,6 +81,12 @@ public slots:
      */
     void write();
 
+    /**
+     * save downloaded byte array in local image file
+     * @param data from Http download
+     */
+    void store_image(QByteArray data);
+
 private:
     /**
      * Podcast Source to serialize/de-serialize
@@ -126,7 +132,8 @@ void read_from_file(PodcastSource* ps, const QString& file_path);
  * @param tl_obj top level object = PodcastSource representation
  * @param ps podcast source to configure
  */
-void parse_podcast_source_from_json(const QJsonObject& tl_obj, PodcastSource* ps);
+void parse_podcast_source_from_json(
+    const QJsonObject& tl_obj, PodcastSource* ps);
 
 /**
  * Reads episodes array from \ref json and updates \ref ps
