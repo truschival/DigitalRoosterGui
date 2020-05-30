@@ -8,14 +8,20 @@ import QtQuick.Controls 2.1
 Menu {
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+    dim: true;
+    enter: dialogFadeInTransition;
+    exit: dialogFadeOutTransition;
 
-    enter: Transition {
-        NumberAnimation { property: "opacity";
-			  from: 0.0; to: 1.0 ; duration: 300}
+    Timer {
+        id: brightnessMenuCloseTimer;
+        interval: applicationWindow.dialogTimeout;
+        running: false;
+        repeat: false;
+        onTriggered: parent.close();
     }
-    exit: Transition {
-        NumberAnimation { property: "opacity";
-			  from: 1.0; to: 0.0 ; duration: 400}
+
+    onAboutToShow : {
+        brightnessMenuCloseTimer.start();
     }
 
     ColumnLayout{

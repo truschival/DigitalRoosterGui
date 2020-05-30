@@ -9,15 +9,11 @@ import "Jsutil.js" as Util
 Popup {
     property Alarm currentAlarm;
     property int index;
+    modal: true;
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-
-    enter: Transition {
-        NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 ; duration: 300}
-    }
-    exit: Transition {
-        NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 ; duration: 400}
-    }
+    enter: dialogFadeInTransition;
+    exit: dialogFadeOutTransition;
 
     contentItem: GridLayout {
         columnSpacing: Style.itemSpacings.slim;

@@ -1,6 +1,6 @@
 import QtQuick 2.9
 import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.1
+import QtQuick.Controls 2.2
 import QtQuick.Controls.Material 2.1
 import QtMultimedia 5.9
 import ruschi.PodcastEpisode 1.0
@@ -20,6 +20,8 @@ ApplicationWindow {
 
     property alias playerControlWidget: playerControlWidget
     property string functionMode: "Clock"
+    property int pressAndHoldInterval: 300;
+    property int dialogTimeout: 8000; // Dialog shown for 8s w/o interaction
 
     Clock{
         id: currentTime
@@ -33,7 +35,7 @@ ApplicationWindow {
     Timer {
         // Timer to reset stackview after player has started
         id: viewResetTimer
-        interval: 60000; // 1 minute
+        interval: 40000; // 40s without interaction -> reset to initial page
         running: false;
         repeat: false;
         onTriggered: stackView.reset();
@@ -134,7 +136,7 @@ ApplicationWindow {
             onTriggered: drawer.close();
         }
 
-	ListView {
+        ListView {
             id: listView
             anchors.fill: parent
             spacing: Style.itemSpacings.dense;
@@ -146,68 +148,65 @@ ApplicationWindow {
             currentIndex: -1;
 
             delegate: IconButton {
-		text: model.title
-		highlighted: listView.currentIndex == index
+                text: model.title
+                highlighted: listView.currentIndex == index
 
-		onClicked: {
+                onClicked: {
                     if( stackView.depth > 1){
-			stackView.pop(null)
+                        stackView.pop(null)
                     }
                     listView.currentIndex = index
                     drawer.close()
                     /* Special item: power off button */
                     if(index === listView.count -1 ){
-			powerOffMenu.popup((applicationWindow.width-powerOffMenu.width)/2,
-					   (applicationWindow.height-powerOffMenu.height)/2 - Style.itemMargins.extrawide)
-			return; // nothing to do
+                        powerOffMenu.popup((applicationWindow.width-powerOffMenu.width)/2,
+                                           (applicationWindow.height-powerOffMenu.height)/2 - Style.itemMargins.extrawide)
+                        return; // nothing to do
                     }
+                    viewResetTimer.restart();
                     stackView.push(model.source)
-		}
+                }
             }
 
             model: ListModel {
-		ListElement { title: "\uf223"; source: "qrc:/PodcastList.qml"; objectName:"PodcastList"; }
-		ListElement { title: "\uf43B"; source: "qrc:/IRadioList.qml"; objectName:"InternetRadio"; }
-		ListElement { title: "\uf020"; source: "qrc:/AlarmList.qml"; objectName:"AlarmList"; }
-		ListElement { title: "\uf62e"; source: "qrc:/SettingsPage.qml"; objectName:"Settings"; }
-		ListElement { title: "\uf425"; source: ""; objectName:"PowerOff"; }
+                ListElement { title: "\uf223"; source: "qrc:/PodcastList.qml"; objectName:"PodcastList"; }
+                ListElement { title: "\uf43B"; source: "qrc:/IRadioList.qml"; objectName:"InternetRadio"; }
+                ListElement { title: "\uf020"; source: "qrc:/AlarmList.qml"; objectName:"AlarmList"; }
+                ListElement { title: "\uf62e"; source: "qrc:/SettingsPage.qml"; objectName:"Settings"; }
+                ListElement { title: "\uf425"; source: ""; objectName:"PowerOff"; }
             }
-	}
+        }
     } //Drawer
 
     PowerMenu {
         id: powerOffMenu;
-        title:"Power";
     }
 
-    BrightnessMenu{
+    BrightnessMenu {
         id: brightnessMenu;
-        title: "Brightness";
     }
 
-    WifiMenu{
+    WifiMenu {
         id: wifiMenu;
-        title: "Wifi";
         height: applicationWindow.height*0.8;
         width: applicationWindow.width*0.8;
     }
 
-    SleepTimeoutMenu{
+    SleepTimeoutMenu {
         id: sleepTimeoutMenu;
-        title: "Sleep Timeout";
         height: applicationWindow.height*0.6;
         width: applicationWindow.width*0.7;
     }
 
-
-    PlayerControlWidget{
-        id: playerControlWidget
+    PlayerControlWidget {
+        id: playerControlWidget;
         width: parent.width*0.85;
+        height: parent.height*0.5;
         x: Math.round((applicationWindow.width - width) / 2)
-        y: Math.round((applicationWindow.height - height) *0.6)
+        y: Math.round((applicationWindow.height - height) *0.6)+10;
     }
 
-    VolumePopup{
+    VolumePopup {
         id: volumePopUp
         x: Math.round((applicationWindow.width - width) / 2)
         y: Math.round((applicationWindow.height - height) / 2)
@@ -237,6 +236,28 @@ ApplicationWindow {
             }
         }
 
+    }
+
+    /* Global Transitions */
+    Transition {
+        id: listBoundTransition;
+        /* NumberAnimation { */
+        /*     properties: "x,y"; */
+        /*     duration: 800; */
+        /*     easing.type: Easing.InOutBack; */
+        /* } */
+    }
+
+    Transition {
+        id: dialogFadeInTransition;
+        NumberAnimation { property: "opacity";
+                          from: 0.0; to: 1.0 ; duration: 400}
+    }
+
+    Transition {
+        id: dialogFadeOutTransition
+        NumberAnimation { property: "opacity";
+                          from: 1.0; to: 0.0 ; duration: 600}
     }
 
     /**** global connections ****/

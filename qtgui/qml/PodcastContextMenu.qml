@@ -9,14 +9,20 @@ import QtQuick.Controls.Material 2.1
 Menu {
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+    modal:true;
+    enter: dialogFadeInTransition;
+    exit: dialogFadeOutTransition;
 
-    enter: Transition {
-        NumberAnimation { property: "opacity";
-            from: 0.0; to: 1.0 ; duration: 300}
+    Timer {
+        id: podcastCtxMenuCloseTimer;
+        interval: applicationWindow.dialogTimeout;
+        running: false;
+        repeat: false;
+        onTriggered: parent.close();
     }
-    exit: Transition {
-        NumberAnimation { property: "opacity";
-            from: 1.0; to: 0.0 ; duration: 400}
+
+    onAboutToShow : {
+        podcastCtxMenuCloseTimer.start();
     }
 
     GridLayout {
@@ -27,29 +33,33 @@ Menu {
 
         Text{
             text: podcastControl.title;
-            font: Style.font.boldLabel;
-            elide: Text.ElideRight;
-            color: "white";
+            font: Style.font.label;
+            elide: Text.ElideMiddle;
+            color: Material.accent;
+
             Layout.columnSpan:2;
             Layout.margins:Style.itemMargins.slim;
+            Layout.maximumWidth: parent.width;
             Layout.alignment: Qt.AlignCenter | Qt.AlignTop
         }
 
         IconButton {
             id: refreshBtn
-            text: "\uf450"
-            Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-            
+            text: "\uf450";
+            Layout.alignment:  Qt.AlignCenter | Qt.AlignVCenter
+
             Layout.preferredHeight: podcastDeleteBtn.height;
             Layout.preferredWidth: podcastDeleteBtn.width;
-            
+
             onClicked: {
                 podcastlist.model.refresh(podcastlist.currentIndex);
+                podcastControl.close()
             }
         }
+
         Text{
             text: "refresh";
-            font: Style.font.boldLabel;
+            font: Style.font.label;
             color: "white"
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
@@ -64,11 +74,13 @@ Menu {
             onClicked: {
                 podcastlist.model.purge(podcastlist.currentIndex);
                 podcastlist.model.refresh(podcastlist.currentIndex);
+                podcastControl.close()
             }
         }
+
         Text{
             text: "purge local";
-            font: Style.font.boldLabel;
+            font: Style.font.label;
             color: "white"
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
@@ -77,7 +89,7 @@ Menu {
             id: podcastDeleteBtn;
             delay:1000;
             Layout.maximumWidth: 48;
-            Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
+            Layout.alignment:  Qt.AlignCenter | Qt.AlignVCenter
             contentItem: Text{
                 text: "\ufa79"
                 color: "white"
@@ -91,9 +103,10 @@ Menu {
                 podcastControl.close()
             }
         }
+
         Text{
             text: "delete";
-            font: Style.font.boldLabel;
+            font: Style.font.label;
             color: "white"
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }

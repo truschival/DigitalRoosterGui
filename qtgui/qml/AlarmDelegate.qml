@@ -17,6 +17,7 @@ Rectangle{
 
     MouseArea {
         anchors.fill: parent
+        pressAndHoldInterval : applicationWindow.pressAndHoldInterval;
         onPressAndHold:  {
             alarmlistmodel.currentIndex =index;
             alarmEditDlg.index = index;

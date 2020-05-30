@@ -1,6 +1,6 @@
 import QtQuick 2.9
 import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.1
+import QtQuick.Controls 2.2
 
 /**
  * Wifi Menu
@@ -8,34 +8,28 @@ import QtQuick.Controls 2.1
 Menu {
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-
-    enter: Transition {
-        NumberAnimation { property: "opacity";
-            from: 0.0; to: 1.0 ; duration: 300}
-    }
-    exit: Transition {
-        NumberAnimation { property: "opacity";
-            from: 1.0; to: 0.0 ; duration: 400}
-    }
+    dim: true;
+    enter: dialogFadeInTransition;
+    exit: dialogFadeOutTransition;
 
     GridLayout{
         height: wifiMenu.height;
         anchors.leftMargin: Style.itemMargins.slim;
         anchors.rightMargin: Style.itemMargins.slim;
         anchors.topMargin: Style.itemMargins.slim;
-		clip: true;
-		rows:3;
-		columns:2;
+        clip: true;
+        rows:3;
+        columns:2;
 
-		IconButton{
-		  text: "\uf453";
-		  Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter;
-		  Layout.leftMargin: Style.itemMargins.wide;
-		  onPressed : {
-		      console.log("scan");
-		      wifictrl.start_scan();
-		  }
-		}
+        IconButton{
+            text: "\uf453";
+            Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter;
+            Layout.leftMargin: Style.itemMargins.wide;
+            onPressed : {
+                console.log("scan");
+                wifictrl.start_scan();
+            }
+        }
 
         Text{
             id: wifictrlStatus;

@@ -9,12 +9,16 @@ import "Jsutil.js" as Util
 Menu {
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+    modal: true;
+    enter: dialogFadeInTransition;
+    exit: dialogFadeOutTransition;
 
-    enter: Transition {
-        NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 ; duration: 300}
-    }
-    exit: Transition {
-        NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 ; duration: 400}
+    Timer {
+        id: sleepTimeOutMenuCloseTimer;
+        interval: applicationWindow.dialogTimeout;
+        running: false;
+        repeat: false;
+        onTriggered: parent.close();
     }
 
     contentItem: GridLayout {
@@ -91,6 +95,7 @@ Menu {
     onAboutToShow : {
         var idx = (sleeptimer.sleep_timeout_min/10)-1
         sleepTimeoutTumbler.setCurrentIndexAt(0, idx);
+        sleepTimeOutMenuCloseTimer.start();
     }
 
     onAboutToHide : {

@@ -97,6 +97,8 @@ Rectangle{
                                          podcastlist.model.get_episodes(index),
                                          "episodemodel" : podcastlist.model.get_episodes(index)});
             stackView.push(pel);
+	    // Enter Podcast List, give user time to browse
+	    viewResetTimer.restart();
         }
 
         onPressAndHold:  {

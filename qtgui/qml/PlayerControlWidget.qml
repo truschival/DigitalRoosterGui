@@ -9,20 +9,12 @@ import "Jsutil.js" as Util
 
 Popup {
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
-    background: Rectangle {
-        color: "#3F51B5";
-    }
-
-    enter: Transition {
-        NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 ; duration: 300}
-    }
-    exit: Transition {
-        NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 ; duration: 400}
-    }
+    enter: dialogFadeInTransition;
+    exit: dialogFadeOutTransition;
 
     Timer {
         id: interactiontimer
-        interval: 5000
+        interval: 4000
         running: true
         repeat: false
         onTriggered: playerControlWidget.close();
@@ -46,15 +38,15 @@ Popup {
             Layout.topMargin: 0;
             Layout.columnSpan: 3;
             Layout.fillWidth: true;
-            Layout.alignment: Qt.AlignCenter| Qt.AlignTop
+            Layout.alignment: Qt.AlignCenter | Qt.AlignTop
         }
 
         IconButton {
             id: backwardBtn
-            Layout.alignment: Qt.AlignRight| Qt.AlignTop
+            Layout.alignment: Qt.AlignRight | Qt.AlignTop
             Layout.minimumWidth: parent.width/3 - 20;
             Layout.preferredWidth: parent.width/3 ;
-            text: "\uf45f"
+            text: "\uf45f";
             onClicked: {
                 interactiontimer.restart()
                 playerProxy.seek(-10000)
@@ -110,7 +102,7 @@ Popup {
             Layout.columnSpan: 3;
             Layout.fillWidth: true;
             Layout.alignment: Qt.AlignCenter| Qt.AlignTop
-            Layout.bottomMargin: 5;
+            Layout.bottomMargin: 0;
             Layout.topMargin: Style.itemMargins.slim;
 
             Text {
@@ -125,7 +117,7 @@ Popup {
                 id: slider
                 Layout.fillWidth: true;
                 Layout.alignment: Qt.AlignHCenter|Qt.AlignTop
-                Layout.topMargin: -10;
+                Layout.topMargin: -15;
                 enabled: playerProxy.seekable
 
                 onMoved: {

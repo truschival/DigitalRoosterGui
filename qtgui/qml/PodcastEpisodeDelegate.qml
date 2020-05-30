@@ -11,7 +11,7 @@ Rectangle{
     radius: 3;
     border.width: 1;
     color: episodemodel.currentIndex === index ?
-               Style.colors.selected : Style.colors.unselected ;
+        Style.colors.selected : Style.colors.unselected ;
 
     anchors.margins: Style.itemMargins.slim;
 
@@ -28,7 +28,7 @@ Rectangle{
             id:episodeDN
             text: title;
             font: listened ?
-                      Style.font.listItemHeadListened : Style.font.listItemHead;
+                Style.font.listItemHeadListened : Style.font.listItemHead;
             Layout.fillWidth: true
             elide: Text.ElideRight
             Layout.columnSpan: 2
@@ -71,14 +71,10 @@ Rectangle{
     }
     MouseArea {
         anchors.fill: parent
-        onClicked:{
+        pressAndHoldInterval: applicationWindow.pressAndHoldInterval;
+
+        onDoubleClicked:{
             episodemodel.currentIndex = index;
-            if (playerProxy.playbackState !== MediaPlayer.PlayingState){
-                episodemodel.send_to_player(index)
-                playerControlWidget.setCurrentMediaTitle(title)
-            }
-            playerControlWidget.show()
-            viewResetTimer.restart();
         }
 
         onPressAndHold:  {
@@ -86,7 +82,6 @@ Rectangle{
             episodemodel.send_to_player(index)
             playerControlWidget.setCurrentMediaTitle(title)
             playerControlWidget.show()
-            viewResetTimer.restart();
         }
     }
 }
