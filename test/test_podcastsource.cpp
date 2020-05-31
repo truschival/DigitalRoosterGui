@@ -187,20 +187,19 @@ TEST_F(PodcastSourceFixture, returnLocalIconIfStored) {
 }
 
 /******************************************************************************/
-TEST_F(PodcastSourceFixture, storeIconCache) {
-    auto image_url = QUrl(
-        "https://www.ruschival.de/wp-content/uploads/2013/12/424504199718.jpg");
+TEST_F(PodcastSourceFixture, setIconUrlTriggersDownload) {
+    auto image_url = QUrl("https://www.ruschival.de/wp-content/uploads/2013/12/"
+                          "10150369594129719-150x150.jpg");
     auto file_name = image_url.fileName();
     QFile cache_file(cache_dir.filePath(file_name));
-    ps.set_image_url(image_url);
     // For downloading cache PodcastSource needs a Serializer
     ps.set_serializer(std::make_unique<PodcastSerializer>(cache_dir, &ps));
     QSignalSpy spy(&ps, SIGNAL(icon_changed()));
-
+    ps.set_image_url(image_url);
     // First time return image_url - data not yet cached
     ASSERT_EQ(ps.get_icon(), image_url);
     spy.wait(); // after download icon_changed() is emitted
-    ASSERT_EQ(spy.count(), 1);
+    ASSERT_EQ(spy.count(), 2);
     // Second time the local cache should be returned
     auto expeced_local_url = QUrl::fromLocalFile(cache_dir.filePath(file_name));
     ASSERT_EQ(ps.get_icon(), expeced_local_url);
@@ -208,6 +207,41 @@ TEST_F(PodcastSourceFixture, storeIconCache) {
     ASSERT_TRUE(cache_file.exists());
     ASSERT_TRUE(cache_file.remove());
 }
+
+/******************************************************************************/
+TEST_F(PodcastSourceFixture, updateIconUrlTriggersDownload) {
+    auto image_url = QUrl("https://www.ruschival.de/wp-content/uploads/2013/12/"
+                          "424523119718-150x150.jpg");
+    auto file_name = image_url.fileName();
+
+    auto image_url_new = QUrl("https://www.ruschival.de/wp-content/uploads/"
+                              "2013/12/10150369594129719-150x150.jpg");
+    auto file_name_new = image_url_new.fileName();
+
+
+    QSignalSpy spy(&ps, SIGNAL(icon_changed()));
+    ps.set_serializer(std::make_unique<PodcastSerializer>(cache_dir, &ps));
+    ps.set_image_url(image_url); // emits but we don't care
+    spy.wait();
+    spy.wait(); // after download icon_changed() is emitted
+
+    ps.set_image_url(image_url_new); // emits
+    spy.wait();                      // set_image_url(image_url_new)
+    spy.wait(); // set_image_file_path() with new cache file
+    ASSERT_EQ(spy.count(), 4);
+    // Second time the local cache should be returned
+    auto expected_local_url =
+        QUrl::fromLocalFile(cache_dir.filePath(file_name_new));
+    ASSERT_EQ(ps.get_icon(), expected_local_url);
+
+    QFile cache_file(cache_dir.filePath(file_name));
+    ASSERT_FALSE(cache_file.exists()); // Should have been deleted when updated
+
+    QFile cache_file_new(cache_dir.filePath(file_name_new));
+    ASSERT_TRUE(cache_file_new.exists());
+    ASSERT_TRUE(cache_file_new.remove());
+}
+
 
 /******************************************************************************/
 TEST_F(PodcastSourceFixture, purgeIconCache) {
@@ -229,7 +263,7 @@ TEST_F(PodcastSourceFixture, purgeIconCache) {
 }
 
 /******************************************************************************/
-TEST_F(PodcastSourceFixture, purge_with_serializer) {
+TEST_F(PodcastSourceFixture, purgeWithSerializer) {
     auto serializer = std::make_unique<SerializerMock>(cache_dir, &ps);
     EXPECT_CALL(*(serializer.get()), delete_cache()).Times(1);
     QSignalSpy spy(&ps, SIGNAL(episodes_count_changed(int)));
@@ -241,7 +275,7 @@ TEST_F(PodcastSourceFixture, purge_with_serializer) {
 }
 
 /******************************************************************************/
-TEST_F(PodcastSourceFixture, episode_position_triggers_delayed_write) {
+TEST_F(PodcastSourceFixture, episodePositionChangedTriggersDelayedWrite) {
     auto serializer = std::make_unique<SerializerMock>(
         cache_dir, &ps, std::chrono::milliseconds(50));
     EXPECT_CALL(*(serializer.get()), write_cache()).Times(1);
@@ -257,7 +291,7 @@ TEST_F(PodcastSourceFixture, episode_position_triggers_delayed_write) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, from_json_ok) {
+TEST(PodcastSource, fromGoodJson) {
     QString json_string(R"(
 	{
     "id": "{5c81821d-17fc-44d5-ae45-5ab24ffd1d50}",
@@ -279,7 +313,7 @@ TEST(PodcastSource, from_json_ok) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, from_json_bad) {
+TEST(PodcastSource, fromBadJson) {
     QString json_string(R"(
 	{ 
 	"aKeyWithoutValue"
@@ -290,7 +324,7 @@ TEST(PodcastSource, from_json_bad) {
 }
 
 /******************************************************************************/
-TEST(PodcastSource, from_json_invalid_url) {
+TEST(PodcastSource, fromBadJsonInvalidUrl) {
     QString json_string(R"(
 	{
     "id": "{5c81821d-17fc-44d5-ae45-5ab24ffd1d50}",

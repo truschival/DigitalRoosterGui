@@ -430,6 +430,11 @@ private:
      */
     virtual QUrl get_icon_impl();
 
+    /**
+     * Start the download and rescaling of the Podcast image
+     */
+    virtual void trigger_image_download();
+
 };
 } // namespace DigitalRooster
 #endif // _PODCASTSOURCE_HPP_

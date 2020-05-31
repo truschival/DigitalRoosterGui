@@ -248,32 +248,51 @@ int DigitalRooster::PodcastSource::get_episode_count_impl() const {
 /*****************************************************************************/
 void PodcastSource::set_image_url(const QUrl& uri) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    icon_url = uri;
-    emit icon_changed();
-    emit dataChanged();
+    if (uri != icon_url) {
+        icon_url = uri;
+        emit icon_changed();
+        emit dataChanged();
+    }
+    /* if we don't have a local copy or the file name changed  - download it*/
+    if (!QFile(image_file_path).exists() ||
+        QUrl::fromLocalFile(image_file_path).fileName() != uri.fileName()) {
+        trigger_image_download();
+    }
 }
 /*****************************************************************************/
 void PodcastSource::set_image_file_path(const QString& path) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    /* clean previous cache file */
+    QFile oldfile(image_file_path);
+    if(oldfile.exists()){
+    	oldfile.remove();
+    }
+
     image_file_path = path;
     emit icon_changed();
     emit dataChanged();
 }
 
 /*****************************************************************************/
+void PodcastSource::trigger_image_download() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    icon_downloader = std::make_unique<HttpClient>();
+    download_cnx = connect(icon_downloader.get(), &HttpClient::dataAvailable,
+        serializer.get(), &PodcastSerializer::store_image);
+    icon_downloader->doDownload(icon_url);
+}
+
+/*****************************************************************************/
 QUrl PodcastSource::get_icon_impl() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (!image_file_path.isEmpty() && QFile(image_file_path).exists()) {
+    /* If we find a cache file, return it, otherwise the url must do */
+    if (QFile(image_file_path).exists()) {
         qCDebug(CLASS_LC) << "found cached icon:" << image_file_path;
         return QUrl::fromLocalFile(image_file_path);
     } else {
         qCDebug(CLASS_LC) << "start download for icon cache:";
         /* Download for next time */
-        icon_downloader = std::make_unique<HttpClient>();
-        download_cnx =
-            connect(icon_downloader.get(), &HttpClient::dataAvailable,
-                serializer.get(), &PodcastSerializer::store_image);
-        icon_downloader->doDownload(icon_url);
+        trigger_image_download();
         return icon_url;
     }
 }

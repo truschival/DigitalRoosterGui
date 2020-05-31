@@ -46,8 +46,7 @@ void PodcastSerializer::restore_info() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (ps != nullptr) {
         // no braces in the file path
-        auto cache_file =
-            cache_dir.filePath(ps->get_id_string());
+        auto cache_file = cache_dir.filePath(ps->get_id_string());
         try {
             read_from_file(ps, cache_file);
         } catch (std::system_error& exc) {
@@ -102,6 +101,12 @@ void PodcastSerializer::delayed_write() {
 
 /*****************************************************************************/
 void PodcastSerializer::store_image(QByteArray data) {
+	qCDebug(CLASS_LC) << Q_FUNC_INFO;
+	store_image_impl(data);
+}
+
+/*****************************************************************************/
+void PodcastSerializer::store_image_impl(QByteArray& data){
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto image_file_path = cache_dir.filePath(ps->get_image_url().fileName());
     /* Resize image and save file */
@@ -216,8 +221,9 @@ void DigitalRooster::parse_podcast_source_from_json(
         auto img_cached = tl_obj[KEY_IMAGE_CACHE].toString();
         ps->set_title(title);
         ps->set_description(desc);
-        ps->set_image_url(img_url);
+        /* First set cached image to avoid extra download */
         ps->set_image_file_path(img_cached);
+        ps->set_image_url(img_url);
     }
 }
 

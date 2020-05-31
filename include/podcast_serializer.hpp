@@ -54,7 +54,7 @@ public:
     /**
      * Need destructor to stop timer
      */
-    ~PodcastSerializer();
+    virtual ~PodcastSerializer();
     PodcastSerializer(const PodcastSerializer&) = delete;
     PodcastSerializer(PodcastSerializer&&) = delete;
     PodcastSerializer& operator=(const PodcastSerializer&) = delete;
@@ -111,6 +111,10 @@ private:
      * NVI implementation of write()
      */
     virtual void write_cache();
+    /**
+     * NVI implementaion of store_image()
+     */
+    virtual void store_image_impl(QByteArray& data);
 };
 
 /**
