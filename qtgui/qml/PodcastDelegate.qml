@@ -5,9 +5,9 @@ import ruschi.PodcastEpisodeModel 1.0
 
 Rectangle{
     id: podcastdelegate
-    width:  Style.contentWidth;
-    height: Style.contentHeight*0.45;
-    radius: 3;
+    width:  Style.contentWidth
+    height: DEFAULT_ICON_WIDTH+Style.itemMargins.slim+2;
+    radius: 2;
     border.width: 1;
     color: podcastlist.currentItem == this ?
         Style.colors.selected : Style.colors.unselected ;
@@ -22,6 +22,8 @@ Rectangle{
 
         Image {
             id: podcasticon;
+            Layout.minimumHeight : DEFAULT_ICON_WIDTH;
+            Layout.minimumWidth : DEFAULT_ICON_WIDTH;
             Layout.maximumHeight : DEFAULT_ICON_WIDTH;
             Layout.maximumWidth : DEFAULT_ICON_WIDTH;
             /*
@@ -38,8 +40,8 @@ Rectangle{
             */
             Layout.rowSpan: 2
             Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter
-
-            fillMode: Image.PreserveAspectFit
+            Layout.leftMargin: 1;
+            fillMode: Image.Pad
             source: logo_image
         }
 
@@ -97,8 +99,8 @@ Rectangle{
                                          podcastlist.model.get_episodes(index),
                                          "episodemodel" : podcastlist.model.get_episodes(index)});
             stackView.push(pel);
-	    // Enter Podcast List, give user time to browse
-	    viewResetTimer.restart();
+            // Enter Podcast List, give user time to browse
+            viewResetTimer.restart();
         }
 
         onPressAndHold:  {
