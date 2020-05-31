@@ -64,7 +64,8 @@ jobs:
     - name: Package Test output for analysis
       if: failure()
       run: >
-        tar -C $BUILD_DIR_HOST -czf $TEST_ARTIFACT test_trace.log gtest_results.xml
+        tar -C ${{ env.BUILD_DIR_HOST }} -czf ${{ env.TEST_ARTIFACT }}
+        test_trace.log gtest_results.xml
     - name: Upload program trace
       if: failure()
       uses: actions/upload-artifact@v1
