@@ -35,7 +35,10 @@ public:
     PodcastSourceFixture()
         : cache_dir(DEFAULT_CACHE_DIR_PATH)
         , uid(QUuid::createUuid())
-        , ps(QUrl("https://alternativlos.org/alternativlos.rss"), uid) {
+        , ps(QUrl("https://alternativlos.org/alternativlos.rss"), uid)
+        , image_url("https://raw.githubusercontent.com/truschival/"
+                    "DigitalRoosterGui/develop/test/old_icon.png")
+        , cache_file((cache_dir.filePath(image_url.fileName()))) {
     }
 
     ~PodcastSourceFixture() {
@@ -53,6 +56,8 @@ protected:
     QDir cache_dir;
     QUuid uid;
     PodcastSource ps;
+    QUrl image_url;
+    QFile cache_file;
 };
 
 
@@ -162,36 +167,26 @@ TEST_F(PodcastSourceFixture, emit_Description_Title_Changed) {
 
 /******************************************************************************/
 TEST_F(PodcastSourceFixture, returnIconUrlIfNotStored) {
-    auto image_url = QUrl(
-        "https://www.ruschival.de/wp-content/uploads/2013/12/424504199718.jpg");
     ps.set_image_url(image_url);
     ASSERT_EQ(ps.get_icon(), image_url);
 }
 
 /******************************************************************************/
 TEST_F(PodcastSourceFixture, returnLocalIconIfStored) {
-    auto image_url = QUrl(
-        "https://www.ruschival.de/wp-content/uploads/2013/12/424504199718.jpg");
-    auto file_name = image_url.fileName();
-    QFile cache_file(cache_dir.filePath(file_name));
     cache_file.open(QIODevice::WriteOnly);
     cache_file.write("foo");
     cache_file.close();
     ASSERT_TRUE(cache_file.exists());
 
     ps.set_image_url(image_url);
-    ps.set_image_file_path(cache_dir.filePath(file_name));
+    ps.set_image_file_path(cache_file.fileName());
 
     ASSERT_EQ(
-        ps.get_icon(), QUrl::fromLocalFile(cache_dir.filePath(file_name)));
+        ps.get_icon(), QUrl::fromLocalFile(cache_file.fileName()));
 }
 
 /******************************************************************************/
 TEST_F(PodcastSourceFixture, setIconUrlTriggersDownload) {
-    auto image_url = QUrl("https://www.ruschival.de/wp-content/uploads/2013/12/"
-                          "10150369594129719-150x150.jpg");
-    auto file_name = image_url.fileName();
-    QFile cache_file(cache_dir.filePath(file_name));
     // For downloading cache PodcastSource needs a Serializer
     ps.set_serializer(std::make_unique<PodcastSerializer>(cache_dir, &ps));
     QSignalSpy spy(&ps, SIGNAL(icon_changed()));
@@ -201,7 +196,7 @@ TEST_F(PodcastSourceFixture, setIconUrlTriggersDownload) {
     spy.wait(); // after download icon_changed() is emitted
     ASSERT_EQ(spy.count(), 2);
     // Second time the local cache should be returned
-    auto expeced_local_url = QUrl::fromLocalFile(cache_dir.filePath(file_name));
+    auto expeced_local_url = QUrl::fromLocalFile(cache_file.fileName());
     ASSERT_EQ(ps.get_icon(), expeced_local_url);
 
     ASSERT_TRUE(cache_file.exists());
@@ -210,31 +205,24 @@ TEST_F(PodcastSourceFixture, setIconUrlTriggersDownload) {
 
 /******************************************************************************/
 TEST_F(PodcastSourceFixture, updateIconUrlTriggersDownload) {
-    auto image_url = QUrl("https://www.ruschival.de/wp-content/uploads/2013/12/"
-                          "424523119718-150x150.jpg");
-    auto file_name = image_url.fileName();
-
-    auto image_url_new = QUrl("https://www.ruschival.de/wp-content/uploads/"
-                              "2013/12/10150369594129719-150x150.jpg");
+    auto image_url_new = QUrl("https://raw.githubusercontent.com/truschival/"
+                              "DigitalRoosterGui/develop/test/new_icon.png");
     auto file_name_new = image_url_new.fileName();
-
 
     QSignalSpy spy(&ps, SIGNAL(icon_changed()));
     ps.set_serializer(std::make_unique<PodcastSerializer>(cache_dir, &ps));
     ps.set_image_url(image_url); // emits but we don't care
-    spy.wait();
+    spy.wait(10);
     spy.wait(); // after download icon_changed() is emitted
 
     ps.set_image_url(image_url_new); // emits
-    spy.wait();                      // set_image_url(image_url_new)
+    spy.wait(10);                    // set_image_url(image_url_new)
     spy.wait(); // set_image_file_path() with new cache file
     ASSERT_EQ(spy.count(), 4);
     // Second time the local cache should be returned
     auto expected_local_url =
         QUrl::fromLocalFile(cache_dir.filePath(file_name_new));
     ASSERT_EQ(ps.get_icon(), expected_local_url);
-
-    QFile cache_file(cache_dir.filePath(file_name));
     ASSERT_FALSE(cache_file.exists()); // Should have been deleted when updated
 
     QFile cache_file_new(cache_dir.filePath(file_name_new));
@@ -245,8 +233,6 @@ TEST_F(PodcastSourceFixture, updateIconUrlTriggersDownload) {
 
 /******************************************************************************/
 TEST_F(PodcastSourceFixture, purgeIconCache) {
-    auto image_url = QUrl(
-        "https://www.ruschival.de/wp-content/uploads/2013/12/424504199718.jpg");
     auto file_name = image_url.fileName();
     QFile cache_file(cache_dir.filePath(file_name));
     cache_file.open(QIODevice::WriteOnly);
@@ -338,3 +324,4 @@ TEST(PodcastSource, fromBadJsonInvalidUrl) {
     EXPECT_THROW(
         PodcastSource::from_json_object(jdoc.object()), std::invalid_argument);
 }
+
