@@ -115,15 +115,15 @@ private:
 
     /**
      * Input device name of rotary button (must match Device Tree)
-     * Default = "rotary_abs"
+     * Default = "volume"
      */
-    QString dev_rotary_event_name{"rotary_abs"};
+    QString dev_rotary_event_name{"volume"};
 
     /**
      * Input device name of rotary button (must match Device Tree)
-     * Default = "gpio_keys"
+     * Default = "gpio-keys"
      */
-    QString dev_push_button_event_name{"gpio_keys"};
+    QString dev_push_button_event_name{"gpio-keys"};
 };
 
 } /* namespace Hal */
