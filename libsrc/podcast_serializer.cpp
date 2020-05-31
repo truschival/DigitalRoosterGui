@@ -88,7 +88,7 @@ void PodcastSerializer::delete_cached_info() {
 /*****************************************************************************/
 void PodcastSerializer::delete_cache() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    QFile cache_file(cache_dir.filePath(ps->get_id().toString()));
+    QFile cache_file(cache_dir.filePath(ps->get_id_string()));
     cache_file.remove();
 }
 
