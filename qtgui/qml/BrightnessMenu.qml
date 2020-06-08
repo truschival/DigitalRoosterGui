@@ -33,20 +33,20 @@ Menu {
             text: "Active brightness:";
             font: Style.font.boldLabel;
             color: "white"
-            Layout.leftMargin: Style.itemMargins.wide;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
         Slider {
             id: brightnessSlider
             orientation: Qt.Horizontal
-            from: 1
+            from: 5
             to: 100
-            stepSize: 2
-            wheelEnabled: true
+            stepSize: 1
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             // change that to class for handling brightness control
             value: brightnessControl.brightness
             onMoved: {
                 brightnessControl.brightness = value;
+                brightnessMenuCloseTimer.restart();
             }
         }
 
@@ -54,21 +54,22 @@ Menu {
             text: "Standby brightness:";
             font: Style.font.boldLabel;
             color: "white"
-            Layout.leftMargin: Style.itemMargins.wide;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
 
         Slider {
             id: standbySlider
             orientation: Qt.Horizontal
-            from: 1
-            to: 100
-            stepSize: 2
+            from: 3
+            to: 85
+            stepSize: 1
             wheelEnabled: true
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             // change that to class for handling brightness control
             value: config.standbybrightness
             onMoved: {
                 config.standbybrightness = value;
+                brightnessMenuCloseTimer.restart();
             }
         }// Slider
     }// GridLayout

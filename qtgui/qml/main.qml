@@ -67,7 +67,7 @@ ApplicationWindow {
 
             Label{
                 id: countdown_to_sleep;
-                text: "<span style = 'font-family: materialdesignicons; font-size: 16pt; font-weight: bold'>\uf51a</span>
+                text: "<span style = 'font-family: materialdesignicons; font-size: 16pt; font-weight: bold'>\uf51b</span>
                        <span style = 'font-family: DejaVu Sans Condensed Bold, sans-serif; font-size: 16pt; font-weight: normal'>"+sleeptimer.time_remaining+"</span>"
                 Layout.rightMargin: 0;
                 textFormat: Text.RichText
@@ -87,7 +87,6 @@ ApplicationWindow {
 
                 }
             }
-
 
             IconButton {
                 id : playerControlBtn
@@ -184,6 +183,7 @@ ApplicationWindow {
 
     BrightnessMenu {
         id: brightnessMenu;
+        width: applicationWindow.width*0.8;
     }
 
     WifiMenu {
@@ -201,7 +201,7 @@ ApplicationWindow {
     PlayerControlWidget {
         id: playerControlWidget;
         width: parent.width*0.85;
-        height: parent.height*0.5;
+        height: parent.height*0.55;
         x: Math.round((applicationWindow.width - width) / 2)
         y: Math.round((applicationWindow.height - height) *0.6)+10;
     }
