@@ -276,10 +276,13 @@ void PodcastSource::set_image_file_path(const QString& path) {
 /*****************************************************************************/
 void PodcastSource::trigger_image_download() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    icon_downloader = std::make_unique<HttpClient>();
-    download_cnx = connect(icon_downloader.get(), &HttpClient::dataAvailable,
-        serializer.get(), &PodcastSerializer::store_image);
-    icon_downloader->doDownload(icon_url);
+    if (!icon_url.isEmpty() && serializer) {
+        icon_downloader = std::make_unique<HttpClient>();
+        download_cnx =
+            connect(icon_downloader.get(), &HttpClient::dataAvailable,
+                serializer.get(), &PodcastSerializer::store_image);
+        icon_downloader->doDownload(icon_url);
+    }
 }
 
 /*****************************************************************************/
