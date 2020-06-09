@@ -1,11 +1,10 @@
 /******************************************************************************
  * \filename
- * \brief    Raspberry PI specific hardware interface functions
- *
- * \details
+ * \brief    DigitalRooster audio compatible board with backlight control
+ * \details  This does not use SOC PWM channels and does not use wiringpi
  *
  * \author Thomas Ruschival
- * \copyright 2018 Thomas Ruschival <thomas@ruschival.de>
+ * \copyright 2020 Thomas Ruschival <thomas@ruschival.de>
  * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
  * 			  SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
@@ -14,6 +13,7 @@
 #include <QString>
 #include <cstring>
 #include <exception>
+#include <fstream>
 #include <memory>
 
 #include <fcntl.h>
@@ -26,18 +26,12 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include <wiringPi.h> // TODO: remove dependency
-
-
-#include "hwif/hardware_configuration.hpp"
-#include "hwif/hardware_control.hpp"
+#include "hardware_configuration.hpp"
+#include "hardware_control.hpp"
 
 using namespace Hal;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HardwareControl");
 
-static const int PWM_RANGE = 512; // 2 to 4095 (1024 default)
-static const int CLOCK_DIV = 64;  // 1 to 4096
-static const int BRIGHTNESS_PWM_PIN = 23;
 /**
  * Brightness 0-100% between 1 and 256 for hardware PWM
  * hwpwm = 1+brightness[%] * (256-1)/100[%]
@@ -48,17 +42,6 @@ static const double BRIGHTNESS_SLOPE =
     (BRIGHTNESS_VAL_MAX - BRIGHTNESS_VAL_OFFSET_0) / 100.0;
 
 namespace Hal {
-/** forward declaration for rpi hardware */
-static int setup_rpi_hardware() {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO << "(real)";
-    wiringPiSetup();
-    pinMode(BRIGHTNESS_PWM_PIN, PWM_OUTPUT);
-    pwmSetMode(PWM_MODE_BAL);
-    pwmSetClock(CLOCK_DIV);
-    pwmSetRange(PWM_RANGE);
-    pwmWrite(BRIGHTNESS_PWM_PIN, 100);
-    return 0;
-}
 
 /*****************************************************************************/
 static InputEvent read_event(int filedescriptor) {
@@ -82,7 +65,7 @@ static InputEvent read_event(int filedescriptor) {
 }
 
 /*****************************************************************************/
-static int open_event_file_handle(const QString& path) {
+static int open_file_handle(const QString& path) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     int fh;
     if (path.isEmpty()) {
@@ -99,14 +82,13 @@ static int open_event_file_handle(const QString& path) {
 } // namespace Hal
 /*****************************************************************************/
 HardwareControl::HardwareControl(
-    Hal::HardwareConfiguration& cfg, QObject* parent)
-    : QObject(parent) {
+    const Hal::HardwareConfiguration& cfg, QObject* parent)
+    : QObject(parent)
+    , hwconf(cfg) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
-    setup_rpi_hardware();
-
     try {
-        auto fh = Hal::open_event_file_handle(cfg.get_push_button_event_path());
+        auto fh = Hal::open_file_handle(cfg.get_push_button_event_path());
         button_notifier =
             std::make_unique<QSocketNotifier>(fh, QSocketNotifier::Read);
         connect(button_notifier.get(), &QSocketNotifier::activated, this,
@@ -118,7 +100,7 @@ HardwareControl::HardwareControl(
     }
 
     try {
-        auto fh = Hal::open_event_file_handle(cfg.get_rotary_event_path());
+        auto fh = Hal::open_file_handle(cfg.get_rotary_event_path());
         /* connect notifier and handler for  rotary encoder */
         rotary_notifier =
             std::make_unique<QSocketNotifier>(fh, QSocketNotifier::Read);
@@ -130,6 +112,7 @@ HardwareControl::HardwareControl(
     } catch (std::exception& exc) {
         qCCritical(CLASS_LC) << exc.what();
     }
+    set_brightness(10); // minimum brightness if something goes wrong
 }
 
 /*****************************************************************************/
@@ -149,6 +132,7 @@ void HardwareControl::generate_rotary_event(int file_handle) {
 /*****************************************************************************/
 void HardwareControl::system_reboot() {
     sync();
+    set_brightness(0);
     system("/sbin/reboot -d 2");
     // return reboot(LINUX_REBOOT_CMD_RESTART);
 }
@@ -158,6 +142,7 @@ void HardwareControl::system_reboot() {
 void HardwareControl::system_poweroff() {
     sync();
     // use init to shut down gracefully...
+    set_brightness(0);
     system("/sbin/poweroff -d 2");
     // if we get here we shut down hard
     //   return reboot(LINUX_REBOOT_CMD_POWER_OFF);
@@ -165,8 +150,18 @@ void HardwareControl::system_poweroff() {
 
 /*****************************************************************************/
 int HardwareControl::set_brightness(int brightness) {
-    int pwm_val = BRIGHTNESS_VAL_OFFSET_0 + brightness * BRIGHTNESS_SLOPE;
-    pwmWrite(BRIGHTNESS_PWM_PIN, pwm_val);
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    /* maximum brightness if PWM reg == 0, minimum at BRIGHTNESS_VAL_MAX */
+    int pwm_val = BRIGHTNESS_VAL_MAX - brightness * BRIGHTNESS_SLOPE;
+    qCDebug(CLASS_LC) << "pwm val:" << pwm_val;
+    try {
+        auto out = std::ofstream(hwconf.get_backlight_path().toStdString());
+        out.exceptions(std::ofstream::badbit | std::ofstream::failbit);
+        out << pwm_val;
+        out.close();
+    } catch (std::exception& exc) {
+        qCCritical(CLASS_LC) << "cannot set brightness:" << exc.what();
+    }
     return 0;
 }
 

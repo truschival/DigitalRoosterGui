@@ -1,6 +1,6 @@
 import QtQuick 2.9
 import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.1
+import QtQuick.Controls 2.2
 import QtQuick.Controls.Material 2.1
 import QtMultimedia 5.9
 import ruschi.PodcastEpisode 1.0
@@ -20,6 +20,8 @@ ApplicationWindow {
 
     property alias playerControlWidget: playerControlWidget
     property string functionMode: "Clock"
+    property int pressAndHoldInterval: 300;
+    property int dialogTimeout: 8000; // Dialog shown for 8s w/o interaction
 
     Clock{
         id: currentTime
@@ -33,7 +35,7 @@ ApplicationWindow {
     Timer {
         // Timer to reset stackview after player has started
         id: viewResetTimer
-        interval: 60000; // 1 minute
+        interval: 40000; // 40s without interaction -> reset to initial page
         running: false;
         repeat: false;
         onTriggered: stackView.reset();
@@ -65,7 +67,7 @@ ApplicationWindow {
 
             Label{
                 id: countdown_to_sleep;
-                text: "<span style = 'font-family: materialdesignicons; font-size: 16pt; font-weight: bold'>\uf51a</span>
+                text: "<span style = 'font-family: materialdesignicons; font-size: 16pt; font-weight: bold'>\uf51b</span>
                        <span style = 'font-family: DejaVu Sans Condensed Bold, sans-serif; font-size: 16pt; font-weight: normal'>"+sleeptimer.time_remaining+"</span>"
                 Layout.rightMargin: 0;
                 textFormat: Text.RichText
@@ -85,7 +87,6 @@ ApplicationWindow {
 
                 }
             }
-
 
             IconButton {
                 id : playerControlBtn
@@ -123,16 +124,16 @@ ApplicationWindow {
         interactive: true;
 
         onOpened :{
-        	autocloseTimer.start()
+            autocloseTimer.start()
         }
 
         Timer {
-	        id: autocloseTimer
-	        interval: 4000
-	        running: true
-	        repeat: false
-	        onTriggered: drawer.close();
-	    }
+            id: autocloseTimer
+            interval: 4000
+            running: true
+            repeat: false
+            onTriggered: drawer.close();
+        }
 
         ListView {
             id: listView
@@ -150,8 +151,6 @@ ApplicationWindow {
                 highlighted: listView.currentIndex == index
 
                 onClicked: {
-                    console.log("Current "+ listView.currentIndex +
-                                " index: "+index + " depth:"+ stackView.depth)
                     if( stackView.depth > 1){
                         stackView.pop(null)
                     }
@@ -159,11 +158,11 @@ ApplicationWindow {
                     drawer.close()
                     /* Special item: power off button */
                     if(index === listView.count -1 ){
-                        console.log("last item!")
                         powerOffMenu.popup((applicationWindow.width-powerOffMenu.width)/2,
                                            (applicationWindow.height-powerOffMenu.height)/2 - Style.itemMargins.extrawide)
                         return; // nothing to do
                     }
+                    viewResetTimer.restart();
                     stackView.push(model.source)
                 }
             }
@@ -176,41 +175,38 @@ ApplicationWindow {
                 ListElement { title: "\uf425"; source: ""; objectName:"PowerOff"; }
             }
         }
-    }
+    } //Drawer
 
     PowerMenu {
         id: powerOffMenu;
-        title:"Power";
     }
 
-    BrightnessMenu{
+    BrightnessMenu {
         id: brightnessMenu;
-        title: "Brightness";
+        width: applicationWindow.width*0.8;
     }
 
-    WifiMenu{
+    WifiMenu {
         id: wifiMenu;
-        title: "Wifi";
         height: applicationWindow.height*0.8;
         width: applicationWindow.width*0.8;
     }
 
-    SleepTimeoutMenu{
+    SleepTimeoutMenu {
         id: sleepTimeoutMenu;
-        title: "Sleep Timeout";
         height: applicationWindow.height*0.6;
         width: applicationWindow.width*0.7;
     }
 
-
-    PlayerControlWidget{
-        id: playerControlWidget
+    PlayerControlWidget {
+        id: playerControlWidget;
         width: parent.width*0.85;
+        height: parent.height*0.55;
         x: Math.round((applicationWindow.width - width) / 2)
-        y: Math.round((applicationWindow.height - height) *0.6)
+        y: Math.round((applicationWindow.height - height) *0.6)+10;
     }
 
-    VolumePopup{
+    VolumePopup {
         id: volumePopUp
         x: Math.round((applicationWindow.width - width) / 2)
         y: Math.round((applicationWindow.height - height) / 2)
@@ -240,6 +236,28 @@ ApplicationWindow {
             }
         }
 
+    }
+
+    /* Global Transitions */
+    Transition {
+        id: listBoundTransition;
+        /* NumberAnimation { */
+        /*     properties: "x,y"; */
+        /*     duration: 800; */
+        /*     easing.type: Easing.InOutBack; */
+        /* } */
+    }
+
+    Transition {
+        id: dialogFadeInTransition;
+        NumberAnimation { property: "opacity";
+                          from: 0.0; to: 1.0 ; duration: 400}
+    }
+
+    Transition {
+        id: dialogFadeOutTransition
+        NumberAnimation { property: "opacity";
+                          from: 1.0; to: 0.0 ; duration: 600}
     }
 
     /**** global connections ****/

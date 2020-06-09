@@ -12,7 +12,7 @@ Rectangle{
     radius: 3;
     border.width: 1;
     color: iradiolist.currentItem === this ?
-               Style.colors.selected : Style.colors.unselected ;
+        Style.colors.selected : Style.colors.unselected ;
 
     Text {
         id: stationName
@@ -26,12 +26,12 @@ Rectangle{
 
     MouseArea {
         anchors.fill: parent
-        onClicked:{
-            iradiolist.currentIndex =index;
+        pressAndHoldInterval: applicationWindow.pressAndHoldInterval;
+        onPressAndHold:{
+            iradiolist.currentIndex = index;
             iradiolistmodel.send_to_player(index);
             playerControlWidget.setCurrentMediaTitle(station_name);
             playerControlWidget.show();
-            viewResetTimer.start();
         }
     }
 }

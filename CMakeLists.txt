@@ -15,7 +15,7 @@ list(APPEND CMAKE_MODULE_PATH  ${CMAKE_SOURCE_DIR}/CMakeModules/)
 # Project Name
 MESSAGE( STATUS "Running ${CMAKE_COMMAND} v${CMAKE_VERSION}" )
 PROJECT(DigitalRooster
-	VERSION 0.10.2
+	VERSION 0.11.0
 	DESCRIPTION  "A digital alarm clock and podcast player"
 	LANGUAGES CXX C
 	)
@@ -48,10 +48,10 @@ ELSE(UNIX)
 ENDIF(UNIX)
 
 SET(SYSTEM_TARGET_NAME "Host"
-  CACHE STRING "Target: {Host|Rpi}")
+  CACHE STRING "Target: {Host|Embedded}")
 SET(SETTINGS_FILE_NAME "digitalrooster.json"
   CACHE STRING "application configuration file name")
-SET(WIFI_INTERFACE "/var/run/wpa_supplicant/wlp2s0"
+SET(WIFI_INTERFACE "/var/run/wpa_supplicant/wlan0"
   CACHE STRING "wpa_supplicant interface contrl socket path")
 SET(SETTINGS_PATH  "${CMAKE_CURRENT_BINARY_DIR}/settings"
   CACHE PATH "application configuration path")
@@ -236,8 +236,7 @@ endif(DOXYGEN_FOUND)
 
 # control interface for wpa_supplicant
 add_subdirectory(${PROJECT_SOURCE_DIR}/wpa_ctrl/)
-add_subdirectory(${PROJECT_SOURCE_DIR}/libhwif/)
-add_subdirectory(${PROJECT_SOURCE_DIR}/libsrc/) #libsrc depends on libhwif
+add_subdirectory(${PROJECT_SOURCE_DIR}/libsrc/)
 
 if(REST_API)
   add_subdirectory(${PROJECT_SOURCE_DIR}/REST/)

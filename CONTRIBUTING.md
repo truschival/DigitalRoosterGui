@@ -1,8 +1,17 @@
 # Contributing
 
-There are many ways to contribute to DigitalRoosterGui for everyone and all
-skills and skill levels. If you don’t like programming, file a bug or feature
-request, write documentation or just tell your friends about the project.
+There are many ways to contribute to DigitalRooster for everyone at all skills
+and skill levels - not just programmers. If you are not into coding but still
+want to improve the system, file a bug or feature request, write documentation,
+design a nicer UI or website or just tell your friends about the project.
+
+Also check out the other projects of DigitalRooster:
+-   [buildroot_digitalrooster](https://github.com/truschival/buildroot_digitalrooster)
+    Buildroot configuration to cross compile DigitalRooster for the target
+	hardware
+
+-   [DigitalRooster.dev](https://github.com/truschival/DigitalRooster.dev)
+    Source of the website
 
 Here is a pretty good write-up on 
 [contributing to open source.](https://opensource.guide/how-to-contribute/)

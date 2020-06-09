@@ -243,6 +243,14 @@ public:
     }
 
     /**
+     * For clients that just want the id without braces
+     * @return
+     */
+    QString get_id_string() const {
+    	return id.toString(QUuid::WithoutBraces);
+    }
+
+    /**
      * Remove local icon cache file
      */
     void purge_icon_cache();
@@ -422,12 +430,10 @@ private:
      */
     virtual QUrl get_icon_impl();
 
-private slots:
-	/**
-	 * save downloaded byte array in local image file
-	 * @param data
-	 */
-	void store_image(QByteArray data);
+    /**
+     * Start the download and rescaling of the Podcast image
+     */
+    virtual void trigger_image_download();
 
 };
 } // namespace DigitalRooster

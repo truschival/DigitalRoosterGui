@@ -11,7 +11,6 @@
  *****************************************************************************/
 
 #include <QDateTime>
-#include <QImage>
 #include <QLoggingCategory>
 #include <QMediaPlayer>
 #include <QStandardPaths>
@@ -249,47 +248,56 @@ int DigitalRooster::PodcastSource::get_episode_count_impl() const {
 /*****************************************************************************/
 void PodcastSource::set_image_url(const QUrl& uri) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    icon_url = uri;
-    emit icon_changed();
-    emit dataChanged();
+    if (uri != icon_url) {
+        icon_url = uri;
+        emit icon_changed();
+        emit dataChanged();
+    }
+    /* if we don't have a local copy or the file name changed  - download it*/
+    if (!QFile(image_file_path).exists() ||
+        QUrl::fromLocalFile(image_file_path).fileName() != uri.fileName()) {
+        trigger_image_download();
+    }
 }
 /*****************************************************************************/
 void PodcastSource::set_image_file_path(const QString& path) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    /* clean previous cache file */
+    QFile oldfile(image_file_path);
+    if(oldfile.exists()){
+    	oldfile.remove();
+    }
+
     image_file_path = path;
     emit icon_changed();
+    emit dataChanged();
+}
+
+/*****************************************************************************/
+void PodcastSource::trigger_image_download() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    if (!icon_url.isEmpty() && serializer) {
+        icon_downloader = std::make_unique<HttpClient>();
+        download_cnx =
+            connect(icon_downloader.get(), &HttpClient::dataAvailable,
+                serializer.get(), &PodcastSerializer::store_image);
+        icon_downloader->doDownload(icon_url);
+    }
 }
 
 /*****************************************************************************/
 QUrl PodcastSource::get_icon_impl() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (!image_file_path.isEmpty() && QFile(image_file_path).exists()) {
+    /* If we find a cache file, return it, otherwise the url must do */
+    if (QFile(image_file_path).exists()) {
+        qCDebug(CLASS_LC) << "found cached icon:" << image_file_path;
         return QUrl::fromLocalFile(image_file_path);
     } else {
+        qCDebug(CLASS_LC) << "start download for icon cache:";
         /* Download for next time */
-        icon_downloader = std::make_unique<HttpClient>();
-        download_cnx = connect(icon_downloader.get(),
-            &HttpClient::dataAvailable, this, &PodcastSource::store_image);
-        icon_downloader->doDownload(icon_url);
+        trigger_image_download();
         return icon_url;
     }
-}
-
-/*****************************************************************************/
-void PodcastSource::store_image(QByteArray data) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto file_name = QDir(DEFAULT_CACHE_DIR_PATH).filePath(icon_url.fileName());
-    /* Resize image and save file */
-    auto image_data = QImage::fromData(data);
-    auto small_image = image_data.scaled(DEFAULT_ICON_WIDTH, DEFAULT_ICON_WIDTH,
-        Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    small_image.save(file_name);
-    image_file_path = file_name;
-    emit icon_changed();
-    // disable receiving signals form downloader
-    disconnect(download_cnx);
-    icon_downloader.get()->deleteLater();
-    icon_downloader.release(); // let QT manage the object
 }
 
 /*****************************************************************************/
@@ -325,7 +333,7 @@ std::shared_ptr<PodcastSource> PodcastSource::from_json_object(
 QJsonObject PodcastSource::to_json_object() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject json;
-    json[KEY_ID] = get_id().toString(QUuid::WithoutBraces);
+    json[KEY_ID] = get_id_string();
     json[KEY_URI] = get_url().toString();
     json[KEY_TITLE] = get_title();
     json[KEY_UPDATE_INTERVAL] =

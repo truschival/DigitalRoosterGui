@@ -14,7 +14,7 @@
 #include <QString>
 
 #include "gtest/gtest.h"
-#include "hwif/hardware_configuration.hpp"
+#include "hardware_configuration.hpp"
 
 using namespace Hal;
 using namespace ::testing;

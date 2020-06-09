@@ -27,8 +27,8 @@
 #include <memory>
 
 // hardware interface
-#include "hwif/hardware_configuration.hpp"
-#include "hwif/hardware_control.hpp"
+#include "hardware_configuration.hpp"
+#include "hardware_control.hpp"
 
 // Local classes
 #include "PlayableItem.hpp" // to register type

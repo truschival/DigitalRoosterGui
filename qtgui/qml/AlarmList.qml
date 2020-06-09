@@ -6,16 +6,10 @@ import ruschi.Alarm 1.0
 ListView {
     id:alarmlist
     property string objectName : "Alarms"
-    width: stackView.width
-    height: stackView.height
-    antialiasing: true
-    highlightRangeMode: ListView.ApplyRange
-    boundsBehavior: Flickable.StopAtBounds
-    maximumFlickVelocity: 1500
-    flickDeceleration: 1800
-    snapMode: ListView.SnapOneItem
-    contentWidth: stackView.width
-    focus: true
+    width: stackView.width;
+    height: stackView.height;
+    contentWidth: stackView.width;
+    rebound: listBoundTransition;
 
     delegate: AlarmDelegate{
         id: alarmdelegate

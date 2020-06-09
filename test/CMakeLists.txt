@@ -1,6 +1,6 @@
 MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
 
-SET(GEST_BINARY_NAME "${PROJECT_NAME}_gtest")
+SET(GEST_BINARY_NAME "digitalrooster_gtest")
 SET(RESTSERVER_NAME "restserver")
 
 SET(COMPONENT_NAME "DigitalRooster-Test")

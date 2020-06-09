@@ -19,7 +19,7 @@
 #include <QString>
 #include <memory>
 
-#include "hwif/hardware_control.hpp"
+#include "hardware_control.hpp"
 
 namespace DigitalRooster {
 /**

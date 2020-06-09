@@ -14,7 +14,6 @@ QtObject {
     property int contentWidth: 320;
     property int contentHeight: canvasHeight-toolbarHeight;
 
-
     property QtObject colors: QtObject{
         property color selected :   Material.primary; // "#2196F3";
         property color unselected:  Material.color(Material.Grey) ;// "gainsboro";

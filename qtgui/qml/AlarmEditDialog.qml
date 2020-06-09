@@ -6,19 +6,14 @@ import QtQuick.Extras 1.4
 import ruschi.Alarm 1.0
 import "Jsutil.js" as Util
 
-
 Popup {
     property Alarm currentAlarm;
     property int index;
+    modal: true;
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-
-    enter: Transition {
-        NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 ; duration: 300}
-    }
-    exit: Transition {
-        NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 ; duration: 400}
-    }
+    enter: dialogFadeInTransition;
+    exit: dialogFadeOutTransition;
 
     contentItem: GridLayout {
         columnSpacing: Style.itemSpacings.slim;
@@ -94,14 +89,11 @@ Popup {
             font: Style.font.label;
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop;
             onClicked: {
-                console.log("save alarm settings");
-
                 // Time from tumbler
                 var now = new Date();
                 var h_idx =timeTumbler.currentIndexAt(0);
                 var m_idx = timeTumbler.currentIndexAt(1);
                 now.setHours(h_idx, m_idx, 0);
-                console.log("hr_idx: " + h_idx + " m_idx: " + m_idx + " = " + now);
                 currentAlarm.time = now;
                 alarmlistmodel.update_row(alarmlistmodel.currentIndex);
                 // update station
@@ -122,7 +114,6 @@ Popup {
             font: Style.font.label;
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop;
             onClicked: {
-                console.log("alarm dialog cancled");
                 close();
             }
         }
@@ -135,7 +126,6 @@ Popup {
         for (var i=0; i<iradiolistmodel.rowCount() ; i++){
             if(iradiolistmodel.get_station_url(i) === currentAlarm.url){
                 stations.currentIndex = i;
-                console.log(iradiolistmodel.get_station_url(i) + " = idx " +i);
                 break;
             }
         }

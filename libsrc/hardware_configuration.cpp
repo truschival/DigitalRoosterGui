@@ -20,7 +20,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include "hwif/hardware_configuration.hpp"
+#include "hardware_configuration.hpp"
 
 using namespace Hal;
 
@@ -61,6 +61,8 @@ HardwareConfiguration::HardwareConfiguration() {
         PUSH_BUTTON_PATH_ENV_VAR_NAME, &dev_push_button_event_path);
     override_if_env_var_exists(
         ROTARY_PATH_ENV_VAR_NAME, &dev_rotary_event_path);
+    override_if_env_var_exists(
+        BACKLIGHT_PATH_ENV_VAR_NAME, &sys_backlight_path);
 }
 /*****************************************************************************/
 

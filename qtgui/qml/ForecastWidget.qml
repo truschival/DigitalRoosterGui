@@ -57,7 +57,6 @@ Rectangle {
     }
 
     function update(weather){
-        console.log("update: " + weather.timestamp);
         timestamp.text  = Qt.formatTime(weather.timestamp,"hh:mm");
         temp.text = Math.round(weather.temp)+"\u00B0C";
         condition_icon.source = weather.icon_url;
@@ -67,7 +66,6 @@ Rectangle {
         anchors.fill: parent;
         pressAndHoldInterval: 500; //ms press to refresh
         onPressAndHold: {
-            console.log("Refresh weather")
             weather.refresh();
         }
     }

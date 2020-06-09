@@ -48,7 +48,7 @@ public:
      * push button GPIO
      */
     explicit HardwareControl(
-        Hal::HardwareConfiguration& cfg, QObject* parent = nullptr);
+        const Hal::HardwareConfiguration& cfg, QObject* parent = nullptr);
 
     /**
      * disable copy-constructor and copy assignment
@@ -86,6 +86,10 @@ signals:
     void rotary_event(const InputEvent evt);
 
 private:
+    /**
+     * Configuration object
+     */
+    Hal::HardwareConfiguration hwconf;
     /**
      * monitors changes on rotary encoder
      */
