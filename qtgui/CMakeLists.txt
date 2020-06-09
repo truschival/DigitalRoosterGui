@@ -1,6 +1,6 @@
 MESSAGE(STATUS "Checking ${CMAKE_CURRENT_SOURCE_DIR} ")
 
-SET(BINARY_NAME "DigitalRoosterGui")
+SET(BINARY_NAME "digitalroostergui")
 # Component name (what to build and install) used in add_executable or add_library
 set(COMPONENT_NAME ${BINARY_NAME})
 # Interface/binary version
