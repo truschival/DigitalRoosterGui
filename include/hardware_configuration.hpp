@@ -33,29 +33,11 @@ const QString PUSH_BUTTON_PATH_ENV_VAR_NAME{"DR_PUSH_EVENT_PATH"};
 const QString ROTARY_PATH_ENV_VAR_NAME{"DR_ROTARY_EVENT_PATH"};
 
 /**
- * Name of environment variable to set push button event path
- */
-const QString PUSH_BUTTON_EVENT_DEV_ENV_VAR_NAME{"DR_PUSH_EVENT_DEV"};
-
-/**
- * Name of environment variable to set rotary encoder event path
- */
-const QString ROTARY_EVENT_DEV_ENV_VAR_NAME{"DR_ROTARY_EVENT_DEV"};
-
-
-/**
  * Helper class to resolve input event devices according to environment variables
  * <br>
  * If existing following environment variables take priority: <br>
  * DR_PUSH_EVENT_PATH=   \ref PUSH_BUTTON_PATH_ENV_VAR_NAME <br>
  * DR_ROTARY_EVENT_PATH= \ref ROTARY_PATH_ENV_VAR_NAME <br>
- *
- * The class tries to look up event interface by the device name (as specified in DTS)
- * using these name variables: <br>
- * DR_ROTARY_EVENT_NAME="rotary_abs"
- *  \ref ROTARY_EVENT_DEV_ENV_VAR_NAME = \ref dev_rotary_event_name <br>
- * DR_PUSH_EVENT_NAME="gpiokeys"
- *  \ref PUSH_BUTTON_EVENT_DEV_ENV_VAR_NAME = \ref dev_push_button_event_name
  */
 class HardwareConfiguration {
 public:
@@ -92,13 +74,6 @@ public:
 
 private:
     /**
-     * Iterates /dev/input/event to find a device with for given dev_name
-     * @param dev_name name as for ioctl EVIOCGNAME
-     * @return absolute path
-     */
-    QString resolve_name_to_path(const QString& dev_name);
-
-    /**
      * Path in /sys for backlight control
      */
     QString sys_backlight_path{"/sys/class/leds/bl/brightness"};
@@ -113,17 +88,6 @@ private:
      */
     QString dev_push_button_event_path;
 
-    /**
-     * Input device name of rotary button (must match Device Tree)
-     * Default = "volume"
-     */
-    QString dev_rotary_event_name{"volume"};
-
-    /**
-     * Input device name of rotary button (must match Device Tree)
-     * Default = "gpio-keys"
-     */
-    QString dev_push_button_event_name{"gpio-keys"};
 };
 
 } /* namespace Hal */
