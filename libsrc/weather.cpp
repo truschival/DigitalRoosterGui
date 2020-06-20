@@ -115,7 +115,7 @@ WeatherStatus* Weather::get_weather(int idx) const {
     try {
         auto ret = new WeatherStatus(&weather.at(idx));
         return ret;
-    } catch (std::out_of_range& exc) {
+    } catch (std::out_of_range&) {
         qCCritical(CLASS_LC) << "Forecast index out of range!";
         return nullptr; // would be nice to throw exception to QML instead
     }

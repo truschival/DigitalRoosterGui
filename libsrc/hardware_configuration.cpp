@@ -15,11 +15,6 @@
 #include <QLoggingCategory>
 #include <QProcessEnvironment>
 
-#include <fcntl.h>
-#include <linux/input.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-
 #include "hardware_configuration.hpp"
 
 using namespace Hal;
@@ -44,18 +39,6 @@ static bool override_if_env_var_exists(
 
 HardwareConfiguration::HardwareConfiguration() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    /* set push button device name if specified*/
-    override_if_env_var_exists(
-        PUSH_BUTTON_EVENT_DEV_ENV_VAR_NAME, &dev_push_button_event_name);
-    /* Find push_button event path by device name */
-    dev_push_button_event_path =
-        resolve_name_to_path(dev_push_button_event_name);
-
-    override_if_env_var_exists(
-        ROTARY_EVENT_DEV_ENV_VAR_NAME, &dev_rotary_event_name);
-    /* Find rotary event path by device name */
-    dev_rotary_event_path = resolve_name_to_path(dev_rotary_event_name);
-
     /*override Paths by environment variables */
     override_if_env_var_exists(
         PUSH_BUTTON_PATH_ENV_VAR_NAME, &dev_push_button_event_path);
@@ -64,39 +47,4 @@ HardwareConfiguration::HardwareConfiguration() {
     override_if_env_var_exists(
         BACKLIGHT_PATH_ENV_VAR_NAME, &sys_backlight_path);
 }
-/*****************************************************************************/
-
-QString HardwareConfiguration::resolve_name_to_path(
-    const QString& device_name) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO << device_name;
-    QDir evt_dir = QDir("/dev/input/");
-    for (auto& file_name : evt_dir.entryList(QDir::System)) {
-        qCDebug(CLASS_LC) << "trying " << evt_dir.absoluteFilePath(file_name);
-        QFile f(evt_dir.absoluteFilePath(file_name));
-        if (!f.open(QFile::ReadWrite)) {
-            qCCritical(CLASS_LC)
-                << "Error: open file " << f.fileName() << f.errorString();
-            continue;
-        }
-
-        char buf[256];
-        int ret = ioctl(f.handle(), EVIOCGNAME(sizeof(buf)), buf);
-        if (ret < 0) {
-            qCCritical(CLASS_LC) << " ioctl failed " << ret;
-            continue;
-        } else {
-            // match name
-            QString dev_name(buf);
-            qCDebug(CLASS_LC) << "Checking " << dev_name
-                              << "equals: " << (dev_name == device_name);
-            if (dev_name == device_name) {
-                f.close();
-                return QFileInfo(f).absoluteFilePath();
-            }
-        }
-        f.close();
-    }
-    return QString();
-}
-
 /*****************************************************************************/

@@ -9,14 +9,12 @@
  * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
  * 			  SPDX-License-Identifier: GPL-3.0-or-later
  *****************************************************************************/
+#include <QCoreApplication>
 #include <QLoggingCategory>
 #include <QString>
-#include <exception>
-#include <memory>
 
 #include "hardware_configuration.hpp"
 #include "hardware_control.hpp"
-
 
 using namespace Hal;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HardwareControl");
@@ -42,13 +40,13 @@ void HardwareControl::generate_rotary_event(int file_handle) {
 /*****************************************************************************/
 void HardwareControl::system_reboot() {
     qCInfo(CLASS_LC) << Q_FUNC_INFO;
-    exit(0);
+    QCoreApplication::instance()->quit();
 }
 
 /*****************************************************************************/
 void HardwareControl::system_poweroff() {
     qCInfo(CLASS_LC) << Q_FUNC_INFO;
-    exit(0);
+    QCoreApplication::instance()->quit();
 }
 
 /*****************************************************************************/

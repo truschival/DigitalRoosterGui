@@ -7,7 +7,7 @@ import QtQuick 2.9
 import QtQuick.Controls 2.2
 
 Button {
-	font: Style.font.button;
-	implicitWidth: Style.buttons.normalH;
-	implicitHeight: Style.buttons.normalW;
+    font: Style.font.button;
+    implicitWidth: Style.buttons.normalH;
+    implicitHeight: Style.buttons.normalW;
 }

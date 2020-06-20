@@ -124,8 +124,7 @@ QtObject {
         property font button: Qt.font({
             family: "Material Design Icons",
             weight: Font.DemiBold,
-            pixelSize: scaleFont(20),
-            preferShaping: false
+            pixelSize: scaleFont(20)
         });
 
         property font sliderValue: Qt.font({

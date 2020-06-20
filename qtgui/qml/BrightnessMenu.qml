@@ -38,11 +38,10 @@ Menu {
         Slider {
             id: brightnessSlider
             orientation: Qt.Horizontal
-            from: 5
+            from: 10
             to: 100
             stepSize: 1
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            // change that to class for handling brightness control
             value: brightnessControl.brightness
             onMoved: {
                 brightnessControl.brightness = value;
@@ -60,12 +59,11 @@ Menu {
         Slider {
             id: standbySlider
             orientation: Qt.Horizontal
-            from: 3
-            to: 85
+            from: 5
+            to:  75
             stepSize: 1
             wheelEnabled: true
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            // change that to class for handling brightness control
             value: config.standbybrightness
             onMoved: {
                 config.standbybrightness = value;

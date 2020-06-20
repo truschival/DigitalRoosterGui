@@ -51,6 +51,9 @@ void PodcastSerializer::restore_info() {
             read_from_file(ps, cache_file);
         } catch (std::system_error& exc) {
             qCWarning(CLASS_LC) << "Cache file not found" << cache_file;
+        } catch (PodcastSourceJSonCorrupted& jsexc) {
+            qCWarning(CLASS_LC) << "corrupted JSON in file" << cache_file
+                                << ": " << jsexc.what();
         }
     }
 }
@@ -101,12 +104,12 @@ void PodcastSerializer::delayed_write() {
 
 /*****************************************************************************/
 void PodcastSerializer::store_image(QByteArray data) {
-	qCDebug(CLASS_LC) << Q_FUNC_INFO;
-	store_image_impl(data);
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    store_image_impl(data);
 }
 
 /*****************************************************************************/
-void PodcastSerializer::store_image_impl(QByteArray& data){
+void PodcastSerializer::store_image_impl(QByteArray& data) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto image_file_path = cache_dir.filePath(ps->get_image_url().fileName());
     /* Resize image and save file */
@@ -163,7 +166,6 @@ void DigitalRooster::read_from_file(
         parse_podcast_source_from_json(tl_obj, ps);
         read_episodes_cache(tl_obj, ps);
     } else {
-        qCWarning(CLASS_LC) << "empty json document read from" << file_path;
         throw PodcastSourceJSonCorrupted("Document empty!");
     }
 }
