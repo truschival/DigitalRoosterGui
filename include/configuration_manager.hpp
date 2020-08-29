@@ -17,8 +17,8 @@
 #include <QString>
 #include <QTimer>
 
-#include <chrono>
 #include <atomic>
+#include <chrono>
 #include <memory>
 #include <vector>
 
@@ -145,6 +145,12 @@ public:
      * @return "/var/wpa_supplicant/wlan0"
      */
     virtual QString get_wpa_socket_name() const;
+
+    /**
+     * Network interface name
+     * @return "wlan0"
+     */
+    virtual QString get_net_dev_name() const;
 
     /**
      * Read full configuration file path
@@ -302,6 +308,11 @@ private:
      * WPA control socket path /var/lib/wpa_supplicant/wlan0
      */
     QString wpa_socket_name;
+
+    /**
+     * Wifi Network device name
+     */
+    QString net_dev_name;
 
     /**
      * Check if config and path exist, otherwise create default config file at

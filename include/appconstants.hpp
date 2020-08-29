@@ -203,6 +203,11 @@ const QString KEY_TIMESTAMP("timestamp");
 const QString KEY_WPA_SOCKET_NAME("wpa_ctrl");
 
 /**
+ * key for wpa control interface socket
+ */
+const QString KEY_WIFI_DEV_NAME("net_dev");
+
+/**
  * Directory for all downloaded RSS Files
  */
 const QString RSS_FILE_DIR(QDir::tempPath());
@@ -294,10 +299,17 @@ const QString PROJECT_BUILD_TIME(STR_VALUE(CMAKE_BUILD_TIME_STAMP));
  * Json file name for configuration
  */
 const QString CONFIG_JSON_FILE_NAME(STR_VALUE(CMAKE_SETTINGS_FILE_NAME));
+
 /**
  * WIFI interface
  */
-const QString WPA_CONTROL_SOCKET_PATH(STR_VALUE(WIFI_INTERFACE_PATH));
+const QString WIFI_NET_DEV_NAME(STR_VALUE(WIFI_INTERFACE_NAME));
+
+/**
+ * WPA supplicant Control socket
+ */
+const QString WPA_CONTROL_SOCKET_PATH(STR_VALUE(WPA_SOCK));
+
 
 /**
  * Port for REST API

@@ -3,65 +3,73 @@
  * \brief Template for CMake to create configuration time constants in config.h
  *
  *************************************************************************************/
- #ifndef _CONFIG_H_
- #define _CONFIG_H_
- 
- /**
-  * Date Time string when CMake was run
-  */
- #ifndef CMAKE_BUILD_TIME_STAMP
- #define CMAKE_BUILD_TIME_STAMP  @CMAKE_CONFIGURATION_TIME@
- #endif
+#ifndef _CONFIG_H_
+#define _CONFIG_H_
 
- /**
-  * Project version string Major.Minor.Patch
-  */
- #ifndef CMAKE_PROJECT_NAME
- #define CMAKE_PROJECT_NAME  @PROJECT_NAME@
- #endif
- 
- /**
-  * Project version string Major.Minor.Patch
-  */
- #ifndef CMAKE_PROJECT_VERSION
- #define CMAKE_PROJECT_VERSION  @PROJECT_VERSION@
- #endif
- 
- /**
+/**
+ * Date Time string when CMake was run
+ */
+#ifndef CMAKE_BUILD_TIME_STAMP
+#define CMAKE_BUILD_TIME_STAMP @CMAKE_CONFIGURATION_TIME@
+#endif
+
+/**
+ * Project version string Major.Minor.Patch
+ */
+#ifndef CMAKE_PROJECT_NAME
+#define CMAKE_PROJECT_NAME @PROJECT_NAME@
+#endif
+
+/**
+ * Project version string Major.Minor.Patch
+ */
+#ifndef CMAKE_PROJECT_VERSION
+#define CMAKE_PROJECT_VERSION @PROJECT_VERSION@
+#endif
+
+/**
  * GIT describe output:
  *   git -C $SRC_DIR describe --abbrev=8 --dirty
  *   v0.4.0-1-g47cb4c6a-dirty
  */
 #ifndef GIT_DESCRIBE_REV
-#define GIT_DESCRIBE_REV 	@GIT_DESCRIBE_REV@
+#define GIT_DESCRIBE_REV @GIT_DESCRIBE_REV@
 #endif
- 
- /**
-  * Application configuration file 
-  */
- #ifndef CMAKE_SETTINGS_FILE_NAME
- #define CMAKE_SETTINGS_FILE_NAME  @SETTINGS_FILE_NAME@
- #endif
 
- /**
-  * Directory where to find SETTINGS_FILE_NAME
-  */
- #ifndef CMAKE_SETTINGS_PATH
- #define CMAKE_SETTINGS_PATH  @SETTINGS_PATH@
- #endif
+/**
+ * Application configuration file
+ */
+#ifndef CMAKE_SETTINGS_FILE_NAME
+#define CMAKE_SETTINGS_FILE_NAME @SETTINGS_FILE_NAME@
+#endif
 
- /**
-  * Build directory to find and generate files during tests 
-  */
- #ifndef CMAKE_BUILD_DIR
- #define CMAKE_BUILD_DIR  @CMAKE_BINARY_DIR@
- #endif
+/**
+ * Directory where to find SETTINGS_FILE_NAME
+ */
+#ifndef CMAKE_SETTINGS_PATH
+#define CMAKE_SETTINGS_PATH @SETTINGS_PATH@
+#endif
+
+/**
+ * Build directory to find and generate files during tests
+ */
+#ifndef CMAKE_BUILD_DIR
+#define CMAKE_BUILD_DIR @CMAKE_BINARY_DIR@
+#endif
 
 /**
  * Wifi Interface on target
  */
-#ifndef WIFI_INTERFACE_PATH
-#define WIFI_INTERFACE_PATH @WIFI_INTERFACE@
+
+#ifndef WIFI_INTERFACE_NAME
+#define WIFI_INTERFACE_NAME @WIFI_INTERFACE@
+#endif
+
+/**
+ * Wpa supplicant socket path
+ */
+#ifndef WPA_SOCK
+#define WPA_SOCK @WPA_CTRL_SOCK@
 #endif
 
 /**

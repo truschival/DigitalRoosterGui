@@ -19,13 +19,10 @@
 #include <string>
 #include <thread>
 
-
 #include "wpa_ctrl/wpa_ctrl.h"
 #include "gtest/gtest.h"
 
-
 using namespace std::chrono;
-
 
 static const char* ctrl_iface_dir = "/var/run/wpa_supplicant/wlp2s0";
 

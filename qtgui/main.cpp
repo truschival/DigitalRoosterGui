@@ -42,6 +42,7 @@
 #include "iradiolistmodel.hpp"
 #include "logger.hpp"
 #include "mediaplayerproxy.hpp"
+#include "networkinfo.hpp"
 #include "podcastepisodemodel.hpp"
 #include "podcastsourcemodel.hpp"
 #include "powercontrol.hpp"
@@ -248,6 +249,8 @@ int main(int argc, char* argv[]) {
     QObject::connect(wifictrl, &WifiControl::networks_found, &wifilistmodel,
         &WifiListModel::update_scan_results);
 
+    NetworkInfo netinfo(cm.get_net_dev_name());
+
     ctxt->setContextProperty("podcastmodel", &psmodel);
     ctxt->setContextProperty("playerProxy", &playerproxy);
     ctxt->setContextProperty("alarmlistmodel", &alarmlistmodel);
@@ -258,6 +261,7 @@ int main(int argc, char* argv[]) {
     ctxt->setContextProperty("brightnessControl", &brightness);
     ctxt->setContextProperty("volumeButton", &volbtn);
     ctxt->setContextProperty("sleeptimer", &sleeptimer);
+    ctxt->setContextProperty("netinfo", &netinfo);
 
     ctxt->setContextProperty(
         "DEFAULT_ICON_WIDTH", QVariant::fromValue(DEFAULT_ICON_WIDTH));
