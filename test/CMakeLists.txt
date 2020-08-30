@@ -220,6 +220,7 @@ IF(HAS_WPA_SUPPLICANT)
   LIST(APPEND TEST_HARNESS_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/test_wpa_ctrl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/test_wifi_control.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/test_networkinfo.cpp
     )
 ENDIF()
 

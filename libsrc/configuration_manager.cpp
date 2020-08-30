@@ -87,7 +87,8 @@ ConfigurationManager::ConfigurationManager(
     , brightness_act(DEFAULT_BRIGHTNESS)
     , config_file(configpath)
     , application_cache_dir(cachedir)
-    , wpa_socket_name(WPA_CONTROL_SOCKET_PATH) {
+    , wpa_socket_name(WPA_CONTROL_SOCKET_PATH)
+    , net_dev_name(WIFI_NET_DEV_NAME) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     /*
@@ -193,6 +194,7 @@ void ConfigurationManager::parse_json(const QByteArray& json) {
 
     wpa_socket_name =
         appconfig[KEY_WPA_SOCKET_NAME].toString(WPA_CONTROL_SOCKET_PATH);
+    net_dev_name = appconfig[KEY_WIFI_DEV_NAME].toString(WIFI_NET_DEV_NAME);
     /* Read subsections */
     read_radio_streams(appconfig);
     read_podcasts(appconfig);
@@ -374,6 +376,7 @@ void ConfigurationManager::store_current_config() {
         static_cast<qint64>(global_alarm_timeout.count());
     appconfig[KEY_SLEEP_TIMEOUT] = static_cast<qint64>(sleep_timeout.count());
     appconfig[KEY_WPA_SOCKET_NAME] = wpa_socket_name;
+    appconfig[KEY_WIFI_DEV_NAME] = net_dev_name;
     appconfig[KEY_VOLUME] = volume;
     appconfig[KEY_BRIGHTNESS_SB] = brightness_sb;
     appconfig[KEY_BRIGHTNESS_ACT] = brightness_act;
@@ -459,6 +462,12 @@ QString ConfigurationManager::get_configuration_path() const {
 QString ConfigurationManager::get_wpa_socket_name() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return wpa_socket_name;
+}
+
+/*****************************************************************************/
+QString ConfigurationManager::get_net_dev_name() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    return net_dev_name;
 }
 
 /*****************************************************************************/

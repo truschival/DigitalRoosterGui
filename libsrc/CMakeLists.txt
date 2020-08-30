@@ -60,6 +60,7 @@ SET(SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/sleeptimer.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/util.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/hardware_configuration.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/networkinfo.cpp
 	)
 
 if(${SYSTEM_TARGET_NAME} STREQUAL "Embedded" )
@@ -92,6 +93,7 @@ SET(MOC_SRC
 	${PROJECT_INCLUDE_DIR}/wifi_control.hpp
 	${PROJECT_INCLUDE_DIR}/sleeptimer.hpp
 	${PROJECT_INCLUDE_DIR}/hardware_control.hpp
+	${PROJECT_INCLUDE_DIR}/networkinfo.hpp
 	)
 
 #------------------------------
