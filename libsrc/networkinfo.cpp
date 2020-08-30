@@ -7,6 +7,8 @@
  *****************************************************************************/
 #include <QLoggingCategory>
 #include <QNetworkInterface>
+#include <QTimerEvent>
+#include <chrono>
 
 #include "networkinfo.hpp"
 using namespace DigitalRooster;
@@ -21,38 +23,51 @@ NetworkInfo::NetworkInfo(QObject* parent)
 
 /*****************************************************************************/
 NetworkInfo::NetworkInfo(QString name, QObject* parent)
-    : QObject (parent)
+    : QObject(parent)
     , ifname(name) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    update_net_info();
+    // Event loop timer check every second if interface status changed
+    evt_timer_id = startTimer(std::chrono::seconds(1));
 }
 
 /*****************************************************************************/
-QString NetworkInfo::get_ip_addr() const {
+void NetworkInfo::timerEvent(QTimerEvent* evt) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    if (evt->timerId() == evt_timer_id) {
+        update_net_info();
+    } else {
+        QObject::timerEvent(evt);
+    }
+}
+
+/*****************************************************************************/
+void NetworkInfo::update_net_info() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto itf = QNetworkInterface::interfaceFromName(ifname);
     if (!itf.isValid()) {
         qCCritical(CLASS_LC) << "interface name " << ifname << "not found!";
-        return QString();
+        return;
+    }
+    bool cur_state = (itf.flags() & QNetworkInterface::IsUp);
+    if (cur_state != if_state) {
+        qCDebug(CLASS_LC) << "Link changed to" << cur_state;
+        if_state = cur_state;
+        emit link_status_changed(if_state);
     }
 
     auto addr_list = itf.addressEntries();
+    QString addr(ip_addr);
     if (addr_list.isEmpty()) {
-        return QString();
+        addr = "None";
+    } else {
+        addr = addr_list.first().ip().toString();
     }
-    auto addr = addr_list.first();
-    return addr.ip().toString();
+    if (addr != ip_addr) {
+        qCDebug(CLASS_LC) << "IP address changed to" << addr;
+        ip_addr = addr;
+        emit ip_addr_changed(ip_addr);
+    }
 }
 
 /*****************************************************************************/
-bool NetworkInfo::get_link_status() const {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto itf = QNetworkInterface::interfaceFromName(ifname);
-    if (!itf.isValid()) {
-        qCCritical(CLASS_LC) << "interface name " << ifname << "not found!";
-        return false;
-    }
-    return (itf.flags() & QNetworkInterface::IsUp);
-}
-
-/*****************************************************************************/
-
