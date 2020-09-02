@@ -15,7 +15,7 @@ list(APPEND CMAKE_MODULE_PATH  ${CMAKE_SOURCE_DIR}/CMakeModules/)
 # Project Name
 MESSAGE( STATUS "Running ${CMAKE_COMMAND} v${CMAKE_VERSION}" )
 PROJECT(DigitalRooster
-	VERSION 0.11.1
+	VERSION 0.12.0
 	DESCRIPTION  "A digital alarm clock and podcast player"
 	LANGUAGES CXX C
 	)
@@ -51,7 +51,9 @@ SET(SYSTEM_TARGET_NAME "Host"
   CACHE STRING "Target: {Host|Embedded}")
 SET(SETTINGS_FILE_NAME "digitalrooster.json"
   CACHE STRING "application configuration file name")
-SET(WIFI_INTERFACE "/var/run/wpa_supplicant/wlan0"
+SET(WIFI_INTERFACE "wlan0"
+  CACHE STRING "WIFI interface name")
+ SET(WPA_CTRL_SOCK "/var/run/wpa_supplicant/wlan0"
   CACHE STRING "wpa_supplicant interface contrl socket path")
 SET(SETTINGS_PATH  "${CMAKE_CURRENT_BINARY_DIR}/settings"
   CACHE PATH "application configuration path")

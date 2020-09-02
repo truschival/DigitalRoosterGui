@@ -103,13 +103,13 @@ listed the script [buildscripts/build_local.sh](../buildscripts/build_local.sh)
 -   `-DBUILD_GTEST_FROM_SRC=On`  download GoogleTest and build it from source
                                   (`OFF` requires gtest as external project)
 
--   `-DTEST_COVERAGE=Off`        code coverage
-
 -   `-DREST_API=On`               provide a REST API for json configuration
 
 -   `-DREST_API_PORT=6666`       Default TCP listen port for REST API
 
 -   `-DPROFILING=On`              profiling build for Visual Studio
+
+-   `-DTEST_COVERAGE=Off`        code coverage
 
 The following commands will checkout the sources to `/tmp/checkout/`, create a
 build directory in `/tmp/build/` configure and build DigitalRooster.

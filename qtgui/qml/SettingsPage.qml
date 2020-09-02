@@ -41,6 +41,20 @@ Page {
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
         }
 
+		Text{
+            text: "IP: ";
+            font: Style.font.label;
+            color: "white"
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+        }
+
+        Text{
+            text: netinfo.ipaddr;
+            font: Style.font.valueLabel;
+            color: netinfo.linkstatus? "white" : Style.colors.disabled;
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+        }
+
         IconButton {
             id: brightnessBtn;
             text: "\uf0de";
