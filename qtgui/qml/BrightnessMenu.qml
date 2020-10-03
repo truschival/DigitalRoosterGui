@@ -43,6 +43,7 @@ Menu {
             font: Style.font.boldLabel;
             color: "white"
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+	    Layout.leftMargin: Style.itemMargins.wide;
         }
         Slider {
             id: brightnessSlider
@@ -63,6 +64,7 @@ Menu {
             font: Style.font.boldLabel;
             color: "white"
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+    	    Layout.leftMargin: Style.itemMargins.wide;
         }
 
         Slider {
