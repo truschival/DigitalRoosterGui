@@ -29,6 +29,15 @@ Menu {
         anchors.rightMargin: Style.itemMargins.wide;
         spacing: 0;
 
+	CheckBox {
+            checked: brightnessControl.feedback
+            text: "Adaptive mode"
+            enabled: brightnessControl.has_sensor
+      	    onClicked: {
+      		brightnessControl.feedback = checked;
+      	    }
+      	}
+
         Text{
             text: "Active brightness:";
             font: Style.font.boldLabel;
@@ -38,13 +47,13 @@ Menu {
         Slider {
             id: brightnessSlider
             orientation: Qt.Horizontal
-            from: 10
-            to: 100
+            from: 5
+            to: 99
             stepSize: 1
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            value: brightnessControl.brightness
+            value: brightnessControl.active_brightness
             onMoved: {
-                brightnessControl.brightness = value;
+                brightnessControl.active_brightness = value;
                 brightnessMenuCloseTimer.restart();
             }
         }
@@ -60,13 +69,13 @@ Menu {
             id: standbySlider
             orientation: Qt.Horizontal
             from: 5
-            to:  75
+            to:  99
             stepSize: 1
             wheelEnabled: true
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            value: config.standbybrightness
+            value: brightnessControl.standby_brightness
             onMoved: {
-                config.standbybrightness = value;
+                brightnessControl.standby_brightness = value;
                 brightnessMenuCloseTimer.restart();
             }
         }// Slider

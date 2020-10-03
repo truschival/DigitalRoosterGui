@@ -36,6 +36,13 @@ public:
     virtual void set_active_brightness(int brightness) =0;
 
     /**
+     * Enable/disable manual brightness control
+     * @return true if auto control is enabled
+     */
+    virtual bool backlight_control_enabled() const = 0;
+    virtual void enable_backlight_control(bool enable) =0;
+
+    /**
      * virtual destructor
      */
     virtual ~IBrightnessStore(){};
