@@ -16,12 +16,6 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.NetworkInfo");
 
 /*****************************************************************************/
-NetworkInfo::NetworkInfo(QObject* parent)
-    : QObject(parent) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-}
-
-/*****************************************************************************/
 NetworkInfo::NetworkInfo(QString name, QObject* parent)
     : QObject(parent)
     , ifname(name) {
@@ -47,6 +41,7 @@ void NetworkInfo::update_net_info() {
     auto itf = QNetworkInterface::interfaceFromName(ifname);
     if (!itf.isValid()) {
         qCCritical(CLASS_LC) << "interface name " << ifname << "not found!";
+        emit link_status_changed(false);
         return;
     }
     bool cur_state = (itf.flags() & QNetworkInterface::IsUp);

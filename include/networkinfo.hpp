@@ -6,7 +6,7 @@
  *
  * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
  * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
+ * 	     SPDX-License-Identifier: GPL-3.0-or-later }
  *
  *****************************************************************************/
 
@@ -26,11 +26,6 @@ class NetworkInfo : public QObject {
     Q_PROPERTY(QString ipaddr READ get_ip_addr NOTIFY ip_addr_changed)
     Q_PROPERTY(bool linkstatus READ get_link_status NOTIFY link_status_changed)
 public:
-    /**
-     * Default Constructor
-     */
-    explicit NetworkInfo(QObject* parent = nullptr);
-
     /**
      * Constructor setting interface name
      * @param name os-name of interface (wlan0, wlp2s0)
@@ -69,12 +64,12 @@ private:
     /**
      * Interface name to watch
      */
-    QString ifname = {"wlan0"};
+    QString ifname{"wlan0"};
 
     /**
      * current ip address
      */
-    QString ip_addr;
+    QString ip_addr{""};
     /**
      * current interface state (up/down)
      */
