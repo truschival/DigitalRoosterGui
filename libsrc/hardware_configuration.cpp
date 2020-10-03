@@ -46,5 +46,6 @@ HardwareConfiguration::HardwareConfiguration() {
         ROTARY_PATH_ENV_VAR_NAME, &dev_rotary_event_path);
     override_if_env_var_exists(
         BACKLIGHT_PATH_ENV_VAR_NAME, &sys_backlight_path);
+    override_if_env_var_exists(ALS_PATH_ENV_VAR_NAME, &sys_als_path);
 }
 /*****************************************************************************/

@@ -192,6 +192,13 @@ public slots:
     void set_active_brightness(int brightness) override;
 
     /**
+     * Enable/disable manual brightness control
+     * @return true if auto control is enabled
+     */
+    virtual void enable_backlight_control(bool enable) override;
+    virtual bool backlight_control_enabled() const override;
+
+    /**
      * Write memory config to file - will overwrite changes in file
      */
     void store_current_config();
@@ -266,6 +273,10 @@ private:
      * display brightness (0..100%) in active mode
      */
     int brightness_act;
+    /**
+     * Backlight control in auto mode
+     */
+    bool backlight_control_act;
 
     /**
      * File system monitor to get updated if someone changed the file

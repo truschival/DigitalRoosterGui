@@ -64,6 +64,11 @@ const QString KEY_BRIGHTNESS_ACT("brightnessActive");
 const QString KEY_BRIGHTNESS_SB("brightnessStandby");
 
 /**
+ * property keyword for backlight control mode
+ */
+const QString KEY_BACKLIGHT_CONTROL("autoBacklight");
+
+/**
  *  property keyword for all ids
  */
 const QString KEY_ID("id");
@@ -86,7 +91,7 @@ const QString KEY_ENABLED("enabled");
 /**
  *  property keyword for alarms on weekends
  */
-const QString KEY_TIME("time");
+const QString JSON_KEY_TIME("time");
 /**
  * Keyword for alarms on weekends
  */
@@ -190,7 +195,7 @@ const QString KEY_DURATION("duration");
 /**
  * key for numeric duration property
  */
-const QString KEY_TITLE("title");
+const QString JSON_KEY_TITLE("title");
 
 /**
  * key for timestamp property
@@ -228,6 +233,11 @@ const std::chrono::minutes DEFAULT_ALARM_TIMEOUT(30);
  * (probably because I am already asleep)
  */
 const std::chrono::minutes DEFAULT_SLEEP_TIMEOUT(60);
+
+/**
+ * Sample interval for ambient light sensor
+ */
+const std::chrono::milliseconds ALS_SAMPLING_PERIOD(300);
 
 /**
  * Default output volume

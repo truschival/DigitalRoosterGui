@@ -71,13 +71,13 @@ public:
         // Make sure cache path exists
         cache_dir.mkpath(".");
         episode1_json[KEY_URI] = episode1_url.toString();
-        episode1_json[KEY_TITLE] = episode1_title;
+        episode1_json[JSON_KEY_TITLE] = episode1_title;
         episode1_json[KEY_DURATION] = episode1_duration;
         episode1_json[KEY_POSITION] = episode1_position;
         episode1_json[KEY_ID] = episode1_guid;
 
         episode2_json[KEY_URI] = episode2_url.toString();
-        episode2_json[KEY_TITLE] = episode2_title;
+        episode2_json[JSON_KEY_TITLE] = episode2_title;
         episode2_json[KEY_DURATION] = episode2_duration;
         episode2_json[KEY_POSITION] = episode2_position;
         episode2_json[KEY_ID] = episode2_guid;
@@ -143,7 +143,7 @@ TEST_F(SerializerFixture, serializePodcastSource) {
     ASSERT_EQ(
         json_obj[KEY_TIMESTAMP].toString(), expected_timestamp.toString());
     ASSERT_EQ(json_obj[KEY_ICON_URL].toString(), expected_image_url.toString());
-    ASSERT_EQ(json_obj[KEY_TITLE].toString(), expected_title);
+    ASSERT_EQ(json_obj[JSON_KEY_TITLE].toString(), expected_title);
 }
 
 /******************************************************************************/
@@ -154,7 +154,7 @@ TEST_F(SerializerFixture, serializeEpisode) {
     episode.set_guid(episode1_guid);
 
     auto json_obj = episode.to_json_object();
-    ASSERT_EQ(json_obj[KEY_TITLE].toString(), episode1_title);
+    ASSERT_EQ(json_obj[JSON_KEY_TITLE].toString(), episode1_title);
     ASSERT_EQ(json_obj[KEY_URI].toString(), episode1_url.toString());
     ASSERT_EQ(json_obj[KEY_POSITION].toInt(), episode1_position);
     ASSERT_EQ(json_obj[KEY_DURATION].toInt(), episode1_duration);
@@ -170,7 +170,7 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_PsWasNeverUpdated) {
         .WillRepeatedly(ReturnRef(invalid_date));
 
     QJsonObject json_ps;
-    json_ps[KEY_TITLE] = expected_title;
+    json_ps[JSON_KEY_TITLE] = expected_title;
     json_ps[KEY_TIMESTAMP] = expected_timestamp.toString();
     parse_podcast_source_from_json(json_ps, &psmock);
 
@@ -191,7 +191,7 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_PsRecentlyUpdated) {
         .Times(AtLeast(1))
         .WillRepeatedly(ReturnRef(update_timestamp));
     QJsonObject json_ps;
-    json_ps[KEY_TITLE] = QString("some_old_title");
+    json_ps[JSON_KEY_TITLE] = QString("some_old_title");
     json_ps[KEY_TIMESTAMP] = expected_timestamp.toString();
     parse_podcast_source_from_json(json_ps, &psmock);
 
@@ -208,7 +208,7 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_Add2Episodes) {
         .WillRepeatedly(ReturnRef(invalid_date));
 
     QJsonObject json_ps;
-    json_ps[KEY_TITLE] = expected_title;
+    json_ps[JSON_KEY_TITLE] = expected_title;
     json_ps[KEY_TIMESTAMP] = expected_timestamp.toString();
 
     QJsonArray episodes_array;
@@ -235,7 +235,7 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_UpdateEpisodePosition) {
         .WillRepeatedly(ReturnRef(invalid_date));
 
     QJsonObject json_ps;
-    json_ps[KEY_TITLE] = expected_title;
+    json_ps[JSON_KEY_TITLE] = expected_title;
     json_ps[KEY_TIMESTAMP] = expected_timestamp.toString();
     QJsonArray episodes_array;
     episodes_array.append(episode1_json);

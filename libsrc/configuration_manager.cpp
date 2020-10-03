@@ -85,6 +85,7 @@ ConfigurationManager::ConfigurationManager(
     , volume(DEFAULT_VOLUME)
     , brightness_sb(DEFAULT_BRIGHTNESS)
     , brightness_act(DEFAULT_BRIGHTNESS)
+    , backlight_control_act(true)
     , config_file(configpath)
     , application_cache_dir(cachedir)
     , wpa_socket_name(WPA_CONTROL_SOCKET_PATH)
@@ -186,6 +187,8 @@ void ConfigurationManager::parse_json(const QByteArray& json) {
 
     set_standby_brightness(
         appconfig[KEY_BRIGHTNESS_SB].toInt(DEFAULT_BRIGHTNESS));
+
+    enable_backlight_control(appconfig[KEY_BACKLIGHT_CONTROL].toBool(true));
 
     set_volume(appconfig[KEY_VOLUME].toInt(DEFAULT_VOLUME));
 
@@ -343,6 +346,18 @@ void ConfigurationManager::do_set_brightness_act(int brightness) {
 }
 
 /*****************************************************************************/
+bool ConfigurationManager::backlight_control_enabled() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    return backlight_control_act;
+}
+
+/*****************************************************************************/
+void ConfigurationManager::enable_backlight_control(bool ena) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    backlight_control_act = ena;
+}
+
+/*****************************************************************************/
 void ConfigurationManager::store_current_config() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject appconfig;
@@ -380,6 +395,7 @@ void ConfigurationManager::store_current_config() {
     appconfig[KEY_VOLUME] = volume;
     appconfig[KEY_BRIGHTNESS_SB] = brightness_sb;
     appconfig[KEY_BRIGHTNESS_ACT] = brightness_act;
+    appconfig[KEY_BACKLIGHT_CONTROL] = backlight_control_act;
     /* Static info - which version created the config file*/
     appconfig[KEY_VERSION] = PROJECT_VERSION;
 
