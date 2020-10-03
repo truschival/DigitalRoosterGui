@@ -4,7 +4,7 @@ on:
     branches:
       - develop
       - master
-      - 'features/**'
+      - 'feature/**'
   pull_request:
     branches:
       - develop
@@ -64,7 +64,7 @@ jobs:
     - name: Package Test output for analysis
       if: failure()
       run: >
-        tar -C ${{ env.BUILD_DIR_HOST }} -czf ${{ env.TEST_ARTIFACT }}
+        tar -C ${{ env.BUILD_DIR_HOST }} -czf ${{ env.BUILD_DIR_HOST }}/${{ env.TEST_ARTIFACT }}
         test_trace.log gtest_results.xml
     - name: Upload program trace
       if: failure()
