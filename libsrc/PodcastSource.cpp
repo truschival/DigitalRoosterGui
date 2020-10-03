@@ -314,7 +314,7 @@ std::shared_ptr<PodcastSource> PodcastSource::from_json_object(
     auto url = valid_url_from_string(json[KEY_URI].toString());
     auto ps = std::make_shared<PodcastSource>(url, id);
 
-    auto title = json[KEY_TITLE].toString();
+    auto title = json[JSON_KEY_TITLE].toString();
     auto desc = json[KEY_DESCRIPTION].toString();
     auto img_url = json[KEY_ICON_URL].toString();
     auto img_cached = json[KEY_IMAGE_CACHE].toString();
@@ -335,7 +335,7 @@ QJsonObject PodcastSource::to_json_object() const {
     QJsonObject json;
     json[KEY_ID] = get_id_string();
     json[KEY_URI] = get_url().toString();
-    json[KEY_TITLE] = get_title();
+    json[JSON_KEY_TITLE] = get_title();
     json[KEY_UPDATE_INTERVAL] =
         static_cast<qint64>(get_update_interval().count());
     return json;

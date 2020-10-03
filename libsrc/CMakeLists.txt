@@ -63,12 +63,6 @@ SET(SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/networkinfo.cpp
 	)
 
-if(${SYSTEM_TARGET_NAME} STREQUAL "Embedded" )
-	LIST(APPEND SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_mk3.cpp )
-else()
-	LIST(APPEND SRCS ${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_stub.cpp )
-endif()
-
 #------------------------------
 # QT MOC, UIC RCC input
 #------------------------------
@@ -92,9 +86,19 @@ SET(MOC_SRC
 	${PROJECT_INCLUDE_DIR}/podcast_serializer.hpp
 	${PROJECT_INCLUDE_DIR}/wifi_control.hpp
 	${PROJECT_INCLUDE_DIR}/sleeptimer.hpp
-	${PROJECT_INCLUDE_DIR}/hardware_control.hpp
 	${PROJECT_INCLUDE_DIR}/networkinfo.hpp
+	${PROJECT_INCLUDE_DIR}/IHardware.hpp
 	)
+
+# Use real hardware control or stub
+if(${SYSTEM_TARGET_NAME} STREQUAL "Embedded" )
+	LIST(APPEND SRCS	${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_mk3.cpp )
+	LIST(APPEND MOC_SRC	${PROJECT_INCLUDE_DIR}/hardwarecontrol_mk3.hpp )
+else()
+	LIST(APPEND SRCS	${CMAKE_CURRENT_SOURCE_DIR}/hardwarecontrol_stub.cpp )
+	LIST(APPEND MOC_SRC	${PROJECT_INCLUDE_DIR}/hardwarecontrol_stub.hpp )
+	LIST(APPEND CPP_DEFS HARDWARE_STUB )
+endif()
 
 #------------------------------
 # Output a library

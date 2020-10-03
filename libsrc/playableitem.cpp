@@ -225,7 +225,7 @@ std::shared_ptr<PodcastEpisode> PodcastEpisode::from_json_object(
     const QJsonObject& json_episode) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
-    auto title = json_episode[KEY_TITLE].toString();
+    auto title = json_episode[JSON_KEY_TITLE].toString();
     auto media_url = QUrl(json_episode[KEY_URI].toString());
     auto ep = std::make_shared<PodcastEpisode>(title, media_url);
     auto duration = json_episode[KEY_DURATION].toInt(1);
@@ -247,7 +247,7 @@ std::shared_ptr<PodcastEpisode> PodcastEpisode::from_json_object(
 QJsonObject PodcastEpisode::to_json_object() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject ep_obj;
-    ep_obj[KEY_TITLE] = get_title();
+    ep_obj[JSON_KEY_TITLE] = get_title();
     ep_obj[KEY_URI] = get_url().toString();
     ep_obj[KEY_DURATION] = get_duration();
     ep_obj[KEY_POSITION] = get_position();

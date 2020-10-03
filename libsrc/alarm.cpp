@@ -139,9 +139,9 @@ std::shared_ptr<Alarm> Alarm::from_json_object(const QJsonObject& json) {
     auto period = string_to_alarm_period(
         json[KEY_ALARM_PERIOD].toString(KEY_ALARM_DAILY));
 
-    auto timepoint = QTime::fromString(json[KEY_TIME].toString(), "hh:mm");
+    auto timepoint = QTime::fromString(json[JSON_KEY_TIME].toString(), "hh:mm");
     if (!timepoint.isValid()) {
-        qCWarning(CLASS_LC) << "Invalid Time " << json[KEY_TIME].toString();
+        qCWarning(CLASS_LC) << "Invalid Time " << json[JSON_KEY_TIME].toString();
         throw std::invalid_argument("Alarm time invalid!");
     }
 
@@ -174,7 +174,7 @@ QJsonObject Alarm::to_json_object() const {
     QJsonObject alarmcfg;
     alarmcfg[KEY_ID] = this->get_id().toString(QUuid::WithoutBraces);
     alarmcfg[KEY_ALARM_PERIOD] = alarm_period_to_string(this->get_period());
-    alarmcfg[KEY_TIME] = this->get_time().toString("hh:mm");
+    alarmcfg[JSON_KEY_TIME] = this->get_time().toString("hh:mm");
     alarmcfg[KEY_VOLUME] = this->get_volume();
     alarmcfg[KEY_URI] = this->get_media_url().toString();
     alarmcfg[KEY_ENABLED] = this->is_enabled();

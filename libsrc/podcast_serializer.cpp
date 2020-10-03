@@ -217,7 +217,7 @@ void DigitalRooster::parse_podcast_source_from_json(
         qCDebug(CLASS_LC) << "podcast source is newer than stored information";
     } else {
         // need to update podcast source data
-        auto title = tl_obj[KEY_TITLE].toString();
+        auto title = tl_obj[JSON_KEY_TITLE].toString();
         auto desc = tl_obj[KEY_DESCRIPTION].toString();
         auto img_url = tl_obj[KEY_ICON_URL].toString();
         auto img_cached = tl_obj[KEY_IMAGE_CACHE].toString();
