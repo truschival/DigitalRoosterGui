@@ -4,6 +4,5 @@
         <file>IconLabel.qml</file>
         <file>materialdesignicons-webfont.ttf</file>
         <file>TempleBell.mp3</file>
-        <file>ClockIcon48x48.png</file>
     </qresource>
 </RCC>
