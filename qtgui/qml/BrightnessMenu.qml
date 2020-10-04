@@ -29,21 +29,23 @@ Menu {
         anchors.rightMargin: Style.itemMargins.wide;
         spacing: 0;
 
-	CheckBox {
+        CheckBox {
             checked: brightnessControl.feedback
             text: "Adaptive mode"
             enabled: brightnessControl.has_sensor
-      	    onClicked: {
-      		brightnessControl.feedback = checked;
-      	    }
-      	}
+
+            onClicked: {
+                brightnessControl.feedback = checked;
+                brightnessMenuCloseTimer.restart();
+            }
+        }
 
         Text{
             text: "Active brightness:";
             font: Style.font.boldLabel;
             color: "white"
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-	    Layout.leftMargin: Style.itemMargins.wide;
+            Layout.leftMargin: Style.itemMargins.wide;
         }
         Slider {
             id: brightnessSlider
@@ -64,7 +66,7 @@ Menu {
             font: Style.font.boldLabel;
             color: "white"
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-    	    Layout.leftMargin: Style.itemMargins.wide;
+            Layout.leftMargin: Style.itemMargins.wide;
         }
 
         Slider {

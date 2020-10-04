@@ -183,17 +183,21 @@ ApplicationWindow {
 
     BrightnessMenu {
         id: brightnessMenu;
+        margins: Style.itemMargins.wide;
+        height: applicationWindow.height*0.8;
         width: applicationWindow.width*0.8;
     }
 
     WifiMenu {
         id: wifiMenu;
+        margins: Style.itemMargins.wide;
         height: applicationWindow.height*0.8;
         width: applicationWindow.width*0.8;
     }
 
     SleepTimeoutMenu {
         id: sleepTimeoutMenu;
+        margins: Style.itemMargins.wide;
         height: applicationWindow.height*0.6;
         width: applicationWindow.width*0.7;
     }
@@ -203,7 +207,7 @@ ApplicationWindow {
         width: parent.width*0.85;
         height: parent.height*0.55;
         x: Math.round((applicationWindow.width - width) / 2)
-        y: Math.round((applicationWindow.height - height) *0.6)+10;
+        y: Math.round((applicationWindow.height - height) *0.6)+Style.itemMargins.wide;
     }
 
     VolumePopup {

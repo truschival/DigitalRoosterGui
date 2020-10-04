@@ -61,8 +61,7 @@ Page {
             Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
             onClicked: {
                 brightnessMenu.popup((applicationWindow.width- brightnessMenu.width)/2,
-                                     (applicationWindow.height- brightnessMenu.height)/2
-                                     - Style.itemMargins.extrawide)
+                                     (applicationWindow.height- brightnessMenu.height)/2)
             }
         }
         Text{
@@ -78,8 +77,7 @@ Page {
             Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
             onClicked: {
                 sleepTimeoutMenu.popup((applicationWindow.width- sleepTimeoutMenu.width)/2,
-                                       (applicationWindow.height- sleepTimeoutMenu.height)/2
-                                       - Style.itemMargins.extrawide);
+                                       (applicationWindow.height- sleepTimeoutMenu.height)/2);
             }
         }
         Text{
@@ -95,8 +93,7 @@ Page {
             Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
             onClicked: {
                 wifiMenu.popup((applicationWindow.width- wifiMenu.width)/2,
-                               (applicationWindow.height- wifiMenu.height)/2
-                               - Style.itemMargins.extrawide);
+                               (applicationWindow.height- wifiMenu.height)/2);
             }
         }
         Text{
