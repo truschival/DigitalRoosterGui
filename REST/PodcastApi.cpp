@@ -69,9 +69,13 @@ void PodcastApi::get_podcast(const Pistache::Rest::Request& request,
         QJsonDocument jd;
         auto result = podcaststore.get_podcast_source(uid);
         jd.setObject(result->to_json_object());
+        response.setMime(
+            Pistache::Http::Mime::MediaType::fromString("application/json"));
         response.send(Pistache::Http::Code::Ok, jd.toJson().toStdString());
     } catch (std::out_of_range& oor) {
-        // wrong UUID provided
+        response.setMime(
+             Pistache::Http::Mime::MediaType::fromString("application/json"));
+    	// wrong UUID provided
         response.send(
             Pistache::Http::Code::Bad_Request, BAD_REQUEST_NO_ITEM_WITH_UUID);
     } catch (std::exception& exc) {
@@ -90,6 +94,8 @@ void PodcastApi::add_podcast(const Pistache::Rest::Request& request,
         podcaststore.add_podcast_source(ps);
         respond_SuccessCreated(ps, response);
     } catch (std::invalid_argument& ia) {
+        response.setMime(
+            Pistache::Http::Mime::MediaType::fromString("application/json"));
         response.send(Pistache::Http::Code::Bad_Request, ia.what());
     } catch (std::exception& exc) {
         // some other error occurred -> 500
@@ -106,9 +112,11 @@ void PodcastApi::delete_podcast(const Pistache::Rest::Request& request,
         auto uid = QUuid::fromString(
             QLatin1String(request.param(":uid").as<std::string>().c_str()));
         podcaststore.delete_podcast_source(uid);
-        response.send(Pistache::Http::Code::Ok);
+        response.send(Pistache::Http::Code::Ok); // NO Mimetype when delete OK
     } catch (std::out_of_range& oor) {
-        // wrong UUID provided
+        response.setMime(
+            Pistache::Http::Mime::MediaType::fromString("application/json"));
+    	// wrong UUID provided
         response.send(
             Pistache::Http::Code::Bad_Request, BAD_REQUEST_NO_ITEM_WITH_UUID);
     } catch (std::exception& exc) {

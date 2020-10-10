@@ -10,7 +10,7 @@ servers:
   - url: '{server}/api/1.0/'
     variables:
       server:
-        default: http://0.0.0.0:6666
+        default: http://digitalrooster:6666
     
 ###############################################################################
 components:
@@ -189,7 +189,7 @@ paths:
     post: # Create a stream
       operationId: iradio.create
       tags:
-        - Internet Radio
+        - Radios
       summary: Create a station info and add it to the list
       requestBody:
         description: Internet radio station to create
@@ -208,13 +208,13 @@ paths:
         404:
           $ref: '#/components/responses/NotFound'  
           
-# Manipulate single Internet Radio Stream
+# Manipulate single Radios Stream
   /radios/{id}:
 
     get: # read single stream by id
       operationId: iradio.read_one
       tags:
-        - Internet Radio
+        - Radios
       summary: Read one Internet radio station
       parameters:
         - $ref: '#/components/parameters/id'
@@ -235,7 +235,7 @@ paths:
     delete: # delete stream identified by id
       operationId: iradio.delete
       tags:
-        - Internet Radio
+        - Radios
       summary: Delete Internet radio station from list
       parameters:
         - $ref: '#/components/parameters/id'
