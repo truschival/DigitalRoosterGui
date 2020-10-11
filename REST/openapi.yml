@@ -168,7 +168,7 @@ paths:
     get: # Get All Streams
       operationId: iradio.read_all
       tags:
-        - Internet Radio
+        - Radios
       summary: Read all Internet radio streams
       description: returns a list of Internet radio streams
       parameters:
