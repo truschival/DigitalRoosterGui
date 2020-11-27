@@ -1,6 +1,6 @@
 /*******************************************************************************
  * \filename
- * \brief	Allows mocking of the wallclock during test
+ * \brief	Mock For PodcastSerializer
  *
  * \details
  *

@@ -20,8 +20,9 @@ namespace DigitalRooster {
 class PodcastSource;
 
 /**
- * Interface for addition, access and deletion of Podcast sources of
- * actual storage \ref DigitalRooster::ConfigurationManager
+ * Interface for addition, access and deletion of \ref
+ * DigitalRooster::PodcastSource of actual storage \ref
+ * DigitalRooster::ConfigurationManager
  */
 class IPodcastStore {
 public:

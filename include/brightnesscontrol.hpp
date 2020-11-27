@@ -53,7 +53,8 @@ public:
 
     /**
      * Constructor
-     * @param confman configuration
+     * @param store configuration storage - \ref
+     * DigitalRooster::ConfigurationManager
      */
     explicit BrightnessControl(IBrightnessStore& store, Hal::IHardware* hw);
     ~BrightnessControl() = default;

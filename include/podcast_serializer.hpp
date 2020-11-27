@@ -140,7 +140,7 @@ void parse_podcast_source_from_json(
     const QJsonObject& tl_obj, PodcastSource* ps);
 
 /**
- * Reads episodes array from \ref json and updates \ref ps
+ * Reads episodes array from json and updates ps
  * if episode already exists we update the position information
  * @param json object with cached information of podcast source and episodes
  * @param ps PodcastSource to update

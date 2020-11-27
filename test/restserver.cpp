@@ -1,14 +1,9 @@
-/******************************************************************************
- * \filename
- * \brief	minimal program to start a REST server for API integration testen
- *
- * \details
- *
- * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+
 #include <QCoreApplication>
 #include <QDebug>
 #include <QObject>
@@ -28,6 +23,12 @@ void term_handler(int sig) {
     exit(0);
 }
 
+/**
+ * minimal program to start a REST server for API integration testing
+ * @param argc
+ * @param argv
+ * @return
+ */
 int main(int argc, char** argv) {
     QCoreApplication app(argc, argv);
     const auto& cmdline = get_commandline_options(app);

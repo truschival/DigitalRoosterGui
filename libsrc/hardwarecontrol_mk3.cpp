@@ -1,13 +1,8 @@
-/******************************************************************************
- * \filename
- * \brief    DigitalRooster audio compatible board with backlight control
- * \details  This does not use SOC PWM channels and does not use wiringpi
- *
- * \author Thomas Ruschival
- * \copyright 2020 Thomas Ruschival <thomas@ruschival.de>
- * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			  SPDX-License-Identifier: GPL-3.0-or-later
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
 
 #include <QLoggingCategory>
 #include <QString>

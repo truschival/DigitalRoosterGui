@@ -1,14 +1,8 @@
-/******************************************************************************
- * \filename
- * \brief   Main entry point for QML Gui
- *
- * \details
- *
- * \author Thomas Ruschival
- * \copyright 2018 Thomas Ruschival <thomas@ruschival.de>
- * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			  SPDX-License-Identifier: GPL-3.0-or-later
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
 
 /* only allow QML debugging for Debug builds */
 #ifndef NDEBUG

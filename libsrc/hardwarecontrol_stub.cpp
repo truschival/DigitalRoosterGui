@@ -1,14 +1,9 @@
-/******************************************************************************
- * \filename
- * \brief    stub hardware interface functions
- *
- * \details
- *
- * \author Thomas Ruschival
- * \copyright 2018 Thomas Ruschival <thomas@ruschival.de>
- * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			  SPDX-License-Identifier: GPL-3.0-or-later
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+
 #include <QCoreApplication>
 #include <QLoggingCategory>
 #include <QString>
@@ -18,8 +13,6 @@
 
 using namespace Hal;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HardwareControl");
-
-
 
 Hal::IHardware::~IHardware(){}
 

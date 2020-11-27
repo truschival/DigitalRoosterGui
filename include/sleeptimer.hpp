@@ -42,7 +42,7 @@ class SleepTimer : public QObject {
 public:
     /**
      * Sleep timer constructor
-     * @param cm configuration manager
+     * @param store  \ref DigitalRooster::ConfigurationManager
      * @param parent owning QObject
      */
     explicit SleepTimer(

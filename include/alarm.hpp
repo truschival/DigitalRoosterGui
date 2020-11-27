@@ -29,6 +29,7 @@ namespace DigitalRooster {
 
 class PlayableItem;
 class TimeProvider;
+
 /**
  * A single alarm
  */
@@ -174,8 +175,8 @@ public:
     QJsonObject to_json_object() const;
 
     /**
-     * Create alarm from JSON JSonObject
-     * @param json json representation
+     * Create alarm from JSON String
+     * @param json_alarm  JSON representation of this alarm
      * @return Alarm object - default initialized if fields are missing
      */
     static std::shared_ptr<Alarm> from_json_object(

@@ -25,6 +25,11 @@ namespace DigitalRooster {
 namespace REST {
     class ApiHandler;
 }
+
+/**
+ * Interface class around the REST Server
+ * glues ConfigurationManager interfaces to REST API
+ */
 class RestApi {
 public:
 	/**

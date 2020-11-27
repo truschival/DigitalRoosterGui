@@ -1,5 +1,9 @@
-# Great idea taken from http://crascit.com/2015/07/25/cmake-gtest/
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+# Licensed under GNU PUBLIC LICENSE Version 3 or later
 
+# Great idea taken from http://crascit.com/2015/07/25/cmake-gtest/
 cmake_minimum_required(VERSION 2.8.2)
 
 if(POLICY CMP0048)

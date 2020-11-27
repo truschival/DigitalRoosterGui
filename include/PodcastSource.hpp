@@ -35,7 +35,8 @@ namespace DigitalRooster {
 class HttpClient; // forward declaration
 
 /**
- * Class to represent a RSS channel with items as episodes
+ * Class represeting information form an RSS Podcast feed with
+ * some meta information and \ref DigitalRooster::PodcastEpisode
  */
 class PodcastSource : public QObject {
     Q_OBJECT

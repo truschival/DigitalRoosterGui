@@ -1,14 +1,9 @@
-/******************************************************************************
- * \filename
- * \brief  manage information form openweathermaps
- *
- * \details
- *
- * \copyright (c) 2019  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+
 #include <QDebug>
 #include <QJsonObject>
 #include <QLoggingCategory>

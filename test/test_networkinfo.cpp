@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-/******************************************************************************
- * \author Thomas Ruschival
- * \copyright 2020 Thomas Ruschival <thomas@ruschival.de>
- * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			  SPDX-License-Identifier: GPL-3.0-or-later
- *****************************************************************************/
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+
 #include <QSignalSpy>
 #include <QString>
 #include <gtest/gtest.h>

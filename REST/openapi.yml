@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+# Licensed under GNU PUBLIC LICENSE Version 3 or later
+
 openapi: "3.0.0"
 info:
   description: Open API for Digital Rooster
