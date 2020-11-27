@@ -140,26 +140,23 @@ TEST_F(AlarmDispatcherFixture, RemainingTime) {
     ON_CALL(*(mc.get()), get_time())
         .WillByDefault(
             Return(QDateTime::fromString("2020-11-22T08:29:50", Qt::ISODate)));
-
     dut->check_alarms();
     spy->wait(200);
     auto delta = dut->get_remaining_time();
-    ASSERT_LE(delta, std::chrono::milliseconds(10000));
-    ASSERT_GE(delta, std::chrono::milliseconds(9000));
+    ASSERT_LE(delta.count(), 10500);
+    ASSERT_GE(delta.count(), 9000);
 }
 
 /*****************************************************************************/
 TEST_F(AlarmDispatcherFixture, DisablingAlarmStopsTimer) {
-    spy->wait(100);
     /* 10 seconds to dispatch */
     ON_CALL(*(mc.get()), get_time())
         .WillByDefault(
             Return(QDateTime::fromString("2020-11-22T08:29:50", Qt::ISODate)));
-
     dut->check_alarms();
-    spy->wait(100);
+    spy->wait(200);
     auto delta = dut->get_remaining_time();
-    ASSERT_LT(delta.count(), 10000);
+    ASSERT_LT(delta.count(), 10500);
 
     alm1->enable(false);
     dut->check_alarms();
