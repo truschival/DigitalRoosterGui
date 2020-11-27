@@ -27,12 +27,11 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.UpdateTask");
 UpdateTask::UpdateTask(PodcastSource* source)
     : ps(source) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    connect(&dlm, SIGNAL(dataAvailable(const QByteArray)), this,
-        SLOT(dataAvailable(const QByteArray)));
+    connect(&dlm, &HttpClient::dataAvailable, this, &UpdateTask::dataAvailable);
 
     // Start timer
     timer.setSingleShot(false);
-    connect(&timer, SIGNAL(timeout()), this, SLOT(start()));
+    connect(&timer, &QTimer::timeout, this, &UpdateTask::start);
     if (ps) {
         timer.start(source->get_update_interval());
     }

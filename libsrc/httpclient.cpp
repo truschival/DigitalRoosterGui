@@ -24,8 +24,8 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HttpClient");
 /*****************************************************************************/
 
 HttpClient::HttpClient() {
-    connect(&manager, SIGNAL(finished(QNetworkReply*)),
-        SLOT(downloadFinished(QNetworkReply*)));
+    connect(&manager, &QNetworkAccessManager::finished, this,
+        &HttpClient::downloadFinished);
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }
 /*****************************************************************************/
@@ -36,8 +36,7 @@ void HttpClient::doDownload(const QUrl& url) {
     QNetworkReply* reply = manager.get(request);
 
 #if QT_CONFIG(ssl)
-    connect(reply, SIGNAL(sslErrors(QList<QSslError>)),
-        SLOT(sslErrors(QList<QSslError>)));
+    connect(reply, &QNetworkReply::sslErrors, this, &HttpClient::sslErrors);
 #endif
 
     currentDownloads.push_back(reply);
@@ -68,9 +67,8 @@ void HttpClient::downloadFinished(QNetworkReply* reply) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QUrl url = reply->url();
     if (reply->error()) {
-        qCCritical(CLASS_LC)
-            << "Download failed" << url.toEncoded().constData()
-            << qPrintable(reply->errorString());
+        qCCritical(CLASS_LC) << "Download failed" << url.toEncoded().constData()
+                             << qPrintable(reply->errorString());
     } else {
         if (isHttpRedirect(reply)) {
             qCInfo(CLASS_LC) << "Request redirected";
@@ -79,7 +77,8 @@ void HttpClient::downloadFinished(QNetworkReply* reply) {
         }
     }
 
-    auto end_it = std::remove(currentDownloads.begin(), currentDownloads.end(), reply);
-    currentDownloads.erase(end_it,currentDownloads.end());
+    auto end_it =
+        std::remove(currentDownloads.begin(), currentDownloads.end(), reply);
+    currentDownloads.erase(end_it, currentDownloads.end());
     reply->deleteLater();
 }

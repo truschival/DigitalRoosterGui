@@ -36,8 +36,8 @@ WifiControl* WifiControl::get_instance(ConfigurationManager* cm) {
             instance.ctrl_notifier = std::make_unique<QSocketNotifier>(
                 wpa_ctrl_get_fd(instance.ctrl), QSocketNotifier::Read);
 
-            connect(instance.ctrl_notifier.get(), SIGNAL(activated(int)),
-                &instance, SLOT(ctrl_event(int)));
+            connect(instance.ctrl_notifier.get(), &QSocketNotifier::activated,
+                &instance, &WifiControl::ctrl_event);
 
         } catch (std::system_error& exc) {
             qCCritical(CLASS_LC) << exc.what();
