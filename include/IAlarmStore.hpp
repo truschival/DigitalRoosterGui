@@ -19,6 +19,10 @@
 namespace DigitalRooster {
 class Alarm;
 
+/**
+ * Interface for addition, access and deletion of \ref DigitalRooster::Alarm of
+ * actual storage \ref DigitalRooster::ConfigurationManager
+ */
 class IAlarmStore {
 public:
     /**

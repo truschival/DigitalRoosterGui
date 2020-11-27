@@ -1,14 +1,8 @@
-/******************************************************************************
- * \filename
- * \brief
- *
- * \details
- *
- * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
 
 #include <QDateTime>
 #include <QLoggingCategory>
@@ -69,8 +63,8 @@ void PodcastSource::add_episode(std::shared_ptr<PodcastEpisode> newep) {
                 });
         episodes.insert(iterator, newep);
         /* get notified if any data changes */
-        connect(newep.get(), SIGNAL(data_changed()), this,
-            SLOT(episode_info_changed()));
+        connect(newep.get(), &PodcastEpisode::data_changed, this,
+            &PodcastSource::episode_info_changed);
         emit episodes_count_changed(episodes.size());
     } else {
         qCDebug(CLASS_LC) << " < " << newep->get_guid() << "already in list";
@@ -264,8 +258,8 @@ void PodcastSource::set_image_file_path(const QString& path) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     /* clean previous cache file */
     QFile oldfile(image_file_path);
-    if(oldfile.exists()){
-    	oldfile.remove();
+    if (oldfile.exists()) {
+        oldfile.remove();
     }
 
     image_file_path = path;

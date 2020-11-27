@@ -18,6 +18,7 @@
 #include <memory>
 
 namespace DigitalRooster {
+
 /**
  * Simple wrapper class around QDateTime to allow a fake wallclock during test
  */

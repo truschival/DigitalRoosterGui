@@ -1,4 +1,8 @@
-# pytest fixture for setup and teardown
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+# Licensed under GNU PUBLIC LICENSE Version 3 or later
+#
 
 import pytest
 import time
