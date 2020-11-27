@@ -353,6 +353,14 @@ TEST_F(SettingsFixture, delete_alarm_throws) {
 }
 
 /*****************************************************************************/
+TEST_F(SettingsFixture, ChangeAlarmEmitsAlarmsChanged) {
+    auto& v = cm->get_alarms();
+    QSignalSpy spy(cm.get(), SIGNAL(alarms_changed()));
+    v[0]->enable(false);
+    ASSERT_EQ(spy.count(), 1);
+}
+
+/*****************************************************************************/
 TEST_F(SettingsFixture, read_2podcasts) {
     auto& v = cm->get_podcast_sources();
     ASSERT_EQ(2, v.size());

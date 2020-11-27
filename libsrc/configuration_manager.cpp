@@ -272,8 +272,8 @@ void ConfigurationManager::read_alarms(const QJsonObject& appconfig) {
     for (const auto al : alarm_config) {
         try {
             auto alarm = Alarm::from_json_object(al.toObject());
-            connect(
-                alarm.get(), SIGNAL(dataChanged()), this, SLOT(dataChanged()));
+            connect(alarm.get(), &Alarm::dataChanged, this,
+                &ConfigurationManager::alarm_data_changed);
             alarms.push_back(alarm);
         } catch (std::invalid_argument& exc) {
             qCWarning(CLASS_LC)
@@ -513,6 +513,10 @@ QString ConfigurationManager::get_cache_dir_name() {
  *****************************************************************************/
 void ConfigurationManager::delete_alarm(const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    // Disconnect signal-slot
+    auto a = find_by_id(alarms, id);
+    disconnect(a, &Alarm::dataChanged, this,
+        &ConfigurationManager::alarm_data_changed);
     /* delete may throw - just pass it on to the client */
     delete_by_id(alarms, id);
     dataChanged();
@@ -522,6 +526,8 @@ void ConfigurationManager::delete_alarm(const QUuid& id) {
 void ConfigurationManager::add_alarm(std::shared_ptr<Alarm> alm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     this->alarms.push_back(alm);
+    connect(alm.get(), &Alarm::dataChanged, this,
+        &ConfigurationManager::alarm_data_changed);
     dataChanged();
     emit alarms_changed();
 }
@@ -540,6 +546,12 @@ ConfigurationManager::get_alarms() const {
     return alarms;
 }
 
+/*****************************************************************************/
+void ConfigurationManager::alarm_data_changed() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    emit alarms_changed();
+    dataChanged(); // save the changes
+}
 
 /*****************************************************************************
  * Implementation of IStationStore

@@ -48,6 +48,13 @@ Alarm::Alarm(const QUrl& url, const QTime& timepoint, Alarm::Period period,
                       << "period:" << alarm_period_to_string(period);
 }
 
+/*****************************************************************************/
+void Alarm::enable(bool state) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << state;
+    enabled = state;
+    emit dataChanged();
+    emit enabled_changed(true);
+}
 
 /*****************************************************************************/
 void Alarm::set_time(const QTime& timeofday) {
@@ -141,7 +148,8 @@ std::shared_ptr<Alarm> Alarm::from_json_object(const QJsonObject& json) {
 
     auto timepoint = QTime::fromString(json[JSON_KEY_TIME].toString(), "hh:mm");
     if (!timepoint.isValid()) {
-        qCWarning(CLASS_LC) << "Invalid Time " << json[JSON_KEY_TIME].toString();
+        qCWarning(CLASS_LC)
+            << "Invalid Time " << json[JSON_KEY_TIME].toString();
         throw std::invalid_argument("Alarm time invalid!");
     }
 
@@ -181,4 +189,78 @@ QJsonObject Alarm::to_json_object() const {
     return alarmcfg;
 }
 
+
 /*****************************************************************************/
+QDateTime DigitalRooster::get_next_instance(const Alarm& alm) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    QDateTime next;
+
+    // If disabled return invalid datetime
+    if (!alm.is_enabled()) {
+        return next;
+    }
+
+    next.setTime(alm.get_time());
+    // current DateTime instance
+    auto now = wallclock->now();
+    auto dow = now.date().dayOfWeek();
+    // preliminary date, today
+    next.setDate(now.date());
+
+    switch (alm.get_period()) {
+    // If enabled Once has the same behavior as daily: next possible instance
+    // is today, or if passed, tomorrow at the same time
+    case Alarm::Daily:
+    case Alarm::Once:
+        if (now.time() > alm.get_time()) {
+            next = next.addDays(1);
+        }
+        break;
+    case Alarm::Weekend:
+        // any enabled weekend alarm has it's next instance on a Saturday or
+        // Sunday If today is Saturday or Sunday and the time has passed -> add
+        // one day.
+        if (dow >= Qt::Saturday && now.time() > alm.get_time()) {
+            next = next.addDays(1);
+        }
+        // If spilled over from Sunday to Monday or next is a workday, add
+        // difference to Saturday
+        if (next.date().dayOfWeek() < Qt::Saturday) {
+            next = next.addDays(Qt::Saturday - next.date().dayOfWeek());
+        }
+        break;
+    case Alarm::Workdays:
+        // Monday to friday, add 1 day if time has passed
+        if (dow < Qt::Saturday && now.time() > alm.get_time()) {
+            next = next.addDays(1);
+        }
+        // Today is Weekend, schedule for monday
+        if (dow >= Qt::Saturday) {
+            next = next.addDays(Qt::Sunday - dow + 1);
+        }
+
+        // If spilled over from friday to saturday add difference
+        if (next.date().dayOfWeek() >= Qt::Saturday) {
+            next = next.addDays(Qt::Sunday - next.date().dayOfWeek() + 1);
+        }
+        break;
+    }
+    qCDebug(CLASS_LC) << "<  " << next;
+    return next;
+}
+
+/*****************************************************************************/
+/**
+ * Comparison Operators to make Alarms comparable by their next execution
+ * instance
+ * TODO: C++20 make this a spaceship operator!
+ */
+bool DigitalRooster::operator<(const Alarm& lhs, const Alarm& rhs) {
+    if (!lhs.is_enabled())
+        return false;
+    if (!rhs.is_enabled())
+        return true;
+
+    return get_next_instance(lhs) < get_next_instance(rhs);
+};
+

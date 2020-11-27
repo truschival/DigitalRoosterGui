@@ -73,7 +73,7 @@ void PodcastSource::add_episode(std::shared_ptr<PodcastEpisode> newep) {
             SLOT(episode_info_changed()));
         emit episodes_count_changed(episodes.size());
     } else {
-        qCDebug(CLASS_LC) << " > " << newep->get_guid() << "already in list";
+        qCDebug(CLASS_LC) << " < " << newep->get_guid() << "already in list";
     }
 }
 

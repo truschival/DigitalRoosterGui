@@ -79,7 +79,7 @@ void setup_log_facility(const QCommandLineParser& cmdline) {
             // coverity[UNCAUGHT_EXCEPT]
             setup_logger_file(cmdline.value(CMD_ARG_LOG_FILE));
         }
-    } catch (std::exception& exc) {
+    } catch (std::exception&) {
         // fallback behavior
         setup_logger_stdout();
     }

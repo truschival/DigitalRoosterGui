@@ -57,11 +57,15 @@ ApplicationWindow {
                     drawer.open()
                 }
             }
-            Label {
-                id: titleLabel
-                text: (stackView.depth > 1) ? currentTime.timestring_lz_hh_mm : "";
-                font: (playerProxy.playbackState === MediaPlayer.PlayingState) ? Style.font.title : Style.font.titleBold;
-                elide: Label.ElideRight
+
+	    Label {
+                id: nextAlarm
+                text: alarmdispatcher.upcoming_alarm_info != "" ?
+		    "<span style = 'font-family: materialdesignicons; font-size: 16pt; font-weight: bold'>\uf021</span>
+                     <span style = 'font-family: DejaVu Sans Condensed Bold, sans-serif; font-size: 16pt; font-weight: normal'>"+
+		    alarmdispatcher.upcoming_alarm_info+"</span>"
+		    :"<span style = 'font-family: materialdesignicons; font-size: 16pt; font-weight: bold'>\uf023</span>";
+                textFormat: Text.RichText
                 Layout.fillWidth: true
             }
 

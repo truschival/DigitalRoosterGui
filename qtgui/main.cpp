@@ -151,7 +151,10 @@ int main(int argc, char* argv[]) {
     playerproxy.set_volume(cm.get_volume());
 
     AlarmDispatcher alarmdispatcher(cm);
-    AlarmMonitor alarmmonitor(playerproxy, std::chrono::seconds(20));
+    QObject::connect(&cm, &ConfigurationManager::alarms_changed,
+        &alarmdispatcher, &AlarmDispatcher::check_alarms);
+    
+	AlarmMonitor alarmmonitor(playerproxy, std::chrono::seconds(20));
     QObject::connect(&alarmdispatcher,
         SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)),
         &alarmmonitor,
@@ -267,6 +270,7 @@ int main(int argc, char* argv[]) {
     ctxt->setContextProperty("iradiolistmodel", &iradiolistmodel);
     ctxt->setContextProperty("weather", &weather);
     ctxt->setContextProperty("config", &cm);
+    ctxt->setContextProperty("alarmdispatcher", &alarmdispatcher);
     ctxt->setContextProperty("powerControl", &power);
     ctxt->setContextProperty("brightnessControl", &brightness);
     ctxt->setContextProperty("volumeButton", &volbtn);

@@ -405,6 +405,12 @@ private:
      * @param evt timer event
      */
     virtual void timerEvent(QTimerEvent* evt) override;
+
+private slots:
+    /**
+     * catch all slot if any data of an alarm has changed
+     */
+    void alarm_data_changed();
 };
 
 /**

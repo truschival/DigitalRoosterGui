@@ -28,30 +28,37 @@ class IAlarmStore;
  */
 class AlarmDispatcher : public QObject {
     Q_OBJECT
+    Q_PROPERTY(QString upcoming_alarm_info READ get_upcoming_alarm_info NOTIFY
+            upcoming_alarm_info_changed)
+
 public:
     /**
      * Constructor for AlarmDispatcher
      * @param store Interface to get/update/delete alarms
      * @param parent QObject hierarchy manage lifetime
      */
-    explicit AlarmDispatcher(IAlarmStore& store,
-        QObject* parent = nullptr);
+    explicit AlarmDispatcher(IAlarmStore& store, QObject* parent = nullptr);
 
     /**
-     * Update alarm check interval
-     * @param iv interval in seconds
-     */
-    void set_interval(std::chrono::seconds iv);
-
-    /**
-     * Current alarm check interval
+     * get remaining time to alarm
      * @return interval in seconds
      */
-    std::chrono::seconds get_interval();
+    std::chrono::milliseconds get_remaining_time() const;
+
+    /**
+     * Timestamp for upcoming alarm
+     * @return string of DateTime - like MON 07:45
+     */
+    QString get_upcoming_alarm_info() const;
+
+    /**
+     * Get Alarm instance that is triggered next
+     */
+    std::shared_ptr<DigitalRooster::Alarm> get_upcoming_alarm();
 
 public slots:
     /**
-     * Will walk alarms and check if ready for dispatch
+     * Will update upcoming alarm and schedule a timer
      * */
     void check_alarms();
 
@@ -61,32 +68,45 @@ signals:
      * @param alarm triggered alarm
      */
     void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm> alarm);
-   
-	/**
+
+    /**
      * Signal generic receivers if any alarm is triggered
      */
     void alarm_triggered();
+
+    /**
+     * Upcoming alarm has changed
+     * @param info - new display string
+     */
+    void upcoming_alarm_info_changed(QString info);
 
 private:
     /**
      * Central configuration and data handler
      */
     IAlarmStore& cm;
-    /**
-     * Timer for periodic polling
-     */
-    QTimer interval_timer;
-    /**
-     * Time interval to check for alarm dispatching and if new alarms are
-     * available in configuration
-     */
-    std::chrono::seconds interval;
 
     /**
-     * Convenience helper method
+     * Next alarm to be dispatched, keep a copy
+     */
+    std::shared_ptr<DigitalRooster::Alarm> upcoming_alarm;
+
+    /**
+     * Trigger Timer for upcoming alarm
+     */
+    QTimer timer;
+
+    /**
+     * Convenience method to dispatch alarm to receivers
      * @param alarm to dispatch
      */
     void dispatch(std::shared_ptr<DigitalRooster::Alarm> alarm);
+
+private slots:
+    /**
+     * Adapter slot to call dispatch(alarm) with upcoming_alarm
+     */
+    void trigger();
 };
 } // namespace DigitalRooster
 
