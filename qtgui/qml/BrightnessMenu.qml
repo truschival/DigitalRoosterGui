@@ -50,9 +50,9 @@ Menu {
         Slider {
             id: brightnessSlider
             orientation: Qt.Horizontal
-            from: 5
-            to: 99
-            stepSize: 1
+            from: 10;
+            to: 99;
+            stepSize: 1;
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             value: brightnessControl.active_brightness
             onMoved: {
@@ -72,10 +72,9 @@ Menu {
         Slider {
             id: standbySlider
             orientation: Qt.Horizontal
-            from: 5
-            to:  99
-            stepSize: 1
-            wheelEnabled: true
+            from: 2;
+            to:  70;
+            stepSize: 1;
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             value: brightnessControl.standby_brightness
             onMoved: {

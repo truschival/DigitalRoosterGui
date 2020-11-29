@@ -58,25 +58,29 @@ ApplicationWindow {
                 }
             }
 
-	    Label {
+            Label {
                 id: nextAlarm
                 text: alarmdispatcher.upcoming_alarm_info != "" ?
-		    "<span style = 'font-family: materialdesignicons; font-size: 16pt; font-weight: bold'>\uf021</span>
-                     <span style = 'font-family: DejaVu Sans Condensed Bold, sans-serif; font-size: 16pt; font-weight: normal'>"+
-		    alarmdispatcher.upcoming_alarm_info+"</span>"
-		    :"<span style = 'font-family: materialdesignicons; font-size: 16pt; font-weight: bold'>\uf023</span>";
+                    "<span style='font-family: materialdesignicons; font-size: 16pt;'>\uf021</span>
+                     <span style='font-family: DejaVu Sans Condensed Bold, sans-serif; font-size: 16pt; font-weight: normal'>"+
+                    alarmdispatcher.upcoming_alarm_info+"</span>"
+                    :"<span style='font-family: materialdesignicons; font-size: 16pt; font-weight: bold'>\uf023</span>";
                 textFormat: Text.RichText
                 Layout.fillWidth: true
+                visible: (playerProxy.playbackState != MediaPlayer.PlayingState)
             }
 
             Label{
                 id: countdown_to_sleep;
-                text: "<span style = 'font-family: materialdesignicons; font-size: 16pt; font-weight: bold'>\uf51b</span>
-                       <span style = 'font-family: DejaVu Sans Condensed Bold, sans-serif; font-size: 16pt; font-weight: normal'>"+sleeptimer.time_remaining+"</span>"
-                Layout.rightMargin: 0;
+                text: "<span style='font-family: materialdesignicons; font-size: 16pt;'>\uf4b2</span>
+                       <span style='font-family: DejaVu Sans Condensed Bold, sans-serif; font-size: 16pt; font-weight: normal'>"+
+		    sleeptimer.time_remaining +" min</span>"
+                Layout.rightMargin: 1;
                 textFormat: Text.RichText
+                horizontalAlignment: Text.AlignRight
                 color: "white"
                 visible: (playerProxy.playbackState === MediaPlayer.PlayingState)
+                Layout.fillWidth: true
 
                 MouseArea{
                     anchors.fill: parent
