@@ -101,7 +101,7 @@ public slots:
      * Alarm has been triggered - set sleep timeout to \ref Alarm::timeout
      * @param  alarm that should be running
      */
-    void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm> alarm);
+    void alarm_triggered(const DigitalRooster::Alarm*  alarm);
 
 signals:
     /**

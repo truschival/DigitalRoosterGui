@@ -19,6 +19,7 @@
 #include "UpdateTask.hpp"
 #include "alarm.hpp"
 #include "configuration_manager.hpp"
+#include "util.hpp"
 
 using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
@@ -27,10 +28,7 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
 bool DigitalRooster::is_writable_directory(const QString& dirname) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QFileInfo file_info(dirname);
-    if (file_info.isDir() && file_info.isWritable()) {
-        return true;
-    }
-    return false;
+    return (file_info.isDir() && file_info.isWritable());
 }
 
 /*****************************************************************************/
@@ -93,8 +91,8 @@ ConfigurationManager::ConfigurationManager(
     if (!is_writable_directory(cachedir) &&
         !create_writable_directory(cachedir)) {
         qCWarning(CLASS_LC)
-            << "Failed using " << get_cache_dir_name()
-            << "as cache using default:" << DEFAULT_CACHE_DIR_PATH;
+            << "Failed using " << cachedir
+            << "as cache! Using default:" << DEFAULT_CACHE_DIR_PATH;
         application_cache_dir.setPath(DEFAULT_CACHE_DIR_PATH);
         QDir().mkpath(DEFAULT_CACHE_DIR_PATH);
     }
@@ -303,7 +301,7 @@ void ConfigurationManager::fileChanged(const QString& path) {
 /*****************************************************************************/
 void ConfigurationManager::set_volume(int vol) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << vol;
-    if (vol >= 0 && vol <= 100) {
+    if (value_in_0_100(vol)) {
         this->volume = vol;
         dirty = true;
     } else {
@@ -314,7 +312,7 @@ void ConfigurationManager::set_volume(int vol) {
 /*****************************************************************************/
 void ConfigurationManager::set_standby_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
-    if (brightness >= 0 && brightness <= 100) {
+    if (value_in_0_100(brightness)) {
         this->brightness_sb = brightness;
         dirty = true;
     } else {
@@ -325,18 +323,18 @@ void ConfigurationManager::set_standby_brightness(int brightness) {
 /*****************************************************************************/
 void ConfigurationManager::set_active_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
-    return do_set_brightness_act(brightness);
+    if (value_in_0_100(brightness)) {
+        do_set_brightness_act(brightness);
+    } else {
+        qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
+    }
 }
 
 /*****************************************************************************/
 void ConfigurationManager::do_set_brightness_act(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
-    if (brightness >= 0 && brightness <= 100) {
-        this->brightness_act = brightness;
-        dirty = true;
-    } else {
-        qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
-    }
+    this->brightness_act = brightness;
+    dirty = true;
 }
 
 /*****************************************************************************/
@@ -517,10 +515,10 @@ void ConfigurationManager::delete_alarm(const QUuid& id) {
     emit alarms_changed();
 };
 /*****************************************************************************/
-void ConfigurationManager::add_alarm(std::shared_ptr<Alarm> alm) {
+void ConfigurationManager::add_alarm(std::shared_ptr<Alarm> alarm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    this->alarms.push_back(alm);
-    connect(alm.get(), &Alarm::dataChanged, this,
+    this->alarms.push_back(alarm);
+    connect(alarm.get(), &Alarm::dataChanged, this,
         &ConfigurationManager::alarm_data_changed);
     dataChanged();
     emit alarms_changed();
@@ -586,9 +584,9 @@ ConfigurationManager::get_stations() const {
  * Implementation of IPodcastStore
  *****************************************************************************/
 void ConfigurationManager::add_podcast_source(
-    std::shared_ptr<PodcastSource> src) {
+    std::shared_ptr<PodcastSource> podcast) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    this->podcast_sources.push_back(src);
+    this->podcast_sources.push_back(podcast);
     dataChanged();
     emit podcast_sources_changed();
 }

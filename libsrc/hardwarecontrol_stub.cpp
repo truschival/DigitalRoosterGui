@@ -14,7 +14,8 @@
 using namespace Hal;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HardwareControl");
 
-Hal::IHardware::~IHardware(){}
+// need for definition in cpp file
+Hal::IHardware::~IHardware()= default;
 
 /*****************************************************************************/
 HardwareControlStub::~HardwareControlStub() {

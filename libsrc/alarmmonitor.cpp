@@ -5,12 +5,12 @@
  */
 
 
-#include <QDebug>
 #include <QLoggingCategory>
 #include <QMediaPlayer>
 
 #include "alarm.hpp"
 #include "alarmmonitor.hpp"
+#include "appconstants.hpp"
 #include "mediaplayer.hpp"
 
 using namespace DigitalRooster;
@@ -82,8 +82,7 @@ void AlarmMonitor::set_state(MonitorState next_state) {
 }
 
 /*****************************************************************************/
-void AlarmMonitor::alarm_triggered(
-    std::shared_ptr<DigitalRooster::Alarm> alarm) {
+void AlarmMonitor::alarm_triggered(const DigitalRooster::Alarm*  alarm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     set_state(ExpectingAlarm);
     mpp.set_media(alarm->get_media());
@@ -97,7 +96,7 @@ void AlarmMonitor::trigger_fallback_behavior() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     fallback_alarm.setCurrentIndex(0);
     set_state(FallBackMode);
-    mpp.set_volume(50);
+    mpp.set_volume(DEFAULT_FALLBACK_VOLUME);
     mpp.set_playlist(&fallback_alarm);
     mpp.play();
 }

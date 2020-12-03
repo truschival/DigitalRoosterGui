@@ -23,9 +23,9 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.PodcastSource");
 
 /*****************************************************************************/
-PodcastSource::PodcastSource(const QUrl& url, QUuid uid)
+PodcastSource::PodcastSource(QUrl url, QUuid uid)
     : id(uid)
-    , rss_feed_uri(url) {
+    , rss_feed_uri(std::move(url)) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }
 
@@ -37,37 +37,38 @@ PodcastSource::~PodcastSource() {
         disconnect(download_cnx);
 
     if (icon_downloader) {
-        icon_downloader.get()->deleteLater();
+        icon_downloader->deleteLater();
         icon_downloader.release();
     }
 }
 
 /*****************************************************************************/
-void PodcastSource::add_episode(std::shared_ptr<PodcastEpisode> newep) {
+void PodcastSource::add_episode(
+    const std::shared_ptr<PodcastEpisode>& episode) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (episodes.size() >= max_episodes) {
         qInfo(CLASS_LC) << " > max episodes reached: " << max_episodes;
         return;
     }
-    auto ep = get_episode_by_id(newep->get_guid());
+    auto ep = get_episode_by_id(episode->get_guid());
     /* add if not found */
     if (!ep) {
-        qCDebug(CLASS_LC) << " > new Episode :" << newep->get_guid();
+        qCDebug(CLASS_LC) << " > new Episode :" << episode->get_guid();
         // insert sorted by publication date
         auto iterator =
-            std::lower_bound(episodes.begin(), episodes.end(), newep,
+            std::lower_bound(episodes.begin(), episodes.end(), episode,
                 [](const std::shared_ptr<PodcastEpisode>& lhs,
                     const std::shared_ptr<PodcastEpisode>& rhs) {
                     return lhs->get_publication_date() >
                         rhs->get_publication_date();
                 });
-        episodes.insert(iterator, newep);
+        episodes.insert(iterator, episode);
         /* get notified if any data changes */
-        connect(newep.get(), &PodcastEpisode::data_changed, this,
+        connect(episode.get(), &PodcastEpisode::data_changed, this,
             &PodcastSource::episode_info_changed);
         emit episodes_count_changed(episodes.size());
     } else {
-        qCDebug(CLASS_LC) << " < " << newep->get_guid() << "already in list";
+        qCDebug(CLASS_LC) << " < " << episode->get_guid() << "already in list";
     }
 }
 
@@ -81,7 +82,7 @@ void PodcastSource::set_update_interval(std::chrono::seconds interval) {
 }
 
 /*****************************************************************************/
-void PodcastSource::set_description(QString newVal) {
+void PodcastSource::set_description(const QString& newVal) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     description = newVal;
     emit descriptionChanged();
@@ -89,13 +90,13 @@ void PodcastSource::set_description(QString newVal) {
 }
 
 /*****************************************************************************/
-void PodcastSource::set_last_updated(QDateTime newVal) {
+void PodcastSource::set_last_updated(const QDateTime& newVal) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     last_updated = newVal;
 }
 
 /*****************************************************************************/
-void PodcastSource::set_link(QUrl newVal) {
+void PodcastSource::set_link(const QUrl& newVal) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     link = newVal;
     emit dataChanged();
@@ -109,7 +110,7 @@ void PodcastSource::set_max_episodes(int max) {
 }
 
 /*****************************************************************************/
-void PodcastSource::set_title(QString newTitle) {
+void PodcastSource::set_title(const QString& newTitle) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     title = newTitle;
     emit titleChanged();
@@ -215,7 +216,7 @@ std::shared_ptr<PodcastEpisode> PodcastSource::get_episode_by_id_impl(
     const QString& id) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto ep = std::find_if(episodes.begin(), episodes.end(),
-        [id](std::shared_ptr<PodcastEpisode> episode) {
+        [id](const std::shared_ptr<PodcastEpisode>& episode) {
             return episode->get_guid() == id;
         });
 

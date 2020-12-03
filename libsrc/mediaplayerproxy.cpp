@@ -121,8 +121,9 @@ MediaPlayerProxy::MediaPlayerProxy()
 /*****************************************************************************/
 void MediaPlayerProxy::do_seek(qint64 incr) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (seekable())
+    if (seekable()) {
         set_position(get_position() + incr);
+	}
 };
 
 /*****************************************************************************/
@@ -212,11 +213,7 @@ QMediaPlayer::State MediaPlayerProxy::do_playback_state() const {
 
 /*****************************************************************************/
 void MediaPlayerProxy::do_set_volume(int volume) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO << volume;
-    if (volume < 0 || volume > 100) {
-        qCWarning(CLASS_LC) << "invalid volume (must be 0..100%)";
-        return;
-    }
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     linear_volume = volume;
     emit volume_changed(volume);
 

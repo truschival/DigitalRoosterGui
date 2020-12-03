@@ -24,10 +24,10 @@ PlayableItem::PlayableItem(const QUuid& uid)
 /***********************************************************************/
 
 PlayableItem::PlayableItem(
-    const QString& name, const QUrl& url, const QUuid& uid)
+    QString name, QUrl url, const QUuid& uid)
     : id(uid)
-    , display_name(name)
-    , media_url(url){};
+    , display_name(std::move(name))
+    , media_url(std::move(url)){};
 
 /***********************************************************************/
 void PlayableItem::set_position(qint64 newVal) {
@@ -188,7 +188,7 @@ void PodcastEpisode::set_position(qint64 newVal) {
     auto d = get_duration();
     if (d != 0 && !listened) {
         // current positon is at least 10%
-        auto perc = (10 * get_position()) / d;
+        auto perc = (MIN_LISTENED_PERC * get_position()) / d;
         if (perc >= 1) {
             listened = true;
             emit listened_changed(true);

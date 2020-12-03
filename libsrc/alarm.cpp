@@ -250,11 +250,11 @@ QDateTime DigitalRooster::get_next_instance(const Alarm& alm) {
  * TODO: C++20 make this a spaceship operator!
  */
 bool DigitalRooster::operator<(const Alarm& lhs, const Alarm& rhs) {
-    if (!lhs.is_enabled())
+    if (!lhs.is_enabled()) {
         return false;
-    if (!rhs.is_enabled())
+    }
+    if (!rhs.is_enabled()) {
         return true;
-
+    }
     return get_next_instance(lhs) < get_next_instance(rhs);
 };
-

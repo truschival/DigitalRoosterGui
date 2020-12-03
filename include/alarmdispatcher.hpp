@@ -67,12 +67,7 @@ signals:
      * Signal receivers interested specific alarm content
      * @param alarm triggered alarm
      */
-    void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm> alarm);
-
-    /**
-     * Signal generic receivers if any alarm is triggered
-     */
-    void alarm_triggered();
+    void alarm_triggered(DigitalRooster::Alarm*  alarm);
 
     /**
      * Upcoming alarm has changed
@@ -100,7 +95,7 @@ private:
      * Convenience method to dispatch alarm to receivers
      * @param alarm to dispatch
      */
-    void dispatch(std::shared_ptr<DigitalRooster::Alarm> alarm);
+    void dispatch(const std::shared_ptr<DigitalRooster::Alarm>& alarm);
 
 private slots:
     /**

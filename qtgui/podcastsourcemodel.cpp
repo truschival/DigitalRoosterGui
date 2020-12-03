@@ -27,7 +27,7 @@ PodcastSourceModel::PodcastSourceModel(
     , mpp(mp) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto v = cm.get_podcast_sources();
-    for (auto ps : v) {
+    for (const auto& ps : v) {
         connect(ps.get(), &PodcastSource::titleChanged, this,
             &PodcastSourceModel::newDataAvailable);
     }

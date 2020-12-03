@@ -7,7 +7,10 @@
 #include <QLoggingCategory>
 #include <QString>
 #include <QTimerEvent>
+
 #include <algorithm>
+#include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <exception>
 #include <fstream>
@@ -18,8 +21,6 @@
 #include <linux/input-event-codes.h>
 #include <linux/input.h>
 #include <linux/reboot.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <sys/reboot.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -44,7 +45,7 @@ namespace Hal {
 /*****************************************************************************/
 static InputEvent read_event(int filedescriptor) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    InputEvent evt;
+    InputEvent evt{0};
     struct input_event evt_raw;
 
     auto s = ::read(filedescriptor, &evt_raw, sizeof(evt_raw));
@@ -68,12 +69,12 @@ static int open_file_handle(const QString& path) {
     int fh;
     if (path.isEmpty()) {
         throw std::runtime_error("file path empty");
-    } else {
-        fh = open(path.toStdString().c_str(), O_RDONLY);
-        if (fh < 0) {
-            throw std::system_error(
-                std::make_error_code(static_cast<std::errc>(errno)));
-        }
+    }
+
+    fh = open(path.toStdString().c_str(), O_RDONLY);
+    if (fh < 0) {
+        throw std::system_error(
+            std::make_error_code(static_cast<std::errc>(errno)));
     }
     return fh;
 }
@@ -160,7 +161,7 @@ AlsValue HardwareControlMk3::read_als_sensor() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     AlsValue ret;
     try {
-    	als_sensor_ok = true; // reset, no error occurs, ok.
+        als_sensor_ok = true; // reset, no error occurs, ok.
         ret.red = read_sensor(als_red);
         ret.green = read_sensor(als_green);
         ret.blue = read_sensor(als_blue);
@@ -224,7 +225,8 @@ void HardwareControlMk3::set_backlight(int brightness_in) {
     int brightness = std::clamp(brightness_in, 1, 100);
 
     /* maximum brightness if PWM reg == 0, minimum at BRIGHTNESS_VAL_MAX */
-    int pwm_val = BRIGHTNESS_VAL_MAX - brightness * BRIGHTNESS_SLOPE;
+    auto pwm_val =
+        static_cast<int>(BRIGHTNESS_VAL_MAX - brightness * BRIGHTNESS_SLOPE);
     qCDebug(CLASS_LC) << "brightness:" << brightness << "pwm val:" << pwm_val
                       << Qt::endl;
     try {
@@ -233,6 +235,6 @@ void HardwareControlMk3::set_backlight(int brightness_in) {
         qCCritical(CLASS_LC) << "cannot set brightness:" << exc.what();
     }
 }
+
 /*****************************************************************************/
-Hal::IHardware::~IHardware() {
-}
+Hal::IHardware::~IHardware() = default;

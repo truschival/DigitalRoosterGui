@@ -15,17 +15,17 @@
 
 #include <QDate>
 #include <QDateTime>
-#include <QMap>
 #include <QDir>
+#include <QJsonObject>
+#include <QMap>
 #include <QObject>
 #include <QString>
 #include <QUuid>
-#include <QJsonObject>
 
-#include <vector>
 #include <chrono>
 #include <limits>
 #include <memory>
+#include <vector>
 
 #include "PlayableItem.hpp"
 #include "UpdateTask.hpp"
@@ -53,7 +53,7 @@ public:
      * @param url Feed URL
      * @param uid unique id for this podcast
      */
-    explicit PodcastSource(const QUrl& url, QUuid uid = QUuid::createUuid());
+    explicit PodcastSource(QUrl url, QUuid uid = QUuid::createUuid());
 
     /**
      * Destructor to delete icon_downloader nicely
@@ -77,7 +77,7 @@ public:
     /**
      * Add an episode to episodes
      */
-    void add_episode(std::shared_ptr<PodcastEpisode> episode);
+    void add_episode(const std::shared_ptr<PodcastEpisode>& episode);
 
     /**
      * Description of the Channel (mandatory by RSS2.0 spec)
@@ -142,8 +142,8 @@ public:
      * Either the image_uri if not yet cached or the path to local cache file
      * @return image file path
      */
-    QUrl get_icon(){
-    	return get_icon_impl();
+    QUrl get_icon() {
+        return get_icon_impl();
     }
 
     /**
@@ -189,19 +189,19 @@ public:
      * Update \ref description of the Channel (mandatory by RSS2.0 spec)
      * @param newVal updated description
      */
-    void set_description(QString newVal);
+    void set_description(const QString& newVal);
 
     /**
      * When was this podcast source last scanned for new items
      * called by UpdateTask after parsing succeeded.
      */
-    void set_last_updated(QDateTime newVal);
+    void set_last_updated(const QDateTime& newVal);
 
     /**
      * Website of RSS feed channel (not the rss xml URI but additional
      * information)
      */
-    void set_link(QUrl newVal);
+    void set_link(const QUrl& newVal);
 
     /**
      * set number of displayed/downloaded episodes
@@ -213,7 +213,7 @@ public:
      * title element of RSS channel
      * \param newTitle
      */
-    void set_title(QString newTitle);
+    void set_title(const QString& newTitle);
 
     /**
      * Access to \ref episodes (the Playable items)
@@ -248,7 +248,7 @@ public:
      * @return
      */
     QString get_id_string() const {
-    	return id.toString(QUuid::WithoutBraces);
+        return id.toString(QUuid::WithoutBraces);
     }
 
     /**
@@ -398,7 +398,7 @@ private:
     /**
      * temporary connection to receive signal form icon_downloader
      */
-    QMetaObject::Connection  download_cnx;
+    QMetaObject::Connection download_cnx;
 
     /**
      * implementation of get_cache_file_name() to allow for mocking
@@ -435,7 +435,6 @@ private:
      * Start the download and rescaling of the Podcast image
      */
     virtual void trigger_image_download();
-
 };
 } // namespace DigitalRooster
 #endif // _PODCASTSOURCE_HPP_

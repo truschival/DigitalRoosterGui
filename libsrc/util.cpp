@@ -103,4 +103,9 @@ QUuid valid_uuid_from_String(const QString& uuidstr) {
 }
 
 /*****************************************************************************/
+bool value_in_0_100(int value) {
+    return (value >= 0 && value <= 100);
+}
+
+/*****************************************************************************/
 } // namespace DigitalRooster

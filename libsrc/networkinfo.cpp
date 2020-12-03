@@ -17,7 +17,7 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.NetworkInfo");
 /*****************************************************************************/
 NetworkInfo::NetworkInfo(QString name, QObject* parent)
     : QObject(parent)
-    , ifname(name) {
+    , ifname(std::move(name)) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     update_net_info();
     // Event loop timer check every second if interface status changed

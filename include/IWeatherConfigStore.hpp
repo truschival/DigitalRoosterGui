@@ -31,9 +31,9 @@ public:
      * @param cityid
      * @param interval 1hour
      */
-    WeatherConfig(const QString& token = QString(),
-        const QString& cityid = QString(),
-        const std::chrono::seconds& interval = std::chrono::seconds(3600));
+    WeatherConfig(QString token = QString(),
+        QString cityid = QString(),
+        std::chrono::seconds interval = std::chrono::seconds(3600));
 
     /**
      * create Weatherconfig form Json configuration

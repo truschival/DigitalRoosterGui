@@ -292,10 +292,10 @@ ADD_TEST(NAME gtest
   --gtest_output=xml:gtest_results.xml
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR} )
 
-# Test should be done in max 30s - currently it is about 18s
+# Test should be done in max 70s - currently it is about 64s
 SET_PROPERTY(TEST gtest
   APPEND PROPERTY
-  TIMEOUT 30
+  TIMEOUT 70
   )
 
 #------------------------------

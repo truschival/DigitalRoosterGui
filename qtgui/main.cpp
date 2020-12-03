@@ -147,12 +147,10 @@ int main(int argc, char* argv[]) {
     AlarmDispatcher alarmdispatcher(cm);
     QObject::connect(&cm, &ConfigurationManager::alarms_changed,
         &alarmdispatcher, &AlarmDispatcher::check_alarms);
-    
-	AlarmMonitor alarmmonitor(playerproxy, std::chrono::seconds(20));
-    QObject::connect(&alarmdispatcher,
-        SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)),
-        &alarmmonitor,
-        SLOT(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+
+    AlarmMonitor alarmmonitor(playerproxy, std::chrono::seconds(20));
+    QObject::connect(&alarmdispatcher, &AlarmDispatcher::alarm_triggered,
+        &alarmmonitor, &AlarmMonitor::alarm_triggered);
 
     PodcastSourceModel psmodel(cm, playerproxy);
     AlarmListModel alarmlistmodel(cm);
@@ -166,8 +164,8 @@ int main(int argc, char* argv[]) {
     BrightnessControl brightness(cm, &hwctrl);
     QObject::connect(&brightness, &BrightnessControl::brightness_changed,
         &hwctrl, &Hal::IHardware::set_backlight);
-    QObject::connect(&hwctrl, &Hal::IHardware::als_value_changed,
-        &brightness, &BrightnessControl::als_value_changed);
+    QObject::connect(&hwctrl, &Hal::IHardware::als_value_changed, &brightness,
+        &BrightnessControl::als_value_changed);
 
     PowerControl power;
     /* Power controls backlight */
@@ -279,4 +277,3 @@ int main(int argc, char* argv[]) {
 
     return app.exec();
 }
-

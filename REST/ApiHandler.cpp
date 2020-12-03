@@ -44,10 +44,10 @@ DigitalRooster::RestApi::RestApi(DigitalRooster::IWeatherConfigStore& ws,
           Pistache::Address(
               Pistache::Ipv4::any(), Pistache::Port(REST_API_PORT)))) {
 }
+
 /*****************************************************************************/
-DigitalRooster::RestApi::~RestApi() {
-    // default dtor for PIMPL
-}
+// default dtor for PIMPL
+DigitalRooster::RestApi::~RestApi() = default;
 
 /*****************************************************************************/
 ApiHandler::ApiHandler(DigitalRooster::IWeatherConfigStore& ws,

@@ -223,6 +223,11 @@ const QString RSS_FILE_DIR(QDir::tempPath());
 const int DEFAULT_ALARM_VOLUME = 30;
 
 /**
+ * Minimum percentage of Podcast episode played to be considered 'listened'
+ */
+const int MIN_LISTENED_PERC = 25;
+
+/**
  * Time after which an alarm should stop playing
  * (probably because nobody is in to switch it off manually)
  */
@@ -243,6 +248,11 @@ const std::chrono::milliseconds ALS_SAMPLING_PERIOD(300);
  * Default output volume
  */
 const int DEFAULT_VOLUME = 30;
+
+/**
+ * Default volume for fallback alarm sound
+ */
+const int DEFAULT_FALLBACK_VOLUME = 50;
 
 /**
  * Default display brightness

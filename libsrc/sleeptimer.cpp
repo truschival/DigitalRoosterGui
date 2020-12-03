@@ -6,13 +6,13 @@
 
 #include <QDebug>
 #include <QLoggingCategory>
-#include <QTimerEvent>
 #include <QMediaPlayer>
+#include <QTimerEvent>
 #include <chrono>
 #include <memory>
 
-#include "sleeptimer.hpp"
 #include "alarm.hpp"
+#include "sleeptimer.hpp"
 
 using namespace DigitalRooster;
 using namespace std::chrono;
@@ -20,8 +20,7 @@ using namespace std::chrono;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.SleepTimer");
 
 /*****************************************************************************/
-SleepTimer::SleepTimer(
-    ITimeOutStore& store, QObject* parent)
+SleepTimer::SleepTimer(ITimeOutStore& store, QObject* parent)
     : QObject(parent)
     , cm(store)
     , evt_timer_id(0)
@@ -32,12 +31,11 @@ SleepTimer::SleepTimer(
     sleep_timer.setInterval(cm.get_sleep_timeout());
     sleep_timer.setSingleShot(true);
 
-    connect(
-        &sleep_timer, &QTimer::timeout, this, [=](){ 
-		// reset internal state
-		this->activity = SleepTimer::Idle;
+    connect(&sleep_timer, &QTimer::timeout, this, [=]() {
+        // reset internal state
+        this->activity = SleepTimer::Idle;
         emit sleep_timer_elapsed();
-	});
+    });
     // Event loop timer every 30 seconds to update remaining time
     evt_timer_id = startTimer(seconds(30));
 }
@@ -48,7 +46,7 @@ void SleepTimer::playback_state_changed(QMediaPlayer::State state) {
     if (state == QMediaPlayer::PlayingState) {
         /* Check if alarm was dispatched do not set normal sleep_timeout */
         if (activity != SleepTimer::Alarm) {
-            qCDebug(CLASS_LC) << " restarting timer";         
+            qCDebug(CLASS_LC) << " restarting timer";
             sleep_timer.setInterval(cm.get_sleep_timeout());
             sleep_timer.start();
             emit remaining_time_changed(get_remaining_time());
@@ -58,14 +56,14 @@ void SleepTimer::playback_state_changed(QMediaPlayer::State state) {
 }
 
 /*****************************************************************************/
-void SleepTimer::reset_timer(){
-	qCDebug(CLASS_LC) << Q_FUNC_INFO;
-	sleep_timer.start();
-	emit remaining_time_changed(get_remaining_time());
+void SleepTimer::reset_timer() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    sleep_timer.start();
+    emit remaining_time_changed(get_remaining_time());
 }
 
 /*****************************************************************************/
-void SleepTimer::alarm_triggered(std::shared_ptr<DigitalRooster::Alarm> alarm) {
+void SleepTimer::alarm_triggered(const DigitalRooster::Alarm*  alarm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     activity = SleepTimer::Alarm;
     sleep_timer.setInterval(alarm->get_timeout());

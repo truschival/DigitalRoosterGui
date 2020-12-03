@@ -14,6 +14,7 @@
 #include <memory>
 #include <numeric>
 
+#include "util.hpp"
 #include "IBrightnessStore.hpp"
 #include "IHardware.hpp"
 #include "brightnesscontrol.hpp"
@@ -62,17 +63,6 @@ void BrightnessControl::subscribe_als_value_change() {
 }
 
 /*****************************************************************************/
-double BrightnessControl::rgb_luma(const Hal::AlsValue& rgbc) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    // Calculate relative perceived illuminance based on
-    // https://en.wikipedia.org/wiki/Luma_(video)
-    double ill = rgbc.red * luma_coeffs[0] + rgbc.green * luma_coeffs[1] +
-        rgbc.blue * luma_coeffs[2];
-
-    return ill;
-}
-
-/*****************************************************************************/
 Hal::AlsValue BrightnessControl::filter_sensor(
     const Hal::AlsValue& brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
@@ -87,13 +77,13 @@ Hal::AlsValue BrightnessControl::filter_sensor(
     // Low pass filter
     Hal::AlsValue filtered;
     filtered.red = std::inner_product(als_readings[0].begin(),
-        als_readings[0].end(), filter_coeffs.begin(), 0.0f);
+        als_readings[0].end(), filter_coeffs.begin(), 0.0);
     filtered.green = std::inner_product(als_readings[1].begin(),
-        als_readings[1].end(), filter_coeffs.begin(), 0.0f);
+        als_readings[1].end(), filter_coeffs.begin(), 0.0);
     filtered.blue = std::inner_product(als_readings[2].begin(),
-        als_readings[2].end(), filter_coeffs.begin(), 0.0f);
+        als_readings[2].end(), filter_coeffs.begin(), 0.0);
     filtered.clear = std::inner_product(als_readings[3].begin(),
-        als_readings[3].end(), filter_coeffs.begin(), 0.0f);
+        als_readings[3].end(), filter_coeffs.begin(), 0.0);
 
     qCDebug(CLASS_LC) << "r" << filtered.red << "g" << filtered.green << "b"
                       << filtered.blue << "c" << filtered.clear;
@@ -173,18 +163,6 @@ int BrightnessControl::get_brightness() const {
 }
 
 /*****************************************************************************/
-int BrightnessControl::lin2log(double lb) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    // Clamped input to range 0.0 - 0.999 -- Needs C++17
-    double lin = std::clamp(lb / 100.0, 0.0, 0.999);
-    auto log_brightness = -std::log(1.0 - lin) / LOG_100;
-    log_brightness = qRound(log_brightness * 100);
-
-    qCDebug(CLASS_LC) << "  lin2log(" << lb << ")=" << log_brightness;
-    return log_brightness;
-}
-
-/*****************************************************************************/
 void BrightnessControl::set_adaptive_mode(bool ena) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
@@ -217,4 +195,26 @@ bool BrightnessControl::adaptive_mode() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return cm.backlight_control_enabled() && hwctrl->als_sensor_available();
 }
+
 /*****************************************************************************/
+int DigitalRooster::lin2log(double lb) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    // Clamped input to range 0.0 - 0.999 -- Needs C++17
+    double lin = std::clamp(lb / 100.0, 0.0, 0.999);
+    auto log_brightness = -std::log(1.0 - lin) / LOG_100;
+    log_brightness = qRound(log_brightness * 100);
+
+    qCDebug(CLASS_LC) << "  lin2log(" << lb << ")=" << log_brightness;
+    return log_brightness;
+}
+
+/*****************************************************************************/
+double DigitalRooster::rgb_luma(const Hal::AlsValue& rgbc) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    // Calculate relative perceived illuminance based on
+    // https://en.wikipedia.org/wiki/Luma_(video)
+    double ill = rgbc.red * luma_coeffs[0] + rgbc.green * luma_coeffs[1] +
+        rgbc.blue * luma_coeffs[2];
+
+    return ill;
+}

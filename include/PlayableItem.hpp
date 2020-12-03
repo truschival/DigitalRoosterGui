@@ -52,8 +52,8 @@ public:
      * @param url  media_url
      * @param uid  (optional) unique id
      */
-    PlayableItem(const QString& name, const QUrl& url,
-        const QUuid& uid = QUuid::createUuid());
+    PlayableItem(
+        QString name, QUrl url, const QUuid& uid = QUuid::createUuid());
 
     /**
      * Information on title, publisher ,etc.

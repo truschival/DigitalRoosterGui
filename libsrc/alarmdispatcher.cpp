@@ -66,10 +66,9 @@ void AlarmDispatcher::trigger() {
 }
 
 /*****************************************************************************/
-void AlarmDispatcher::dispatch(std::shared_ptr<Alarm> alarm) {
+void AlarmDispatcher::dispatch(const std::shared_ptr<Alarm>& alarm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << alarm->get_id();
-    emit alarm_triggered(alarm);
-    emit alarm_triggered();
+    emit alarm_triggered(alarm.get());
 }
 /*****************************************************************************/
 std::chrono::milliseconds AlarmDispatcher::get_remaining_time() const {
@@ -82,13 +81,13 @@ std::chrono::milliseconds AlarmDispatcher::get_remaining_time() const {
 std::shared_ptr<Alarm> AlarmDispatcher::get_upcoming_alarm() {
     // Sort a copy of the alarms not to mess up Alarm list in QML
     auto v = std::vector(cm.get_alarms());
-    if (v.size() < 1)
+    if (v.empty()) {
         return nullptr;
+    }
 
     std::sort(v.begin(), v.end(),
-        [](std::shared_ptr<Alarm> lhs, std::shared_ptr<Alarm> rhs) {
-            return *lhs.get() < *rhs.get();
-        });
+        [](const std::shared_ptr<Alarm>& lhs,
+            const std::shared_ptr<Alarm>& rhs) { return *lhs < *rhs; });
     return v[0];
 }
 

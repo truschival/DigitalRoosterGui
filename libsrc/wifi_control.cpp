@@ -157,7 +157,7 @@ void WifiControl::request_wrapper(const QString& cmd) {
     assert(ctrl);
     size_t buf_size = sizeof(reply);
     auto res = wpa_ctrl_request(
-        ctrl, cmd.toStdString().c_str(), cmd.size(), reply, &buf_size, NULL);
+        ctrl, cmd.toStdString().c_str(), cmd.size(), reply, &buf_size, nullptr);
     if (res < 0) {
         throw std::runtime_error("wpa_ctrl_request failed");
     }
@@ -196,7 +196,7 @@ WifiNetwork DigitalRooster::line_to_network(const QStringRef& line) {
     if (list.size() > 3) {
         auto name = list.at(4).toString();
         auto bssid = list.at(0).toString();
-        auto signal = list.at(2).toInt(0);
+        auto signal = list.at(2).toInt();
         qCDebug(CLASS_LC) << "network:" << name << bssid << signal;
         WifiNetwork nw{name, bssid, signal, false, false};
         return nw;

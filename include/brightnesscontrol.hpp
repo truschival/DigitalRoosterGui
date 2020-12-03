@@ -23,6 +23,13 @@ namespace DigitalRooster {
 
 class IBrightnessStore;
 
+
+/**
+ * RBG intensity to illuminance coefficients
+ * https://en.wikipedia.org/wiki/Luma_(video)
+ */
+constexpr std::array<double, 3> luma_coeffs = {0.213, 0.715, 0.073};
+
 /**
  * Controls display brightness settings
  * mainly translates linear 0-100% brightness in logarithmic pwm value
@@ -39,12 +46,6 @@ class BrightnessControl : public QObject {
     Q_PROPERTY(bool feedback READ adaptive_mode WRITE set_adaptive_mode NOTIFY
             adaptive_mode_changed)
 public:
-    /**
-     * RBG intensity to illuminance coefficients
-     * https://en.wikipedia.org/wiki/Luma_(video)
-     */
-    static constexpr std::array<double, 3> luma_coeffs = {0.213, 0.715, 0.073};
-
     /**
      * Filter coefficients
      * 2nd order lowpass FIR for values x(n), x(n-1), x(n-2)
@@ -94,14 +95,6 @@ public:
      * @return enable true/false
      */
     bool has_als_sensor();
-
-    /**
-     * Linear brightness [0...100%] to
-     * logarithmic (perceived) brightness
-     * @param lb linear brightness
-     * @return logarithmic brightness as int [0..100]
-     */
-    int lin2log(double lb);
 
 public slots:
     /**
@@ -186,15 +179,24 @@ private:
      * @return filtered avarage of previous readings
      */
     Hal::AlsValue filter_sensor(const Hal::AlsValue& brightness);
-
-    /**
-     * Convert RGB to relative perceived illuminance based on
-     * https://en.wikipedia.org/wiki/Luma_(video)
-     * @param rgbc
-     * @return illuminance
-     */
-    double rgb_luma(const Hal::AlsValue& rgbc);
 };
+
+/**
+ * Convert RGB to relative perceived illuminance based on
+ * https://en.wikipedia.org/wiki/Luma_(video)
+ * @param rgbc
+ * @return illuminance
+ */
+double rgb_luma(const Hal::AlsValue& rgbc);
+
+/**
+ * Linear brightness [0...100%] to
+ * logarithmic (perceived) brightness
+ * @param lb linear brightness
+ * @return logarithmic brightness as int [0..100]
+ */
+int lin2log(double lb);
+
 
 } // namespace DigitalRooster
 #endif /* _BRIGHTNESSCONTROL_HPP_ */

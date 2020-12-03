@@ -170,8 +170,7 @@ TEST_F(AlarmDispatcherFixture, AlarmTriggers) {
         .WillRepeatedly(
             Return(QDateTime::fromString("2020-11-22T08:29:59", Qt::ISODate)));
 
-    QSignalSpy spy2(dut.get(),
-        SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+    QSignalSpy spy2(dut.get(), SIGNAL(alarm_triggered(DigitalRooster::Alarm*)));
     ASSERT_TRUE(spy2.isValid());
 
     dut->check_alarms();
@@ -193,8 +192,7 @@ TEST_F(AlarmDispatcherFixture, AlarmTriggersReschedule) {
         .WillRepeatedly(/* Sun 8:35*/
             Return(QDateTime::fromString("2020-11-22T08:35:59", Qt::ISODate)));
 
-    QSignalSpy spy2(dut.get(),
-        SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+    QSignalSpy spy2(dut.get(), SIGNAL(alarm_triggered(DigitalRooster::Alarm*)));
     ASSERT_TRUE(spy2.isValid());
 
     dut->check_alarms();

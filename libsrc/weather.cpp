@@ -174,10 +174,10 @@ QUrl DigitalRooster::create_forecast_url(const WeatherConfig& cfg) {
 }
 
 /*****************************************************************************/
-WeatherConfig::WeatherConfig(const QString& token, const QString& location,
-    const std::chrono::seconds& interval)
-    : api_token(token)
-    , location_id(location)
+WeatherConfig::WeatherConfig(QString token, QString location,
+    std::chrono::seconds interval)
+    : api_token(std::move(token))
+    , location_id(std::move(location))
     , update_interval(interval) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }

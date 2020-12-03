@@ -4,9 +4,10 @@
  * Licensed under GNU PUBLIC LICENSE Version 3 or later
  */
 
-#include "mediaplayer.hpp"
-#include <QDebug>
 #include <QLoggingCategory>
+
+#include "util.hpp"
+#include "mediaplayer.hpp"
 
 using namespace DigitalRooster;
 
@@ -32,8 +33,12 @@ void MediaPlayer::set_muted(bool muted) {
 
 /*****************************************************************************/
 void MediaPlayer::set_volume(int volume) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return do_set_volume(volume);
+	qCDebug(CLASS_LC) << Q_FUNC_INFO << volume;
+    if (! value_in_0_100(volume)) {
+        qCWarning(CLASS_LC) << "invalid volume (must be 0..100%)";
+        return;
+    }
+  	return do_set_volume(volume);
 }
 
 /*****************************************************************************/
@@ -94,7 +99,7 @@ QMediaPlayer::Error MediaPlayer::error() const {
 void MediaPlayer::set_media(
     std::shared_ptr<DigitalRooster::PlayableItem> media) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return do_set_media(media);
+    return do_set_media(std::move(media));
 }
 
 /*****************************************************************************/
