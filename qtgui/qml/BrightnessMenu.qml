@@ -29,22 +29,34 @@ Menu {
         anchors.rightMargin: Style.itemMargins.wide;
         spacing: 0;
 
+        CheckBox {
+            checked: brightnessControl.feedback
+            text: "Adaptive mode"
+            enabled: brightnessControl.has_sensor
+
+            onClicked: {
+                brightnessControl.feedback = checked;
+                brightnessMenuCloseTimer.restart();
+            }
+        }
+
         Text{
             text: "Active brightness:";
             font: Style.font.boldLabel;
             color: "white"
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+            Layout.leftMargin: Style.itemMargins.wide;
         }
         Slider {
             id: brightnessSlider
             orientation: Qt.Horizontal
-            from: 10
-            to: 100
-            stepSize: 1
+            from: 10;
+            to: 99;
+            stepSize: 1;
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            value: brightnessControl.brightness
+            value: brightnessControl.active_brightness
             onMoved: {
-                brightnessControl.brightness = value;
+                brightnessControl.active_brightness = value;
                 brightnessMenuCloseTimer.restart();
             }
         }
@@ -54,19 +66,19 @@ Menu {
             font: Style.font.boldLabel;
             color: "white"
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+            Layout.leftMargin: Style.itemMargins.wide;
         }
 
         Slider {
             id: standbySlider
             orientation: Qt.Horizontal
-            from: 5
-            to:  75
-            stepSize: 1
-            wheelEnabled: true
+            from: 2;
+            to:  70;
+            stepSize: 1;
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            value: config.standbybrightness
+            value: brightnessControl.standby_brightness
             onMoved: {
-                config.standbybrightness = value;
+                brightnessControl.standby_brightness = value;
                 brightnessMenuCloseTimer.restart();
             }
         }// Slider

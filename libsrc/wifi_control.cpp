@@ -1,14 +1,8 @@
-/******************************************************************************
- * \filename
- * \brief	Interface QT to wpa_supplicant
- *
- * \details
- *
- * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
 
 #include <QLoggingCategory>
 #include <QString>
@@ -36,8 +30,8 @@ WifiControl* WifiControl::get_instance(ConfigurationManager* cm) {
             instance.ctrl_notifier = std::make_unique<QSocketNotifier>(
                 wpa_ctrl_get_fd(instance.ctrl), QSocketNotifier::Read);
 
-            connect(instance.ctrl_notifier.get(), SIGNAL(activated(int)),
-                &instance, SLOT(ctrl_event(int)));
+            connect(instance.ctrl_notifier.get(), &QSocketNotifier::activated,
+                &instance, &WifiControl::ctrl_event);
 
         } catch (std::system_error& exc) {
             qCCritical(CLASS_LC) << exc.what();
@@ -163,7 +157,7 @@ void WifiControl::request_wrapper(const QString& cmd) {
     assert(ctrl);
     size_t buf_size = sizeof(reply);
     auto res = wpa_ctrl_request(
-        ctrl, cmd.toStdString().c_str(), cmd.size(), reply, &buf_size, NULL);
+        ctrl, cmd.toStdString().c_str(), cmd.size(), reply, &buf_size, nullptr);
     if (res < 0) {
         throw std::runtime_error("wpa_ctrl_request failed");
     }
@@ -202,7 +196,7 @@ WifiNetwork DigitalRooster::line_to_network(const QStringRef& line) {
     if (list.size() > 3) {
         auto name = list.at(4).toString();
         auto bssid = list.at(0).toString();
-        auto signal = list.at(2).toInt(0);
+        auto signal = list.at(2).toInt();
         qCDebug(CLASS_LC) << "network:" << name << bssid << signal;
         WifiNetwork nw{name, bssid, signal, false, false};
         return nw;

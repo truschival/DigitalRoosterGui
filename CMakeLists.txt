@@ -1,8 +1,10 @@
-##
-# Top-level CMakeLists.txt
-##
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+# Licensed under GNU PUBLIC LICENSE Version 3 or later
+
 cmake_minimum_required(VERSION 3.10)
-SET(CMAKE_CXX_STANDARD      14)
+SET(CMAKE_CXX_STANDARD      17)
 SET(CMAKE_VERBOSE_MAKEFILE  OFF)
 SET(CMAKE_COLOR_MAKEFILE    ON)
 SET(CMAKE_WARN_DEPRECATED   ON)
@@ -15,7 +17,7 @@ list(APPEND CMAKE_MODULE_PATH  ${CMAKE_SOURCE_DIR}/CMakeModules/)
 # Project Name
 MESSAGE( STATUS "Running ${CMAKE_COMMAND} v${CMAKE_VERSION}" )
 PROJECT(DigitalRooster
-	VERSION 0.12.0
+	VERSION 0.13.0
 	DESCRIPTION  "A digital alarm clock and podcast player"
 	LANGUAGES CXX C
 	)

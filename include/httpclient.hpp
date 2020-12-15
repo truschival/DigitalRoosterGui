@@ -25,6 +25,10 @@ class QNetworkReply;
 
 namespace DigitalRooster {
 
+/**
+ * Simple client for HTTP downloads basically the example from
+ * http://doc.qt.io/qt-5/qtnetwork-download-main-cpp.html
+ */
 class HttpClient : public QObject {
     Q_OBJECT
     QNetworkAccessManager manager;

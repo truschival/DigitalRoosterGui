@@ -29,6 +29,7 @@ namespace DigitalRooster {
 
 class PlayableItem;
 class TimeProvider;
+
 /**
  * A single alarm
  */
@@ -174,8 +175,8 @@ public:
     QJsonObject to_json_object() const;
 
     /**
-     * Create alarm from JSON JSonObject
-     * @param json json representation
+     * Create alarm from JSON String
+     * @param json_alarm  JSON representation of this alarm
      * @return Alarm object - default initialized if fields are missing
      */
     static std::shared_ptr<Alarm> from_json_object(
@@ -186,12 +187,7 @@ public slots:
      * enable alarm to play next time
      * @param state
      */
-
-    void enable(bool state) {
-        enabled = state;
-        emit dataChanged();
-        emit enabled_changed(true);
-    }
+    void enable(bool state);
 
 signals:
     void enabled_changed(bool state);
@@ -259,6 +255,23 @@ Alarm::Period string_to_alarm_period(const QString& literal);
  * @return QString "Once"
  */
 QString alarm_period_to_string(const Alarm::Period period);
+
+/**
+ * Calculate the next trigger instance of the alarm
+ * depending on current date time, time and periodicity
+ * @param alm get instance for this Alarm
+ * @return next time this alarm will be ready to run
+ */
+QDateTime get_next_instance(const Alarm& alm);
+
+/**
+ * Comparison Operators to make Alarms comparable by their next execution
+ * instance. Used in sorting the alarms. If an alarm is disabled it will always
+ * be considered greater than the other
+ * TODO: C++20 make this a spaceship operator!
+ */
+bool operator<(const Alarm& lhs, const Alarm& rhs);
+
 
 };     // namespace DigitalRooster
 #endif // _ALARM_HPP_

@@ -1,14 +1,9 @@
-/******************************************************************************
- * \filename
- * \brief
- *
- * \details
- *
- * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+
 #include <QDateTime>
 #include <QSignalSpy>
 #include <QUrl>
@@ -37,8 +32,15 @@ using ::testing::AtLeast;
 
 /*****************************************************************************/
 class SleepTimerFixture : public ::testing::Test {
+public:
+	SleepTimerFixture() : dut(cm){
+		   /* sleep timeout 500 ms */
+		    ON_CALL(cm, get_sleep_timeout())
+		        .WillByDefault(Return(duration_cast<minutes>(500ms)));
+	}
 protected:
-    CmMock cm;
+	NiceMock<CmMock> cm;
+    SleepTimer dut;
 };
 
 /*****************************************************************************/
@@ -47,17 +49,11 @@ TEST_F(SleepTimerFixture, stopsRunningAlarm) {
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
         QTime::currentTime().addSecs(3), Alarm::Daily);
 
-    /* sleep timeout 500 ms */
-    EXPECT_CALL(cm, get_sleep_timeout())
-        .Times(AtLeast(1))
-        .WillRepeatedly(Return(duration_cast<minutes>(500ms)));
-
-    SleepTimer dut(cm);
     alm->set_timeout(duration_cast<minutes>(500ms));
     QSignalSpy spy(&dut, SIGNAL(sleep_timer_elapsed()));
     ASSERT_TRUE(spy.isValid());
     // dispatch alarm
-    dut.alarm_triggered(alm);
+    dut.alarm_triggered(alm.get());
 
     spy.wait(1000);
     ASSERT_EQ(spy.count(), 1);
@@ -65,12 +61,6 @@ TEST_F(SleepTimerFixture, stopsRunningAlarm) {
 
 /*****************************************************************************/
 TEST_F(SleepTimerFixture,stopsPlayer) {
-    /* sleep timeout 500 ms */
-    EXPECT_CALL(cm, get_sleep_timeout())
-        .Times(AtLeast(1))
-        .WillRepeatedly(Return(duration_cast<minutes>(500ms)));
-
-    SleepTimer dut(cm);
     QSignalSpy spy(&dut, SIGNAL(sleep_timer_elapsed()));
     ASSERT_TRUE(spy.isValid());
     // start player
@@ -82,12 +72,6 @@ TEST_F(SleepTimerFixture,stopsPlayer) {
 
 /*****************************************************************************/
 TEST_F(SleepTimerFixture, PlayerStoppedStillEmitsSignal) {
-    /* sleep timeout 500 ms */
-    EXPECT_CALL(cm, get_sleep_timeout())
-        .Times(AtLeast(1))
-        .WillRepeatedly(Return(duration_cast<minutes>(500ms)));
-
-    SleepTimer dut(cm);
     QSignalSpy spy(&dut, SIGNAL(sleep_timer_elapsed()));
     ASSERT_TRUE(spy.isValid());
     // start Player
@@ -99,12 +83,6 @@ TEST_F(SleepTimerFixture, PlayerStoppedStillEmitsSignal) {
 
 /*****************************************************************************/
 TEST_F(SleepTimerFixture, TimeoutChangeEmitsSignal) {
-    /* sleep timeout 500 ms */
-    EXPECT_CALL(cm, get_sleep_timeout())
-        .Times(AtLeast(1))
-        .WillRepeatedly(Return(duration_cast<minutes>(500ms)));
-
-    SleepTimer dut(cm);
     QSignalSpy spy(&dut, SIGNAL(sleep_timeout_changed(int)));
     ASSERT_TRUE(spy.isValid());
     // dispatch alarm

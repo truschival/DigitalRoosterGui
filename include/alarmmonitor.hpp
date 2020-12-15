@@ -41,7 +41,7 @@ public:
         FallBackMode    //!< alarm failed to start, playing fall back
     };
     Q_ENUM(MonitorState)
-
+	
     /**
      * Construct AlarmMonitor monitoring state changes of player
      * @param player media player
@@ -66,7 +66,7 @@ public slots:
      * Monitor the trigged alarm if it has started in due time
      * @param  alarm to monitor
      */
-    void alarm_triggered(std::shared_ptr<DigitalRooster::Alarm> alarm);
+    void alarm_triggered(const DigitalRooster::Alarm* alarm);
 
 signals:
     /**

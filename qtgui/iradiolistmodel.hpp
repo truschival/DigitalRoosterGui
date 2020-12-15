@@ -33,11 +33,12 @@ public:
      * Constructor
      * @param store cannot be a refernce because Object must be default
      * constructable in QML/MOC Code
-     * @param pp Player
+     * @param store configuration storage interface \ref
+     * DigitalRooster::ConfigurationManager
+     * @param mp Player
      * @param parent
      */
-    IRadioListModel(IStationStore& store,
-        DigitalRooster::MediaPlayer&  mp,
+    IRadioListModel(IStationStore& store, DigitalRooster::MediaPlayer& mp,
         QObject* parent = nullptr);
 
     enum IRadioStationRoles { StationNameRole = Qt::UserRole + 1, UriRole };

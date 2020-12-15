@@ -1,10 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-/******************************************************************************
- * \author Thomas Ruschival
- * \copyright 2020 Thomas Ruschival <thomas@ruschival.de>
- * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			  SPDX-License-Identifier: GPL-3.0-or-later
- *****************************************************************************/
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+
 #include <QLoggingCategory>
 #include <QNetworkInterface>
 #include <QTimerEvent>
@@ -16,15 +15,9 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.NetworkInfo");
 
 /*****************************************************************************/
-NetworkInfo::NetworkInfo(QObject* parent)
-    : QObject(parent) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-}
-
-/*****************************************************************************/
 NetworkInfo::NetworkInfo(QString name, QObject* parent)
     : QObject(parent)
-    , ifname(name) {
+    , ifname(std::move(name)) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     update_net_info();
     // Event loop timer check every second if interface status changed
@@ -47,6 +40,7 @@ void NetworkInfo::update_net_info() {
     auto itf = QNetworkInterface::interfaceFromName(ifname);
     if (!itf.isValid()) {
         qCCritical(CLASS_LC) << "interface name " << ifname << "not found!";
+        emit link_status_changed(false);
         return;
     }
     bool cur_state = (itf.flags() & QNetworkInterface::IsUp);

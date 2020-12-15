@@ -1,14 +1,8 @@
-/******************************************************************************
- * \filename
- * \brief   Main entry point for QML Gui
- *
- * \details
- *
- * \author Thomas Ruschival
- * \copyright 2018 Thomas Ruschival <thomas@ruschival.de>
- * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			  SPDX-License-Identifier: GPL-3.0-or-later
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
 
 /* only allow QML debugging for Debug builds */
 #ifndef NDEBUG
@@ -28,7 +22,12 @@
 
 // hardware interface
 #include "hardware_configuration.hpp"
-#include "hardware_control.hpp"
+
+#ifdef HARDWARE_STUB
+#include "hardwarecontrol_stub.hpp"
+#else
+#include "hardwarecontrol_mk3.hpp"
+#endif
 
 // Local classes
 #include "PlayableItem.hpp" // to register type
@@ -124,12 +123,16 @@ int main(int argc, char* argv[]) {
     qCDebug(MAIN) << "SSL Support: " << QSslSocket::supportsSsl()
                   << QSslSocket::sslLibraryVersionString();
 
-    /*
-     *  Initialize Hardware (or call stubs)
-     */
+/*
+ *  Initialize Hardware (or call stubs)
+ *  Could make a Factory Pattern - is it worth it?
+ */
+#ifdef HARDWARE_STUB
+    Hal::HardwareControlStub hwctrl;
+#else
     Hal::HardwareConfiguration hwcfg;
-    Hal::HardwareControl hwctrl(hwcfg);
-
+    Hal::HardwareControlMk3 hwctrl(hwcfg);
+#endif
     /*
      * Read configuration
      */
@@ -142,11 +145,12 @@ int main(int argc, char* argv[]) {
     playerproxy.set_volume(cm.get_volume());
 
     AlarmDispatcher alarmdispatcher(cm);
+    QObject::connect(&cm, &ConfigurationManager::alarms_changed,
+        &alarmdispatcher, &AlarmDispatcher::check_alarms);
+
     AlarmMonitor alarmmonitor(playerproxy, std::chrono::seconds(20));
-    QObject::connect(&alarmdispatcher,
-        SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)),
-        &alarmmonitor,
-        SLOT(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+    QObject::connect(&alarmdispatcher, &AlarmDispatcher::alarm_triggered,
+        &alarmmonitor, &AlarmMonitor::alarm_triggered);
 
     PodcastSourceModel psmodel(cm, playerproxy);
     AlarmListModel alarmlistmodel(cm);
@@ -157,24 +161,24 @@ int main(int argc, char* argv[]) {
     SleepTimer sleeptimer(cm);
 
     /* Brightness control sends pwm update requests to Hardware */
-    BrightnessControl brightness(cm);
-    QObject::connect(&brightness, &BrightnessControl::brightness_pwm_change,
-        &hwctrl, &Hal::HardwareControl::set_brightness);
+    BrightnessControl brightness(cm, &hwctrl);
+    QObject::connect(&brightness, &BrightnessControl::brightness_changed,
+        &hwctrl, &Hal::IHardware::set_backlight);
+    QObject::connect(&hwctrl, &Hal::IHardware::als_value_changed, &brightness,
+        &BrightnessControl::als_value_changed);
 
     PowerControl power;
-    /* PowerControl standby sets brightness */
-    QObject::connect(&power, SIGNAL(going_in_standby()), &brightness,
-        SLOT(restore_standby_brightness()));
-    QObject::connect(&power, SIGNAL(becoming_active()), &brightness,
-        SLOT(restore_active_brightness()));
+    /* Power controls backlight */
+    QObject::connect(
+        &power, &PowerControl::active, &brightness, &BrightnessControl::active);
     /* Powercontrol standby stops player */
     QObject::connect(&power, &PowerControl::going_in_standby, &playerproxy,
         &MediaPlayer::stop);
     /* Wire shutdown and reboot requests to hardware */
     QObject::connect(&power, &PowerControl::reboot_request, &hwctrl,
-        &Hal::HardwareControl::system_reboot);
+        &Hal::IHardware::system_reboot);
     QObject::connect(&power, &PowerControl::shutdown_request, &hwctrl,
-        &Hal::HardwareControl::system_poweroff);
+        &Hal::IHardware::system_poweroff);
 
     /* AlarmDispatcher activates system */
     QObject::connect(
@@ -195,9 +199,9 @@ int main(int argc, char* argv[]) {
     /* Rotary encoder push button interface */
     VolumeButton volbtn;
     /* connect volume button to hardware interface */
-    QObject::connect(&hwctrl, &Hal::HardwareControl::button_event, &volbtn,
+    QObject::connect(&hwctrl, &Hal::IHardware::button_event, &volbtn,
         &VolumeButton::process_key_event);
-    QObject::connect(&hwctrl, &Hal::HardwareControl::rotary_event, &volbtn,
+    QObject::connect(&hwctrl, &Hal::IHardware::rotary_event, &volbtn,
         &VolumeButton::process_rotary_event);
 
     /* wire volume button to consumers */
@@ -207,10 +211,11 @@ int main(int argc, char* argv[]) {
         &MediaPlayer::increment_volume);
 
     /* Standby deactivates Volume button events */
-    QObject::connect(&power, SIGNAL(active(bool)), &volbtn,
-        SLOT(monitor_rotary_button(bool)));
+    QObject::connect(&power, &PowerControl::active, &volbtn,
+        &VolumeButton::monitor_rotary_button);
     QObject::connect(&playerproxy, &MediaPlayer::volume_changed, &cm,
         &ConfigurationManager::set_volume);
+
 
     /* we start in standby */
     power.standby();
@@ -257,6 +262,7 @@ int main(int argc, char* argv[]) {
     ctxt->setContextProperty("iradiolistmodel", &iradiolistmodel);
     ctxt->setContextProperty("weather", &weather);
     ctxt->setContextProperty("config", &cm);
+    ctxt->setContextProperty("alarmdispatcher", &alarmdispatcher);
     ctxt->setContextProperty("powerControl", &power);
     ctxt->setContextProperty("brightnessControl", &brightness);
     ctxt->setContextProperty("volumeButton", &volbtn);

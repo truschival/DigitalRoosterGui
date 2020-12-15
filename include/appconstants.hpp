@@ -64,6 +64,11 @@ const QString KEY_BRIGHTNESS_ACT("brightnessActive");
 const QString KEY_BRIGHTNESS_SB("brightnessStandby");
 
 /**
+ * property keyword for backlight control mode
+ */
+const QString KEY_BACKLIGHT_CONTROL("autoBacklight");
+
+/**
  *  property keyword for all ids
  */
 const QString KEY_ID("id");
@@ -86,7 +91,7 @@ const QString KEY_ENABLED("enabled");
 /**
  *  property keyword for alarms on weekends
  */
-const QString KEY_TIME("time");
+const QString JSON_KEY_TIME("time");
 /**
  * Keyword for alarms on weekends
  */
@@ -190,7 +195,7 @@ const QString KEY_DURATION("duration");
 /**
  * key for numeric duration property
  */
-const QString KEY_TITLE("title");
+const QString JSON_KEY_TITLE("title");
 
 /**
  * key for timestamp property
@@ -218,6 +223,11 @@ const QString RSS_FILE_DIR(QDir::tempPath());
 const int DEFAULT_ALARM_VOLUME = 30;
 
 /**
+ * Minimum percentage of Podcast episode played to be considered 'listened'
+ */
+const int MIN_LISTENED_PERC = 25;
+
+/**
  * Time after which an alarm should stop playing
  * (probably because nobody is in to switch it off manually)
  */
@@ -230,9 +240,19 @@ const std::chrono::minutes DEFAULT_ALARM_TIMEOUT(30);
 const std::chrono::minutes DEFAULT_SLEEP_TIMEOUT(60);
 
 /**
+ * Sample interval for ambient light sensor
+ */
+const std::chrono::milliseconds ALS_SAMPLING_PERIOD(300);
+
+/**
  * Default output volume
  */
 const int DEFAULT_VOLUME = 30;
+
+/**
+ * Default volume for fallback alarm sound
+ */
+const int DEFAULT_FALLBACK_VOLUME = 50;
 
 /**
  * Default display brightness

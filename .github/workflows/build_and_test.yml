@@ -4,7 +4,7 @@ on:
     branches:
       - develop
       - master
-      - 'features/**'
+      - 'feature/**'
   pull_request:
     branches:
       - develop
@@ -59,12 +59,15 @@ jobs:
     - name: Get OpenAPI client
       run: |
         docker exec -w $SRC_DIR $CONTAINER_NAME buildscripts/get_openapi_client.py
+    - name: Prepare Python
+      run: |
+        docker exec -w $SRC_DIR $CONTAINER_NAME python3 -m pip install nulltype
     - name: Run tests
       run: docker exec -w $BUILD_DIR $CONTAINER_NAME ctest -V
     - name: Package Test output for analysis
       if: failure()
       run: >
-        tar -C ${{ env.BUILD_DIR_HOST }} -czf ${{ env.TEST_ARTIFACT }}
+        tar -C ${{ env.BUILD_DIR_HOST }} -czf ${{ env.BUILD_DIR_HOST }}/${{ env.TEST_ARTIFACT }}
         test_trace.log gtest_results.xml
     - name: Upload program trace
       if: failure()

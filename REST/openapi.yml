@@ -1,3 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+# Licensed under GNU PUBLIC LICENSE Version 3 or later
+
 openapi: "3.0.0"
 info:
   description: Open API for Digital Rooster
@@ -10,7 +15,7 @@ servers:
   - url: '{server}/api/1.0/'
     variables:
       server:
-        default: http://0.0.0.0:6666
+        default: http://digitalrooster:6666
     
 ###############################################################################
 components:
@@ -168,7 +173,7 @@ paths:
     get: # Get All Streams
       operationId: iradio.read_all
       tags:
-        - Internet Radio
+        - Radios
       summary: Read all Internet radio streams
       description: returns a list of Internet radio streams
       parameters:
@@ -189,7 +194,7 @@ paths:
     post: # Create a stream
       operationId: iradio.create
       tags:
-        - Internet Radio
+        - Radios
       summary: Create a station info and add it to the list
       requestBody:
         description: Internet radio station to create
@@ -208,13 +213,13 @@ paths:
         404:
           $ref: '#/components/responses/NotFound'  
           
-# Manipulate single Internet Radio Stream
+# Manipulate single Radios Stream
   /radios/{id}:
 
     get: # read single stream by id
       operationId: iradio.read_one
       tags:
-        - Internet Radio
+        - Radios
       summary: Read one Internet radio station
       parameters:
         - $ref: '#/components/parameters/id'
@@ -235,7 +240,7 @@ paths:
     delete: # delete stream identified by id
       operationId: iradio.delete
       tags:
-        - Internet Radio
+        - Radios
       summary: Delete Internet radio station from list
       parameters:
         - $ref: '#/components/parameters/id'

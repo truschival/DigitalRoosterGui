@@ -1,7 +1,7 @@
 # Build configuration for GNU/Linux and Windows
 
 DigitalRooster requires OpenSSL >1.0.2 and >QT 5.11 to run.
-For the build a C++14 Compiler, cmake-3.10 are required.
+For the build a C++17 Compiler, cmake-3.10 are required.
 
 DigitalRooster is developped on Debian GNU/Linux using gcc 8.x
 with QT 5.12. Any recent Linux distribution should work

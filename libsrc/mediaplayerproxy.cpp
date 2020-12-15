@@ -1,14 +1,8 @@
-/******************************************************************************
- * \filename
- * \brief
- *
- * \details
- *
- * \copyright (c) 2018 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
 
 #include "mediaplayerproxy.hpp"
 #include "PlayableItem.hpp"
@@ -127,8 +121,9 @@ MediaPlayerProxy::MediaPlayerProxy()
 /*****************************************************************************/
 void MediaPlayerProxy::do_seek(qint64 incr) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (seekable())
+    if (seekable()) {
         set_position(get_position() + incr);
+	}
 };
 
 /*****************************************************************************/
@@ -218,11 +213,7 @@ QMediaPlayer::State MediaPlayerProxy::do_playback_state() const {
 
 /*****************************************************************************/
 void MediaPlayerProxy::do_set_volume(int volume) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO << volume;
-    if (volume < 0 || volume > 100) {
-        qCWarning(CLASS_LC) << "invalid volume (must be 0..100%)";
-        return;
-    }
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     linear_volume = volume;
     emit volume_changed(volume);
 

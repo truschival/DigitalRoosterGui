@@ -16,7 +16,7 @@ Popup {
     exit: dialogFadeOutTransition;
 
     contentItem: GridLayout {
-        columnSpacing: Style.itemSpacings.slim;
+        columnSpacing: Style.itemSpacings.dense;
         rowSpacing: 0;
         anchors.fill: parent;
         anchors.margins: Style.itemMargins.slim;

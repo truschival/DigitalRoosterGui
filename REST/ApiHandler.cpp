@@ -1,14 +1,9 @@
-/******************************************************************************
- * \filename
- * \brief
- *
- * \details
- *
- * \copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -49,10 +44,10 @@ DigitalRooster::RestApi::RestApi(DigitalRooster::IWeatherConfigStore& ws,
           Pistache::Address(
               Pistache::Ipv4::any(), Pistache::Port(REST_API_PORT)))) {
 }
+
 /*****************************************************************************/
-DigitalRooster::RestApi::~RestApi() {
-    // default dtor for PIMPL
-}
+// default dtor for PIMPL
+DigitalRooster::RestApi::~RestApi() = default;
 
 /*****************************************************************************/
 ApiHandler::ApiHandler(DigitalRooster::IWeatherConfigStore& ws,

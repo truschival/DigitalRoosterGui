@@ -1,14 +1,8 @@
-/******************************************************************************
- * \filename
- * \brief
- *
- * \details
- *
- * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
 
 #include <QLoggingCategory>
 #include <QSaveFile>
@@ -25,6 +19,7 @@
 #include "UpdateTask.hpp"
 #include "alarm.hpp"
 #include "configuration_manager.hpp"
+#include "util.hpp"
 
 using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
@@ -33,10 +28,7 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
 bool DigitalRooster::is_writable_directory(const QString& dirname) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QFileInfo file_info(dirname);
-    if (file_info.isDir() && file_info.isWritable()) {
-        return true;
-    }
-    return false;
+    return (file_info.isDir() && file_info.isWritable());
 }
 
 /*****************************************************************************/
@@ -85,6 +77,7 @@ ConfigurationManager::ConfigurationManager(
     , volume(DEFAULT_VOLUME)
     , brightness_sb(DEFAULT_BRIGHTNESS)
     , brightness_act(DEFAULT_BRIGHTNESS)
+    , backlight_control_act(true)
     , config_file(configpath)
     , application_cache_dir(cachedir)
     , wpa_socket_name(WPA_CONTROL_SOCKET_PATH)
@@ -98,8 +91,8 @@ ConfigurationManager::ConfigurationManager(
     if (!is_writable_directory(cachedir) &&
         !create_writable_directory(cachedir)) {
         qCWarning(CLASS_LC)
-            << "Failed using " << get_cache_dir_name()
-            << "as cache using default:" << DEFAULT_CACHE_DIR_PATH;
+            << "Failed using " << cachedir
+            << "as cache! Using default:" << DEFAULT_CACHE_DIR_PATH;
         application_cache_dir.setPath(DEFAULT_CACHE_DIR_PATH);
         QDir().mkpath(DEFAULT_CACHE_DIR_PATH);
     }
@@ -187,6 +180,8 @@ void ConfigurationManager::parse_json(const QByteArray& json) {
     set_standby_brightness(
         appconfig[KEY_BRIGHTNESS_SB].toInt(DEFAULT_BRIGHTNESS));
 
+    enable_backlight_control(appconfig[KEY_BACKLIGHT_CONTROL].toBool(true));
+
     set_volume(appconfig[KEY_VOLUME].toInt(DEFAULT_VOLUME));
 
     set_sleep_timeout(std::chrono::minutes(
@@ -269,8 +264,8 @@ void ConfigurationManager::read_alarms(const QJsonObject& appconfig) {
     for (const auto al : alarm_config) {
         try {
             auto alarm = Alarm::from_json_object(al.toObject());
-            connect(
-                alarm.get(), SIGNAL(dataChanged()), this, SLOT(dataChanged()));
+            connect(alarm.get(), &Alarm::dataChanged, this,
+                &ConfigurationManager::alarm_data_changed);
             alarms.push_back(alarm);
         } catch (std::invalid_argument& exc) {
             qCWarning(CLASS_LC)
@@ -306,7 +301,7 @@ void ConfigurationManager::fileChanged(const QString& path) {
 /*****************************************************************************/
 void ConfigurationManager::set_volume(int vol) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << vol;
-    if (vol >= 0 && vol <= 100) {
+    if (value_in_0_100(vol)) {
         this->volume = vol;
         dirty = true;
     } else {
@@ -317,7 +312,7 @@ void ConfigurationManager::set_volume(int vol) {
 /*****************************************************************************/
 void ConfigurationManager::set_standby_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
-    if (brightness >= 0 && brightness <= 100) {
+    if (value_in_0_100(brightness)) {
         this->brightness_sb = brightness;
         dirty = true;
     } else {
@@ -328,18 +323,30 @@ void ConfigurationManager::set_standby_brightness(int brightness) {
 /*****************************************************************************/
 void ConfigurationManager::set_active_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
-    return do_set_brightness_act(brightness);
+    if (value_in_0_100(brightness)) {
+        do_set_brightness_act(brightness);
+    } else {
+        qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
+    }
 }
 
 /*****************************************************************************/
 void ConfigurationManager::do_set_brightness_act(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
-    if (brightness >= 0 && brightness <= 100) {
-        this->brightness_act = brightness;
-        dirty = true;
-    } else {
-        qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
-    }
+    this->brightness_act = brightness;
+    dirty = true;
+}
+
+/*****************************************************************************/
+bool ConfigurationManager::backlight_control_enabled() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    return backlight_control_act;
+}
+
+/*****************************************************************************/
+void ConfigurationManager::enable_backlight_control(bool ena) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    backlight_control_act = ena;
 }
 
 /*****************************************************************************/
@@ -380,6 +387,7 @@ void ConfigurationManager::store_current_config() {
     appconfig[KEY_VOLUME] = volume;
     appconfig[KEY_BRIGHTNESS_SB] = brightness_sb;
     appconfig[KEY_BRIGHTNESS_ACT] = brightness_act;
+    appconfig[KEY_BACKLIGHT_CONTROL] = backlight_control_act;
     /* Static info - which version created the config file*/
     appconfig[KEY_VERSION] = PROJECT_VERSION;
 
@@ -497,15 +505,21 @@ QString ConfigurationManager::get_cache_dir_name() {
  *****************************************************************************/
 void ConfigurationManager::delete_alarm(const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    // Disconnect signal-slot
+    auto a = find_by_id(alarms, id);
+    disconnect(a, &Alarm::dataChanged, this,
+        &ConfigurationManager::alarm_data_changed);
     /* delete may throw - just pass it on to the client */
     delete_by_id(alarms, id);
     dataChanged();
     emit alarms_changed();
 };
 /*****************************************************************************/
-void ConfigurationManager::add_alarm(std::shared_ptr<Alarm> alm) {
+void ConfigurationManager::add_alarm(std::shared_ptr<Alarm> alarm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    this->alarms.push_back(alm);
+    this->alarms.push_back(alarm);
+    connect(alarm.get(), &Alarm::dataChanged, this,
+        &ConfigurationManager::alarm_data_changed);
     dataChanged();
     emit alarms_changed();
 }
@@ -524,6 +538,12 @@ ConfigurationManager::get_alarms() const {
     return alarms;
 }
 
+/*****************************************************************************/
+void ConfigurationManager::alarm_data_changed() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    emit alarms_changed();
+    dataChanged(); // save the changes
+}
 
 /*****************************************************************************
  * Implementation of IStationStore
@@ -564,9 +584,9 @@ ConfigurationManager::get_stations() const {
  * Implementation of IPodcastStore
  *****************************************************************************/
 void ConfigurationManager::add_podcast_source(
-    std::shared_ptr<PodcastSource> src) {
+    std::shared_ptr<PodcastSource> podcast) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    this->podcast_sources.push_back(src);
+    this->podcast_sources.push_back(podcast);
     dataChanged();
     emit podcast_sources_changed();
 }

@@ -137,11 +137,12 @@ namespace REST {
             }
             QJsonDocument jdoc;
             jdoc.setArray(j);
+            response.setMime(Pistache::Http::Mime::MediaType::fromString("application/json"));
             response.send(
                 Pistache::Http::Code::Ok, jdoc.toJson().toStdString());
         } catch (std::exception& e) {
             InternalErrorJson je(e, 500);
-            // send a 500 error
+            // send a 500 error - NO MIME TYPE!
             response.send(Pistache::Http::Code::Internal_Server_Error, je);
             return;
         }
@@ -163,6 +164,7 @@ namespace REST {
         QJsonObject o;
         o["id"] = item->get_id().toString(QUuid::WithoutBraces);
         jd.setObject(o);
+        response.setMime(Pistache::Http::Mime::MediaType::fromString("application/json"));
         response.send(Pistache::Http::Code::Ok, jd.toJson().toStdString());
     }
 

@@ -1,15 +1,8 @@
-/******************************************************************************
- * \filename
- * \brief		Util functions that are used globally and don't fit in
- *              somewhere else
- *
- * \details
- *
- * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
 
 #include <QCommandLineOption>
 #include <QCommandLineParser>
@@ -79,7 +72,7 @@ void setup_log_facility(const QCommandLineParser& cmdline) {
             // coverity[UNCAUGHT_EXCEPT]
             setup_logger_file(cmdline.value(CMD_ARG_LOG_FILE));
         }
-    } catch (std::exception& exc) {
+    } catch (std::exception&) {
         // fallback behavior
         setup_logger_stdout();
     }
@@ -107,6 +100,11 @@ QUuid valid_uuid_from_String(const QString& uuidstr) {
         throw std::invalid_argument("id cannot be converted into UUID!");
     }
     return id;
+}
+
+/*****************************************************************************/
+bool value_in_0_100(int value) {
+    return (value >= 0 && value <= 100);
 }
 
 /*****************************************************************************/

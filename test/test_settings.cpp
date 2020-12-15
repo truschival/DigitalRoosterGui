@@ -1,14 +1,9 @@
-/******************************************************************************
- * \filename
- * \brief
- *
- * \details
- *
- * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+
 #include <QJsonDocument>
 #include <QSettings>
 #include <QSignalSpy>
@@ -120,7 +115,7 @@ protected:
     void add_alarms(QJsonObject& root) {
         QJsonArray alarms;
         QJsonObject al1;
-        al1[KEY_TIME] = "10:00";
+        al1[JSON_KEY_TIME] = "10:00";
         al1[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
         al1[KEY_ALARM_PERIOD] = "daily";
         al1[KEY_ENABLED] = true;
@@ -128,7 +123,7 @@ protected:
         alarms.append(al1);
 
         QJsonObject al2;
-        al2[KEY_TIME] = "07:00";
+        al2[JSON_KEY_TIME] = "07:00";
         al2[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
         al2[KEY_ALARM_PERIOD] = "workdays";
         al2[KEY_ENABLED] = true;
@@ -136,7 +131,7 @@ protected:
         alarms.append(al2);
 
         QJsonObject al3;
-        al3[KEY_TIME] = "09:00";
+        al3[JSON_KEY_TIME] = "09:00";
         al3[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
         al3[KEY_ALARM_PERIOD] = "weekend";
         al3[KEY_ENABLED] = false;
@@ -144,7 +139,7 @@ protected:
         alarms.append(al3);
 
         QJsonObject al4;
-        al4[KEY_TIME] = "13:00";
+        al4[JSON_KEY_TIME] = "13:00";
         al4[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
         al4[KEY_ALARM_PERIOD] = "once";
         al4[KEY_ENABLED] = true;
@@ -152,7 +147,7 @@ protected:
         alarms.append(al4);
 
         QJsonObject al5;
-        al5[KEY_TIME] = "17:00";
+        al5[JSON_KEY_TIME] = "17:00";
         al5[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
         al5[KEY_ALARM_PERIOD] = "Manchmal";
         al5[KEY_ENABLED] = true;
@@ -160,7 +155,7 @@ protected:
         alarms.append(al5);
 
         QJsonObject al6;
-        al6[KEY_TIME] = "25:34";
+        al6[JSON_KEY_TIME] = "25:34";
         al6[KEY_URI] = "http://st01.dlf.de/dlf/01/128/mp3/stream.mp3";
         al6[KEY_ALARM_PERIOD] = "once";
         al6[KEY_ENABLED] = true;
@@ -168,7 +163,7 @@ protected:
         alarms.append(al6);
 
         QJsonObject al7;
-        al7[KEY_TIME] = "12:34";
+        al7[JSON_KEY_TIME] = "12:34";
         al7[KEY_URI] = "";
         al7[KEY_ALARM_PERIOD] = "once";
         al7[KEY_ENABLED] = true;
@@ -176,7 +171,7 @@ protected:
         alarms.append(al7);
 
         QJsonObject al8;
-        al8[KEY_TIME] = "12:34";
+        al8[JSON_KEY_TIME] = "12:34";
         al8[KEY_URI] = "";
         al8[KEY_ALARM_PERIOD] = "once";
         al8[KEY_ENABLED] = true;
@@ -350,6 +345,14 @@ TEST_F(SettingsFixture, delete_alarm) {
 /*****************************************************************************/
 TEST_F(SettingsFixture, delete_alarm_throws) {
     EXPECT_THROW(cm->delete_alarm(QUuid::createUuid()), std::out_of_range);
+}
+
+/*****************************************************************************/
+TEST_F(SettingsFixture, ChangeAlarmEmitsAlarmsChanged) {
+    auto& v = cm->get_alarms();
+    QSignalSpy spy(cm.get(), SIGNAL(alarms_changed()));
+    v[0]->enable(false);
+    ASSERT_EQ(spy.count(), 1);
 }
 
 /*****************************************************************************/

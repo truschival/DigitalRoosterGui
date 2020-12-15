@@ -1,14 +1,9 @@
-/******************************************************************************
- * \filename
- * \brief     API for managing Internet Radio Stations
- *
- * \details
- *
- * \copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+
 #include <QLoggingCategory>
 
 #include <QJsonArray>
@@ -70,9 +65,12 @@ void AlarmApi::get_alarm(const Pistache::Rest::Request& request,
         QJsonDocument jd;
         auto result = alarmstore.get_alarm(uid);
         jd.setObject(result->to_json_object());
+        response.setMime(Pistache::Http::Mime::MediaType::fromString("application/json"));
         response.send(Pistache::Http::Code::Ok, jd.toJson().toStdString());
     } catch (std::out_of_range& oor) {
-        // wrong UUID provided
+        response.setMime(
+             Pistache::Http::Mime::MediaType::fromString("application/json"));
+          // wrong UUID provided
         response.send(
             Pistache::Http::Code::Bad_Request, BAD_REQUEST_NO_ITEM_WITH_UUID);
     } catch (std::exception& exc) {
@@ -94,6 +92,8 @@ void AlarmApi::add_alarm(const Pistache::Rest::Request& request,
         respond_SuccessCreated(alm, response);
     } catch (std::invalid_argument& ia) {
         InternalErrorJson je(ia, 400);
+        response.setMime(
+             Pistache::Http::Mime::MediaType::fromString("application/json"));
         response.send(Pistache::Http::Code::Bad_Request, je);
     } catch (std::exception& exc) {
         // some other error occurred -> 500
@@ -112,8 +112,10 @@ void AlarmApi::delete_alarm(const Pistache::Rest::Request& request,
         auto uid = QUuid::fromString(
             QLatin1String(request.param(":uid").as<std::string>().c_str()));
         alarmstore.delete_alarm(uid);
-        response.send(Pistache::Http::Code::Ok);
+        response.send(Pistache::Http::Code::Ok); // DELETE ok without MIME TYPE
     } catch (std::out_of_range& oor) {
+        response.setMime(
+             Pistache::Http::Mime::MediaType::fromString("application/json"));
         // wrong UUID provided
         response.send(
             Pistache::Http::Code::Bad_Request, BAD_REQUEST_NO_ITEM_WITH_UUID);

@@ -1,14 +1,9 @@
-/******************************************************************************
- * \filename
- * \brief  manage information form openweathermaps
- *
- * \details
- *
- * \copyright (c) 2019  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+
 #include <QDebug>
 #include <QJsonObject>
 #include <QLoggingCategory>
@@ -179,10 +174,10 @@ QUrl DigitalRooster::create_forecast_url(const WeatherConfig& cfg) {
 }
 
 /*****************************************************************************/
-WeatherConfig::WeatherConfig(const QString& token, const QString& location,
-    const std::chrono::seconds& interval)
-    : api_token(token)
-    , location_id(location)
+WeatherConfig::WeatherConfig(QString token, QString location,
+    std::chrono::seconds interval)
+    : api_token(std::move(token))
+    , location_id(std::move(location))
     , update_interval(interval) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }

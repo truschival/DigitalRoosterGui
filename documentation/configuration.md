@@ -43,6 +43,9 @@ For more details refer to [documentation/rest.md](rest.md)
 
 -   `brightnessStandby` is the display background in standby mode (0-100%)
 
+-   `autoBacklight` if `true` the backlight is controlled reading the value 
+     from sensor
+
 -   `volume` is the default volume
 
 -   `version` project version for this config file
@@ -188,13 +191,6 @@ Setting the input event interfaces directly:
 -   ``DR_ROTARY_EVENT_PATH``  input device for rotary encoder events
      e.g. ``'/dev/input/event2'`
 
-Setting the input device names to look for using ``ioctl(EVIOCGNAME)``:
--   ``DR_PUSH_EVENT_NAME``  name of gpio-keys in device tree
-     e.g. ``'gpio-keys'``
-
--   ``DR_ROTARY_EVENT_NAME`` name of rotary encoder in device tree
-     e.g. ``'rotary_abs'``
-
 If ``DR_PUSH_EVENT_PATH`` or ``DR_ROTARY_EVENT_PATH`` are set this
 value is taken regardless if the device node exists or if it is
 the *correct* device.
@@ -207,6 +203,15 @@ The backlight channel is created at ``/sys/class/leds/bl/brightness``.
 
 Using the environment variable ``BACKLIGHT_PATH`` the path can be adjusted.
 Make sure you include the full path to the device
+
+If a APDS9960 is connected the backlight can be controlled automatically 
+accoring to ambient luminosity.
+The sensor value is read per default from: 
+ `/sys/bus/iio/devices/iio:device0/in_intensity_clear_raw`
+
+Using the environment variable ``ALS_PATH`` the path to the value can be 
+adjusted.
+
 
 ## Logging configuration
 

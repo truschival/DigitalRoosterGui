@@ -1,14 +1,8 @@
-/******************************************************************************
- * \filename
- * \brief
- *
- * \details
- *
- * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
 
 #include <QLoggingCategory>
 #include <cstdio>
@@ -27,12 +21,11 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.UpdateTask");
 UpdateTask::UpdateTask(PodcastSource* source)
     : ps(source) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    connect(&dlm, SIGNAL(dataAvailable(const QByteArray)), this,
-        SLOT(dataAvailable(const QByteArray)));
+    connect(&dlm, &HttpClient::dataAvailable, this, &UpdateTask::dataAvailable);
 
     // Start timer
     timer.setSingleShot(false);
-    connect(&timer, SIGNAL(timeout()), this, SLOT(start()));
+    connect(&timer, &QTimer::timeout, this, &UpdateTask::start);
     if (ps) {
         timer.start(source->get_update_interval());
     }

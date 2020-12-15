@@ -26,7 +26,8 @@
 namespace DigitalRooster {
 
 /**
- * Interface of Playable Item : self contained information to play
+ * Simple Media Object with meta information that can be played
+ * i.e. a Internet Radio Station that consists of a name and an URL
  */
 class PlayableItem : public QObject {
     Q_OBJECT
@@ -51,8 +52,8 @@ public:
      * @param url  media_url
      * @param uid  (optional) unique id
      */
-    PlayableItem(const QString& name, const QUrl& url,
-        const QUuid& uid = QUuid::createUuid());
+    PlayableItem(
+        QString name, QUrl url, const QUuid& uid = QUuid::createUuid());
 
     /**
      * Information on title, publisher ,etc.
@@ -68,8 +69,8 @@ public:
     void set_display_name(const QString& name);
 
     /**
-     * Stream source URI
-     * @return media uri
+     * Stream source url
+     * @return media url
      */
     const QUrl& get_url() const {
         return media_url;

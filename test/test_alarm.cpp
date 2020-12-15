@@ -1,14 +1,10 @@
-/******************************************************************************
- * \filename
- * \brief
- *
- * \details
- *
- * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+
+
 #include <QDateTime>
 #include <QDebug>
 #include <QJsonDocument>
@@ -23,11 +19,37 @@
 
 #include "alarm.hpp"
 #include "appconstants.hpp"
+#include "mock_clock.hpp"
 
 using namespace DigitalRooster;
 using namespace ::testing;
 using ::testing::AtLeast;
 
+/*****************************************************************************/
+
+// Fixture to inject fake clock as the global clock
+class AlarmNextInstance : public ::testing::Test {
+public:
+    AlarmNextInstance()
+        : mc(new MockClock)
+        , al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
+              QTime::fromString("08:45:00", "hh:mm:ss")){};
+
+    // Make our own clock to be the wallclock
+    void SetUp() {
+        DigitalRooster::wallclock =
+            std::static_pointer_cast<TimeProvider, MockClock>(mc);
+    };
+
+    // Restore original TimeProvider for other tests
+    void TearDown() {
+        DigitalRooster::wallclock = std::make_shared<TimeProvider>();
+    };
+
+protected:
+    std::shared_ptr<MockClock> mc;
+    Alarm al;
+};
 
 /*****************************************************************************/
 TEST(Alarm, defaultVolume) {
@@ -196,4 +218,214 @@ TEST(Alarm, from_json_invalid_time) {
 	)");
     auto jdoc = QJsonDocument::fromJson(json_string.toUtf8());
     ASSERT_THROW(Alarm::from_json_object(jdoc.object()), std::invalid_argument);
+}
+
+
+/*****************************************************************************/
+TEST(Alarm, comparisionOperators) {
+    DigitalRooster::Alarm al1(
+        QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
+        QTime::fromString("08:30:00", "hh:mm:ss"));
+
+    DigitalRooster::Alarm al2(
+        QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
+        QTime::fromString("08:45:00", "hh:mm:ss"));
+
+    DigitalRooster::Alarm al3(
+        QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
+        QTime::fromString("08:30:00", "hh:mm:ss"));
+
+    EXPECT_TRUE(al1 < al2);
+    al3.enable(false);
+    EXPECT_FALSE(al3 < al1);
+}
+
+/*****************************************************************************/
+TEST_F(AlarmNextInstance, checkQDateTimeDefaultBehavior) {
+    auto invalid_nothing = QDateTime();
+    ASSERT_FALSE(invalid_nothing.isValid());
+
+    auto invalid_no_date = QDateTime();
+    invalid_no_date.setTime(QTime::currentTime());
+    ASSERT_FALSE(invalid_no_date.isValid());
+
+    auto invalid_no_time = QDateTime();
+    invalid_no_time.setDate(QDate::currentDate());
+    ASSERT_FALSE(invalid_no_date.isValid());
+
+    auto valid_have_both = QDateTime();
+    valid_have_both.setTime(QTime::currentTime());
+    valid_have_both.setDate(QDate::currentDate());
+    ASSERT_TRUE(valid_have_both.isValid());
+}
+
+
+/*****************************************************************************/
+TEST_F(AlarmNextInstance, Disabled) {
+    al.enable(false);
+    EXPECT_CALL(*(mc.get()), get_time())
+        .WillRepeatedly(
+            Return(QDateTime::fromString("2020-11-18T08:46:20", Qt::ISODate)));
+
+    ASSERT_FALSE(DigitalRooster::get_next_instance(al).isValid());
+}
+
+
+/*****************************************************************************/
+TEST_F(AlarmNextInstance, DailyTodayEnabled) {
+    al.set_period(Alarm::Daily);
+
+    EXPECT_CALL(*(mc.get()), get_time())
+        .WillRepeatedly(
+            Return(QDateTime::fromString("2020-11-18T08:30:20", Qt::ISODate)));
+
+    auto expected = QDateTime::fromString("2020-11-18T08:45:00", Qt::ISODate);
+    ASSERT_EQ(DigitalRooster::get_next_instance(al), expected);
+}
+
+/*****************************************************************************/
+TEST_F(AlarmNextInstance, DailyTodayPast) {
+    al.set_period(Alarm::Daily);
+
+    EXPECT_CALL(*(mc.get()), get_time())
+        .WillRepeatedly(
+            Return(QDateTime::fromString("2020-11-18T08:46:20", Qt::ISODate)));
+
+    auto expected = QDateTime::fromString("2020-11-19T08:45:00", Qt::ISODate);
+
+
+    ASSERT_EQ(DigitalRooster::get_next_instance(al), expected);
+}
+
+/*****************************************************************************/
+TEST_F(AlarmNextInstance, OnceToday) {
+    al.set_period(Alarm::Once);
+
+    EXPECT_CALL(*(mc.get()), get_time())
+        .WillRepeatedly(
+            Return(QDateTime::fromString("2020-11-18T07:46:20", Qt::ISODate)));
+
+    auto expected = QDateTime::fromString("2020-11-18T08:45:00", Qt::ISODate);
+
+    ASSERT_EQ(DigitalRooster::get_next_instance(al), expected);
+}
+
+/*****************************************************************************/
+TEST_F(AlarmNextInstance, OnceTodayPast) {
+    al.set_period(Alarm::Once);
+
+    EXPECT_CALL(*(mc.get()), get_time())
+        .WillRepeatedly(
+            Return(QDateTime::fromString("2020-11-18T08:46:20", Qt::ISODate)));
+
+    auto expected = QDateTime::fromString("2020-11-19T08:45:00", Qt::ISODate);
+
+    ASSERT_EQ(DigitalRooster::get_next_instance(al), expected);
+}
+
+/*****************************************************************************/
+TEST_F(AlarmNextInstance, WeekendFriday) {
+    al.set_period(Alarm::Weekend);
+
+    EXPECT_CALL(*(mc.get()), get_time())
+        .WillRepeatedly(/* Friday Nov 20 2020 */
+            Return(QDateTime::fromString("2020-11-20T07:00:00", Qt::ISODate)));
+
+    // Expect saturday 8:45
+    auto expected = QDateTime::fromString("2020-11-21T08:45:00", Qt::ISODate);
+    ASSERT_EQ(DigitalRooster::get_next_instance(al), expected);
+}
+
+/*****************************************************************************/
+TEST_F(AlarmNextInstance, WeekendSaturday) {
+    al.set_period(Alarm::Weekend);
+
+    EXPECT_CALL(*(mc.get()), get_time())
+        .WillRepeatedly(/* Saturday Nov 21 2020 */
+            Return(QDateTime::fromString("2020-11-21T08:46:20", Qt::ISODate)));
+
+    // Expect Sunday 8:45
+    auto expected = QDateTime::fromString("2020-11-22T08:45:00", Qt::ISODate);
+
+    ASSERT_EQ(DigitalRooster::get_next_instance(al), expected);
+}
+
+/*****************************************************************************/
+TEST_F(AlarmNextInstance, WeekendSunday) {
+    al.set_period(Alarm::Weekend);
+
+    EXPECT_CALL(*(mc.get()), get_time())
+        .WillRepeatedly(/* Sunday Nov 22 2020 */
+            Return(QDateTime::fromString("2020-11-22T08:30:00", Qt::ISODate)));
+
+    // Expect Sunday 8:45
+    auto expected = QDateTime::fromString("2020-11-22T08:45:00", Qt::ISODate);
+
+    ASSERT_EQ(DigitalRooster::get_next_instance(al), expected);
+}
+
+/*****************************************************************************/
+TEST_F(AlarmNextInstance, WeekendSundayPast) {
+    al.set_period(Alarm::Weekend);
+
+    EXPECT_CALL(*(mc.get()), get_time())
+        .WillRepeatedly(/* Sunday Nov 22 2020, 9:00 */
+            Return(QDateTime::fromString("2020-11-22T09:00:00", Qt::ISODate)));
+
+    // Expect next saturday 8:45
+    auto expected = QDateTime::fromString("2020-11-28T08:45:00", Qt::ISODate);
+
+    ASSERT_EQ(DigitalRooster::get_next_instance(al), expected);
+}
+
+/*****************************************************************************/
+TEST_F(AlarmNextInstance, WorkdaysFriday) {
+    al.set_period(Alarm::Workdays);
+
+    EXPECT_CALL(*(mc.get()), get_time())
+        .WillRepeatedly(/* Friday Nov 20 2020 */
+            Return(QDateTime::fromString("2020-11-20T07:00:00", Qt::ISODate)));
+
+    // Expect saturday 8:45
+    auto expected = QDateTime::fromString("2020-11-20T08:45:00", Qt::ISODate);
+    ASSERT_EQ(DigitalRooster::get_next_instance(al), expected);
+}
+
+/*****************************************************************************/
+TEST_F(AlarmNextInstance, WorkdaysFridayPast) {
+    al.set_period(Alarm::Workdays);
+
+    EXPECT_CALL(*(mc.get()), get_time())
+        .WillRepeatedly(/* Friday Nov 20 2020 */
+            Return(QDateTime::fromString("2020-11-20T09:00:00", Qt::ISODate)));
+
+    // Expect Monday 8:45
+    auto expected = QDateTime::fromString("2020-11-23T08:45:00", Qt::ISODate);
+    ASSERT_EQ(DigitalRooster::get_next_instance(al), expected);
+}
+
+/*****************************************************************************/
+TEST_F(AlarmNextInstance, WorkdaysSaturday) {
+    al.set_period(Alarm::Workdays);
+
+    EXPECT_CALL(*(mc.get()), get_time())
+        .WillRepeatedly(/* Saturday Nov 21 2020 */
+            Return(QDateTime::fromString("2020-11-21T07:30:20", Qt::ISODate)));
+
+    // Expect Monday 8:45
+    auto expected = QDateTime::fromString("2020-11-23T08:45:00", Qt::ISODate);
+    ASSERT_EQ(DigitalRooster::get_next_instance(al), expected);
+}
+
+/*****************************************************************************/
+TEST_F(AlarmNextInstance, WorkdaysWednesdayPast) {
+    al.set_period(Alarm::Workdays);
+
+    EXPECT_CALL(*(mc.get()), get_time())
+        .WillRepeatedly(/* Wednesday Nov. 18 2020 */
+            Return(QDateTime::fromString("2020-11-18T09:30:20", Qt::ISODate)));
+
+    // Expect Thursday 8:45
+    auto expected = QDateTime::fromString("2020-11-19T08:45:00", Qt::ISODate);
+    ASSERT_EQ(DigitalRooster::get_next_instance(al), expected);
 }

@@ -19,6 +19,11 @@
 namespace DigitalRooster {
 class PlayableItem;
 
+/**
+ * Interface for addition, access and deletion of Internet Radio streams i.e.
+ * \ref DigitalRooster::PlayableItem of actual storage \ref
+ * DigitalRooster::ConfigurationManager
+ */
 class IStationStore {
 public:
     /**

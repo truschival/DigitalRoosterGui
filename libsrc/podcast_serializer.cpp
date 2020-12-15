@@ -1,14 +1,9 @@
-/******************************************************************************
- * \filename
- * \brief
- *
- * \details
- *
- * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+
 #include <QFile>
 #include <QImage>
 #include <QLoggingCategory>
@@ -111,15 +106,21 @@ void PodcastSerializer::store_image(QByteArray data) {
 /*****************************************************************************/
 void PodcastSerializer::store_image_impl(QByteArray& data) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto image_file_path = cache_dir.filePath(ps->get_image_url().fileName());
     /* Resize image and save file */
     auto image_data = QImage::fromData(data);
     auto small_image = image_data.scaled(DEFAULT_ICON_WIDTH, DEFAULT_ICON_WIDTH,
         Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    qCDebug(CLASS_LC) << "image_file_path:" << image_file_path;
+
+    /* Do not rely on file format info or name from URL, save it as PNG */
+    auto image_cache_file_name =
+        ps->create_image_file_name(ps->get_image_url());
+
+    auto image_file_path = cache_dir.filePath(image_cache_file_name);
     if (small_image.save(image_file_path)) {
+        // Store image path if successful
         ps->set_image_file_path(image_file_path);
     } else {
+        ps->set_image_file_path("");
         qCCritical(CLASS_LC) << "save image failed" << image_file_path;
     }
 }
@@ -217,7 +218,7 @@ void DigitalRooster::parse_podcast_source_from_json(
         qCDebug(CLASS_LC) << "podcast source is newer than stored information";
     } else {
         // need to update podcast source data
-        auto title = tl_obj[KEY_TITLE].toString();
+        auto title = tl_obj[JSON_KEY_TITLE].toString();
         auto desc = tl_obj[KEY_DESCRIPTION].toString();
         auto img_url = tl_obj[KEY_ICON_URL].toString();
         auto img_cached = tl_obj[KEY_IMAGE_CACHE].toString();

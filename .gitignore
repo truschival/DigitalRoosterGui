@@ -161,7 +161,7 @@ Makefile*
 *-build-*
 
 # QtCreator
-
+CMakeLists.txt.user
 *.autosave
 
 #QtCtreator Qml
@@ -169,3 +169,6 @@ Makefile*
 *.qmlproject.user.*
 
 CMakeSettings.json
+
+# python client created during test
+python-client*

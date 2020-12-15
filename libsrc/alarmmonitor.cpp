@@ -1,21 +1,16 @@
-/******************************************************************************
- * \filename
- * \brief
- *
- * \details
- *
- * \copyright (c) 2018 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
 
-#include <QDebug>
+
 #include <QLoggingCategory>
 #include <QMediaPlayer>
 
 #include "alarm.hpp"
 #include "alarmmonitor.hpp"
+#include "appconstants.hpp"
 #include "mediaplayer.hpp"
 
 using namespace DigitalRooster;
@@ -87,8 +82,7 @@ void AlarmMonitor::set_state(MonitorState next_state) {
 }
 
 /*****************************************************************************/
-void AlarmMonitor::alarm_triggered(
-    std::shared_ptr<DigitalRooster::Alarm> alarm) {
+void AlarmMonitor::alarm_triggered(const DigitalRooster::Alarm*  alarm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     set_state(ExpectingAlarm);
     mpp.set_media(alarm->get_media());
@@ -102,7 +96,7 @@ void AlarmMonitor::trigger_fallback_behavior() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     fallback_alarm.setCurrentIndex(0);
     set_state(FallBackMode);
-    mpp.set_volume(50);
+    mpp.set_volume(DEFAULT_FALLBACK_VOLUME);
     mpp.set_playlist(&fallback_alarm);
     mpp.play();
 }

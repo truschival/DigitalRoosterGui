@@ -57,22 +57,30 @@ ApplicationWindow {
                     drawer.open()
                 }
             }
+
             Label {
-                id: titleLabel
-                text: (stackView.depth > 1) ? currentTime.timestring_lz_hh_mm : "";
-                font: (playerProxy.playbackState === MediaPlayer.PlayingState) ? Style.font.title : Style.font.titleBold;
-                elide: Label.ElideRight
+                id: nextAlarm
+                text: alarmdispatcher.upcoming_alarm_info != "" ?
+                    "<span style='font-family: materialdesignicons; font-size: 16pt;'>\uf021</span>
+                     <span style='font-family: DejaVu Sans Condensed Bold, sans-serif; font-size: 16pt; font-weight: normal'>"+
+                    alarmdispatcher.upcoming_alarm_info+"</span>"
+                    :"<span style='font-family: materialdesignicons; font-size: 16pt; font-weight: bold'>\uf023</span>";
+                textFormat: Text.RichText
                 Layout.fillWidth: true
+                visible: (playerProxy.playbackState != MediaPlayer.PlayingState)
             }
 
             Label{
                 id: countdown_to_sleep;
-                text: "<span style = 'font-family: materialdesignicons; font-size: 16pt; font-weight: bold'>\uf51b</span>
-                       <span style = 'font-family: DejaVu Sans Condensed Bold, sans-serif; font-size: 16pt; font-weight: normal'>"+sleeptimer.time_remaining+"</span>"
-                Layout.rightMargin: 0;
+                text: "<span style='font-family: materialdesignicons; font-size: 16pt;'>\uf4b2</span>
+                       <span style='font-family: DejaVu Sans Condensed Bold, sans-serif; font-size: 16pt; font-weight: normal'>"+
+		    sleeptimer.time_remaining +" min</span>"
+                Layout.rightMargin: 1;
                 textFormat: Text.RichText
+                horizontalAlignment: Text.AlignRight
                 color: "white"
                 visible: (playerProxy.playbackState === MediaPlayer.PlayingState)
+                Layout.fillWidth: true
 
                 MouseArea{
                     anchors.fill: parent
@@ -183,17 +191,21 @@ ApplicationWindow {
 
     BrightnessMenu {
         id: brightnessMenu;
+        margins: Style.itemMargins.wide;
+        height: applicationWindow.height*0.8;
         width: applicationWindow.width*0.8;
     }
 
     WifiMenu {
         id: wifiMenu;
+        margins: Style.itemMargins.wide;
         height: applicationWindow.height*0.8;
         width: applicationWindow.width*0.8;
     }
 
     SleepTimeoutMenu {
         id: sleepTimeoutMenu;
+        margins: Style.itemMargins.wide;
         height: applicationWindow.height*0.6;
         width: applicationWindow.width*0.7;
     }
@@ -203,7 +215,7 @@ ApplicationWindow {
         width: parent.width*0.85;
         height: parent.height*0.55;
         x: Math.round((applicationWindow.width - width) / 2)
-        y: Math.round((applicationWindow.height - height) *0.6)+10;
+        y: Math.round((applicationWindow.height - height) *0.6)+Style.itemMargins.wide;
     }
 
     VolumePopup {

@@ -1,14 +1,9 @@
-/******************************************************************************
- * \filename
- * \brief
- *
- * \details
- *
- * \author Thomas Ruschival
- * \copyright 2018 Thomas Ruschival <thomas@ruschival.de>
- * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			  SPDX-License-Identifier: GPL-3.0-or-later
- ******************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+
 #include <QByteArray>
 #include <QDebug>
 #include <QHash>
@@ -26,16 +21,15 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.PodcastSourceModel");
 
 /*****************************************************************************/
 PodcastSourceModel::PodcastSourceModel(
-  	IPodcastStore& store,
-	MediaPlayer& mp, QObject* parent)
+    IPodcastStore& store, MediaPlayer& mp, QObject* parent)
     : QAbstractListModel(parent)
     , cm(store)
     , mpp(mp) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto v = cm.get_podcast_sources();
-    for (auto ps : v) {
-        connect(
-            ps.get(), SIGNAL(titleChanged()), this, SLOT(newDataAvailable()));
+    for (const auto& ps : v) {
+        connect(ps.get(), &PodcastSource::titleChanged, this,
+            &PodcastSourceModel::newDataAvailable);
     }
 }
 
@@ -69,9 +63,9 @@ PodcastEpisodeModel* PodcastSourceModel::get_episodes(int index) {
 
     auto v = cm.get_podcast_sources();
     /* static cast only if index >= 0 and thus can be converted */
-    if (index < 0 || static_cast<size_t>(index) >= v.size()){
-    	qCCritical(CLASS_LC) << Q_FUNC_INFO << "index out of range " << index;
-    	return nullptr;
+    if (index < 0 || static_cast<size_t>(index) >= v.size()) {
+        qCCritical(CLASS_LC) << Q_FUNC_INFO << "index out of range " << index;
+        return nullptr;
     }
 
     /* Lifetime will be managed in QML!
@@ -86,9 +80,9 @@ QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
     auto v = cm.get_podcast_sources();
 
     /* static cast only if index.row() is >= 0 and thus can be converted */
-    if (index.row() < 0 || static_cast<size_t>(index.row()) >= v.size()){
-    	qCCritical(CLASS_LC) << Q_FUNC_INFO << "index out of range " << index;
-    	return QVariant();
+    if (index.row() < 0 || static_cast<size_t>(index.row()) >= v.size()) {
+        qCCritical(CLASS_LC) << Q_FUNC_INFO << "index out of range " << index;
+        return QVariant();
     }
     QString desc;
     auto ps = v[index.row()];

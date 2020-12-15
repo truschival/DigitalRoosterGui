@@ -1,14 +1,8 @@
-/******************************************************************************
- * \filename
- * \brief    Configuration object for hardware interface
- *
- * \details
- *
- * \author Thomas Ruschival
- * \copyright 2018 Thomas Ruschival <thomas@ruschival.de>
- * 			  This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			  SPDX-License-Identifier: GPL-3.0-or-later
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
 
 #include <QDir>
 #include <QFileInfo>
@@ -46,5 +40,6 @@ HardwareConfiguration::HardwareConfiguration() {
         ROTARY_PATH_ENV_VAR_NAME, &dev_rotary_event_path);
     override_if_env_var_exists(
         BACKLIGHT_PATH_ENV_VAR_NAME, &sys_backlight_path);
+    override_if_env_var_exists(ALS_PATH_ENV_VAR_NAME, &sys_als_path);
 }
 /*****************************************************************************/

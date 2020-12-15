@@ -1,14 +1,8 @@
-/******************************************************************************
- * \filename
- * \brief
- *
- * \details
- *
- * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
 
 #include <QDebug>
 #include <QLoggingCategory>
@@ -30,10 +24,10 @@ PlayableItem::PlayableItem(const QUuid& uid)
 /***********************************************************************/
 
 PlayableItem::PlayableItem(
-    const QString& name, const QUrl& url, const QUuid& uid)
+    QString name, QUrl url, const QUuid& uid)
     : id(uid)
-    , display_name(name)
-    , media_url(url){};
+    , display_name(std::move(name))
+    , media_url(std::move(url)){};
 
 /***********************************************************************/
 void PlayableItem::set_position(qint64 newVal) {
@@ -194,7 +188,7 @@ void PodcastEpisode::set_position(qint64 newVal) {
     auto d = get_duration();
     if (d != 0 && !listened) {
         // current positon is at least 10%
-        auto perc = (10 * get_position()) / d;
+        auto perc = (MIN_LISTENED_PERC * get_position()) / d;
         if (perc >= 1) {
             listened = true;
             emit listened_changed(true);
@@ -225,7 +219,7 @@ std::shared_ptr<PodcastEpisode> PodcastEpisode::from_json_object(
     const QJsonObject& json_episode) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
-    auto title = json_episode[KEY_TITLE].toString();
+    auto title = json_episode[JSON_KEY_TITLE].toString();
     auto media_url = QUrl(json_episode[KEY_URI].toString());
     auto ep = std::make_shared<PodcastEpisode>(title, media_url);
     auto duration = json_episode[KEY_DURATION].toInt(1);
@@ -247,7 +241,7 @@ std::shared_ptr<PodcastEpisode> PodcastEpisode::from_json_object(
 QJsonObject PodcastEpisode::to_json_object() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject ep_obj;
-    ep_obj[KEY_TITLE] = get_title();
+    ep_obj[JSON_KEY_TITLE] = get_title();
     ep_obj[KEY_URI] = get_url().toString();
     ep_obj[KEY_DURATION] = get_duration();
     ep_obj[KEY_POSITION] = get_position();

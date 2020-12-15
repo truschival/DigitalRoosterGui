@@ -1,15 +1,10 @@
-/******************************************************************************
- * \filename
- * \brief
- *
- * \details
- *
- * \copyright (c) 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
 
+#include <QCryptographicHash>
 #include <QDateTime>
 #include <QLoggingCategory>
 #include <QMediaPlayer>
@@ -29,9 +24,9 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.PodcastSource");
 
 /*****************************************************************************/
-PodcastSource::PodcastSource(const QUrl& url, QUuid uid)
+PodcastSource::PodcastSource(QUrl url, QUuid uid)
     : id(uid)
-    , rss_feed_uri(url) {
+    , rss_feed_uri(std::move(url)) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }
 
@@ -43,37 +38,38 @@ PodcastSource::~PodcastSource() {
         disconnect(download_cnx);
 
     if (icon_downloader) {
-        icon_downloader.get()->deleteLater();
+        icon_downloader->deleteLater();
         icon_downloader.release();
     }
 }
 
 /*****************************************************************************/
-void PodcastSource::add_episode(std::shared_ptr<PodcastEpisode> newep) {
+void PodcastSource::add_episode(
+    const std::shared_ptr<PodcastEpisode>& episode) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (episodes.size() >= max_episodes) {
         qInfo(CLASS_LC) << " > max episodes reached: " << max_episodes;
         return;
     }
-    auto ep = get_episode_by_id(newep->get_guid());
+    auto ep = get_episode_by_id(episode->get_guid());
     /* add if not found */
     if (!ep) {
-        qCDebug(CLASS_LC) << " > new Episode :" << newep->get_guid();
+        qCDebug(CLASS_LC) << " > new Episode :" << episode->get_guid();
         // insert sorted by publication date
         auto iterator =
-            std::lower_bound(episodes.begin(), episodes.end(), newep,
+            std::lower_bound(episodes.begin(), episodes.end(), episode,
                 [](const std::shared_ptr<PodcastEpisode>& lhs,
                     const std::shared_ptr<PodcastEpisode>& rhs) {
                     return lhs->get_publication_date() >
                         rhs->get_publication_date();
                 });
-        episodes.insert(iterator, newep);
+        episodes.insert(iterator, episode);
         /* get notified if any data changes */
-        connect(newep.get(), SIGNAL(data_changed()), this,
-            SLOT(episode_info_changed()));
+        connect(episode.get(), &PodcastEpisode::data_changed, this,
+            &PodcastSource::episode_info_changed);
         emit episodes_count_changed(episodes.size());
     } else {
-        qCDebug(CLASS_LC) << " > " << newep->get_guid() << "already in list";
+        qCDebug(CLASS_LC) << " < " << episode->get_guid() << "already in list";
     }
 }
 
@@ -87,7 +83,7 @@ void PodcastSource::set_update_interval(std::chrono::seconds interval) {
 }
 
 /*****************************************************************************/
-void PodcastSource::set_description(QString newVal) {
+void PodcastSource::set_description(const QString& newVal) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     description = newVal;
     emit descriptionChanged();
@@ -95,13 +91,13 @@ void PodcastSource::set_description(QString newVal) {
 }
 
 /*****************************************************************************/
-void PodcastSource::set_last_updated(QDateTime newVal) {
+void PodcastSource::set_last_updated(const QDateTime& newVal) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     last_updated = newVal;
 }
 
 /*****************************************************************************/
-void PodcastSource::set_link(QUrl newVal) {
+void PodcastSource::set_link(const QUrl& newVal) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     link = newVal;
     emit dataChanged();
@@ -115,7 +111,7 @@ void PodcastSource::set_max_episodes(int max) {
 }
 
 /*****************************************************************************/
-void PodcastSource::set_title(QString newTitle) {
+void PodcastSource::set_title(const QString& newTitle) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     title = newTitle;
     emit titleChanged();
@@ -221,7 +217,7 @@ std::shared_ptr<PodcastEpisode> PodcastSource::get_episode_by_id_impl(
     const QString& id) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto ep = std::find_if(episodes.begin(), episodes.end(),
-        [id](std::shared_ptr<PodcastEpisode> episode) {
+        [id](const std::shared_ptr<PodcastEpisode>& episode) {
             return episode->get_guid() == id;
         });
 
@@ -246,6 +242,15 @@ int DigitalRooster::PodcastSource::get_episode_count_impl() const {
 }
 
 /*****************************************************************************/
+QString PodcastSource::create_image_file_name(const QUrl& image_url) const {
+    auto filename_hash = QCryptographicHash::hash(
+        image_url.fileName().toUtf8(), QCryptographicHash::Md5)
+                             .toHex();
+    auto image_cache_file_name =
+        this->get_id_string() + "_" + filename_hash + ".png";
+    return image_cache_file_name;
+}
+/*****************************************************************************/
 void PodcastSource::set_image_url(const QUrl& uri) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (uri != icon_url) {
@@ -255,7 +260,7 @@ void PodcastSource::set_image_url(const QUrl& uri) {
     }
     /* if we don't have a local copy or the file name changed  - download it*/
     if (!QFile(image_file_path).exists() ||
-        QUrl::fromLocalFile(image_file_path).fileName() != uri.fileName()) {
+        QUrl::fromLocalFile(image_file_path).fileName() != create_image_file_name(uri)){
         trigger_image_download();
     }
 }
@@ -264,8 +269,8 @@ void PodcastSource::set_image_file_path(const QString& path) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     /* clean previous cache file */
     QFile oldfile(image_file_path);
-    if(oldfile.exists()){
-    	oldfile.remove();
+    if (oldfile.exists()) {
+        oldfile.remove();
     }
 
     image_file_path = path;
@@ -314,7 +319,7 @@ std::shared_ptr<PodcastSource> PodcastSource::from_json_object(
     auto url = valid_url_from_string(json[KEY_URI].toString());
     auto ps = std::make_shared<PodcastSource>(url, id);
 
-    auto title = json[KEY_TITLE].toString();
+    auto title = json[JSON_KEY_TITLE].toString();
     auto desc = json[KEY_DESCRIPTION].toString();
     auto img_url = json[KEY_ICON_URL].toString();
     auto img_cached = json[KEY_IMAGE_CACHE].toString();
@@ -335,7 +340,7 @@ QJsonObject PodcastSource::to_json_object() const {
     QJsonObject json;
     json[KEY_ID] = get_id_string();
     json[KEY_URI] = get_url().toString();
-    json[KEY_TITLE] = get_title();
+    json[JSON_KEY_TITLE] = get_title();
     json[KEY_UPDATE_INTERVAL] =
         static_cast<qint64>(get_update_interval().count());
     return json;

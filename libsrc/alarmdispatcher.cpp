@@ -1,18 +1,13 @@
-/******************************************************************************
- * \filename
- * \brief
- *
- * \details
- *
- * \copyright (c) 2018 2018  Thomas Ruschival <thomas@ruschival.de>
- * \license {This file is licensed under GNU PUBLIC LICENSE Version 3 or later
- * 			 SPDX-License-Identifier: GPL-3.0-or-later}
- *
- *****************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
 
 #include <QDebug>
 #include <QLoggingCategory>
 #include <QMediaPlayer>
+#include <QVector>
 #include <chrono>
 #include <memory>
 
@@ -29,78 +24,81 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.AlarmDispatcher");
 
 /*****************************************************************************/
 
-AlarmDispatcher::AlarmDispatcher(
-    IAlarmStore& store, QObject* parent)
+AlarmDispatcher::AlarmDispatcher(IAlarmStore& store, QObject* parent)
     : QObject(parent)
     , cm(store)
-    , interval(std::chrono::seconds(30)) {
+    , upcoming_alarm(get_upcoming_alarm()) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    interval_timer.setInterval(duration_cast<milliseconds>(interval));
-    interval_timer.setSingleShot(false);
-    connect(&interval_timer, SIGNAL(timeout()), this, SLOT(check_alarms()));
-    interval_timer.start();
+    timer.setSingleShot(true);
+    connect(&timer, &QTimer::timeout, this, &AlarmDispatcher::trigger);
 }
 
 /*****************************************************************************/
 void AlarmDispatcher::check_alarms() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto now = wallclock->now();
-    auto dow = now.date().dayOfWeek();
-    for (const auto& alarm : cm.get_alarms()) {
-        /* skip if alarm is disabled */
-        if (!alarm->is_enabled()) {
-            continue;
-        }
-        /*
-         * skip if now is not near the alarm_time, i.e. less than interval
-         * delta is negative if alarm_time is in the past
-         */
-        auto delta = now.time().secsTo(alarm->get_time());
-        if (delta < 0 || delta > interval.count()) {
-            continue;
-        }
+    upcoming_alarm = get_upcoming_alarm();
 
-        /* Check if today is the day */
-        switch (alarm->get_period()) {
-        case Alarm::Once:
-            dispatch(alarm);
-            /* disable the next time*/
-            alarm->enable(false);
-            break;
-        case Alarm::Daily:
-            /* always trigger */
-            dispatch(alarm);
-            break;
-        case Alarm::Weekend:
-            if (dow > Qt::Friday) {
-                dispatch(alarm);
-            }
-            break;
-        case Alarm::Workdays:
-            if (dow < Qt::Saturday) {
-                dispatch(alarm);
-            }
-        }
+    // No alarms or all alarms are disabled
+    if (!upcoming_alarm || !upcoming_alarm->is_enabled()) {
+        timer.stop();
+        emit upcoming_alarm_info_changed("");
+        return;
     }
+
+    // emit string
+    auto alm_dt = get_next_instance(*upcoming_alarm);
+    emit upcoming_alarm_info_changed(alm_dt.toString("ddd hh:mm"));
+
+    auto delta = alm_dt.toMSecsSinceEpoch() - now.toMSecsSinceEpoch();
+    timer.start(delta);
 }
 
 /*****************************************************************************/
-void AlarmDispatcher::dispatch(std::shared_ptr<Alarm> alarm) {
+void AlarmDispatcher::trigger() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    if (upcoming_alarm && upcoming_alarm->is_enabled()) {
+        dispatch(upcoming_alarm);
+    }
+
+    /* Check for next upcoming alarm */
+    check_alarms();
+}
+
+/*****************************************************************************/
+void AlarmDispatcher::dispatch(const std::shared_ptr<Alarm>& alarm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << alarm->get_id();
-    emit alarm_triggered(alarm);
-    emit alarm_triggered();
+    emit alarm_triggered(alarm.get());
+}
+/*****************************************************************************/
+std::chrono::milliseconds AlarmDispatcher::get_remaining_time() const {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto r = timer.remainingTimeAsDuration();
+    return r;
 }
 
 /*****************************************************************************/
-void AlarmDispatcher::set_interval(std::chrono::seconds iv) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    interval = iv;
-    interval_timer.setInterval(
-        std::chrono::duration_cast<std::chrono::milliseconds>(iv));
+std::shared_ptr<Alarm> AlarmDispatcher::get_upcoming_alarm() {
+    // Sort a copy of the alarms not to mess up Alarm list in QML
+    auto v = std::vector(cm.get_alarms());
+    if (v.empty()) {
+        return nullptr;
+    }
+
+    std::sort(v.begin(), v.end(),
+        [](const std::shared_ptr<Alarm>& lhs,
+            const std::shared_ptr<Alarm>& rhs) { return *lhs < *rhs; });
+    return v[0];
 }
 
 /*****************************************************************************/
-std::chrono::seconds AlarmDispatcher::get_interval() {
+QString AlarmDispatcher::get_upcoming_alarm_info() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return interval;
+    QString ret;
+
+    if (upcoming_alarm && upcoming_alarm->is_enabled()) {
+        auto alm_dt = get_next_instance(*upcoming_alarm);
+        ret = alm_dt.toString("ddd hh:mm");
+    }
+    return ret;
 }
