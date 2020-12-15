@@ -14,13 +14,13 @@ using namespace std;
 
 /*****************************************************************************/
 TEST(NetworkInfo, AddrNoSuchItf) {
-    NetworkInfo dut("enp0s31f6");
-    ASSERT_EQ(dut.get_ip_addr(), QString("None"));
+    NetworkInfo dut("enp0s31f4");
+    ASSERT_EQ(dut.get_ip_addr(), QString());
 }
 
 /*****************************************************************************/
 TEST(NetworkInfo, LinkNoSuchItf) {
-    NetworkInfo dut("enp0s31f6");
+    NetworkInfo dut("enp0s31f3");
     ASSERT_FALSE(dut.get_link_status());
 }
 
