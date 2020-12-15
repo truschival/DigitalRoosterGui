@@ -106,6 +106,13 @@ public:
     QString get_cache_file_name() const;
 
     /**
+     * Creates a unique file name based on image_url
+     * @param image_url url of icon
+     * @return uuid_md5(filename(url)).png
+     */
+    QString create_image_file_name(const QUrl& image_url) const;
+
+    /**
      * find the episode by its id (note: publisher assinged id)
      * @param id episode id (can be UUID or URL format)
      * @return the episode or nullptr

@@ -33,7 +33,8 @@ public:
         , ps(QUrl("https://alternativlos.org/alternativlos.rss"), uid)
         , image_url("https://raw.githubusercontent.com/truschival/"
                     "DigitalRoosterGui/develop/test/old_icon.png")
-        , cache_file((cache_dir.filePath(image_url.fileName()))) {
+        , cache_file(
+              cache_dir.filePath(uid.toString(QUuid::WithoutBraces) + ".png")) {
     }
 
     ~PodcastSourceFixture() {
@@ -54,7 +55,6 @@ protected:
     QUrl image_url;
     QFile cache_file;
 };
-
 
 /******************************************************************************/
 TEST_F(PodcastSourceFixture, dont_add_twice) {
@@ -176,8 +176,7 @@ TEST_F(PodcastSourceFixture, returnLocalIconIfStored) {
     ps.set_image_url(image_url);
     ps.set_image_file_path(cache_file.fileName());
 
-    ASSERT_EQ(
-        ps.get_icon(), QUrl::fromLocalFile(cache_file.fileName()));
+    ASSERT_EQ(ps.get_icon(), QUrl::fromLocalFile(cache_file.fileName()));
 }
 
 /******************************************************************************/
@@ -189,42 +188,48 @@ TEST_F(PodcastSourceFixture, setIconUrlTriggersDownload) {
     // First time return image_url - data not yet cached
     ASSERT_EQ(ps.get_icon(), image_url);
     spy.wait(); // after download icon_changed() is emitted
-    ASSERT_EQ(spy.count(), 2);
-    // Second time the local cache should be returned
-    auto expeced_local_url = QUrl::fromLocalFile(cache_file.fileName());
-    ASSERT_EQ(ps.get_icon(), expeced_local_url);
 
-    ASSERT_TRUE(cache_file.exists());
-    ASSERT_TRUE(cache_file.remove());
+    auto expected_icon_url = QUrl::fromLocalFile(
+        cache_dir.filePath(ps.create_image_file_name(image_url)));
+    // Second time the local cache should be returned
+    ASSERT_EQ(ps.get_icon(), expected_icon_url);
+    QFile iconcache(cache_dir.filePath(ps.create_image_file_name(image_url)));
+
+    ASSERT_TRUE(iconcache.exists());
+    ASSERT_TRUE(iconcache.remove());
 }
 
 /******************************************************************************/
-TEST_F(PodcastSourceFixture, updateIconUrlTriggersDownload) {
-    auto image_url_new = QUrl("https://raw.githubusercontent.com/truschival/"
-                              "DigitalRoosterGui/develop/test/new_icon.png");
-    auto file_name_new = image_url_new.fileName();
-
+TEST_F(PodcastSourceFixture, updateWithNewIconTriggersDownload) {
     QSignalSpy spy(&ps, SIGNAL(icon_changed()));
     ps.set_serializer(std::make_unique<PodcastSerializer>(cache_dir, &ps));
     ps.set_image_url(image_url); // emits but we don't care
     spy.wait(10);
     spy.wait(); // after download icon_changed() is emitted
+    QFile iconcache(cache_dir.filePath(ps.create_image_file_name(image_url)));
+    ASSERT_TRUE(iconcache.exists());
 
-    ps.set_image_url(image_url_new); // emits
-    spy.wait(10);                    // set_image_url(image_url_new)
-    spy.wait(); // set_image_file_path() with new cache file
-    ASSERT_EQ(spy.count(), 4);
+    auto image_url_new = QUrl("https://raw.githubusercontent.com/truschival/"
+                              "DigitalRoosterGui/develop/test/new_icon.png");
+    ps.set_image_url(image_url_new);
+    spy.wait(10);
+    spy.wait();
+    auto expected_icon_url = QUrl::fromLocalFile(
+        cache_dir.filePath(ps.create_image_file_name(image_url_new)));
+
     // Second time the local cache should be returned
-    auto expected_local_url =
-        QUrl::fromLocalFile(cache_dir.filePath(file_name_new));
-    ASSERT_EQ(ps.get_icon(), expected_local_url);
-    ASSERT_FALSE(cache_file.exists()); // Should have been deleted when updated
-
-    QFile cache_file_new(cache_dir.filePath(file_name_new));
-    ASSERT_TRUE(cache_file_new.exists());
-    ASSERT_TRUE(cache_file_new.remove());
+    ASSERT_EQ(ps.get_icon(), expected_icon_url);
+    QFile iconcache_new(cache_dir.filePath(ps.create_image_file_name(image_url_new)));
+    ASSERT_TRUE(iconcache_new.exists());
 }
 
+/******************************************************************************/
+TEST_F(PodcastSourceFixture, cacheFileName) {
+    auto hash_old_icon = QString("6e7f6f4a4b0414455d81dfb68e4e9dac");
+    auto expected = QString(ps.get_id_string() + "_" + hash_old_icon + ".png")
+                        .toStdString();
+    ASSERT_EQ(ps.create_image_file_name(image_url).toStdString(), expected);
+}
 
 /******************************************************************************/
 TEST_F(PodcastSourceFixture, purgeIconCache) {
@@ -319,4 +324,3 @@ TEST(PodcastSource, fromBadJsonInvalidUrl) {
     EXPECT_THROW(
         PodcastSource::from_json_object(jdoc.object()), std::invalid_argument);
 }
-

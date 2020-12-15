@@ -106,15 +106,21 @@ void PodcastSerializer::store_image(QByteArray data) {
 /*****************************************************************************/
 void PodcastSerializer::store_image_impl(QByteArray& data) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto image_file_path = cache_dir.filePath(ps->get_image_url().fileName());
     /* Resize image and save file */
     auto image_data = QImage::fromData(data);
     auto small_image = image_data.scaled(DEFAULT_ICON_WIDTH, DEFAULT_ICON_WIDTH,
         Qt::KeepAspectRatio, Qt::SmoothTransformation);
-    qCDebug(CLASS_LC) << "image_file_path:" << image_file_path;
+
+    /* Do not rely on file format info or name from URL, save it as PNG */
+    auto image_cache_file_name =
+        ps->create_image_file_name(ps->get_image_url());
+
+    auto image_file_path = cache_dir.filePath(image_cache_file_name);
     if (small_image.save(image_file_path)) {
+        // Store image path if successful
         ps->set_image_file_path(image_file_path);
     } else {
+        ps->set_image_file_path("");
         qCCritical(CLASS_LC) << "save image failed" << image_file_path;
     }
 }

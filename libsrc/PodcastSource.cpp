@@ -4,6 +4,7 @@
  * Licensed under GNU PUBLIC LICENSE Version 3 or later
  */
 
+#include <QCryptographicHash>
 #include <QDateTime>
 #include <QLoggingCategory>
 #include <QMediaPlayer>
@@ -241,6 +242,15 @@ int DigitalRooster::PodcastSource::get_episode_count_impl() const {
 }
 
 /*****************************************************************************/
+QString PodcastSource::create_image_file_name(const QUrl& image_url) const {
+    auto filename_hash = QCryptographicHash::hash(
+        image_url.fileName().toUtf8(), QCryptographicHash::Md5)
+                             .toHex();
+    auto image_cache_file_name =
+        this->get_id_string() + "_" + filename_hash + ".png";
+    return image_cache_file_name;
+}
+/*****************************************************************************/
 void PodcastSource::set_image_url(const QUrl& uri) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (uri != icon_url) {
@@ -250,7 +260,7 @@ void PodcastSource::set_image_url(const QUrl& uri) {
     }
     /* if we don't have a local copy or the file name changed  - download it*/
     if (!QFile(image_file_path).exists() ||
-        QUrl::fromLocalFile(image_file_path).fileName() != uri.fileName()) {
+        QUrl::fromLocalFile(image_file_path).fileName() != create_image_file_name(uri)){
         trigger_image_download();
     }
 }
