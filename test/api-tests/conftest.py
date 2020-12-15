@@ -87,10 +87,10 @@ def api_client():
     conf.host="http://localhost:6666/api/1.0"
     digitalrooster_json = '/tmp/api-tests.json'
     create_config(digitalrooster_json)
-    os.system("/usr/bin/killall -SIGTERM restserver")
+    os.system("/usr/bin/killall -SIGKILL restserver")
     time.sleep(0.2)
     restserver = subprocess.Popen(args=['restserver', '-c' , digitalrooster_json])
-    time.sleep(0.2);
+    time.sleep(0.3);
     with digitalrooster.ApiClient(conf) as client:
         yield  client
         # tear down code
