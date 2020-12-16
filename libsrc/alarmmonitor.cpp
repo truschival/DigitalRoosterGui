@@ -6,7 +6,6 @@
 
 
 #include <QLoggingCategory>
-#include <QMediaPlayer>
 
 #include "alarm.hpp"
 #include "alarmmonitor.hpp"
@@ -82,7 +81,7 @@ void AlarmMonitor::set_state(MonitorState next_state) {
 }
 
 /*****************************************************************************/
-void AlarmMonitor::alarm_triggered(const DigitalRooster::Alarm*  alarm) {
+void AlarmMonitor::alarm_triggered(const DigitalRooster::Alarm* alarm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     set_state(ExpectingAlarm);
     mpp.set_media(alarm->get_media());

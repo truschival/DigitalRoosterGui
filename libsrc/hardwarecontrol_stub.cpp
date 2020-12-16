@@ -15,7 +15,7 @@ using namespace Hal;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.HardwareControl");
 
 // need for definition in cpp file
-Hal::IHardware::~IHardware()= default;
+Hal::IHardware::~IHardware() = default;
 
 /*****************************************************************************/
 HardwareControlStub::~HardwareControlStub() {
@@ -48,6 +48,6 @@ AlsValue HardwareControlStub::read_als_sensor() {
 
 /*****************************************************************************/
 void HardwareControlStub::set_backlight(int brightness) {
-	 qCInfo(CLASS_LC) << Q_FUNC_INFO;
+    qCInfo(CLASS_LC) << Q_FUNC_INFO;
 }
 /*****************************************************************************/

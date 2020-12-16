@@ -10,14 +10,12 @@
 #endif
 
 #include <QCommandLineParser>
-#include <QDebug>
 #include <QFontDatabase>
 #include <QGuiApplication>
 #include <QLoggingCategory>
 #include <QQmlApplicationEngine>
 #include <QtQuick>
 // STD C++
-#include <iostream>
 #include <memory>
 
 // hardware interface
@@ -181,8 +179,8 @@ int main(int argc, char* argv[]) {
         &Hal::IHardware::system_poweroff);
 
     /* AlarmDispatcher activates system */
-    QObject::connect(
-        &alarmdispatcher, SIGNAL(alarm_triggered()), &power, SLOT(activate()));
+    QObject::connect(&alarmdispatcher, &AlarmDispatcher::alarm_triggered,
+        &power, &PowerControl::activate);
 
     /* Sleeptimer sends system to standby */
     QObject::connect(&sleeptimer, &SleepTimer::sleep_timer_elapsed, &power,
@@ -191,10 +189,8 @@ int main(int argc, char* argv[]) {
     QObject::connect(&playerproxy, &MediaPlayer::playback_state_changed,
         &sleeptimer, &SleepTimer::playback_state_changed);
     /* Sleeptimer also monitors alarms */
-    QObject::connect(&alarmdispatcher,
-        SIGNAL(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)),
-        &sleeptimer,
-        SLOT(alarm_triggered(std::shared_ptr<DigitalRooster::Alarm>)));
+    QObject::connect(&alarmdispatcher, &AlarmDispatcher::alarm_triggered,
+        &sleeptimer, &SleepTimer::alarm_triggered);
 
     /* Rotary encoder push button interface */
     VolumeButton volbtn;

@@ -4,12 +4,10 @@
  * Licensed under GNU PUBLIC LICENSE Version 3 or later
  */
 
-#include <QDebug>
 #include <QLoggingCategory>
 #include <QMediaPlayer>
 #include <QTimerEvent>
 #include <chrono>
-#include <memory>
 
 #include "alarm.hpp"
 #include "sleeptimer.hpp"
@@ -63,7 +61,7 @@ void SleepTimer::reset_timer() {
 }
 
 /*****************************************************************************/
-void SleepTimer::alarm_triggered(const DigitalRooster::Alarm*  alarm) {
+void SleepTimer::alarm_triggered(const DigitalRooster::Alarm* alarm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     activity = SleepTimer::Alarm;
     sleep_timer.setInterval(alarm->get_timeout());

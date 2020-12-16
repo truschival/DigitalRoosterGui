@@ -10,9 +10,8 @@
 #include <QUrl>
 #include <QVariant>
 
-#include <memory>
-
 #include <gtest/gtest.h>
+#include <memory>
 
 #include "PlayableItem.hpp"
 #include "appconstants.hpp"

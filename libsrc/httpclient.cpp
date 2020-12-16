@@ -4,9 +4,7 @@
  * Licensed under GNU PUBLIC LICENSE Version 3 or later
  */
 
-#include <QDebug>
 #include <QLoggingCategory>
-
 #include <vector>
 
 #include "appconstants.hpp"

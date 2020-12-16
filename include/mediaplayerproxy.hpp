@@ -48,13 +48,13 @@ public:
 
 private:
     virtual bool is_seekable() const override;
-    virtual bool is_muted() const;
+    virtual bool is_muted() const override;
     virtual int do_get_volume() const override;
     virtual qint64 do_get_duration() const override;
     virtual qint64 do_get_position() const override;
     virtual QMediaPlayer::MediaStatus do_media_status() const override;
     virtual QMediaPlayer::State do_playback_state() const override;
-    virtual QMediaPlayer::Error do_error() const;
+    virtual QMediaPlayer::Error do_error() const override;
     virtual void do_set_media(
         std::shared_ptr<DigitalRooster::PlayableItem> media) override;
     virtual void do_set_playlist(QMediaPlaylist* playlist) override;

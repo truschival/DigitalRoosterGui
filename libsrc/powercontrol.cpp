@@ -4,7 +4,6 @@
  * Licensed under GNU PUBLIC LICENSE Version 3 or later
  */
 
-#include <QAudio>
 #include <QLoggingCategory>
 
 #include "powercontrol.hpp"

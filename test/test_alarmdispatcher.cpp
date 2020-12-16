@@ -4,13 +4,11 @@
  * Licensed under GNU PUBLIC LICENSE Version 3 or later
  */
 
-#include <QDebug>
 #include <QSignalSpy>
 #include <QUrl>
 
 #include <chrono>
 #include <memory>
-#include <thread>
 #include <vector>
 
 #include <gmock/gmock.h>

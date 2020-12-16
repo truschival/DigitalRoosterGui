@@ -4,10 +4,8 @@
  * Licensed under GNU PUBLIC LICENSE Version 3 or later
  */
 
-#include <QDebug>
 #include <QLoggingCategory>
-#include <QUrl>
-#include <QUuid>
+#include <stdexcept>
 
 #include "PlayableItem.hpp"
 #include "appconstants.hpp"
@@ -23,8 +21,7 @@ PlayableItem::PlayableItem(const QUuid& uid)
 
 /***********************************************************************/
 
-PlayableItem::PlayableItem(
-    QString name, QUrl url, const QUuid& uid)
+PlayableItem::PlayableItem(QString name, QUrl url, const QUuid& uid)
     : id(uid)
     , display_name(std::move(name))
     , media_url(std::move(url)){};

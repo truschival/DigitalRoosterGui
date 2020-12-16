@@ -8,10 +8,10 @@
 #include <QCommandLineParser>
 #include <QCoreApplication>
 #include <QLoggingCategory>
+#include <QString>
 #include <QUrl>
 #include <QUuid>
-
-#include <QString>
+#include <stdexcept>
 
 #include "appconstants.hpp"
 #include "logger.hpp"

@@ -4,20 +4,16 @@
  * Licensed under GNU PUBLIC LICENSE Version 3 or later
  */
 
-#include <QAudio>
 #include <QLoggingCategory>
-#include <QTimerEvent>
 
 #include <algorithm>
-#include <chrono>
 #include <cmath>
-#include <memory>
 #include <numeric>
 
-#include "util.hpp"
 #include "IBrightnessStore.hpp"
 #include "IHardware.hpp"
 #include "brightnesscontrol.hpp"
+#include "util.hpp"
 
 using namespace DigitalRooster;
 

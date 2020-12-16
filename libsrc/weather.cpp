@@ -4,15 +4,13 @@
  * Licensed under GNU PUBLIC LICENSE Version 3 or later
  */
 
-#include <QDebug>
 #include <QJsonObject>
 #include <QLoggingCategory>
 #include <QString>
-#include <appconstants.hpp>
-#include <memory>
 #include <stdexcept> // std::system_error
 
 #include "IWeatherConfigStore.hpp"
+#include "appconstants.hpp"
 #include "weather.hpp"
 
 using namespace DigitalRooster;
@@ -174,8 +172,8 @@ QUrl DigitalRooster::create_forecast_url(const WeatherConfig& cfg) {
 }
 
 /*****************************************************************************/
-WeatherConfig::WeatherConfig(QString token, QString location,
-    std::chrono::seconds interval)
+WeatherConfig::WeatherConfig(
+    QString token, QString location, std::chrono::seconds interval)
     : api_token(std::move(token))
     , location_id(std::move(location))
     , update_interval(interval) {

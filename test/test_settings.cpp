@@ -11,15 +11,10 @@
 
 #include "gtest/gtest.h"
 
-#include <cstdio>
-#include <fstream>
-#include <string>
-
 #include "PlayableItem.hpp"
 #include "PodcastSource.hpp"
 #include "alarm.hpp"
 #include "appconstants.hpp"
-#include "config.h"
 #include "configuration_manager.hpp"
 
 using namespace DigitalRooster;

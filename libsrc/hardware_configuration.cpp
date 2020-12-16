@@ -4,8 +4,6 @@
  * Licensed under GNU PUBLIC LICENSE Version 3 or later
  */
 
-#include <QDir>
-#include <QFileInfo>
 #include <QLoggingCategory>
 #include <QProcessEnvironment>
 

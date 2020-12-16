@@ -13,7 +13,6 @@
 #ifndef _UPDATETASK_HPP_
 #define _UPDATETASK_HPP_
 
-#include <httpclient.hpp>
 #include <memory>
 #include <chrono>
 
@@ -21,6 +20,7 @@
 #include <QString>
 #include <QTimer>
 
+#include "httpclient.hpp"
 
 namespace DigitalRooster {
 class PodcastSource;

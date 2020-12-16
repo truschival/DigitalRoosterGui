@@ -8,7 +8,6 @@
 #include <QDebug>
 #include <QObject>
 
-#include <chrono>
 #include <signal.h>
 
 #include "RestApi.hpp"

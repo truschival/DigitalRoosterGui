@@ -4,17 +4,13 @@
  * Licensed under GNU PUBLIC LICENSE Version 3 or later
  */
 
-#include <QDebug>
 #include <QLoggingCategory>
-#include <QMediaPlayer>
-#include <QVector>
 #include <chrono>
 #include <memory>
 
 #include "IAlarmStore.hpp"
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
-#include "mediaplayerproxy.hpp"
 #include "timeprovider.hpp"
 
 using namespace DigitalRooster;

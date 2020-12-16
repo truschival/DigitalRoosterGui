@@ -4,14 +4,13 @@
  * Licensed under GNU PUBLIC LICENSE Version 3 or later
  */
 
-#include "mediaplayerproxy.hpp"
-#include "PlayableItem.hpp"
-#include <QAudio>
-#include <QDebug>
 #include <QLoggingCategory>
+#include <QMediaMetaData>
 #include <QMediaPlayer>
 
-#include <QMediaMetaData>
+#include "PlayableItem.hpp"
+#include "mediaplayerproxy.hpp"
+
 using namespace DigitalRooster;
 
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.MediaPlayerProxy");
@@ -123,7 +122,7 @@ void MediaPlayerProxy::do_seek(qint64 incr) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (seekable()) {
         set_position(get_position() + incr);
-	}
+    }
 };
 
 /*****************************************************************************/

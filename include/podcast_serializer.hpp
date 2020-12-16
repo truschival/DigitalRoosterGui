@@ -15,7 +15,6 @@
 #define _PODCASTSERIALIZER_HPP_
 
 #include <QDir>
-#include <QFile>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QObject>

@@ -6,7 +6,6 @@
 
 #include <QLoggingCategory>
 
-#include "configuration_manager.hpp"
 #include "volume_button.hpp"
 
 using namespace DigitalRooster;
