@@ -8,6 +8,7 @@
 #include <QLoggingCategory>
 #include <QUrl>
 #include <QUuid>
+#include <stdexcept>
 
 #include "PlayableItem.hpp"
 #include "appconstants.hpp"

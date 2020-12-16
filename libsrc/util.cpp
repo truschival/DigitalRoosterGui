@@ -10,7 +10,7 @@
 #include <QLoggingCategory>
 #include <QUrl>
 #include <QUuid>
-
+#include <stdexcept>
 #include <QString>
 
 #include "appconstants.hpp"

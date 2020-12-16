@@ -6,6 +6,7 @@
 
 #include <QLoggingCategory>
 #include <QUrl>
+#include <stdexcept>
 
 #include "PlayableItem.hpp"
 #include "alarm.hpp"

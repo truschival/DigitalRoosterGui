@@ -9,6 +9,7 @@
 #include <QLoggingCategory>
 #include <QQmlEngine>
 
+#include <stdexcept>
 #include "alarm.hpp"
 #include "alarmlistmodel.hpp"
 
@@ -126,7 +127,7 @@ int AlarmListModel::delete_alarm(qint64 row) {
         if (alarm) {
             cm.delete_alarm(alarm->get_id());
         }
-    } catch (std::out_of_range& exc) {
+    } catch (std::out_of_range&) {
         qCWarning(CLASS_LC) << Q_FUNC_INFO << " Alarm not found! ";
     }
     endRemoveRows();
@@ -145,6 +146,7 @@ DigitalRooster::Alarm* AlarmListModel::create_alarm() {
     new_alarm->set_time(QTime::fromString("06:30", "hh:mm"));
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     QQmlEngine::setObjectOwnership(new_alarm.get(), QQmlEngine::CppOwnership);
+    /* new_alarm is not only on the stack. Ownership shared with IAlarmStore*/
     cm.add_alarm(new_alarm);
     endInsertRows();
     return new_alarm.get();

@@ -44,7 +44,7 @@ void PodcastSerializer::restore_info() {
         auto cache_file = cache_dir.filePath(ps->get_id_string());
         try {
             read_from_file(ps, cache_file);
-        } catch (std::system_error& exc) {
+        } catch (std::system_error& ) {
             qCWarning(CLASS_LC) << "Cache file not found" << cache_file;
         } catch (PodcastSourceJSonCorrupted& jsexc) {
             qCWarning(CLASS_LC) << "corrupted JSON in file" << cache_file
@@ -215,7 +215,7 @@ void DigitalRooster::parse_podcast_source_from_json(
     }
     if (ps->get_last_updated().isValid() &&
         ps->get_last_updated() > timestamp) {
-        qCDebug(CLASS_LC) << "podcast source is newer than stored information";
+        qCDebug(CLASS_LC) << "PodcastSource newer than cache";
     } else {
         // need to update podcast source data
         auto title = tl_obj[JSON_KEY_TITLE].toString();
