@@ -7,8 +7,7 @@
 #include <QFile>
 #include <QImage>
 #include <QLoggingCategory>
-#include <QUuid>
-#include <exception>
+#include <stdexcept>
 
 #include "PodcastSource.hpp"
 #include "appconstants.hpp"
@@ -44,7 +43,7 @@ void PodcastSerializer::restore_info() {
         auto cache_file = cache_dir.filePath(ps->get_id_string());
         try {
             read_from_file(ps, cache_file);
-        } catch (std::system_error& ) {
+        } catch (std::system_error&) {
             qCWarning(CLASS_LC) << "Cache file not found" << cache_file;
         } catch (PodcastSourceJSonCorrupted& jsexc) {
             qCWarning(CLASS_LC) << "corrupted JSON in file" << cache_file

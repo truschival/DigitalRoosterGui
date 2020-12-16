@@ -5,10 +5,7 @@
  */
 
 #include <QCryptographicHash>
-#include <QDateTime>
 #include <QLoggingCategory>
-#include <QMediaPlayer>
-#include <QStandardPaths>
 
 #include <algorithm>
 #include <memory>
@@ -260,7 +257,8 @@ void PodcastSource::set_image_url(const QUrl& uri) {
     }
     /* if we don't have a local copy or the file name changed  - download it*/
     if (!QFile(image_file_path).exists() ||
-        QUrl::fromLocalFile(image_file_path).fileName() != create_image_file_name(uri)){
+        QUrl::fromLocalFile(image_file_path).fileName() !=
+            create_image_file_name(uri)) {
         trigger_image_download();
     }
 }

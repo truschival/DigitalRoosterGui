@@ -5,13 +5,10 @@
  */
 
 #include <QLoggingCategory>
-#include <cstdio>
-#include <httpclient.hpp>
-#include <rss2podcastsource.hpp>
-#include <stdexcept>
 
 #include "PodcastSource.hpp"
 #include "UpdateTask.hpp"
+#include "rss2podcastsource.hpp"
 
 using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.UpdateTask");

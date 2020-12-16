@@ -7,7 +7,6 @@
 #include <chrono>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <iostream>
 #include <memory>
 #include <stdexcept> // std::system_error
 

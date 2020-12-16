@@ -6,7 +6,6 @@
 
 
 #include <QDateTime>
-#include <QDebug>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QSignalSpy>

@@ -11,7 +11,6 @@
 #include <QTime>
 
 #include <chrono>
-#include <iostream>
 #include <stdexcept>
 
 #include "PlayableItem.hpp"

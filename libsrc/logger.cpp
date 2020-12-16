@@ -8,9 +8,9 @@
 #include <stdexcept>
 #include <system_error>
 
-#include <QFile>
 #include <QDateTime>
 #include <QDebug>
+#include <QFile>
 #include <QLoggingCategory>
 
 #include "logger.hpp"
@@ -59,9 +59,9 @@ void setup_logger_file(const QString& filename) {
     qDebug() << Q_FUNC_INFO;
     qDebug() << "Logging to " << filename;
     logfile = std::make_shared<QFile>(filename);
-    if(! logfile->open(QIODevice::WriteOnly | QIODevice::Append| QIODevice::Text)){
-        throw std::system_error(
-            make_error_code(std::errc::bad_file_descriptor),
+    if (!logfile->open(
+            QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
+        throw std::system_error(make_error_code(std::errc::bad_file_descriptor),
             logfile->errorString().toStdString());
     };
     qInstallMessageHandler(messageHandler);
@@ -79,4 +79,4 @@ void setup_logger_stdout() {
 /*****************************************************************************/
 
 
-} // namespace
+} // namespace DigitalRooster

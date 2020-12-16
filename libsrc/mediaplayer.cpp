@@ -6,8 +6,8 @@
 
 #include <QLoggingCategory>
 
-#include "util.hpp"
 #include "mediaplayer.hpp"
+#include "util.hpp"
 
 using namespace DigitalRooster;
 
@@ -33,12 +33,12 @@ void MediaPlayer::set_muted(bool muted) {
 
 /*****************************************************************************/
 void MediaPlayer::set_volume(int volume) {
-	qCDebug(CLASS_LC) << Q_FUNC_INFO << volume;
-    if (! value_in_0_100(volume)) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << volume;
+    if (!value_in_0_100(volume)) {
         qCWarning(CLASS_LC) << "invalid volume (must be 0..100%)";
         return;
     }
-  	return do_set_volume(volume);
+    return do_set_volume(volume);
 }
 
 /*****************************************************************************/

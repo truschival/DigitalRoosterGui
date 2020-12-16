@@ -10,14 +10,12 @@
 #endif
 
 #include <QCommandLineParser>
-#include <QDebug>
 #include <QFontDatabase>
 #include <QGuiApplication>
 #include <QLoggingCategory>
 #include <QQmlApplicationEngine>
 #include <QtQuick>
 // STD C++
-#include <iostream>
 #include <memory>
 
 // hardware interface

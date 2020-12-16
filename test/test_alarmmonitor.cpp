@@ -19,7 +19,6 @@
 
 #include "alarm.hpp"
 #include "alarmmonitor.hpp"
-#include "cm_mock.hpp"
 #include "player_mock.hpp"
 
 using namespace DigitalRooster;
