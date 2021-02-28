@@ -171,6 +171,9 @@ int main(int argc, char* argv[]) {
     /* Powercontrol standby stops player */
     QObject::connect(&power, &PowerControl::going_in_standby, &playerproxy,
         &MediaPlayer::stop);
+    /* Powercontrol stop any running alarm monitor timers */
+    QObject::connect(&power, &PowerControl::going_in_standby, &alarmmonitor,
+            &AlarmMonitor::stop);
     /* Wire shutdown and reboot requests to hardware */
     QObject::connect(&power, &PowerControl::reboot_request, &hwctrl,
         &Hal::IHardware::system_reboot);

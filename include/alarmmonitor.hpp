@@ -36,8 +36,7 @@ public:
      */
     enum MonitorState {
         Idle,           //!< idle, no alarm playing
-        ExpectingAlarm, //!< alarm should be playing soon
-        AlarmActive,    //!< alarm is playing
+        Armed, 			//!< alarm should be playing soon
         FallBackMode    //!< alarm failed to start, playing fall back
     };
     Q_ENUM(MonitorState)
@@ -68,12 +67,10 @@ public slots:
      */
     void alarm_triggered(const DigitalRooster::Alarm* alarm);
 
-signals:
     /**
-     * internal state has changed
-     * @param current state \ref AlarmMonitor::state
+     * Do not trigger fallback behavior even if error occurs.
      */
-    void state_changed(AlarmMonitor::MonitorState current);
+    void stop();
 
 private:
     /**
