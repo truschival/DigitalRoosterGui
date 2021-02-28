@@ -22,32 +22,29 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.AlarmDispatcher");
 
 AlarmDispatcher::AlarmDispatcher(IAlarmStore& store, QObject* parent)
     : QObject(parent)
-    , cm(store)
-    , upcoming_alarm(get_upcoming_alarm()) {
+    , cm(store) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     timer.setSingleShot(true);
     connect(&timer, &QTimer::timeout, this, &AlarmDispatcher::trigger);
+    /* make sure alarms are updated and timer started */
+    check_alarms();
 }
 
 /*****************************************************************************/
 void AlarmDispatcher::check_alarms() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto now = wallclock->now();
     upcoming_alarm = get_upcoming_alarm();
-
     // No alarms or all alarms are disabled
     if (!upcoming_alarm || !upcoming_alarm->is_enabled()) {
-        timer.stop();
         emit upcoming_alarm_info_changed("");
-        return;
+        timer.stop();
+    } else {
+        auto alm_dt = get_next_instance(*upcoming_alarm);
+        emit upcoming_alarm_info_changed(alm_dt.toString("ddd hh:mm"));
+        auto delta =
+            alm_dt.toMSecsSinceEpoch() - wallclock->now().toMSecsSinceEpoch();
+        timer.start(delta);
     }
-
-    // emit string
-    auto alm_dt = get_next_instance(*upcoming_alarm);
-    emit upcoming_alarm_info_changed(alm_dt.toString("ddd hh:mm"));
-
-    auto delta = alm_dt.toMSecsSinceEpoch() - now.toMSecsSinceEpoch();
-    timer.start(delta);
 }
 
 /*****************************************************************************/
@@ -56,7 +53,6 @@ void AlarmDispatcher::trigger() {
     if (upcoming_alarm && upcoming_alarm->is_enabled()) {
         dispatch(upcoming_alarm);
     }
-
     /* Check for next upcoming alarm */
     check_alarms();
 }

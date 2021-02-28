@@ -145,7 +145,6 @@ int main(int argc, char* argv[]) {
     AlarmDispatcher alarmdispatcher(cm);
     QObject::connect(&cm, &ConfigurationManager::alarms_changed,
         &alarmdispatcher, &AlarmDispatcher::check_alarms);
-
     AlarmMonitor alarmmonitor(playerproxy, std::chrono::seconds(20));
     QObject::connect(&alarmdispatcher, &AlarmDispatcher::alarm_triggered,
         &alarmmonitor, &AlarmMonitor::alarm_triggered);
