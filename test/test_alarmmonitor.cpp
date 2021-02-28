@@ -29,24 +29,26 @@ using ::testing::NiceMock;
 using namespace std::chrono_literals;
 
 /*****************************************************************************/
-TEST(AlarmMonitor, playsAlarmFuture) {
+TEST(AlarmMonitor, normalCase) {
     PlayerMock player;
     AlarmMonitor mon(player);
     ASSERT_EQ(mon.get_state(), AlarmMonitor::Idle);
 
     auto alm = std::make_shared<DigitalRooster::Alarm>(
-        QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
-        QTime::currentTime().addSecs(3), Alarm::Daily);
+        QUrl("https://raw.githubusercontent.com/truschival/"
+             "DigitalRoosterGui/develop/test/testaudio.mp3"),
+        QTime::currentTime().addSecs(1), Alarm::Daily);
 
     EXPECT_CALL(player, do_play()).Times(1);
     EXPECT_CALL(player, do_stop()).Times(1);
-
     EXPECT_CALL(player, do_set_volume(_)).Times(1);
     EXPECT_CALL(player, do_set_media(_)).Times(1);
 
     mon.alarm_triggered(alm.get());
-    ASSERT_EQ(mon.get_state(), AlarmMonitor::ExpectingAlarm);
+    ASSERT_EQ(mon.get_state(), AlarmMonitor::Armed);
     player.stop();
+    mon.stop();
+    ASSERT_EQ(mon.get_state(), AlarmMonitor::Idle);
 }
 
 /*****************************************************************************/
@@ -54,7 +56,8 @@ TEST(AlarmMonitor, triggersFallbackForError) {
     PlayerMock player;
     AlarmMonitor mon(player);
     auto alm = std::make_shared<DigitalRooster::Alarm>(
-        QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
+        QUrl("https://raw.githubusercontent.com/truschival/"
+             "DigitalRoosterGui/develop/test/testaudio.mp3"),
         QTime::currentTime().addSecs(1), Alarm::Daily);
 
     EXPECT_CALL(player, do_play()).Times(2);
@@ -65,34 +68,27 @@ TEST(AlarmMonitor, triggersFallbackForError) {
     EXPECT_CALL(player, do_set_volume(50)).Times(1);
     EXPECT_CALL(player, do_set_playlist(_)).Times(1);
 
-    QSignalSpy spy(&mon, SIGNAL(state_changed(AlarmMonitor::MonitorState)));
-    ASSERT_TRUE(spy.isValid());
-
     mon.alarm_triggered(alm.get());
     player.emitError(QMediaPlayer::NetworkError);
 
-    ASSERT_EQ(spy.count(), 2); // ExpectingAlarm, FallBackMode
     ASSERT_EQ(mon.get_state(), AlarmMonitor::FallBackMode);
-    std::this_thread::sleep_for(500ms);
 }
 /*****************************************************************************/
-TEST(AlarmMonitor, triggersFallbackForTimeout) {
+TEST(AlarmMonitor, idleAfterTimeout) {
     // Nice mock - we don't care about calls to player
     NiceMock<PlayerMock> player;
-    AlarmMonitor mon(player, 20ms);
+    AlarmMonitor mon(player, 800ms);
 
     auto alm = std::make_shared<DigitalRooster::Alarm>(
-        QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
+        QUrl("https://raw.githubusercontent.com/truschival/"
+             "DigitalRoosterGui/develop/test/testaudio.mp3"),
         QTime::currentTime().addSecs(1), Alarm::Daily);
 
-    QSignalSpy spy(&mon, SIGNAL(state_changed(AlarmMonitor::MonitorState)));
-    ASSERT_TRUE(spy.isValid());
-
     mon.alarm_triggered(alm.get());
-    spy.wait(50); // ExpectingAlarm
-    spy.wait(50); // FallbackMode
-    ASSERT_EQ(spy.count(), 2);
-    ASSERT_EQ(mon.get_state(), AlarmMonitor::FallBackMode);
+    QSignalSpy spy(&player, SIGNAL(error(QMediaPlayer::Error)));
+    ASSERT_TRUE(spy.isValid());
+    spy.wait(1000);
+    ASSERT_EQ(mon.get_state(), AlarmMonitor::Idle);
 }
 
 /*****************************************************************************/
@@ -101,20 +97,17 @@ TEST(AlarmMonitor, noFallBackIfStoppedNormally) {
     AlarmMonitor mon(player);
 
     auto alm = std::make_shared<DigitalRooster::Alarm>(
-        QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
+        QUrl("https://raw.githubusercontent.com/truschival/"
+             "DigitalRoosterGui/develop/test/testaudio.mp3"),
         QTime::currentTime().addSecs(1), Alarm::Daily);
 
     EXPECT_CALL(player, do_play()).Times(1);
     EXPECT_CALL(player, do_set_media(_)).Times(1);
     EXPECT_CALL(player, do_set_volume(DEFAULT_ALARM_VOLUME)).Times(1);
-    EXPECT_CALL(player, do_error())
-        .Times(AtLeast(1))
-        .WillRepeatedly(Return(QMediaPlayer::NoError));
 
     mon.alarm_triggered(alm.get());
-    ASSERT_EQ(mon.get_state(), AlarmMonitor::ExpectingAlarm);
+    ASSERT_EQ(mon.get_state(), AlarmMonitor::Armed);
     player.playback_state_changed(QMediaPlayer::PlayingState);
-    ASSERT_EQ(mon.get_state(), AlarmMonitor::AlarmActive);
-    player.playback_state_changed(QMediaPlayer::StoppedState);
+    mon.stop();
     ASSERT_EQ(mon.get_state(), AlarmMonitor::Idle);
 }

@@ -156,13 +156,10 @@ ApplicationWindow {
 
             delegate: IconButton {
                 text: model.title
-                highlighted: listView.currentIndex == index
-
                 onClicked: {
                     if( stackView.depth > 1){
                         stackView.pop(null)
                     }
-                    listView.currentIndex = index
                     drawer.close()
                     /* Special item: power off button */
                     if(index === listView.count -1 ){
