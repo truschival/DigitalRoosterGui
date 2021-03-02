@@ -5,20 +5,20 @@ import QtQuick.Controls 2.2
 import ruschi.PodcastEpisodeModel 1.0
 
 ListView {
-	width: parent.width
-	height: parent.height;
-   	
-   	rebound: listBoundTransition;
-	
-	property PodcastEpisodeModel episodemodel;
+    width: parent.width
+    height: parent.height;
 
-	delegate:PodcastEpisodeDelegate{
-		id: ped
-	}
+    rebound: listBoundTransition;
 
-	Connections {
-	   onFlickStarted : {
-	       viewResetTimer.restart();
-	   }
-	}
+    property PodcastEpisodeModel episodemodel;
+
+    delegate:PodcastEpisodeDelegate{
+        id: ped
+    }
+
+    Connections {
+        function onFlickStarted () {
+            viewResetTimer.restart();
+        }
+    }
 }

@@ -18,7 +18,7 @@ ListView {
     model: podcastmodel
 
     Connections {
-        onFlickStarted : {
+        function onFlickStarted() {
             viewResetTimer.restart();
         }
     }

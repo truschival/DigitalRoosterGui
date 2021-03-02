@@ -8,7 +8,6 @@ ListView {
     width: stackView.width
     height: stackView.height
     contentWidth: stackView.width
-
     rebound: listBoundTransition;
 
     delegate: IRadioDelegate{
@@ -18,7 +17,7 @@ ListView {
     model: iradiolistmodel
 
     Connections {
-        onFlickStarted : {
+        function onFlickStarted() {
             viewResetTimer.restart();
         }
     }
