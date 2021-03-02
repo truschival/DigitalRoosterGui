@@ -61,7 +61,7 @@ Popup {
 
             onClicked: {
                 interactiontimer.restart()
-                if (playerProxy.playbackState == MediaPlayer.PlayingState) {
+                if (playerProxy.playbackState === MediaPlayer.PlayingState) {
                     playerProxy.pause()
                 } else {
                     playerProxy.play()

@@ -27,12 +27,13 @@ Menu {
             font: Style.font.sliderValue
             text: volumeSlider.value
             Layout.alignment: Qt.AlignVCenter| Qt.AlignHCenter
-            Layout.columnSpan: 3
+            Layout.columnSpan: 3;
         }
         // Row 2
         IconLabel{
             // volume low
             text: "\uf57f";
+            color: "white";
         }
 
         Slider {
@@ -52,6 +53,7 @@ Menu {
         IconLabel{
             //volume high
             text: "\uf57e";
+            color: "white";
         }
 
     }

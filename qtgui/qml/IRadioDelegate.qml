@@ -11,8 +11,7 @@ Rectangle{
     height: Style.contentHeight/4;
     radius: 3;
     border.width: 1;
-    color: iradiolist.currentItem === this ?
-        Style.colors.selected : Style.colors.unselected ;
+    color: Material.background;
 
     Text {
         id: stationName
@@ -22,6 +21,8 @@ Rectangle{
         verticalAlignment: Text.AlignVCenter;
         anchors.fill: parent;
         anchors.margins: Style.itemMargins.medium;
+        color: iradiolist.currentItem === parent ?
+            Material.accent : "white" ;
     }
 
     MouseArea {
