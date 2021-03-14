@@ -22,6 +22,7 @@ ApplicationWindow {
     property string functionMode: "Clock"
     property int pressAndHoldInterval: 300;
     property int dialogTimeout: 8000; // Dialog shown for 8s w/o interaction
+    property bool widgetsEnabled: false; // widgets enabled?
 
     Clock{
         id: currentTime
@@ -53,6 +54,7 @@ ApplicationWindow {
             IconButton {
                 text: "\uf35c";
                 Layout.maximumWidth: 48;
+				enabled : widgetsEnabled;
                 onClicked: {
                     drawer.open()
                 }
@@ -74,7 +76,7 @@ ApplicationWindow {
                 id: countdown_to_sleep;
                 text: "<span style='font-family: materialdesignicons; font-size: 16pt;'>\uf4b2</span>
                        <span style='font-family: DejaVu Sans Condensed Bold, sans-serif; font-size: 16pt; font-weight: normal'>"+
-		    sleeptimer.time_remaining +" min</span>"
+					sleeptimer.time_remaining +" min</span>"
                 Layout.rightMargin: 1;
                 textFormat: Text.RichText
                 horizontalAlignment: Text.AlignRight
@@ -100,6 +102,7 @@ ApplicationWindow {
                 id : playerControlBtn
                 text: "\uf40a"
                 Layout.maximumWidth: 48;
+				visible: widgetsEnabled;
                 onClicked:{
                     playerControlWidget.show()
                 }
@@ -130,6 +133,7 @@ ApplicationWindow {
         closePolicy : Popup.CloseOnPressOutside;
         edge: Qt.LeftEdge;
         interactive: true;
+		enabled: widgetsEnabled;
 
         onOpened :{
             autocloseTimer.start()
@@ -137,7 +141,7 @@ ApplicationWindow {
 
         Timer {
             id: autocloseTimer
-            interval: 4000
+            interval: 5000
             running: true
             repeat: false
             onTriggered: drawer.close();
@@ -247,12 +251,20 @@ ApplicationWindow {
 
     }
 
+    /*
+     * Enable buttons etc. when in standby
+     */
+    function toggleControls(ena) {
+		console.log("toggleControls "+ ena);
+		widgetsEnabled = ena
+    }
+
     /* Global Transitions */
     Transition {
         id: listBoundTransition;
         /* NumberAnimation { */
         /*     properties: "x,y"; */
-        /*     duration: 800; */
+        /*     duration: 150; */
         /*     easing.type: Easing.InOutBack; */
         /* } */
     }
@@ -273,6 +285,7 @@ ApplicationWindow {
     Component.onCompleted: {
         console.log("main.qml completed")
         powerControl.going_in_standby.connect(stackView.reset)
-        volumeButton.volume_incremented.connect(volumePopUp.show)
+		powerControl.active.connect(toggleControls);
+		volumeButton.volume_incremented.connect(volumePopUp.show)
     }
 } // application window
