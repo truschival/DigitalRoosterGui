@@ -22,7 +22,7 @@ ApplicationWindow {
     property string functionMode: "Clock"
     property int pressAndHoldInterval: 300;
     property int dialogTimeout: 8000; // Dialog shown for 8s w/o interaction
-    property bool widgetsEnabled: false; // widgets enabled?
+    property bool widgetsEnabled: true; // widgets enabled?
 
     Clock{
         id: currentTime
