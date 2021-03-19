@@ -173,7 +173,7 @@ int main(int argc, char* argv[]) {
         &MediaPlayer::stop);
     /* Powercontrol stop any running alarm monitor timers */
     QObject::connect(&power, &PowerControl::going_in_standby, &alarmmonitor,
-            &AlarmMonitor::stop);
+        &AlarmMonitor::stop);
     /* Wire shutdown and reboot requests to hardware */
     QObject::connect(&power, &PowerControl::reboot_request, &hwctrl,
         &Hal::IHardware::system_reboot);
@@ -214,9 +214,11 @@ int main(int argc, char* argv[]) {
     QObject::connect(&playerproxy, &MediaPlayer::volume_changed, &cm,
         &ConfigurationManager::set_volume);
 
-
-    /* we start in standby */
-    power.standby();
+    /* Network / Wifi Settings */
+    NetworkInfo netinfo(cm.get_net_dev_name());
+    WifiControl* wifictrl = WifiControl::get_instance(&cm);
+    QObject::connect(wifictrl, &WifiControl::networks_found, &wifilistmodel,
+        &WifiListModel::update_scan_results);
 
 #ifdef REST_API
     RestApi rest(cm, cm, cm, cm, cm);
@@ -245,15 +247,6 @@ int main(int argc, char* argv[]) {
 
     QQmlApplicationEngine view;
     QQmlContext* ctxt = view.rootContext();
-
-    WifiControl* wifictrl = WifiControl::get_instance(&cm);
-    ctxt->setContextProperty("wifictrl", wifictrl);
-    ctxt->setContextProperty("wifilistmodel", &wifilistmodel);
-    QObject::connect(wifictrl, &WifiControl::networks_found, &wifilistmodel,
-        &WifiListModel::update_scan_results);
-
-    NetworkInfo netinfo(cm.get_net_dev_name());
-
     ctxt->setContextProperty("podcastmodel", &psmodel);
     ctxt->setContextProperty("playerProxy", &playerproxy);
     ctxt->setContextProperty("alarmlistmodel", &alarmlistmodel);
@@ -266,12 +259,19 @@ int main(int argc, char* argv[]) {
     ctxt->setContextProperty("volumeButton", &volbtn);
     ctxt->setContextProperty("sleeptimer", &sleeptimer);
     ctxt->setContextProperty("netinfo", &netinfo);
-
+    ctxt->setContextProperty("wifictrl", wifictrl);
+    ctxt->setContextProperty("wifilistmodel", &wifilistmodel);
     ctxt->setContextProperty(
         "DEFAULT_ICON_WIDTH", QVariant::fromValue(DEFAULT_ICON_WIDTH));
     ctxt->setContextProperty("FONT_SCALING", QVariant::fromValue(dpi));
 
     view.load(QUrl("qrc:/main.qml"));
+
+    /* Start in standby mode - defined in qtgui/CMakeLists.txt */
+#ifndef HARDWARE_STUB
+    qCInfo(MAIN) << " starting in Standby ";
+    power.standby();
+#endif
 
     return app.exec();
 }
