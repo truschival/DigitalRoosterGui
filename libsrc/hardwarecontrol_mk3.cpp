@@ -45,7 +45,7 @@ namespace Hal {
 /*****************************************************************************/
 static InputEvent read_event(int filedescriptor) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    InputEvent evt{0};
+    InputEvent evt{0,0,0};
     struct input_event evt_raw;
 
     auto s = ::read(filedescriptor, &evt_raw, sizeof(evt_raw));
@@ -227,8 +227,7 @@ void HardwareControlMk3::set_backlight(int brightness_in) {
     /* maximum brightness if PWM reg == 0, minimum at BRIGHTNESS_VAL_MAX */
     auto pwm_val =
         static_cast<int>(BRIGHTNESS_VAL_MAX - brightness * BRIGHTNESS_SLOPE);
-    qCDebug(CLASS_LC) << "brightness:" << brightness << "pwm val:" << pwm_val
-                      << Qt::endl;
+    qCDebug(CLASS_LC) << "brightness:" << brightness << "pwm val:" << pwm_val;
     try {
         backlight_pwm << pwm_val << std::endl;
     } catch (std::exception& exc) {
