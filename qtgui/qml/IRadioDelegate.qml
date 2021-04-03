@@ -6,7 +6,6 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.11
-import QtQuick.Controls.Material 2.4
 
 import ruschi.PlayableItem 1.0
 
@@ -16,7 +15,7 @@ Rectangle{
     height: Style.contentHeight/4;
     radius: 3;
     border.width: 1;
-    color: Material.background;
+    color: Style.colors.widgetBackground;
 
     Text {
         id: stationName
@@ -27,7 +26,7 @@ Rectangle{
         anchors.fill: parent;
         anchors.margins: Style.itemMargins.medium;
         color: iradiolist.currentItem === parent ?
-            Material.accent : "white" ;
+            Style.colors.selected : Style.colors.primaryText ;
     }
 
     MouseArea {

@@ -19,7 +19,9 @@ QtObject {
     property int contentHeight: canvasHeight-toolbarHeight;
 
     property QtObject colors: QtObject{
-        property color selected :   Material.primary; // "#2196F3";
+        property color primaryText : "white";
+        property color widgetBackground : Material.background;
+        property color selected :   Material.accent; // "#2196F3";
         property color unselected:  Material.color(Material.Grey) ;// "gainsboro";
         property color disabled: Material.color(Material.Grey);
         property color enabled: Material.primary; //"#2196F3";

@@ -6,14 +6,13 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.11
-import QtQuick.Controls.Material 2.4
 
 Rectangle{
     width: parent.width;
     height: Style.contentHeight/4;
     radius: 3;
     border.width: 1;
-    color: connected ? 	Style.colors.enabled : Style.colors.disabled;
+    color: connected ?  Style.colors.enabled : Style.colors.disabled;
 
     MouseArea {
         anchors.fill: parent

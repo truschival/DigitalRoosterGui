@@ -70,7 +70,7 @@ Rectangle{
 
             contentItem: Text{
                 text: "\ufa79"
-                color: "white"
+                color: Style.colors.primaryText;
                 font.pointSize: 24
                 horizontalAlignment: Text.AlignHCenter
                 font.family: "Material Design Icons"

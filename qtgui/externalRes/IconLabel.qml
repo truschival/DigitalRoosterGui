@@ -9,4 +9,5 @@ import QtQuick.Controls 2.2
 
 Text {
 	font: Style.font.button;
+	color: Style.colors.primaryText;
 }

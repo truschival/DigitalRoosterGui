@@ -60,7 +60,7 @@ ApplicationWindow {
             IconButton {
                 text: "\uf35c";
                 Layout.maximumWidth: 48;
-				enabled : widgetsEnabled;
+                enabled : widgetsEnabled;
                 onClicked: {
                     drawer.open()
                 }
@@ -82,11 +82,11 @@ ApplicationWindow {
                 id: countdown_to_sleep;
                 text: "<span style='font-family: materialdesignicons; font-size: 16pt;'>\uf4b2</span>
                        <span style='font-family: DejaVu Sans Condensed Bold, sans-serif; font-size: 16pt; font-weight: normal'>"+
-					sleeptimer.time_remaining +" min</span>"
+                    sleeptimer.time_remaining +" min</span>"
                 Layout.rightMargin: 1;
                 textFormat: Text.RichText
                 horizontalAlignment: Text.AlignRight
-                color: "white"
+                color: Style.colors.primaryText;
                 visible: (playerProxy.playbackState === MediaPlayer.PlayingState)
                 Layout.fillWidth: true
 
@@ -108,7 +108,7 @@ ApplicationWindow {
                 id : playerControlBtn
                 text: "\uf40a"
                 Layout.maximumWidth: 48;
-				visible: widgetsEnabled;
+                visible: widgetsEnabled;
                 onClicked:{
                     playerControlWidget.show()
                 }
@@ -139,7 +139,7 @@ ApplicationWindow {
         closePolicy : Popup.CloseOnPressOutside;
         edge: Qt.LeftEdge;
         interactive: true;
-		enabled: widgetsEnabled;
+        enabled: widgetsEnabled;
 
         onOpened :{
             autocloseTimer.start()
@@ -261,8 +261,8 @@ ApplicationWindow {
      * Enable buttons etc. when in standby
      */
     function toggleControls(ena) {
-		console.log("toggleControls "+ ena);
-		widgetsEnabled = ena
+        console.log("toggleControls "+ ena);
+        widgetsEnabled = ena
     }
 
     /* Global Transitions */
@@ -291,7 +291,7 @@ ApplicationWindow {
     Component.onCompleted: {
         console.log("main.qml completed")
         powerControl.going_in_standby.connect(stackView.reset)
-		powerControl.active.connect(toggleControls);
-		volumeButton.volume_incremented.connect(volumePopUp.show)
+        powerControl.active.connect(toggleControls);
+        volumeButton.volume_incremented.connect(volumePopUp.show)
     }
 } // application window

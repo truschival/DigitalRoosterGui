@@ -23,7 +23,7 @@ Page {
         Text{
             text: currentTime.timestring_lz_hh_mm
             font: Style.font.clock;
-            color: "white"
+            color: Style.colors.primaryText
             Layout.columnSpan: 3;
             Layout.topMargin: Style.itemMargins.medium;
             Layout.bottomMargin:0;

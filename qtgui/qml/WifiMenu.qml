@@ -6,7 +6,6 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.11
-import QtQuick.Controls.Material 2.4
 
 /**
  * Wifi Menu
@@ -41,7 +40,7 @@ Menu {
             id: wifictrlStatus;
             text: "Press for WPS PBC";
             font: Style.font.label;
-            color: "white";
+            color: Style.colors.primaryText;
             Layout.rightMargin: Style.itemMargins.wide;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter;
         }

@@ -6,7 +6,6 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.11
-import QtQuick.Controls.Material 2.4
 
 Menu {
     focus: true
@@ -39,8 +38,7 @@ Menu {
         IconLabel{
             // volume low
             text: "\uf57f";
-            color: "white";
-        }
+       }
 
         Slider {
             id: volumeSlider
@@ -59,7 +57,6 @@ Menu {
         IconLabel{
             //volume high
             text: "\uf57e";
-            color: "white";
         }
 
     }

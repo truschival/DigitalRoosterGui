@@ -6,7 +6,6 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.11
-import QtQuick.Controls.Material 2.4
 
 Menu {
     focus: true
@@ -37,7 +36,7 @@ Menu {
             text: podcastControl.title;
             font: Style.font.label;
             elide: Text.ElideMiddle;
-            color: Material.accent;
+            color: Style.colors.primaryText;
 
             Layout.columnSpan:2;
             Layout.margins:Style.itemMargins.slim;
@@ -62,7 +61,7 @@ Menu {
         Text{
             text: "refresh";
             font: Style.font.label;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
 
@@ -83,7 +82,7 @@ Menu {
         Text{
             text: "purge local";
             font: Style.font.label;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
 
@@ -94,7 +93,7 @@ Menu {
             Layout.alignment:  Qt.AlignCenter | Qt.AlignVCenter
             contentItem: Text{
                 text: "\ufa79"
-                color: "white"
+                color: Style.colors.primaryText;
                 font.pointSize: 20
                 horizontalAlignment: Text.AlignHCenter
                 font.family: "Material Design Icons"
@@ -109,7 +108,7 @@ Menu {
         Text{
             text: "delete";
             font: Style.font.label;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
     }

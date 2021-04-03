@@ -31,7 +31,7 @@ Rectangle {
             id: temp;
             text: "-12\u00B0C"
             font: Style.font.weatherInfo;
-            color: "white";
+            color: Style.colors.primaryText;
             style: Text.Outline;
             styleColor: Style.colors.selected;
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter;
@@ -53,7 +53,7 @@ Rectangle {
             id: timestamp;
             text: "23:55";
             font: Style.font.weatherTime;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.topMargin: -12;
             Layout.columnSpan: 2;
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop;

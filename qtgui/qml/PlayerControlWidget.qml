@@ -6,7 +6,6 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.11
-import QtQuick.Controls.Material 2.4
 import QtMultimedia 5.9
 
 import ruschi.PodcastEpisode 1.0
@@ -37,7 +36,7 @@ Popup {
             id: currentMediaTitle
             text: "" ;
             font: Style.font.label;
-            color: Material.accent;
+            color: Style.colors.selected;
             elide: Text.ElideRight;
 
             Layout.topMargin: 0;
@@ -115,7 +114,7 @@ Popup {
                 text: Util.display_time_ms(playerProxy.position)
                 font: Style.font.valueLabel;
                 Layout.alignment: Qt.AlignRight | Qt.AlignTop
-                color: "white"
+                color: Style.colors.primaryText;
             }
 
             Slider {
@@ -135,7 +134,7 @@ Popup {
                 text: playerProxy.seekable? Util.display_time_ms(playerProxy.duration): "\u221E"
                 Layout.preferredWidth: timeElapsed.width
                 font: playerProxy.seekable? Style.font.valueLabel: Style.font.listItemHeadListened;
-                color: "white"
+                color: Style.colors.primaryText;
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             }
         }// RowLayout Row 3

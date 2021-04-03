@@ -6,7 +6,6 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.11
-import QtQuick.Controls.Material 2.4
 
 import ruschi.PodcastEpisodeModel 1.0
 
@@ -16,7 +15,7 @@ Rectangle{
     height: DEFAULT_ICON_WIDTH+Style.itemMargins.slim+2;
     radius: 2;
     border.width: 1;
-    color: Material.background;
+    color: Style.colors.widgetBackground;
 
     GridLayout{
         anchors.margins: Style.itemMargins.slim;
@@ -45,7 +44,7 @@ Rectangle{
             elide: Text.ElideRight;
             Layout.alignment: Qt.AlignLeft| Qt.AlignTop
             Layout.fillWidth: true;
-            color: "white";
+            color: Style.colors.primaryText;
         }
 
         Text {
@@ -54,7 +53,7 @@ Rectangle{
             font: Style.font.valueLabel;
             Layout.preferredWidth: (parent.with-podcasticon.width)*0.2
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
-            color: "white";
+            color: Style.colors.primaryText;
         }
 
         Text {
@@ -68,7 +67,7 @@ Rectangle{
             Layout.fillWidth: true;
             Layout.maximumHeight: parent.height/1.8
             Layout.alignment: Qt.AlignLeft| Qt.AlignTop
-            color: "white";
+            color: Style.colors.primaryText;
         }
     }
 

@@ -6,7 +6,6 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.11
-import QtQuick.Controls.Material 2.4
 
 import QtQuick.Extras 1.4
 
@@ -38,9 +37,8 @@ Menu {
         Text{
             text: "Sleep after minutes";
             font: Style.font.label;
-            color: "white";
+            color: Style.colors.primaryText;
             elide: Text.ElideRight;
-
             Layout.topMargin: Style.itemMargins.wide;
             Layout.columnSpan: 2;
             Layout.fillWidth: true;
