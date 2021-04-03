@@ -1,6 +1,10 @@
-// Style.qml
-import QtQuick 2.0
-import QtQuick.Controls.Material 2.1
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2021  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+import QtQuick 2.11
+import QtQuick.Controls.Material 2.4
 
 pragma Singleton
 
