@@ -1,6 +1,12 @@
-import QtQuick 2.9
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.2
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2021  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+import QtQuick 2.11
+import QtQuick.Controls 2.4
+import QtQuick.Layouts 1.11
+
 import ruschi.PodcastEpisodeModel 1.0
 
 Rectangle{
@@ -9,8 +15,7 @@ Rectangle{
     height: DEFAULT_ICON_WIDTH+Style.itemMargins.slim+2;
     radius: 2;
     border.width: 1;
-    color: podcastlist.currentItem == this ?
-        Style.colors.selected : Style.colors.unselected ;
+    color: Style.colors.widgetBackground;
 
     GridLayout{
         anchors.margins: Style.itemMargins.slim;
@@ -22,22 +27,10 @@ Rectangle{
 
         Image {
             id: podcasticon;
-            Layout.minimumHeight : DEFAULT_ICON_WIDTH;
-            Layout.minimumWidth : DEFAULT_ICON_WIDTH;
-            Layout.maximumHeight : DEFAULT_ICON_WIDTH;
+            Layout.minimumHeight: DEFAULT_ICON_WIDTH;
+            Layout.minimumWidth: DEFAULT_ICON_WIDTH;
+            Layout.maximumHeight: DEFAULT_ICON_WIDTH;
             Layout.maximumWidth : DEFAULT_ICON_WIDTH;
-            /*
-              Layout.maximumHeight : podcastdelegate.height-
-              2*Style.itemMargins.slim;
-              Layout.maximumWidth :  podcastdelegate.height-
-              2*Style.itemMargins.slim;
-              // yes width is specified as height,
-              // gives the layout a hint while image is not loaded
-              Layout.minimumWidth :  0.9*podcastdelegate.height-
-              2*Style.itemMargins.slim;
-              Layout.minimumHeight : 0.9*podcastdelegate.height-
-              2*Style.itemMargins.slim;
-            */
             Layout.rowSpan: 2
             Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter
             Layout.leftMargin: 1;
@@ -51,6 +44,7 @@ Rectangle{
             elide: Text.ElideRight;
             Layout.alignment: Qt.AlignLeft| Qt.AlignTop
             Layout.fillWidth: true;
+            color: Style.colors.primaryText;
         }
 
         Text {
@@ -59,22 +53,23 @@ Rectangle{
             font: Style.font.valueLabel;
             Layout.preferredWidth: (parent.with-podcasticon.width)*0.2
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
+            color: Style.colors.primaryText;
         }
 
         Text {
             text: description ;
             elide: Text.ElideRight;
-            wrapMode:  Text.WordWrap;
+            wrapMode: Text.WordWrap;
             font: Style.font.flowText;
-            lineHeight : 0.8;
+            lineHeight: 0.8;
             Layout.topMargin: 0;
             Layout.columnSpan: 2;
             Layout.fillWidth: true;
             Layout.maximumHeight: parent.height/1.8
             Layout.alignment: Qt.AlignLeft| Qt.AlignTop
+            color: Style.colors.primaryText;
         }
     }
-
 
     MouseArea {
         id: mouseArea

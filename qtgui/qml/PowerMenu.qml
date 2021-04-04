@@ -1,6 +1,11 @@
-import QtQuick 2.9
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.2
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2021  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+import QtQuick 2.11
+import QtQuick.Controls 2.4
+import QtQuick.Layouts 1.11
 
 /**
  * Power (-Off) Menu
@@ -42,7 +47,7 @@ Menu {
         Text{
             text: "shutdown";
             font: Style.font.boldLabel;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
 
@@ -59,7 +64,7 @@ Menu {
         Text{
             text: "reboot";
             font: Style.font.boldLabel;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
     }

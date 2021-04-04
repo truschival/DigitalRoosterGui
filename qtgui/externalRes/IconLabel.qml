@@ -4,9 +4,10 @@
 // https://kevincarlson.codes/using-material-design-icons-with-qml/
 //
 
-import QtQuick 2.7
-import QtQuick.Controls 2.0
+import QtQuick 2.9
+import QtQuick.Controls 2.2
 
 Text {
 	font: Style.font.button;
+	color: Style.colors.primaryText;
 }

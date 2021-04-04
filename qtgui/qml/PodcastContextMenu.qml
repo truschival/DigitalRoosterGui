@@ -1,10 +1,11 @@
-/**
- * Popup to update/delete Podcast
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2021  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
  */
-import QtQuick 2.9
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.2
-import QtQuick.Controls.Material 2.1
+import QtQuick 2.11
+import QtQuick.Controls 2.4
+import QtQuick.Layouts 1.11
 
 Menu {
     focus: true
@@ -35,7 +36,7 @@ Menu {
             text: podcastControl.title;
             font: Style.font.label;
             elide: Text.ElideMiddle;
-            color: Material.accent;
+            color: Style.colors.primaryText;
 
             Layout.columnSpan:2;
             Layout.margins:Style.itemMargins.slim;
@@ -60,7 +61,7 @@ Menu {
         Text{
             text: "refresh";
             font: Style.font.label;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
 
@@ -81,7 +82,7 @@ Menu {
         Text{
             text: "purge local";
             font: Style.font.label;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
 
@@ -92,7 +93,7 @@ Menu {
             Layout.alignment:  Qt.AlignCenter | Qt.AlignVCenter
             contentItem: Text{
                 text: "\ufa79"
-                color: "white"
+                color: Style.colors.primaryText;
                 font.pointSize: 20
                 horizontalAlignment: Text.AlignHCenter
                 font.family: "Material Design Icons"
@@ -107,7 +108,7 @@ Menu {
         Text{
             text: "delete";
             font: Style.font.label;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
     }

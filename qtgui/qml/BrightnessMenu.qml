@@ -1,6 +1,11 @@
-import QtQuick 2.9
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.1
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2021  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+import QtQuick 2.11
+import QtQuick.Controls 2.4
+import QtQuick.Layouts 1.11
 
 /**
  * Brightness Menu
@@ -43,7 +48,7 @@ Menu {
         Text{
             text: "Active brightness:";
             font: Style.font.boldLabel;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
             Layout.leftMargin: Style.itemMargins.wide;
         }
@@ -64,7 +69,7 @@ Menu {
         Text{
             text: "Standby brightness:";
             font: Style.font.boldLabel;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
             Layout.leftMargin: Style.itemMargins.wide;
         }

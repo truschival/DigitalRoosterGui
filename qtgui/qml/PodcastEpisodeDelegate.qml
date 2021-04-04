@@ -1,7 +1,13 @@
-import QtQuick 2.9
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.2
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2021  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+import QtQuick 2.11
+import QtQuick.Controls 2.4
+import QtQuick.Layouts 1.11
 import QtMultimedia 5.9
+
 import ruschi.PodcastEpisode 1.0
 
 Rectangle{
@@ -10,9 +16,7 @@ Rectangle{
     height: 100;
     radius: 3;
     border.width: 1;
-    color: episodemodel.currentIndex === index ?
-        Style.colors.selected : Style.colors.unselected ;
-
+    color: Style.colors.widgetBackground;
     anchors.margins: Style.itemMargins.slim;
 
     GridLayout{
@@ -34,6 +38,7 @@ Rectangle{
             Layout.columnSpan: 2
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             Layout.bottomMargin: Style.itemMargins.slim;
+            color: Style.colors.primaryText;
         }
 
         Text {
@@ -43,6 +48,7 @@ Rectangle{
             elide: Text.ElideRight
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
             Layout.topMargin: Style.itemMargins.slim;
+            color: Style.colors.primaryText;
         }
 
         Text {
@@ -52,6 +58,7 @@ Rectangle{
             elide: Text.ElideRight
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
             Layout.topMargin: Style.itemMargins.slim;
+            color: Style.colors.primaryText;
         }
 
         Text {
@@ -67,6 +74,7 @@ Rectangle{
             Layout.maximumHeight: parent.heigth*0.6
             Layout.columnSpan: 2
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+            color: Style.colors.primaryText;
         }
     }
     MouseArea {

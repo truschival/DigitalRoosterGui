@@ -1,8 +1,12 @@
-import QtQuick 2.9
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.1
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2021  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+import QtQuick 2.11
+import QtQuick.Controls 2.4
+import QtQuick.Layouts 1.11
 import QtMultimedia 5.9
-import QtQuick.Controls.Material 2.1
 
 import ruschi.PodcastEpisode 1.0
 import "Jsutil.js" as Util
@@ -32,7 +36,7 @@ Popup {
             id: currentMediaTitle
             text: "" ;
             font: Style.font.label;
-            color: Material.accent;
+            color: Style.colors.selected;
             elide: Text.ElideRight;
 
             Layout.topMargin: 0;
@@ -61,7 +65,7 @@ Popup {
 
             onClicked: {
                 interactiontimer.restart()
-                if (playerProxy.playbackState == MediaPlayer.PlayingState) {
+                if (playerProxy.playbackState === MediaPlayer.PlayingState) {
                     playerProxy.pause()
                 } else {
                     playerProxy.play()
@@ -110,7 +114,7 @@ Popup {
                 text: Util.display_time_ms(playerProxy.position)
                 font: Style.font.valueLabel;
                 Layout.alignment: Qt.AlignRight | Qt.AlignTop
-                color: "white"
+                color: Style.colors.primaryText;
             }
 
             Slider {
@@ -130,7 +134,7 @@ Popup {
                 text: playerProxy.seekable? Util.display_time_ms(playerProxy.duration): "\u221E"
                 Layout.preferredWidth: timeElapsed.width
                 font: playerProxy.seekable? Style.font.valueLabel: Style.font.listItemHeadListened;
-                color: "white"
+                color: Style.colors.primaryText;
                 Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             }
         }// RowLayout Row 3
