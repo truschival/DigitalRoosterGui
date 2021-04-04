@@ -1,6 +1,11 @@
-import QtQuick 2.9
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.1
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2021  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+import QtQuick 2.11
+import QtQuick.Controls 2.4
+import QtQuick.Layouts 1.11
 
 Page {
     id: settingsPage
@@ -17,41 +22,42 @@ Page {
         Text{
             text: "Revision: ";
             font: Style.font.label;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
         }
         Text{
             text: config.revision;
             font: Style.font.valueLabel;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
         }
 
         Text{
             text: "Build: ";
             font: Style.font.label;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
         }
 
         Text{
             text: config.buildtime;
             font: Style.font.valueLabel;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
         }
 
-		Text{
+        Text{
             text: "IP: ";
             font: Style.font.label;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
         }
 
         Text{
             text: netinfo.ipaddr;
             font: Style.font.valueLabel;
-            color: netinfo.linkstatus? "white" : Style.colors.disabled;
+            color: netinfo.linkstatus? Style.colors.primaryText 
+                : Style.colors.disabled;
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
         }
 
@@ -67,7 +73,7 @@ Page {
         Text{
             text: "change brightness";
             font: Style.font.boldLabel;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
 
@@ -83,7 +89,7 @@ Page {
         Text{
             text: "sleep timeout";
             font: Style.font.boldLabel;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
 
@@ -99,7 +105,7 @@ Page {
         Text{
             text: "Wifi";
             font: Style.font.boldLabel;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
     }// GridLayout

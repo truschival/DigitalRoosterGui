@@ -1,6 +1,11 @@
-import QtQuick 2.9
-import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.1
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2021  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+import QtQuick 2.11
+import QtQuick.Controls 2.4
+import QtQuick.Layouts 1.11
 
 Page {
     id: clockPage
@@ -18,7 +23,7 @@ Page {
         Text{
             text: currentTime.timestring_lz_hh_mm
             font: Style.font.clock;
-            color: "white"
+            color: Style.colors.primaryText
             Layout.columnSpan: 3;
             Layout.topMargin: Style.itemMargins.medium;
             Layout.bottomMargin:0;

@@ -1,7 +1,11 @@
-import QtQuick 2.9
-import QtQuick.Controls 2.2
-import QtQuick.Layouts 1.3
-
+// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ * copyright (c) 2021  Thomas Ruschival <thomas@ruschival.de>
+ * Licensed under GNU PUBLIC LICENSE Version 3 or later
+ */
+import QtQuick 2.11
+import QtQuick.Controls 2.4
+import QtQuick.Layouts 1.11
 
 Rectangle {
     property double temperature;
@@ -27,7 +31,7 @@ Rectangle {
             id: temp;
             text: "-12\u00B0C"
             font: Style.font.weatherInfo;
-            color: "white";
+            color: Style.colors.primaryText;
             style: Text.Outline;
             styleColor: Style.colors.selected;
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter;
@@ -49,7 +53,7 @@ Rectangle {
             id: timestamp;
             text: "23:55";
             font: Style.font.weatherTime;
-            color: "white"
+            color: Style.colors.primaryText;
             Layout.topMargin: -12;
             Layout.columnSpan: 2;
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop;
