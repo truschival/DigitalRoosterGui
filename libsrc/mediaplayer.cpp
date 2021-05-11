@@ -20,7 +20,7 @@ bool MediaPlayer::muted() const {
 }
 
 /*****************************************************************************/
-int MediaPlayer::get_volume() const {
+double MediaPlayer::get_volume() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return do_get_volume();
 }
@@ -32,17 +32,13 @@ void MediaPlayer::set_muted(bool muted) {
 }
 
 /*****************************************************************************/
-void MediaPlayer::set_volume(int volume) {
+void MediaPlayer::set_volume(double volume) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << volume;
-    if (!value_in_0_100(volume)) {
-        qCWarning(CLASS_LC) << "invalid volume (must be 0..100%)";
-        return;
-    }
-    return do_set_volume(volume);
+    return do_set_volume(std::clamp(volume, 0.0, 100.0));
 }
 
 /*****************************************************************************/
-void MediaPlayer::increment_volume(int increment) {
+void MediaPlayer::increment_volume(double increment) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return do_increment_volume(increment);
 }

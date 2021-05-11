@@ -77,7 +77,7 @@ signals:
     /**
      * volume was incremented/decremented by increment
      */
-    void volume_incremented(int increment);
+    void volume_incremented(double increment);
     /**
      * Push button was/is pressed
      */

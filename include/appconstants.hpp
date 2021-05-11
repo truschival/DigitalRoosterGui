@@ -218,11 +218,6 @@ const QString KEY_WIFI_DEV_NAME("net_dev");
 const QString RSS_FILE_DIR(QDir::tempPath());
 
 /**
- * Default alarm volume
- */
-const int DEFAULT_ALARM_VOLUME = 30;
-
-/**
  * Minimum percentage of Podcast episode played to be considered 'listened'
  */
 const int MIN_LISTENED_PERC = 25;
@@ -247,12 +242,17 @@ const std::chrono::milliseconds ALS_SAMPLING_PERIOD(300);
 /**
  * Default output volume
  */
-const int DEFAULT_VOLUME = 30;
+const double DEFAULT_VOLUME = 25;
+
+/**
+ * Default alarm volume
+ */
+const double DEFAULT_ALARM_VOLUME = 30;
 
 /**
  * Default volume for fallback alarm sound
  */
-const int DEFAULT_FALLBACK_VOLUME = 50;
+const double DEFAULT_FALLBACK_VOLUME = 35;
 
 /**
  * Default display brightness
@@ -270,6 +270,11 @@ const int DEFAULT_ICON_WIDTH = 88;
  * 8*3h =  24h
  */
 const int WEATHER_FORECAST_COUNT = 8;
+
+/**
+ * Step size of volume increment per rotary event
+ */
+const double VOLUME_INCREMENT = 0.2;
 
 /**
  * Where to find icons for weather condition

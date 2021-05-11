@@ -8,6 +8,7 @@
 #include <QSignalSpy>
 #include <gtest/gtest.h>
 
+#include "appconstants.hpp"
 #include "volume_button.hpp"
 
 using namespace DigitalRooster;
@@ -18,7 +19,7 @@ using namespace ::testing;
 TEST(VolumeButton, VolumeIncreasedDecreased) {
 	VolumeButton vbtn;
     QSignalSpy spy(
-        &vbtn, SIGNAL(volume_incremented(int)));
+        &vbtn, SIGNAL(volume_incremented(double)));
 	ASSERT_TRUE(spy.isValid());
 	Hal::InputEvent evt;
 	evt.value = 1;
@@ -28,16 +29,16 @@ TEST(VolumeButton, VolumeIncreasedDecreased) {
 
     ASSERT_EQ(spy.count(), 2);
     auto arguments = spy.takeFirst();
-    EXPECT_EQ(arguments.at(0).toInt(), 1);
+    EXPECT_DOUBLE_EQ(arguments.at(0).toDouble(), VOLUME_INCREMENT);
     arguments = spy.takeFirst();
-    EXPECT_EQ(arguments.at(0).toInt(), -1);
+    EXPECT_DOUBLE_EQ(arguments.at(0).toDouble(), -VOLUME_INCREMENT);
 }
 
 /*****************************************************************************/
 TEST(VolumeButton, FilterRotaryEvents) {
 	VolumeButton vbtn;
     QSignalSpy spy(
-        &vbtn, SIGNAL(volume_incremented(int)));
+        &vbtn, SIGNAL(volume_incremented(double)));
 	ASSERT_TRUE(spy.isValid());
 
 	vbtn.monitor_rotary_button(false);
