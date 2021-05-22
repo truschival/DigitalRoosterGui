@@ -125,7 +125,9 @@ void BrightnessControl::als_value_changed(Hal::AlsValue brightness) {
 
 /*****************************************************************************/
 void BrightnessControl::set_active_brightness(int brightness) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
     cm.set_active_brightness(brightness);
+    emit active_brightness_changed(brightness);
     if (!adaptive_mode()) {
         update_backlight();
     }
@@ -135,6 +137,7 @@ void BrightnessControl::set_active_brightness(int brightness) {
 void BrightnessControl::set_standby_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     cm.set_standby_brightness(brightness);
+    emit standby_brightness_changed(brightness);
     if (!adaptive_mode()) {
         update_backlight();
     }
