@@ -181,7 +181,7 @@ void ConfigurationManager::parse_json(const QByteArray& json) {
 
     enable_backlight_control(appconfig[KEY_BACKLIGHT_CONTROL].toBool(true));
 
-    set_volume(appconfig[KEY_VOLUME].toInt(DEFAULT_VOLUME));
+    set_volume(appconfig[KEY_VOLUME].toDouble(DEFAULT_VOLUME));
 
     set_sleep_timeout(std::chrono::minutes(
         appconfig[KEY_SLEEP_TIMEOUT].toInt(DEFAULT_SLEEP_TIMEOUT.count())));
@@ -298,35 +298,23 @@ void ConfigurationManager::fileChanged(const QString& path) {
 }
 
 /*****************************************************************************/
-void ConfigurationManager::set_volume(int vol) {
+void ConfigurationManager::set_volume(double vol) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << vol;
-    if (value_in_0_100(vol)) {
-        this->volume = vol;
-        dirty = true;
-    } else {
-        qCWarning(CLASS_LC) << "invalid volume value: " << vol;
-    }
+    this->volume = std::clamp(vol, 0.0, 100.0);
+    dirty = true;
 }
 
 /*****************************************************************************/
 void ConfigurationManager::set_standby_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
-    if (value_in_0_100(brightness)) {
-        this->brightness_sb = brightness;
-        dirty = true;
-    } else {
-        qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
-    }
+    this->brightness_sb = std::clamp(brightness, 0, 100);
+    dirty = true;
 }
 
 /*****************************************************************************/
 void ConfigurationManager::set_active_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << brightness;
-    if (value_in_0_100(brightness)) {
-        do_set_brightness_act(brightness);
-    } else {
-        qCWarning(CLASS_LC) << "invalid brightness value: " << brightness;
-    }
+    do_set_brightness_act(std::clamp(brightness, 0, 100));
 }
 
 /*****************************************************************************/

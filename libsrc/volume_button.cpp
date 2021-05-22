@@ -6,6 +6,7 @@
 
 #include <QLoggingCategory>
 
+#include "appconstants.hpp"
 #include "volume_button.hpp"
 
 using namespace DigitalRooster;
@@ -36,10 +37,10 @@ void DigitalRooster::VolumeButton::process_rotary_event(
     }
     // only react on -1 or 1 events
     if (evt.value < 0) {
-        emit volume_incremented(-1);
+        emit volume_incremented(-DigitalRooster::VOLUME_INCREMENT);
     }
     if (evt.value > 0) {
-        emit volume_incremented(1);
+        emit volume_incremented(DigitalRooster::VOLUME_INCREMENT);
     }
 }
 

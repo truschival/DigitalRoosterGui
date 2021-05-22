@@ -175,7 +175,7 @@ bool MediaPlayerProxy::is_muted() const {
 }
 
 /*****************************************************************************/
-int MediaPlayerProxy::do_get_volume() const {
+double MediaPlayerProxy::do_get_volume() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     return linear_volume;
 }
@@ -211,7 +211,7 @@ QMediaPlayer::State MediaPlayerProxy::do_playback_state() const {
 }
 
 /*****************************************************************************/
-void MediaPlayerProxy::do_set_volume(int volume) {
+void MediaPlayerProxy::do_set_volume(double volume) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     linear_volume = volume;
     emit volume_changed(volume);
@@ -223,9 +223,8 @@ void MediaPlayerProxy::do_set_volume(int volume) {
 }
 
 /*****************************************************************************/
-void MediaPlayerProxy::do_increment_volume(int increment) {
+void MediaPlayerProxy::do_increment_volume(double increment) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << increment;
-    qCDebug(CLASS_LC) << " current volume" << linear_volume;
     set_volume(linear_volume + increment);
 }
 

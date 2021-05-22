@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+// SPDX-License-oiIdentifier: GPL-3.0-or-later
 /*
  * copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de>
  * Licensed under GNU PUBLIC LICENSE Version 3 or later
@@ -13,28 +13,31 @@ public:
     PlayerMock(){
 
     };
-    MOCK_METHOD0(do_play, void());
-    MOCK_METHOD0(do_stop, void());
-    MOCK_METHOD0(do_pause, void());
+    MOCK_METHOD(void, do_play, ());
+    MOCK_METHOD(void, do_stop, ());
+    MOCK_METHOD(void, do_pause, ());
 
-    MOCK_CONST_METHOD0(is_seekable, bool());
-    MOCK_CONST_METHOD0(is_muted, bool());
-    MOCK_CONST_METHOD0(do_get_volume, int());
-    MOCK_CONST_METHOD0(do_get_duration, qint64());
-    MOCK_CONST_METHOD0(do_get_position, qint64());
-    MOCK_CONST_METHOD0(do_media_status, QMediaPlayer::MediaStatus());
-    MOCK_CONST_METHOD0(do_playback_state, QMediaPlayer::State());
-    MOCK_CONST_METHOD0(do_error, QMediaPlayer::Error());
+    MOCK_METHOD(bool, is_seekable, (), (const));
+    MOCK_METHOD(bool, is_muted, (), (const));
+    MOCK_METHOD(double, do_get_volume, (), (const));
+    MOCK_METHOD(qint64, do_get_duration, (), (const));
+    MOCK_METHOD(qint64, do_get_position, (), (const));
 
-    MOCK_METHOD1(do_set_media,
-        void(std::shared_ptr<DigitalRooster::PlayableItem> media));
-    MOCK_METHOD1(do_set_playlist, void(QMediaPlaylist* playlist));
+    MOCK_METHOD(QMediaPlayer::MediaStatus, do_media_status, (), (const));
+    MOCK_METHOD(QMediaPlayer::State, do_playback_state, (), (const));
+    MOCK_METHOD(QMediaPlayer::Error, do_error, (), (const));
 
-    MOCK_METHOD1(do_set_position, void(qint64 position));
-    MOCK_METHOD1(do_set_muted, void(bool muted));
-    MOCK_METHOD1(do_set_volume, void(int volume));
-    MOCK_METHOD1(do_seek, void(qint64 position));
-    MOCK_METHOD1(do_increment_volume, void(int increment));
+    MOCK_METHOD(void, do_set_media,
+        (std::shared_ptr<DigitalRooster::PlayableItem>), (override));
+
+    MOCK_METHOD(void, do_set_playlist, (QMediaPlaylist*), (override));
+
+    MOCK_METHOD(void, do_set_position, (qint64), (override));
+    MOCK_METHOD(void, do_seek, (qint64), (override));
+
+    MOCK_METHOD(void, do_set_muted, (bool), (override));
+    MOCK_METHOD(void, do_set_volume, (double), (override));
+    MOCK_METHOD(void, do_increment_volume, (double), (override));
 
     void emitError(QMediaPlayer::Error err) {
         emit error(err);

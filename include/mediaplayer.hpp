@@ -29,7 +29,7 @@ class MediaPlayer : public QObject {
     Q_PROPERTY(qint64 position READ get_position NOTIFY position_changed)
     Q_PROPERTY(qint64 duration READ get_duration NOTIFY duration_changed)
     Q_PROPERTY(
-        int volume READ get_volume WRITE set_volume NOTIFY volume_changed)
+        double volume READ get_volume WRITE set_volume NOTIFY volume_changed)
     Q_PROPERTY(bool muted READ muted WRITE set_muted NOTIFY muted_changed)
     Q_PROPERTY(bool seekable READ seekable NOTIFY seekable_changed)
     Q_PROPERTY(QMediaPlayer::MediaStatus mediaStatus READ media_status NOTIFY
@@ -42,7 +42,7 @@ public:
     virtual ~MediaPlayer() = default;
 
     bool muted() const;
-    int get_volume() const;
+    double get_volume() const;
     void set_muted(bool muted);
 
     bool seekable() const;
@@ -68,12 +68,12 @@ public slots:
      * Set linear volume value to
      * @param volume 0..100%
      */
-    void set_volume(int volume);
+    void set_volume(double volume);
     /**
      * increment/decrement linear volume by increment percent
      * @param increment percentage to change volume
      */
-    void increment_volume(int increment);
+    void increment_volume(double increment);
 
     void pause();
     void play();
@@ -86,7 +86,7 @@ signals:
      * volume has changed
      * @param volume linear volume value 0..100 %
      */
-    void volume_changed(int volume);
+    void volume_changed(double volume);
 
     void muted_changed(bool muted);
     void seekable_changed(bool seekable);
@@ -103,7 +103,7 @@ private:
      */
     virtual bool is_seekable() const = 0;
     virtual bool is_muted() const = 0;
-    virtual int do_get_volume() const = 0;
+    virtual double do_get_volume() const = 0;
     virtual qint64 do_get_duration() const = 0;
     virtual qint64 do_get_position() const = 0;
     virtual QMediaPlayer::MediaStatus do_media_status() const = 0;
@@ -114,8 +114,8 @@ private:
     virtual void do_set_playlist(QMediaPlaylist* playlist) = 0;
     virtual void do_set_position(qint64 position) = 0;
     virtual void do_set_muted(bool muted) = 0;
-    virtual void do_set_volume(int volume) = 0;
-    virtual void do_increment_volume(int increment) = 0;
+    virtual void do_set_volume(double volume) = 0;
+    virtual void do_increment_volume(double increment) = 0;
     virtual void do_seek(qint64 incr) = 0;
     virtual void do_pause() = 0;
     virtual void do_play() = 0;

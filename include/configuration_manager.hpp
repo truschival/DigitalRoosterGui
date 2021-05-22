@@ -54,7 +54,7 @@ class ConfigurationManager : public QObject,
             set_standby_brightness)
     Q_PROPERTY(int activebrightness READ get_active_brightness WRITE
             set_active_brightness)
-    Q_PROPERTY(int defaultvolume READ get_volume WRITE set_volume)
+    Q_PROPERTY(double defaultvolume READ get_volume WRITE set_volume)
 
 public:
     /**
@@ -87,7 +87,7 @@ public:
      * current linear volume
      * @return volume 0..100
      */
-    int get_volume() const {
+    double get_volume() const {
         return do_get_volume();
     }
 
@@ -177,7 +177,7 @@ public slots:
      * volume settings changed -> store
      * @param vol new volume settings (0..100)
      */
-    void set_volume(int vol);
+    void set_volume(double vol);
 
     /**
      * user changed standby brightness
@@ -263,7 +263,7 @@ private:
     /**
      * Linear Volume in percent (stored in config file)
      */
-    int volume;
+    double volume;
 
     /**
      * display brightness (0..100%) in standby mode
@@ -395,7 +395,7 @@ private:
     /**
      * Private virtual interface for volume settings
      */
-    virtual int do_get_volume() const {
+    virtual double do_get_volume() const {
         return volume;
     };
 

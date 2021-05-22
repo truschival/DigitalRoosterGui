@@ -65,7 +65,7 @@ TEST(AlarmMonitor, triggersFallbackForError) {
     EXPECT_CALL(player, do_set_volume(DEFAULT_ALARM_VOLUME)).Times(1);
 
     // Fallback behavior
-    EXPECT_CALL(player, do_set_volume(50)).Times(1);
+    EXPECT_CALL(player, do_set_volume(DEFAULT_FALLBACK_VOLUME)).Times(1);
     EXPECT_CALL(player, do_set_playlist(_)).Times(1);
 
     mon.alarm_triggered(alm.get());
