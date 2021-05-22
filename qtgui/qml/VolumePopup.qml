@@ -46,9 +46,8 @@ Menu {
             Layout.fillWidth: true;
             from: 0
             to: 100
-            stepSize: 1
             wheelEnabled: true
-            value: playerProxy.volume
+            value: playerProxy.volume.toFixed(2)
             onMoved: {
                 volumeShowTimer.restart();
                 playerProxy.volume = value;
