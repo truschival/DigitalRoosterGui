@@ -30,7 +30,7 @@ Menu {
         // Row 1
         Label{
             font: Style.font.sliderValue
-            text: volumeSlider.value
+            text: playerProxy.volume.toFixed(2)
             Layout.alignment: Qt.AlignVCenter| Qt.AlignHCenter
             Layout.columnSpan: 3;
         }
@@ -38,7 +38,7 @@ Menu {
         IconLabel{
             // volume low
             text: "\uf57f";
-       }
+	}
 
         Slider {
             id: volumeSlider
@@ -47,7 +47,7 @@ Menu {
             from: 0
             to: 100
             wheelEnabled: true
-            value: playerProxy.volume.toFixed(2)
+            value: playerProxy.volume
             onMoved: {
                 volumeShowTimer.restart();
                 playerProxy.volume = value;

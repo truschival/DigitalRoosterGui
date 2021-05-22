@@ -3,7 +3,7 @@
  * copyright (c) 2021  Thomas Ruschival <thomas@ruschival.de>
  * Licensed under GNU PUBLIC LICENSE Version 3 or later
  */
-import QtQuick 2.11
+import QtQuick 2.14
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.11
 import QtQuick.Controls.Material 2.4
@@ -46,6 +46,10 @@ ApplicationWindow {
         running: false;
         repeat: false;
         onTriggered: stackView.reset();
+    }
+
+    WheelHandler {
+    	onWheel: volumePopUp.show()
     }
 
     menuBar: ToolBar {
@@ -100,7 +104,6 @@ ApplicationWindow {
                     }
                     // click resets timer
                     onPressed: sleeptimer.reset_timer();
-
                 }
             }
 
