@@ -49,7 +49,7 @@ public:
 private:
     virtual bool is_seekable() const override;
     virtual bool is_muted() const override;
-    virtual int do_get_volume() const override;
+    virtual double do_get_volume() const override;
     virtual qint64 do_get_duration() const override;
     virtual qint64 do_get_position() const override;
     virtual QMediaPlayer::MediaStatus do_media_status() const override;
@@ -60,8 +60,8 @@ private:
     virtual void do_set_playlist(QMediaPlaylist* playlist) override;
     virtual void do_set_position(qint64 position) override;
     virtual void do_set_muted(bool muted) override;
-    virtual void do_set_volume(int volume) override;
-    virtual void do_increment_volume(int increment) override;
+    virtual void do_set_volume(double volume) override;
+    virtual void do_increment_volume(double increment) override;
     virtual void do_seek(qint64 incr) override;
     virtual void do_pause() override;
     virtual void do_play() override;
@@ -77,7 +77,7 @@ private:
      * Linear volume 0..100%
      * Initialized because increment/decrement has to work with some value
      */
-    int linear_volume = 0;
+    double linear_volume = 0;
 
     /**
      * The actual player implementation

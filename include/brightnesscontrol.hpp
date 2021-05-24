@@ -39,9 +39,9 @@ class BrightnessControl : public QObject {
     Q_OBJECT
     Q_PROPERTY(int brightness READ get_brightness NOTIFY brightness_changed)
     Q_PROPERTY(int active_brightness READ get_active_brightness WRITE
-            set_active_brightness)
+            set_active_brightness NOTIFY active_brightness_changed)
     Q_PROPERTY(int standby_brightness READ get_standby_brightness WRITE
-            set_standby_brightness)
+            set_standby_brightness NOTIFY standby_brightness_changed)
     Q_PROPERTY(bool has_sensor READ has_als_sensor)
     Q_PROPERTY(bool feedback READ adaptive_mode WRITE set_adaptive_mode NOTIFY
             adaptive_mode_changed)
@@ -139,6 +139,18 @@ signals:
      * @param perc value for dutycycle (0-100%)
      */
     void brightness_changed(int perc);
+
+    /**
+     * Change of active brightness setpoint
+     * @param perc value for dutycycle (0-100%)
+     */
+    void standby_brightness_changed(int perc);
+
+    /**
+     * Change of standby brightness setpoint
+     * @param perc value for dutycycle (0-100%)
+     */
+    void active_brightness_changed(int perc);
 
 private:
     /**

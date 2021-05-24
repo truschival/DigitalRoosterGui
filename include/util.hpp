@@ -51,13 +51,6 @@ QUrl valid_url_from_string(const QString& urlstr);
  */
 QUuid valid_uuid_from_String(const QString& uuidstr);
 
-/**
- * Simple check if value is in range 0-100 used for positive 
- * Integer range like volume percentage, brightness percentage....
- * @param value to check
- * @return value>=0 && value <=100
- */
-bool value_in_0_100(int value);
 
 } // namespace DigitalRooster
 #endif /* INCLUDE_UTIL_HPP_ */

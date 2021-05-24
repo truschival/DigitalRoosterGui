@@ -34,7 +34,7 @@ public:
     MOCK_CONST_METHOD0(get_active_brightness, int());
     MOCK_CONST_METHOD0(get_standby_brightness, int());
     MOCK_CONST_METHOD0(backlight_control_enabled, bool());
-    MOCK_CONST_METHOD0(do_get_volume, int());
+    MOCK_CONST_METHOD0(do_get_volume, double());
     MOCK_METHOD1(set_active_brightness, void(int ab));
     MOCK_METHOD1(set_standby_brightness, void(int sb));
     MOCK_CONST_METHOD0(get_wpa_socket_name, QString());
