@@ -17,7 +17,7 @@ list(APPEND CMAKE_MODULE_PATH  ${CMAKE_SOURCE_DIR}/CMakeModules/)
 # Project Name
 MESSAGE( STATUS "Running ${CMAKE_COMMAND} v${CMAKE_VERSION}" )
 PROJECT(DigitalRooster
-	VERSION 1.0.0
+	VERSION 1.1.0
 	DESCRIPTION  "A digital alarm clock and podcast player"
 	LANGUAGES CXX C
 	)
