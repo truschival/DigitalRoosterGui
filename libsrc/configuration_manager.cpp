@@ -292,7 +292,7 @@ void ConfigurationManager::dataChanged() {
 }
 
 /*****************************************************************************/
-void ConfigurationManager::fileChanged(const QString& path) {
+void ConfigurationManager::fileChanged(const QString& /*path*/) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     refresh_configuration();
 }
@@ -493,7 +493,7 @@ QString ConfigurationManager::get_cache_dir_name() {
 void ConfigurationManager::delete_alarm(const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     // Disconnect signal-slot
-    auto a = find_by_id(alarms, id);
+    auto* a = find_by_id(alarms, id);
     disconnect(a, &Alarm::dataChanged, this,
         &ConfigurationManager::alarm_data_changed);
     /* delete may throw - just pass it on to the client */

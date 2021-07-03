@@ -162,9 +162,9 @@ public:
         const IWeatherConfigStore& store, QObject* parent = nullptr);
     /**
      * Update Download interval
-     * @param iv interval in seconds
+     * @param interval in seconds
      */
-    void set_update_interval(std::chrono::seconds iv);
+    void set_update_interval(std::chrono::seconds interval);
     std::chrono::seconds get_update_interval() const;
 
     /**

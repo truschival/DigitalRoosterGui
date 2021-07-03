@@ -27,12 +27,12 @@ class WeatherConfig {
 public:
     /**
      * Constructor with 'relevant' information
-     * @param token
-     * @param cityid
-     * @param interval 1hour
+     * @param token personal access token for API
+     * @param location OpenWeatherAPI assigned location id
+     * @param interval update interaval (1h)
      */
     WeatherConfig(QString token = QString(),
-        QString cityid = QString(),
+        QString location = QString(),
         std::chrono::seconds interval = std::chrono::seconds(3600));
 
     /**

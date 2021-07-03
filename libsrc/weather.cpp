@@ -21,7 +21,8 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.Weather");
 
 /*****************************************************************************/
 Weather::Weather(const IWeatherConfigStore& store, QObject* parent)
-    : cm(store) {
+    : QObject(parent)
+    , cm(store) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     // timer starts refresh, refresh calls downloader
@@ -106,7 +107,7 @@ QUrl Weather::get_weather_icon_url() const {
 WeatherStatus* Weather::get_weather(int idx) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     try {
-        auto ret = new WeatherStatus(&weather.at(idx));
+        auto* ret = new WeatherStatus(&weather.at(idx));
         return ret;
     } catch (std::out_of_range&) {
         qCCritical(CLASS_LC) << "Forecast index out of range!";
@@ -127,7 +128,7 @@ void Weather::parse_forecast(const QByteArray& content) {
     // QJson is very forgiving if "list" does not exist or is not an array
     // default will be created
     auto fc_array = doc["list"].toArray();
-    if (fc_array.size() <= 0) {
+    if (fc_array.empty()) {
         qCWarning(CLASS_LC) << "no forecast 'list' found!";
         return;
     }

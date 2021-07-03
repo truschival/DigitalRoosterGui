@@ -139,7 +139,7 @@ void WifiControl::parse_event(const QString& e_string) {
 }
 
 /****************************************************************************/
-void WifiControl::ctrl_event(int fd) {
+void WifiControl::ctrl_event(int /* fd */) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     char buf[128] = {};
     while (wpa_ctrl_pending(ctrl) > 0) {
@@ -208,7 +208,7 @@ WifiNetwork DigitalRooster::line_to_network(const QStringRef& line) {
 /****************************************************************************/
 std::vector<WifiNetwork> DigitalRooster::parse_scanresult(
     const char* buffer, size_t len) {
-    QString results(buffer);
+    auto results = QString::fromLocal8Bit(buffer,len);
     auto lines = results.splitRef("\n");
     std::vector<WifiNetwork> cont;
     /*
