@@ -22,6 +22,14 @@ jobs:
     steps:
     - name: Clone Repository
       uses: actions/checkout@v1
+
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.PULL_SECRET }}  
+
     - name: Check Environment
       run: |
         docker --version
@@ -32,10 +40,12 @@ jobs:
         echo "container src_dir: $SRC_DIR"
         echo "Coverity tarball:" $COVERITY_TARBALL
         echo "Coverity result:" $COVERITY_RESULT_DIR
+
     - name: Create build dir
       run: |
         mkdir -p $BUILD_DIR_HOST
         mkdir -p $COVERITY_INSTALL_DIR
+        
     - name: Install Coverity
       run: |
         wget -q https://scan.coverity.com/download/cxx/linux64  \
@@ -44,9 +54,11 @@ jobs:
         tar xzf cov-analysis-linux64.tar.gz --strip 1 -C $COVERITY_INSTALL_DIR
       env:
           TOKEN: ${{ secrets.COVERITY_TOKEN }}
+          
     - name: Pull docker container
       run: docker pull $BUILD_IMAGE
       timeout-minutes: 5
+      
     - name: Start Docker
       run: >
         docker run -itd -u $UID:$GID --privileged --name $CONTAINER_NAME
@@ -54,6 +66,7 @@ jobs:
         -v$BUILD_DIR_HOST:$BUILD_DIR
         -v$COVERITY_INSTALL_DIR:/coverity
         $BUILD_IMAGE
+        
     - name: Configure (Release, No Tests)
       run: >
         docker exec $CONTAINER_NAME cmake
@@ -62,12 +75,15 @@ jobs:
         -H$SRC_DIR -B$BUILD_DIR
         -DBUILD_TESTS=Off -DTEST_COVERAGE=Off -DBUILD_GTEST_FROM_SRC=Off
         -DREST_API=On
+        
     - name: Gather Coverity build info
       run: >
         docker exec -w $BUILD_DIR $CONTAINER_NAME
         /coverity/bin/cov-build --dir $COVERITY_RESULT_DIR make -j 3
+        
     - name: Package Coverity output
       run:  tar cjvf $COVERITY_TARBALL -C $BUILD_DIR_HOST $COVERITY_RESULT_DIR
+      
     - name: Upload Coverity Info
       run: >
         curl --form token=$TOKEN
