@@ -16,7 +16,7 @@ jobs:
       INSTALL_DIR_HOST: /tmp/install
       BUILD_DIR: /build
       SRC_DIR: /src
-      BUILD_IMAGE: ruschi/devlinuxqt-pistache
+      BUILD_IMAGE: ghcr.io/truschival/devlinuxqt-pistache:latest
       CONTAINER_NAME: buildc
       TEST_ARTIFACT: test-trace.tgz
       INSTALL_DIR: /tmp/install
