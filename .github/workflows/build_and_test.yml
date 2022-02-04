@@ -23,6 +23,14 @@ jobs:
     steps:
     - name: Clone Repository
       uses: actions/checkout@v1
+      
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.PULL_SECRET }}
+        
     - name: Check Environment
       run: |
         docker --version
