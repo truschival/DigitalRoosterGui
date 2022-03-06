@@ -99,7 +99,7 @@ TEST_F(AlarmDispatcherFixture, InfoDisabledAlarms) {
 
     alm1->enable(false);
     dut->check_alarms();
-    auto result = dut->get_upcoming_alarm();
+    ASSERT_EQ(dut->get_upcoming_alarm(), nullptr);
     ASSERT_EQ(dut->get_upcoming_alarm_info(), QString(""));
 }
 
