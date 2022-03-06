@@ -380,7 +380,7 @@ private:
     /**
      * show max_episodes in the list
      */
-    int max_episodes = std::numeric_limits<int>::max();
+    size_t max_episodes = std::numeric_limits<size_t>::max();
 
     /**
      * Interval in ms for auto refresh of content
