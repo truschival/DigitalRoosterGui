@@ -14,7 +14,7 @@ jobs:
       BUILD_DIR_HOST: /tmp/build
       BUILD_DIR: /build
       SRC_DIR: /src
-      BUILD_IMAGE: ghcr.io/truschival/devlinuxqt-pistache:latest
+      BUILD_IMAGE: ghcr.io/truschival/devlinuxqt-pistache:v.1.1.0
       CONTAINER_NAME: buildc
       COVERITY_INSTALL_DIR: /tmp/coverity
       COVERITY_RESULT_DIR: cov-int
