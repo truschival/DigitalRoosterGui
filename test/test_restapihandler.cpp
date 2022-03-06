@@ -14,7 +14,7 @@
 #include <pistache/http.h>
 
 #include "common.hpp"
-#include "cm_mock.hpp" /* mock configuration manager */
+#include "config_mock.hpp" /* mock configuration manager */
 
 using namespace DigitalRooster;
 using namespace DigitalRooster::REST;

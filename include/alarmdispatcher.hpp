@@ -79,7 +79,7 @@ private:
     /**
      * Central configuration and data handler
      */
-    IAlarmStore& cm;
+    IAlarmStore& config;
 
     /**
      * Next alarm to be dispatched, keep a copy

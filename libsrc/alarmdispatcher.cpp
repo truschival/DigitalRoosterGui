@@ -22,7 +22,7 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.AlarmDispatcher");
 
 AlarmDispatcher::AlarmDispatcher(IAlarmStore& store, QObject* parent)
     : QObject(parent)
-    , cm(store) {
+    , config(store) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     timer.setSingleShot(true);
     connect(&timer, &QTimer::timeout, this, &AlarmDispatcher::trigger);
@@ -72,7 +72,7 @@ std::chrono::milliseconds AlarmDispatcher::get_remaining_time() const {
 /*****************************************************************************/
 std::shared_ptr<Alarm> AlarmDispatcher::get_upcoming_alarm() {
     // Sort a copy of the alarms not to mess up Alarm list in QML
-    auto v = std::vector(cm.get_alarms());
+    auto v = std::vector(config.get_alarms());
     if (v.empty()) {
         return nullptr;
     }

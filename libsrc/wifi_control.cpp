@@ -19,12 +19,12 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.WifiControl");
 
 /****************************************************************************/
-WifiControl* WifiControl::get_instance(Configuration* cm) {
+WifiControl* WifiControl::get_instance(Configuration* config) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     static WifiControl instance;
     // only if not initialized and we have a control_manager
-    if (!instance.ctrl && cm) {
-        instance.wpa_supplicant_sock_path = cm->get_wpa_socket_name();
+    if (!instance.ctrl && config) {
+        instance.wpa_supplicant_sock_path = config->get_wpa_socket_name();
         try {
             instance.connect_wpa_control_socket();
             instance.ctrl_notifier = std::make_unique<QSocketNotifier>(

@@ -21,7 +21,7 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.IRadioListModel");
 IRadioListModel::IRadioListModel(
     IStationStore& store, MediaPlayer& mp, QObject* parent)
     : QAbstractListModel(parent)
-    , cm(store)
+    , config(store)
     , mpp(mp) {
 }
 
@@ -35,26 +35,26 @@ QHash<int, QByteArray> IRadioListModel::roleNames() const {
 
 /*****************************************************************************/
 int IRadioListModel::rowCount(const QModelIndex& /*parent */) const {
-    auto sz = cm.get_stations().size();
+    auto sz = config.get_stations().size();
     return sz;
 }
 
 /*****************************************************************************/
 QUrl IRadioListModel::get_station_url(int index) {
-    auto pi = cm.get_stations().at(index);
+    auto pi = config.get_stations().at(index);
     return pi->get_url();
 }
 
 /*****************************************************************************/
 void IRadioListModel::send_to_player(int index) {
-    auto station = cm.get_stations().at(index);
+    auto station = config.get_stations().at(index);
     mpp.set_media(station);
     mpp.play();
 }
 
 /*****************************************************************************/
 QVariant IRadioListModel::data(const QModelIndex& index, int role) const {
-    auto sz = cm.get_stations().size();
+    auto sz = config.get_stations().size();
 
     /* static cast only if index.row() is >= 0 and thus can be converted */
     if (index.row() < 0 || static_cast<size_t>(index.row()) >= sz) {
@@ -62,7 +62,7 @@ QVariant IRadioListModel::data(const QModelIndex& index, int role) const {
         return QVariant();
     }
 
-    auto station = cm.get_stations().at(index.row());
+    auto station = config.get_stations().at(index.row());
 
     switch (role) {
     case StationNameRole:

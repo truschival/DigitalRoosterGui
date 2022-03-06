@@ -74,7 +74,7 @@ protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
-    IAlarmStore&  cm;
+    IAlarmStore&  config;
 
     /**
      * Check if valid row was selected

@@ -11,7 +11,7 @@
 #include <chrono>
 #include <gtest/gtest.h>
 
-#include "cm_mock.hpp" /* mock configuration manager */
+#include "config_mock.hpp" /* mock configuration manager */
 #include "weather.hpp"
 
 using namespace DigitalRooster;
@@ -43,7 +43,7 @@ public:
                 forecastFile.errorString().toStdString());
         }
 
-        EXPECT_CALL(cm, get_weather_config())
+        EXPECT_CALL(config, get_weather_config())
             .Times(AtLeast(1))
             .WillRepeatedly(ReturnRef(weather_cfg));
     };
@@ -52,12 +52,12 @@ protected:
     QFile weatherFile;
     QFile forecastFile;
     WeatherConfig weather_cfg;
-    CmMock cm;
+    CmMock config;
 };
 
 /*****************************************************************************/
 TEST_F(WeatherFile, CheckSignals) {
-    Weather dut(cm);
+    Weather dut(config);
     QSignalSpy spy(&dut, SIGNAL(weather_info_updated()));
     ASSERT_TRUE(spy.isValid());
     QSignalSpy spy2(&dut, SIGNAL(forecast_available()));
@@ -72,7 +72,7 @@ TEST_F(WeatherFile, CheckSignals) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, GetConfigForDownloadAfterTimerExpired) {
-    Weather dut(cm);
+    Weather dut(config);
     QSignalSpy spy(&dut, SIGNAL(weather_info_updated()));
     dut.set_update_interval(seconds(1));
     ASSERT_EQ(dut.get_update_interval(), std::chrono::seconds(1));
@@ -82,7 +82,7 @@ TEST_F(WeatherFile, GetConfigForDownloadAfterTimerExpired) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, parseWeatherTemperatures) {
-    Weather dut(cm);
+    Weather dut(config);
     QSignalSpy spy(&dut, SIGNAL(temperature_changed(double)));
     dut.parse_weather(weatherFile.readAll());
     spy.wait(10);
@@ -98,7 +98,7 @@ TEST_F(WeatherFile, parseWeatherTemperatures) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, parseWeatherCity) {
-    Weather dut(cm);
+    Weather dut(config);
     QSignalSpy spy(&dut, SIGNAL(city_updated(const QString&)));
     dut.parse_weather(weatherFile.readAll());
     spy.wait(10);
@@ -111,7 +111,7 @@ TEST_F(WeatherFile, parseWeatherCity) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, parseWeatherIconUrl) {
-    Weather dut(cm);
+    Weather dut(config);
     QSignalSpy spy(&dut, SIGNAL(weather_info_updated()));
     dut.parse_weather(weatherFile.readAll());
     spy.wait(10);
@@ -122,7 +122,7 @@ TEST_F(WeatherFile, parseWeatherIconUrl) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, parseWeatherJsonInvalid) {
-    Weather dut(cm);
+    Weather dut(config);
     QSignalSpy spy(&dut, SIGNAL(city_updated(const QString&)));
 
     ASSERT_TRUE(spy.isValid());
@@ -135,7 +135,7 @@ TEST_F(WeatherFile, parseWeatherJsonInvalid) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, parseWeatherNoTemperature) {
-    Weather dut(cm);
+    Weather dut(config);
     QSignalSpy spy(&dut, SIGNAL(temperature_changed(double)));
     ASSERT_TRUE(spy.isValid());
     auto no_temp = QByteArray::fromStdString(R"({
@@ -157,7 +157,7 @@ TEST_F(WeatherFile, parseWeatherNoTemperature) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, parseWeatherNoCity) {
-    Weather dut(cm);
+    Weather dut(config);
     QSignalSpy spy(&dut, SIGNAL(city_updated(const QString&)));
     ASSERT_TRUE(spy.isValid());
     // forecast does not have the correct format
@@ -169,7 +169,7 @@ TEST_F(WeatherFile, parseWeatherNoCity) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, parseForecastsDoesNotTouchCurrent) {
-    Weather dut(cm);
+    Weather dut(config);
     QSignalSpy spy(&dut, SIGNAL(forecast_available()));
     dut.parse_forecast(forecastFile.readAll());
     spy.wait(10);
@@ -180,7 +180,7 @@ TEST_F(WeatherFile, parseForecastsDoesNotTouchCurrent) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, parseForecastBadJSON) {
-    Weather dut(cm);
+    Weather dut(config);
     QSignalSpy spy(&dut, SIGNAL(forecast_available()));
     ASSERT_TRUE(spy.isValid());
     auto crap = QByteArray::fromStdString(
@@ -198,7 +198,7 @@ TEST_F(WeatherFile, parseForecastBadJSON) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, ForecastOutOfRange) {
-    Weather dut(cm);
+    Weather dut(config);
     QSignalSpy spy(&dut, SIGNAL(forecast_available()));
     dut.parse_forecast(forecastFile.readAll());
     spy.wait(10);
@@ -210,7 +210,7 @@ TEST_F(WeatherFile, ForecastOutOfRange) {
 
 /*****************************************************************************/
 TEST_F(WeatherFile, ForeCastOk) {
-    Weather dut(cm);
+    Weather dut(config);
     QSignalSpy spy(&dut, SIGNAL(forecast_available()));
     dut.parse_forecast(forecastFile.readAll());
     spy.wait(10);

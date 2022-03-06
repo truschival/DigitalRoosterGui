@@ -19,7 +19,7 @@
 #include "alarmmonitor.hpp"
 #include "sleeptimer.hpp"
 
-#include "cm_mock.hpp"
+#include "config_mock.hpp"
 #include "player_mock.hpp"
 
 using namespace DigitalRooster;
@@ -33,13 +33,13 @@ using ::testing::AtLeast;
 /*****************************************************************************/
 class SleepTimerFixture : public ::testing::Test {
 public:
-	SleepTimerFixture() : dut(cm){
+	SleepTimerFixture() : dut(config){
 		   /* sleep timeout 500 ms */
-		    ON_CALL(cm, get_sleep_timeout())
+		    ON_CALL(config, get_sleep_timeout())
 		        .WillByDefault(Return(duration_cast<minutes>(500ms)));
 	}
 protected:
-	NiceMock<CmMock> cm;
+	NiceMock<CmMock> config;
     SleepTimer dut;
 };
 

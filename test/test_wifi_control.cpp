@@ -14,7 +14,7 @@
 
 #include "wifi_control.hpp"
 #include "gtest/gtest.h"
-#include "cm_mock.hpp"
+#include "config_mock.hpp"
 
 using namespace DigitalRooster;
 using namespace ::testing;
@@ -48,12 +48,12 @@ TEST(WifiControl, parseBuffer){
 
 /*****************************************************************************/
 TEST(WifiControl, startScan){
-	CmMock cm;
+	CmMock config;
 	// No real expectations but needed to return a network name.
-    EXPECT_CALL(cm, get_wpa_socket_name())
+    EXPECT_CALL(config, get_wpa_socket_name())
         .WillRepeatedly(Return(QString("/var/run/wpa_supplicant/wlp2s0")));
 
-    auto dut = WifiControl::get_instance(&cm);
+    auto dut = WifiControl::get_instance(&config);
     int scanstatus_typeid =
         qRegisterMetaType<WifiControl::ScanStatus>("WifiControl::ScanStatus");
     ASSERT_TRUE(QMetaType::isRegistered(scanstatus_typeid));

@@ -9,7 +9,7 @@
 
 #include "IHardware.hpp"
 #include "brightnesscontrol.hpp"
-#include "cm_mock.hpp" /* mock configuration manager */
+#include "config_mock.hpp" /* mock configuration manager */
 
 using namespace DigitalRooster;
 using namespace ::testing;
@@ -31,38 +31,38 @@ public:
     BrightnessFixture(){};
 
 protected:
-    CmMock cm;
+    CmMock config;
     HardwareMock hwctrl;
 };
 
 /*****************************************************************************/
 TEST_F(BrightnessFixture, HwProxyGetSensor) {
     EXPECT_CALL(hwctrl, als_sensor_available()).Times(1).WillOnce(Return(true));
-    BrightnessControl dut(cm, &hwctrl);
+    BrightnessControl dut(config, &hwctrl);
     EXPECT_TRUE(dut.has_als_sensor());
 }
 
 /*****************************************************************************/
 TEST_F(BrightnessFixture, AdaptiveModeEnabledNoSensor) {
-    EXPECT_CALL(cm, backlight_control_enabled())
+    EXPECT_CALL(config, backlight_control_enabled())
         .Times(1)
         .WillOnce(Return(true));
     EXPECT_CALL(hwctrl, als_sensor_available())
         .Times(1)
         .WillOnce(Return(false));
 
-    BrightnessControl dut(cm, &hwctrl);
+    BrightnessControl dut(config, &hwctrl);
     EXPECT_FALSE(dut.adaptive_mode());
 }
 
 /*****************************************************************************/
 TEST_F(BrightnessFixture, SetAdaptiveModeHasSensor) {
     // standby brightness is read in set_adaptive_mode
-    EXPECT_CALL(cm, get_standby_brightness())
+    EXPECT_CALL(config, get_standby_brightness())
         .Times(1)
         .WillRepeatedly(Return(20));
 
-    EXPECT_CALL(cm, backlight_control_enabled())
+    EXPECT_CALL(config, backlight_control_enabled())
         .Times(3)
         .WillOnce(Return(false))
         .WillOnce(Return(true))
@@ -76,7 +76,7 @@ TEST_F(BrightnessFixture, SetAdaptiveModeHasSensor) {
     // When disabling we force setting backlight
     EXPECT_CALL(hwctrl, set_backlight(_)).Times(1);
 
-    BrightnessControl dut(cm, &hwctrl);
+    BrightnessControl dut(config, &hwctrl);
     dut.set_adaptive_mode(true);
     dut.set_adaptive_mode(false);
     dut.set_adaptive_mode(true);
@@ -85,15 +85,15 @@ TEST_F(BrightnessFixture, SetAdaptiveModeHasSensor) {
 /*****************************************************************************/
 TEST_F(BrightnessFixture, RestoreActiveManual) {
     // standby brightness is read in set_adaptive_mode
-    EXPECT_CALL(cm, get_standby_brightness())
+    EXPECT_CALL(config, get_standby_brightness())
         .Times(1)
         .WillRepeatedly(Return(20));
     // Is read when switching to active
-    EXPECT_CALL(cm, get_active_brightness())
+    EXPECT_CALL(config, get_active_brightness())
         .Times(1)
         .WillRepeatedly(Return(42));
 
-    EXPECT_CALL(cm, backlight_control_enabled())
+    EXPECT_CALL(config, backlight_control_enabled())
         .Times(2)
         .WillRepeatedly(Return(false));
 
@@ -103,7 +103,7 @@ TEST_F(BrightnessFixture, RestoreActiveManual) {
     // 42% Brighness maps logarithmically to 12% PWM setting
     EXPECT_CALL(hwctrl, set_backlight(12)).Times(1);
 
-    BrightnessControl dut(cm, &hwctrl);
+    BrightnessControl dut(config, &hwctrl);
     dut.set_adaptive_mode(false);
     dut.active(true);
     ASSERT_EQ(dut.get_brightness(), 12);
@@ -112,17 +112,17 @@ TEST_F(BrightnessFixture, RestoreActiveManual) {
 /*****************************************************************************/
 TEST_F(BrightnessFixture, RestoreStandbyManual) {
     // standby brightness is read in set_adaptive_mode and active()
-    EXPECT_CALL(cm, get_standby_brightness())
+    EXPECT_CALL(config, get_standby_brightness())
         .Times(2)
         .WillRepeatedly(Return(20));
 
-    EXPECT_CALL(cm, backlight_control_enabled())
+    EXPECT_CALL(config, backlight_control_enabled())
         .Times(2)
         .WillRepeatedly(Return(false));
 
     // 12% perceived brightness at 5% PWM
     EXPECT_CALL(hwctrl, set_backlight(5)).Times(2);
-    BrightnessControl dut(cm, &hwctrl);
+    BrightnessControl dut(config, &hwctrl);
     dut.set_adaptive_mode(false);
     dut.active(false);
     ASSERT_EQ(dut.get_brightness(), 5);
@@ -131,7 +131,7 @@ TEST_F(BrightnessFixture, RestoreStandbyManual) {
 /*****************************************************************************/
 TEST_F(BrightnessFixture, AutoControl) {
     /* Default behavior of various adaptive_mode() calls */
-    EXPECT_CALL(cm, backlight_control_enabled())
+    EXPECT_CALL(config, backlight_control_enabled())
         .Times(AtLeast(1))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(hwctrl, als_sensor_available())
@@ -139,11 +139,11 @@ TEST_F(BrightnessFixture, AutoControl) {
         .WillRepeatedly(Return(true));
 
     // standby brightness is read in set_adaptive_mode
-    EXPECT_CALL(cm, get_standby_brightness())
+    EXPECT_CALL(config, get_standby_brightness())
         .Times(1)
         .WillRepeatedly(Return(20));
     // Is read when switching to active
-    EXPECT_CALL(cm, get_active_brightness())
+    EXPECT_CALL(config, get_active_brightness())
         .Times(AtLeast(1))
         .WillRepeatedly(Return(35));
 
@@ -151,7 +151,7 @@ TEST_F(BrightnessFixture, AutoControl) {
     // in adaptive mode dut.active(false) should not call hardware
     EXPECT_CALL(hwctrl, set_backlight(_)).Times(5);
 
-    BrightnessControl dut(cm, &hwctrl);
+    BrightnessControl dut(config, &hwctrl);
     dut.set_adaptive_mode(true);
     dut.active(true);
 
@@ -177,7 +177,7 @@ TEST_F(BrightnessFixture, AutoControl) {
 /*****************************************************************************/
 TEST_F(BrightnessFixture, AutoControlEmits) {
     /* Default behavior of various adaptive_mode() calls */
-    EXPECT_CALL(cm, backlight_control_enabled())
+    EXPECT_CALL(config, backlight_control_enabled())
         .Times(AtLeast(1))
         .WillRepeatedly(Return(true));
     EXPECT_CALL(hwctrl, als_sensor_available())
@@ -185,13 +185,13 @@ TEST_F(BrightnessFixture, AutoControlEmits) {
         .WillRepeatedly(Return(true));
 
     // standby brightness is read in set_adaptive_mode
-    EXPECT_CALL(cm, get_standby_brightness())
+    EXPECT_CALL(config, get_standby_brightness())
         .Times(1)
         .WillRepeatedly(Return(20));
 
     EXPECT_CALL(hwctrl, set_backlight(_)).Times(1);
 
-    BrightnessControl dut(cm, &hwctrl);
+    BrightnessControl dut(config, &hwctrl);
     QSignalSpy spy(&dut, SIGNAL(brightness_changed(int)));
     ASSERT_TRUE(spy.isValid());
 
@@ -203,19 +203,19 @@ TEST_F(BrightnessFixture, AutoControlEmits) {
 /*****************************************************************************/
 TEST_F(BrightnessFixture, CmProxySetActiveBrightnessInStandby) {
     /* Operate in ManualMode */
-    EXPECT_CALL(cm, backlight_control_enabled())
+    EXPECT_CALL(config, backlight_control_enabled())
         .Times(AtLeast(1))
         .WillRepeatedly(Return(false));
 
     // called in set_active_brighness and in active
-    EXPECT_CALL(cm, get_standby_brightness())
+    EXPECT_CALL(config, get_standby_brightness())
         .Times(2)
         .WillRepeatedly(Return(20));
 
-    EXPECT_CALL(cm, set_active_brightness(12)).Times(AtLeast(1));
+    EXPECT_CALL(config, set_active_brightness(12)).Times(AtLeast(1));
     // switching active and set_active_brightness call hardware
     EXPECT_CALL(hwctrl, set_backlight(_)).Times(2);
-    BrightnessControl dut(cm, &hwctrl);
+    BrightnessControl dut(config, &hwctrl);
     dut.active(false);
     dut.set_active_brightness(12);
 }
@@ -223,20 +223,20 @@ TEST_F(BrightnessFixture, CmProxySetActiveBrightnessInStandby) {
 /*****************************************************************************/
 TEST_F(BrightnessFixture, CmProxySetStandbyBrightnessInStandby) {
     /* Operate in ManualMode */
-    EXPECT_CALL(cm, backlight_control_enabled())
+    EXPECT_CALL(config, backlight_control_enabled())
         .Times(AtLeast(1))
         .WillRepeatedly(Return(false));
 
     // called in set_active_brighness and in active
-    EXPECT_CALL(cm, get_standby_brightness())
+    EXPECT_CALL(config, get_standby_brightness())
         .Times(2)
         .WillRepeatedly(Return(20));
 
-    EXPECT_CALL(cm, set_standby_brightness(5)).Times(AtLeast(1));
+    EXPECT_CALL(config, set_standby_brightness(5)).Times(AtLeast(1));
     // switching active and set_active_brightness call hardware
     EXPECT_CALL(hwctrl, set_backlight(_)).Times(2);
 
-    BrightnessControl dut(cm, &hwctrl);
+    BrightnessControl dut(config, &hwctrl);
     dut.active(false);
     dut.set_standby_brightness(5);
 }
@@ -244,19 +244,19 @@ TEST_F(BrightnessFixture, CmProxySetStandbyBrightnessInStandby) {
 /*****************************************************************************/
 TEST_F(BrightnessFixture, CmProxySetActiveBrightnessActive) {
     /* Operate in ManualMode */
-    EXPECT_CALL(cm, backlight_control_enabled())
+    EXPECT_CALL(config, backlight_control_enabled())
         .Times(AtLeast(1))
         .WillRepeatedly(Return(false));
 
     // Is read when switching to active
-    EXPECT_CALL(cm, get_active_brightness())
+    EXPECT_CALL(config, get_active_brightness())
         .Times(AtLeast(1))
         .WillRepeatedly(Return(35));
 
-    EXPECT_CALL(cm, set_active_brightness(12)).Times(AtLeast(1));
+    EXPECT_CALL(config, set_active_brightness(12)).Times(AtLeast(1));
     // switching active and set_active_brightness call hardware
     EXPECT_CALL(hwctrl, set_backlight(_)).Times(2);
-    BrightnessControl dut(cm, &hwctrl);
+    BrightnessControl dut(config, &hwctrl);
     dut.active(true);
     dut.set_active_brightness(12);
 }
@@ -264,28 +264,28 @@ TEST_F(BrightnessFixture, CmProxySetActiveBrightnessActive) {
 /*****************************************************************************/
 TEST_F(BrightnessFixture, CmProxySetStandbyBrightnessActive) {
     /* Operate in ManualMode */
-    EXPECT_CALL(cm, backlight_control_enabled())
+    EXPECT_CALL(config, backlight_control_enabled())
         .Times(AtLeast(1))
         .WillRepeatedly(Return(false));
 
     // Is read when switching to active
-    EXPECT_CALL(cm, get_active_brightness())
+    EXPECT_CALL(config, get_active_brightness())
         .Times(AtLeast(1))
         .WillRepeatedly(Return(35));
-    EXPECT_CALL(cm, set_standby_brightness(5)).Times(AtLeast(1));
+    EXPECT_CALL(config, set_standby_brightness(5)).Times(AtLeast(1));
     // switching active and set_active_brightness call hardware
     EXPECT_CALL(hwctrl, set_backlight(_)).Times(2);
 
-    BrightnessControl dut(cm, &hwctrl);
+    BrightnessControl dut(config, &hwctrl);
     dut.active(true);
     dut.set_standby_brightness(5);
 }
 
 /*****************************************************************************/
 TEST_F(BrightnessFixture, CmProxyGetBrightnessValues) {
-    EXPECT_CALL(cm, get_active_brightness()).Times(1).WillOnce(Return(35));
-    EXPECT_CALL(cm, get_standby_brightness()).Times(1).WillOnce(Return(20));
-    BrightnessControl dut(cm, &hwctrl);
+    EXPECT_CALL(config, get_active_brightness()).Times(1).WillOnce(Return(35));
+    EXPECT_CALL(config, get_standby_brightness()).Times(1).WillOnce(Return(20));
+    BrightnessControl dut(config, &hwctrl);
     EXPECT_EQ(dut.get_active_brightness(), 35);
     EXPECT_EQ(dut.get_standby_brightness(), 20);
 }

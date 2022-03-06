@@ -22,7 +22,7 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.Weather");
 /*****************************************************************************/
 Weather::Weather(const IWeatherConfigStore& store, QObject* parent)
     : QObject(parent)
-    , cm(store) {
+    , config(store) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     // timer starts refresh, refresh calls downloader
@@ -36,9 +36,9 @@ Weather::Weather(const IWeatherConfigStore& store, QObject* parent)
     timer.setInterval(duration_cast<milliseconds>(update_interval));
     timer.setSingleShot(false);
     timer.start();
-    weather_downloader.doDownload(create_weather_url(cm.get_weather_config()));
+    weather_downloader.doDownload(create_weather_url(config.get_weather_config()));
     forecast_downloader.doDownload(
-        create_forecast_url(cm.get_weather_config()));
+        create_forecast_url(config.get_weather_config()));
 }
 
 /*****************************************************************************/
@@ -59,9 +59,9 @@ std::chrono::seconds Weather::get_update_interval() const {
 void Weather::refresh() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     /* restart downloads */
-    weather_downloader.doDownload(create_weather_url(cm.get_weather_config()));
+    weather_downloader.doDownload(create_weather_url(config.get_weather_config()));
     forecast_downloader.doDownload(
-        create_forecast_url(cm.get_weather_config()));
+        create_forecast_url(config.get_weather_config()));
     timer.start();
 }
 

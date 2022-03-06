@@ -66,10 +66,10 @@ public:
 
     /**
      * Singleton Creator method
-     * @param cm configuration manager (to get WIFI interface)
+     * @param config configuration manager (to get WIFI interface)
      * @return
      */
-    static WifiControl* get_instance(Configuration* cm = nullptr);
+    static WifiControl* get_instance(Configuration* config = nullptr);
 
     /**
      * Trigger Push Button Configuration (PBC) authentication

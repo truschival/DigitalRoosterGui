@@ -134,31 +134,31 @@ int main(int argc, char* argv[]) {
     /*
      * Read configuration
      */
-    Configuration cm(
+    Configuration config(
         cmdline.value(CMD_ARG_CONFIG_FILE), cmdline.value(CMD_ARG_CACHE_DIR));
-    cm.update_configuration();
+    config.update_configuration();
 
     // Initialize Player
     MediaPlayerProxy playerproxy;
-    playerproxy.set_volume(cm.get_volume());
+    playerproxy.set_volume(config.get_volume());
 
-    AlarmDispatcher alarmdispatcher(cm);
-    QObject::connect(&cm, &Configuration::alarms_changed,
+    AlarmDispatcher alarmdispatcher(config);
+    QObject::connect(&config, &Configuration::alarms_changed,
         &alarmdispatcher, &AlarmDispatcher::check_alarms);
     AlarmMonitor alarmmonitor(playerproxy, std::chrono::seconds(20));
     QObject::connect(&alarmdispatcher, &AlarmDispatcher::alarm_triggered,
         &alarmmonitor, &AlarmMonitor::alarm_triggered);
 
-    PodcastSourceModel psmodel(cm, playerproxy);
-    AlarmListModel alarmlistmodel(cm);
-    IRadioListModel iradiolistmodel(cm, playerproxy);
+    PodcastSourceModel psmodel(config, playerproxy);
+    AlarmListModel alarmlistmodel(config);
+    IRadioListModel iradiolistmodel(config, playerproxy);
     WifiListModel wifilistmodel;
 
-    Weather weather(cm);
-    SleepTimer sleeptimer(cm);
+    Weather weather(config);
+    SleepTimer sleeptimer(config);
 
     /* Brightness control sends pwm update requests to Hardware */
-    BrightnessControl brightness(cm, &hwctrl);
+    BrightnessControl brightness(config, &hwctrl);
     QObject::connect(&brightness, &BrightnessControl::brightness_changed,
         &hwctrl, &Hal::IHardware::set_backlight);
     QObject::connect(&hwctrl, &Hal::IHardware::als_value_changed, &brightness,
@@ -211,17 +211,17 @@ int main(int argc, char* argv[]) {
     /* Standby deactivates Volume button events */
     QObject::connect(&power, &PowerControl::active, &volbtn,
         &VolumeButton::monitor_rotary_button);
-    QObject::connect(&playerproxy, &MediaPlayer::volume_changed, &cm,
+    QObject::connect(&playerproxy, &MediaPlayer::volume_changed, &config,
         &Configuration::set_volume);
 
     /* Network / Wifi Settings */
-    NetworkInfo netinfo(cm.get_net_dev_name());
-    WifiControl* wifictrl = WifiControl::get_instance(&cm);
+    NetworkInfo netinfo(config.get_net_dev_name());
+    WifiControl* wifictrl = WifiControl::get_instance(&config);
     QObject::connect(wifictrl, &WifiControl::networks_found, &wifilistmodel,
         &WifiListModel::update_scan_results);
 
 #ifdef REST_API
-    RestApi rest(cm, cm, cm, cm, cm);
+    RestApi rest(config, config, config, config, config);
 #endif
     /*
      * QML Setup dynamically createable types
@@ -252,7 +252,7 @@ int main(int argc, char* argv[]) {
     ctxt->setContextProperty("alarmlistmodel", &alarmlistmodel);
     ctxt->setContextProperty("iradiolistmodel", &iradiolistmodel);
     ctxt->setContextProperty("weather", &weather);
-    ctxt->setContextProperty("config", &cm);
+    ctxt->setContextProperty("config", &config);
     ctxt->setContextProperty("alarmdispatcher", &alarmdispatcher);
     ctxt->setContextProperty("powerControl", &power);
     ctxt->setContextProperty("brightnessControl", &brightness);

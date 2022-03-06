@@ -16,7 +16,7 @@
 
 #include "alarm.hpp"
 #include "alarmdispatcher.hpp"
-#include "cm_mock.hpp"
+#include "config_mock.hpp"
 #include "mock_clock.hpp"
 
 using namespace DigitalRooster;
@@ -30,16 +30,16 @@ class AlarmDispatcherFixture : public ::testing::Test {
 public:
     AlarmDispatcherFixture()
         : mc(new NiceMock<MockClock>) {
-        ON_CALL(cm, get_alarms()).WillByDefault(ReturnRef(cm.alarms));
+        ON_CALL(config, get_alarms()).WillByDefault(ReturnRef(config.alarms));
 
         alm1 = std::make_shared<DigitalRooster::Alarm>(
             QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
             QTime::fromString("08:30:00", "hh:mm:ss"), Alarm::Daily);
-        cm.alarms.push_back(alm1);
+        config.alarms.push_back(alm1);
 
         // need to make a pointer because AlarmDispatcher inherits QObject which
         // is not copyable
-        dut = std::make_unique<DigitalRooster::AlarmDispatcher>(cm);
+        dut = std::make_unique<DigitalRooster::AlarmDispatcher>(config);
         // QSignalSpy and spy->wait needed for Qt Eventloop processing,
         // otherwise timers are not started correctly
         spy = std::make_unique<QSignalSpy>(
@@ -59,7 +59,7 @@ public:
 
 protected:
     std::shared_ptr<NiceMock<MockClock>> mc;
-    NiceMock<CmMock> cm;
+    NiceMock<CmMock> config;
     std::shared_ptr<DigitalRooster::Alarm> alm1;
     std::unique_ptr<DigitalRooster::AlarmDispatcher> dut;
     std::unique_ptr<QSignalSpy> spy;
@@ -67,7 +67,7 @@ protected:
 
 /*****************************************************************************/
 TEST_F(AlarmDispatcherFixture, CheckFixture) {
-    ASSERT_EQ(cm.get_alarms().size(), 1);
+    ASSERT_EQ(config.get_alarms().size(), 1);
     ASSERT_TRUE(spy->isValid());
 }
 
@@ -76,8 +76,8 @@ TEST_F(AlarmDispatcherFixture, InfoEmptyAlarms) {
     ON_CALL(*(mc.get()), get_time())
         .WillByDefault(
             Return(QDateTime::fromString("2020-11-22T19:00:00", Qt::ISODate)));
-    cm.alarms.clear();
-    ASSERT_EQ(cm.get_alarms().size(), 0);
+    config.alarms.clear();
+    ASSERT_EQ(config.get_alarms().size(), 0);
 
     dut->check_alarms();
     auto result = dut->get_upcoming_alarm();
@@ -109,12 +109,12 @@ TEST_F(AlarmDispatcherFixture, SortAlarms) {
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
         QTime::fromString("08:00:00", "hh:mm:ss"), Alarm::Daily);
     alm2->enable(false);
-    cm.alarms.push_back(alm2);
+    config.alarms.push_back(alm2);
 
     auto alm3 = std::make_shared<DigitalRooster::Alarm>(
         QUrl("http://st01.dlf.de/dlf/01/104/ogg/stream.ogg"),
         QTime::fromString("08:29:40", "hh:mm:ss"), Alarm::Daily);
-    cm.alarms.push_back(alm3);
+    config.alarms.push_back(alm3);
 
     EXPECT_CALL(*(mc.get()), get_time())
         .Times(AnyNumber())

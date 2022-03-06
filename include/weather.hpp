@@ -261,7 +261,7 @@ private:
     /**
      * Central configuration and data handler
      */
-    const IWeatherConfigStore& cm;
+    const IWeatherConfigStore& config;
 
     /**
      * Interval in ms for auto refresh of content
