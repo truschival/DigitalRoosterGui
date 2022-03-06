@@ -43,15 +43,18 @@ PodcastSource::~PodcastSource() {
 /*****************************************************************************/
 void PodcastSource::add_episode(
     const std::shared_ptr<PodcastEpisode>& episode) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (episodes.size() >= max_episodes) {
-        qInfo(CLASS_LC) << " > max episodes reached: " << max_episodes;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << episode->get_guid();
+    auto ep = get_episode_by_id(episode->get_guid());
+    /* If episode already in list - skip it */
+    if (ep) {
+        qCDebug(CLASS_LC) << episode->get_guid() << "already in list";
         return;
     }
-    auto ep = get_episode_by_id(episode->get_guid());
-    /* add if not found */
-    if (!ep) {
-        qCDebug(CLASS_LC) << " > new Episode :" << episode->get_guid();
+    // Only add if still space left or if episode more recent than oldest
+    // episode
+    if (episodes.size() <= max_episodes or
+        (*episodes.end())->get_publication_date() <
+            episode->get_publication_date()) {
         // insert sorted by publication date
         auto iterator =
             std::lower_bound(episodes.begin(), episodes.end(), episode,
@@ -61,13 +64,16 @@ void PodcastSource::add_episode(
                         rhs->get_publication_date();
                 });
         episodes.insert(iterator, episode);
-        /* get notified if any data changes */
-        connect(episode.get(), &PodcastEpisode::data_changed, this,
-            &PodcastSource::episode_info_changed);
-        emit episodes_count_changed(episodes.size());
-    } else {
-        qCDebug(CLASS_LC) << " < " << episode->get_guid() << "already in list";
+        /* Remove oldest episode if max episodes has been reached */
+        if (episodes.size() > max_episodes) {
+            qInfo(CLASS_LC) << " > max episodes reached, removing";
+            episodes.pop_back();
+        }
     }
+    /* get notified if any data changes */
+    connect(episode.get(), &PodcastEpisode::data_changed, this,
+        &PodcastSource::episode_info_changed);
+    emit episodes_count_changed(episodes.size());
 }
 
 /*****************************************************************************/

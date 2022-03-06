@@ -34,6 +34,13 @@ public:
                     "DigitalRoosterGui/develop/test/old_icon.png")
         , cache_file(
               cache_dir.filePath(uid.toString(QUuid::WithoutBraces) + ".png")) {
+        ps.set_max_episodes(5);
+        ep1 = std::make_shared<PodcastEpisode>("Name1",QUrl("http://foo-1.bar"));
+        ep1->set_publication_date(QDateTime::fromSecsSinceEpoch(100000000));
+        ep2 = std::make_shared<PodcastEpisode>("Name2",QUrl("http://foo-2.bar"));
+        ep2->set_publication_date(QDateTime::fromSecsSinceEpoch(200000000));
+        ep3 = std::make_shared<PodcastEpisode>("Name3",QUrl("http://foo-3.bar"));
+        ep3->set_publication_date(QDateTime::fromSecsSinceEpoch(300000000));
     }
 
     ~PodcastSourceFixture() {
@@ -53,6 +60,10 @@ protected:
     PodcastSource ps;
     QUrl image_url;
     QFile cache_file;
+    /* common episodes */
+    std::shared_ptr<PodcastEpisode> ep1;
+    std::shared_ptr<PodcastEpisode> ep2;
+    std::shared_ptr<PodcastEpisode> ep3;
 };
 
 /******************************************************************************/
@@ -63,6 +74,39 @@ TEST_F(PodcastSourceFixture, dont_add_twice) {
     ps.add_episode(pi);
     EXPECT_EQ(ps.get_episodes().size(), 1);
 }
+
+/******************************************************************************/
+TEST_F(PodcastSourceFixture, expected_order) {
+    ps.add_episode(ep2);
+    ps.add_episode(ep3);
+    ps.add_episode(ep1);
+    EXPECT_EQ(ps.get_episodes().size(), 3);
+    // oldest last
+    EXPECT_EQ(ps.get_episodes().back()->get_url(),ep1->get_url());
+    // ep3 first
+    EXPECT_EQ(ps.get_episodes().front()->get_url(),ep3->get_url());
+}
+
+
+/******************************************************************************/
+TEST_F(PodcastSourceFixture, max_reached_adding) {
+    ps.set_max_episodes(3);
+    auto p4 =
+        std::make_shared<PodcastEpisode>("Name4", QUrl("http://foo-4.bar"));
+    // episode 4 is published between ep2 and ep3
+    p4->set_publication_date(QDateTime::fromSecsSinceEpoch(220000000));
+    ps.add_episode(ep1);
+    ps.add_episode(ep2);
+    ps.add_episode(ep3);
+    ps.add_episode(p4);
+    // expect ep1 to be removed
+    EXPECT_EQ(ps.get_episodes().size(), 3);
+    // now p2 is oldest
+    EXPECT_EQ(ps.get_episodes().back()->get_url(),ep2->get_url());
+    // ep3 first
+    EXPECT_EQ(ps.get_episodes().front()->get_url(),ep3->get_url());
+}
+
 
 /******************************************************************************/
 TEST_F(PodcastSourceFixture, add_two_with_guid) {
@@ -218,7 +262,8 @@ TEST_F(PodcastSourceFixture, updateWithNewIconTriggersDownload) {
 
     // Second time the local cache should be returned
     ASSERT_EQ(ps.get_icon(), expected_icon_url);
-    QFile iconcache_new(cache_dir.filePath(ps.create_image_file_name(image_url_new)));
+    QFile iconcache_new(
+        cache_dir.filePath(ps.create_image_file_name(image_url_new)));
     ASSERT_TRUE(iconcache_new.exists());
 }
 
