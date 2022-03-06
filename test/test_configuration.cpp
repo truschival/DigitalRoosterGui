@@ -494,8 +494,16 @@ TEST(Configuration, DefaultForNotWritableConfig) {
     QFile default_conf_file(DEFAULT_CONFIG_FILE_PATH);
     // Delete it should it exist..
     default_conf_file.remove();
-    Configuration config(
-        QString("/dev/foobar.json"), DEFAULT_CACHE_DIR_PATH);
+    Configuration config(QString("/dev/foobar.json"), DEFAULT_CACHE_DIR_PATH);
+    ASSERT_TRUE(default_conf_file.exists());
+}
+
+/*****************************************************************************/
+TEST(Configuration, DefaultForNotReadableConfig) {
+    QFile default_conf_file(DEFAULT_CONFIG_FILE_PATH);
+    // Delete it should it exist..
+    default_conf_file.remove();
+    Configuration config(QString("/dev/mem"), DEFAULT_CACHE_DIR_PATH);
     ASSERT_TRUE(default_conf_file.exists());
 }
 
