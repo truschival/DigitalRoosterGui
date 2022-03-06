@@ -28,7 +28,7 @@ static void messageHandler(
     if (!initialized) {
         out << "\n ======= "
             << QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss.zzz")
-            << " =======" << endl;
+            << " =======" << Qt::endl;
         initialized = true;
     }
     out << QDateTime::currentDateTime().toString("hh:mm:ss.zzz ");
@@ -50,7 +50,7 @@ static void messageHandler(
         out << "FAT\t";
         break;
     }
-    out << context.category << "\t" << msg << endl;
+    out << context.category << "\t" << msg << Qt::endl;
     out.flush();
 }
 
