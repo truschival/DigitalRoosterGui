@@ -12,7 +12,7 @@
 
 #include "RestApi.hpp"
 #include "appconstants.hpp"
-#include "configuration_manager.hpp"
+#include "configuration.hpp"
 #include "testcommon.hpp"
 #include "util.hpp"
 
@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
     setup_tests();
     qDebug() << argv[0];
 
-    ConfigurationManager cm(
+    Configuration cm(
         cmdline.value(CMD_ARG_CONFIG_FILE), cmdline.value(CMD_ARG_CACHE_DIR));
     RestApi restserver(cm, cm, cm, cm, cm);
     cm.update_configuration();

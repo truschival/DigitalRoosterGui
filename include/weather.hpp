@@ -30,7 +30,7 @@
 namespace DigitalRooster {
 
 class Weather;
-class ConfigurationManager;
+class Configuration;
 
 /**
  * Object for Forecast data

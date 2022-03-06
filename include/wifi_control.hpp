@@ -28,7 +28,7 @@
 
 namespace DigitalRooster {
 // Forward declaration
-class ConfigurationManager;
+class Configuration;
 
 /**
  * Function to register as callback
@@ -69,7 +69,7 @@ public:
      * @param cm configuration manager (to get WIFI interface)
      * @return
      */
-    static WifiControl* get_instance(ConfigurationManager* cm = nullptr);
+    static WifiControl* get_instance(Configuration* cm = nullptr);
 
     /**
      * Trigger Push Button Configuration (PBC) authentication

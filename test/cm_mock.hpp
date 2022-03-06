@@ -11,17 +11,17 @@
 #include <vector>
 
 #include "appconstants.hpp"
-#include "configuration_manager.hpp"
+#include "configuration.hpp"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-class CmMock : public DigitalRooster::ConfigurationManager {
+class CmMock : public DigitalRooster::Configuration {
 public:
     CmMock(const QString& configpath = QString(DigitalRooster::TEST_FILE_PATH +
                "/" + DigitalRooster::CONFIG_JSON_FILE_NAME),
         const QString& cachedir = QString(
             DigitalRooster::TEST_FILE_PATH + "/" + "cache"))
-        : ConfigurationManager(configpath, cachedir) {
+        : Configuration(configpath, cachedir) {
         qRegisterMetaType<std::shared_ptr<DigitalRooster::Alarm>>(
             "std::shared_ptr<DigitalRooster::Alarm>");
     };

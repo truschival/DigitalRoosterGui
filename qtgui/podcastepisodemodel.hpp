@@ -20,7 +20,7 @@
 
 namespace DigitalRooster {
 
-class ConfigurationManager;
+class Configuration;
 class PodcastEpisode;
 class MediaPlayer;
 

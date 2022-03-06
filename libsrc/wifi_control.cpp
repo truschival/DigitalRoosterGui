@@ -10,7 +10,7 @@
 #include <exception>
 
 #include "appconstants.hpp"
-#include "configuration_manager.hpp"
+#include "configuration.hpp"
 #include "wifi_control.hpp"
 #include "wpa_ctrl/wpa_ctrl.h"
 
@@ -19,7 +19,7 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.WifiControl");
 
 /****************************************************************************/
-WifiControl* WifiControl::get_instance(ConfigurationManager* cm) {
+WifiControl* WifiControl::get_instance(Configuration* cm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     static WifiControl instance;
     // only if not initialized and we have a control_manager

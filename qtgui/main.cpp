@@ -35,7 +35,7 @@
 #include "alarmmonitor.hpp"
 #include "appconstants.hpp"
 #include "brightnesscontrol.hpp"
-#include "configuration_manager.hpp"
+#include "configuration.hpp"
 #include "iradiolistmodel.hpp"
 #include "logger.hpp"
 #include "mediaplayerproxy.hpp"
@@ -134,7 +134,7 @@ int main(int argc, char* argv[]) {
     /*
      * Read configuration
      */
-    ConfigurationManager cm(
+    Configuration cm(
         cmdline.value(CMD_ARG_CONFIG_FILE), cmdline.value(CMD_ARG_CACHE_DIR));
     cm.update_configuration();
 
@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
     playerproxy.set_volume(cm.get_volume());
 
     AlarmDispatcher alarmdispatcher(cm);
-    QObject::connect(&cm, &ConfigurationManager::alarms_changed,
+    QObject::connect(&cm, &Configuration::alarms_changed,
         &alarmdispatcher, &AlarmDispatcher::check_alarms);
     AlarmMonitor alarmmonitor(playerproxy, std::chrono::seconds(20));
     QObject::connect(&alarmdispatcher, &AlarmDispatcher::alarm_triggered,
@@ -212,7 +212,7 @@ int main(int argc, char* argv[]) {
     QObject::connect(&power, &PowerControl::active, &volbtn,
         &VolumeButton::monitor_rotary_button);
     QObject::connect(&playerproxy, &MediaPlayer::volume_changed, &cm,
-        &ConfigurationManager::set_volume);
+        &Configuration::set_volume);
 
     /* Network / Wifi Settings */
     NetworkInfo netinfo(cm.get_net_dev_name());

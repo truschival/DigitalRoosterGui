@@ -157,7 +157,7 @@ signals:
 
 private:
     /**
-     * 'unique' id for this object, info managed by configuration_manager
+     * 'unique' id for this object, info managed by configuration
      */
     const QUuid id;
 
