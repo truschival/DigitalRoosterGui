@@ -327,11 +327,15 @@ std::shared_ptr<PodcastSource> PodcastSource::from_json_object(
     auto desc = json[KEY_DESCRIPTION].toString();
     auto img_url = json[KEY_ICON_URL].toString();
     auto img_cached = json[KEY_IMAGE_CACHE].toString();
+    auto max_episodes =
+        json[KEY_MAX_EPISODES].toInt(DEFAULT_MAX_EPISODES);
 
     ps->set_title(title);
     ps->set_description(desc);
     ps->set_image_url(img_url);
     ps->set_image_file_path(img_cached);
+    ps->set_max_episodes(max_episodes);
+
     ps->set_update_interval(
         std::chrono::seconds(json[KEY_UPDATE_INTERVAL].toInt(3600)));
     ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
@@ -345,6 +349,7 @@ QJsonObject PodcastSource::to_json_object() const {
     json[KEY_ID] = get_id_string();
     json[KEY_URI] = get_url().toString();
     json[JSON_KEY_TITLE] = get_title();
+    json[KEY_MAX_EPISODES] = static_cast<qint64>(max_episodes);
     json[KEY_UPDATE_INTERVAL] =
         static_cast<qint64>(get_update_interval().count());
     return json;

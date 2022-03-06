@@ -78,6 +78,7 @@ The only mandatory property is `url` others are optional:
 -   `id` unique identifier - auto generated if not present
 -   `title` human readable identifier, will be updated according to RSS XML
 -   `url` RSS url
+-   `maxEpisodes` only shows <n> most recent podcast episodes
 
 ### Internet Stream objects
 `InternetRadio` is an array containing individual stream source configurations.
