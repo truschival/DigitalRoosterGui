@@ -16,6 +16,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <optional>
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -89,7 +90,7 @@ namespace REST {
      * @return value within  range
      */
     int get_val_from_query_within_range(
-        const Pistache::Optional<std::string>& query, int min, int max);
+        const std::optional<std::string>& query, int min, int max);
 
     /**
      * Convenience function to get a QJsonObject from a std::string
@@ -117,14 +118,14 @@ namespace REST {
         auto max_size = all.size();
         int offset = 0;
         auto offset_param = request.query().get("offset");
-        if (!offset_param.isEmpty()) {
+        if (offset_param.has_value()) {
             // Offset between 0 and max_size
             offset = get_val_from_query_within_range(offset_param, 0, max_size);
         }
 
         int length = max_size;
         auto length_param = request.query().get("length");
-        if (!length_param.isEmpty()) {
+        if (length_param.has_value()) {
             // length between 0 and max_size-offset
             length = get_val_from_query_within_range(
                 length_param, 1, max_size - offset);
