@@ -508,6 +508,16 @@ TEST(Configuration, DefaultForNotReadableConfig) {
 }
 
 /*****************************************************************************/
+TEST(Configuration, ExceptionNotReadableConfig) {
+    QFile cfg(QDir(QDir(DigitalRooster::TEST_FILE_PATH).filePath("testconfig"))
+            .filePath("config-ro.json"));
+    Configuration config(cfg.fileName(), DEFAULT_CACHE_DIR_PATH);
+    cfg.setPermissions(QFileDevice::WriteOwner);
+    ASSERT_THROW(config.update_configuration(), std::system_error);
+    cfg.remove();
+}
+
+/*****************************************************************************/
 TEST_F(ConfigurationFixture, GetweatherConfigApiToken) {
     auto cfg = config->get_weather_config();
     ASSERT_EQ(cfg.get_api_token(), QString("d77bd1ca2fd77ce4e1cdcdd5f8b7206c"));
