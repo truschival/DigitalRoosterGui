@@ -21,7 +21,7 @@
 #include "util.hpp"
 
 using namespace DigitalRooster;
-static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.ConfigurationManager");
+static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.Configuration");
 
 /*****************************************************************************/
 bool DigitalRooster::is_writable_directory(const QString& dirname) {
