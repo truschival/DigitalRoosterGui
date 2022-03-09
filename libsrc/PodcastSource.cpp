@@ -52,8 +52,10 @@ void PodcastSource::add_episode(
     }
     // Only add if still space left or if episode more recent than oldest
     // episode
+    // For an empty vector episodes.size() <= max_episodes holds true
+    // otherwise episodes.back() is guaranteed to have a value
     if (episodes.size() <= max_episodes or
-        (*episodes.end())->get_publication_date() <
+        episodes.back()->get_publication_date() <
             episode->get_publication_date()) {
         // insert sorted by publication date
         auto iterator =
@@ -66,7 +68,7 @@ void PodcastSource::add_episode(
         episodes.insert(iterator, episode);
         /* Remove oldest episode if max episodes has been reached */
         if (episodes.size() > max_episodes) {
-            qInfo(CLASS_LC) << " > max episodes reached, removing";
+            qInfo(CLASS_LC) << "max episodes reached, removing";
             episodes.pop_back();
         }
     }
@@ -109,8 +111,12 @@ void PodcastSource::set_link(const QUrl& newVal) {
 /*****************************************************************************/
 void PodcastSource::set_max_episodes(int max) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (max >= 0)
+    if (max > 0) {
         max_episodes = max;
+    } else {
+        QString what(KEY_MAX_EPISODES + "< 1 is not allowed!");
+        throw std::invalid_argument(what.toStdString());
+    }
 }
 
 /*****************************************************************************/
@@ -327,15 +333,17 @@ std::shared_ptr<PodcastSource> PodcastSource::from_json_object(
     auto desc = json[KEY_DESCRIPTION].toString();
     auto img_url = json[KEY_ICON_URL].toString();
     auto img_cached = json[KEY_IMAGE_CACHE].toString();
-    auto max_episodes =
-        json[KEY_MAX_EPISODES].toInt(DEFAULT_MAX_EPISODES);
+    auto max_episodes = json[KEY_MAX_EPISODES].toInt(DEFAULT_MAX_EPISODES);
 
     ps->set_title(title);
     ps->set_description(desc);
     ps->set_image_url(img_url);
     ps->set_image_file_path(img_cached);
-    ps->set_max_episodes(max_episodes);
-
+    try {
+        ps->set_max_episodes(max_episodes);
+    } catch (const std::invalid_argument& exc) {
+        qCWarning(CLASS_LC) << exc.what() << "- will use default";
+    }
     ps->set_update_interval(
         std::chrono::seconds(json[KEY_UPDATE_INTERVAL].toInt(3600)));
     ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
