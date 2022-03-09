@@ -1,3 +1,4 @@
+
 /******************************************************************************
  * \filename
  * \brief
@@ -157,7 +158,7 @@ public:
     /**
      * show max_episodes in the list
      */
-    int get_max_episodes() const {
+    size_t get_max_episodes() const {
         return max_episodes;
     };
 

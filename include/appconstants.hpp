@@ -284,7 +284,7 @@ const double VOLUME_INCREMENT = 0.5;
 /**
  * Default episodes limit to show for each podcast feed
  */
-const int DEFAULT_MAX_EPISODES = 100;
+const unsigned int DEFAULT_MAX_EPISODES = 100;
 
 /**
  * Where to find icons for weather condition
