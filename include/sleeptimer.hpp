@@ -142,7 +142,7 @@ private:
     /**
      * Central configuration and data handler
      */
-    ITimeOutStore& cm;
+    ITimeOutStore& config;
 
     /**
      * Timer to trigger standby

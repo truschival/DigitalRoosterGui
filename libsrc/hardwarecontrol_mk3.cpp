@@ -236,4 +236,4 @@ void HardwareControlMk3::set_backlight(int brightness_in) {
 }
 
 /*****************************************************************************/
-Hal::IHardware::~IHardware() = default;
+

@@ -43,6 +43,14 @@ def test_create_podcast_ok(api_client):
      r= c.podcasts_read_all().value
      assert len(r) == 3
 
+def test_create_podcast_max_episodes(api_client):
+     c = PodcastsApi(api_client)
+     podcast = Podcast(title="The Title",
+                       url="http://armscontrolwonk.libsyn.com/rss",
+                       maxEpisodes=5)
+     x= c.podcasts_create(podcast)
+     r= c.podcasts_read_one(x.id)
+     assert r.max_episodes == 5
      
 def test_create_podcast_wrong_url(api_client):
      c = PodcastsApi(api_client)

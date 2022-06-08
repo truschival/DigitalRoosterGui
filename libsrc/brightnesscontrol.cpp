@@ -24,7 +24,7 @@ static const double LOG_100 = 4.6052;
 /*****************************************************************************/
 BrightnessControl::BrightnessControl(
     IBrightnessStore& store, Hal::IHardware* hw)
-    : cm(store)
+    : config(store)
     , hwctrl(hw) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }
@@ -34,10 +34,10 @@ void BrightnessControl::update_backlight(double bl_brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << bl_brightness;
     if (standby) {
         current_brightness =
-            lin2log(cm.get_standby_brightness() + bl_brightness);
+            lin2log(config.get_standby_brightness() + bl_brightness);
     } else {
         current_brightness =
-            lin2log(cm.get_active_brightness() + bl_brightness);
+            lin2log(config.get_active_brightness() + bl_brightness);
     }
     hwctrl->set_backlight(current_brightness);
     emit brightness_changed(current_brightness);
@@ -126,7 +126,7 @@ void BrightnessControl::als_value_changed(Hal::AlsValue brightness) {
 /*****************************************************************************/
 void BrightnessControl::set_active_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    cm.set_active_brightness(brightness);
+    config.set_active_brightness(brightness);
     emit active_brightness_changed(brightness);
     if (!adaptive_mode()) {
         update_backlight();
@@ -136,7 +136,7 @@ void BrightnessControl::set_active_brightness(int brightness) {
 /*****************************************************************************/
 void BrightnessControl::set_standby_brightness(int brightness) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    cm.set_standby_brightness(brightness);
+    config.set_standby_brightness(brightness);
     emit standby_brightness_changed(brightness);
     if (!adaptive_mode()) {
         update_backlight();
@@ -146,13 +146,13 @@ void BrightnessControl::set_standby_brightness(int brightness) {
 /*****************************************************************************/
 int BrightnessControl::get_active_brightness() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return cm.get_active_brightness();
+    return config.get_active_brightness();
 }
 
 /*****************************************************************************/
 int BrightnessControl::get_standby_brightness() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return cm.get_standby_brightness();
+    return config.get_standby_brightness();
 }
 
 /*****************************************************************************/
@@ -165,8 +165,8 @@ int BrightnessControl::get_brightness() const {
 void BrightnessControl::set_adaptive_mode(bool ena) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
-    if (ena != cm.backlight_control_enabled()) {
-        cm.enable_backlight_control(ena);
+    if (ena != config.backlight_control_enabled()) {
+        config.enable_backlight_control(ena);
         emit adaptive_mode_changed(ena);
     }
 
@@ -192,7 +192,7 @@ void BrightnessControl::active(bool active) {
 /*****************************************************************************/
 bool BrightnessControl::adaptive_mode() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return cm.backlight_control_enabled() && hwctrl->als_sensor_available();
+    return config.backlight_control_enabled() && hwctrl->als_sensor_available();
 }
 
 /*****************************************************************************/

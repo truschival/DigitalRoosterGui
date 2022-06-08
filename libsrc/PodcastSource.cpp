@@ -43,15 +43,20 @@ PodcastSource::~PodcastSource() {
 /*****************************************************************************/
 void PodcastSource::add_episode(
     const std::shared_ptr<PodcastEpisode>& episode) {
-    qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (episodes.size() >= max_episodes) {
-        qInfo(CLASS_LC) << " > max episodes reached: " << max_episodes;
+    qCDebug(CLASS_LC) << Q_FUNC_INFO << episode->get_guid();
+    auto ep = get_episode_by_id(episode->get_guid());
+    /* If episode already in list - skip it */
+    if (ep) {
+        qCDebug(CLASS_LC) << episode->get_guid() << "already in list";
         return;
     }
-    auto ep = get_episode_by_id(episode->get_guid());
-    /* add if not found */
-    if (!ep) {
-        qCDebug(CLASS_LC) << " > new Episode :" << episode->get_guid();
+    // Only add if still space left or if episode more recent than oldest
+    // episode
+    // For an empty vector episodes.size() <= max_episodes holds true
+    // otherwise episodes.back() is guaranteed to have a value
+    if (episodes.size() <= max_episodes or
+        episodes.back()->get_publication_date() <
+            episode->get_publication_date()) {
         // insert sorted by publication date
         auto iterator =
             std::lower_bound(episodes.begin(), episodes.end(), episode,
@@ -61,13 +66,16 @@ void PodcastSource::add_episode(
                         rhs->get_publication_date();
                 });
         episodes.insert(iterator, episode);
-        /* get notified if any data changes */
-        connect(episode.get(), &PodcastEpisode::data_changed, this,
-            &PodcastSource::episode_info_changed);
-        emit episodes_count_changed(episodes.size());
-    } else {
-        qCDebug(CLASS_LC) << " < " << episode->get_guid() << "already in list";
+        /* Remove oldest episode if max episodes has been reached */
+        if (episodes.size() > max_episodes) {
+            qInfo(CLASS_LC) << "max episodes reached, removing";
+            episodes.pop_back();
+        }
     }
+    /* get notified if any data changes */
+    connect(episode.get(), &PodcastEpisode::data_changed, this,
+        &PodcastSource::episode_info_changed);
+    emit episodes_count_changed(episodes.size());
 }
 
 /*****************************************************************************/
@@ -103,8 +111,12 @@ void PodcastSource::set_link(const QUrl& newVal) {
 /*****************************************************************************/
 void PodcastSource::set_max_episodes(int max) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (max >= 0)
+    if (max > 0) {
         max_episodes = max;
+    } else {
+        QString what(KEY_MAX_EPISODES + "< 1 is not allowed!");
+        throw std::invalid_argument(what.toStdString());
+    }
 }
 
 /*****************************************************************************/
@@ -321,11 +333,17 @@ std::shared_ptr<PodcastSource> PodcastSource::from_json_object(
     auto desc = json[KEY_DESCRIPTION].toString();
     auto img_url = json[KEY_ICON_URL].toString();
     auto img_cached = json[KEY_IMAGE_CACHE].toString();
+    auto max_episodes = json[KEY_MAX_EPISODES].toInt(DEFAULT_MAX_EPISODES);
 
     ps->set_title(title);
     ps->set_description(desc);
     ps->set_image_url(img_url);
     ps->set_image_file_path(img_cached);
+    try {
+        ps->set_max_episodes(max_episodes);
+    } catch (const std::invalid_argument& exc) {
+        qCWarning(CLASS_LC) << exc.what() << "- will use default";
+    }
     ps->set_update_interval(
         std::chrono::seconds(json[KEY_UPDATE_INTERVAL].toInt(3600)));
     ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
@@ -339,6 +357,7 @@ QJsonObject PodcastSource::to_json_object() const {
     json[KEY_ID] = get_id_string();
     json[KEY_URI] = get_url().toString();
     json[JSON_KEY_TITLE] = get_title();
+    json[KEY_MAX_EPISODES] = static_cast<qint64>(max_episodes);
     json[KEY_UPDATE_INTERVAL] =
         static_cast<qint64>(get_update_interval().count());
     return json;

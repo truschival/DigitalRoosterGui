@@ -12,6 +12,7 @@
 
 #include <memory>
 #include <string>
+#include <optional>
 
 #include <pistache/http.h>
 #include <pistache/router.h>
@@ -95,12 +96,14 @@ QJsonObject DigitalRooster::REST::qjson_form_std_string(
 
 /*****************************************************************************/
 int DigitalRooster::REST::get_val_from_query_within_range(
-    const Pistache::Optional<std::string>& query, int min, int max) {
+    const std::optional<std::string>& query, int min, int max) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     int val = min;
     try {
-        val = std::stoi(query.get());
+        val = std::stoi(query.value());
+    } catch (const std::bad_optional_access& e) {
+        qCCritical(CLASS_LC) << Q_FUNC_INFO << e.what();
     } catch (const std::invalid_argument& e) {
         qCCritical(CLASS_LC) << Q_FUNC_INFO << e.what();
     }

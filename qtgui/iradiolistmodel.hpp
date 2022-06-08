@@ -54,7 +54,7 @@ protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
-    IStationStore& cm;
+    IStationStore& config;
     MediaPlayer& mpp;
 };
 } // namespace DigitalRooster

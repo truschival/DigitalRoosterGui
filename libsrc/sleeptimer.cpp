@@ -20,13 +20,13 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.SleepTimer");
 /*****************************************************************************/
 SleepTimer::SleepTimer(ITimeOutStore& store, QObject* parent)
     : QObject(parent)
-    , cm(store)
+    , config(store)
     , evt_timer_id(0)
-    , remaining_time(cm.get_sleep_timeout())
+    , remaining_time(config.get_sleep_timeout())
     , activity(SleepTimer::Idle) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
-    sleep_timer.setInterval(cm.get_sleep_timeout());
+    sleep_timer.setInterval(config.get_sleep_timeout());
     sleep_timer.setSingleShot(true);
 
     connect(&sleep_timer, &QTimer::timeout, this, [=]() {
@@ -45,7 +45,7 @@ void SleepTimer::playback_state_changed(QMediaPlayer::State state) {
         /* Check if alarm was dispatched do not set normal sleep_timeout */
         if (activity != SleepTimer::Alarm) {
             qCDebug(CLASS_LC) << " restarting timer";
-            sleep_timer.setInterval(cm.get_sleep_timeout());
+            sleep_timer.setInterval(config.get_sleep_timeout());
             sleep_timer.start();
             emit remaining_time_changed(get_remaining_time());
         }
@@ -99,13 +99,13 @@ int SleepTimer::get_remaining_time() {
 
 /*****************************************************************************/
 std::chrono::minutes SleepTimer::get_sleep_timeout() const {
-    return cm.get_sleep_timeout();
+    return config.get_sleep_timeout();
 }
 
 /*****************************************************************************/
 void SleepTimer::set_sleep_timeout(std::chrono::minutes timeout) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    cm.set_sleep_timeout(timeout);
+    config.set_sleep_timeout(timeout);
     // also update running timeouts
     timeout_changed(timeout);
     emit sleep_timeout_changed(timeout);
@@ -121,7 +121,7 @@ void SleepTimer::set_sleep_timeout(int timeout) {
 /*****************************************************************************/
 int SleepTimer::get_sleep_timeout_minutes_count() const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return cm.get_sleep_timeout().count();
+    return config.get_sleep_timeout().count();
 }
 
 /*****************************************************************************/

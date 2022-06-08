@@ -30,7 +30,7 @@
 namespace DigitalRooster {
 
 class Weather;
-class ConfigurationManager;
+class Configuration;
 
 /**
  * Object for Forecast data
@@ -162,9 +162,9 @@ public:
         const IWeatherConfigStore& store, QObject* parent = nullptr);
     /**
      * Update Download interval
-     * @param iv interval in seconds
+     * @param interval in seconds
      */
-    void set_update_interval(std::chrono::seconds iv);
+    void set_update_interval(std::chrono::seconds interval);
     std::chrono::seconds get_update_interval() const;
 
     /**
@@ -261,7 +261,7 @@ private:
     /**
      * Central configuration and data handler
      */
-    const IWeatherConfigStore& cm;
+    const IWeatherConfigStore& config;
 
     /**
      * Interval in ms for auto refresh of content

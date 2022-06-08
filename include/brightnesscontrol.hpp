@@ -156,7 +156,7 @@ private:
     /**
      * configuration and data handler
      */
-    IBrightnessStore& cm;
+    IBrightnessStore& config;
 
     /**
      * Hardware controller

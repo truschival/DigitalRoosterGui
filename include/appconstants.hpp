@@ -39,6 +39,11 @@ const QString KEY_GROUP_IRADIO_SOURCES("InternetRadio");
 const QString KEY_GROUP_PODCAST_SOURCES("Podcasts");
 
 /**
+ * Maximum Number of episodes to add to this Podcast feed
+ */
+const QString KEY_MAX_EPISODES("maxEpisodes");
+
+/**
  * key for array of individual Podcast Episode objects
  */
 const QString KEY_EPISODES("Episodes");
@@ -274,7 +279,12 @@ const int WEATHER_FORECAST_COUNT = 8;
 /**
  * Step size of volume increment per rotary event
  */
-const double VOLUME_INCREMENT = 0.2;
+const double VOLUME_INCREMENT = 0.5;
+
+/**
+ * Default episodes limit to show for each podcast feed
+ */
+const unsigned int DEFAULT_MAX_EPISODES = 100;
 
 /**
  * Where to find icons for weather condition

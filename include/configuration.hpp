@@ -40,7 +40,7 @@ class Alarm;
 /**
  * Reads JSON configuration and provides API to configuration objects
  */
-class ConfigurationManager : public QObject,
+class Configuration : public QObject,
                              public IAlarmStore,
                              public IStationStore,
                              public IPodcastStore,
@@ -62,9 +62,9 @@ public:
      * @param configpath path to application configuration
      * @param cachedir directory to cache data (podcastlist etc)
      */
-    ConfigurationManager(const QString& configpath, const QString& cachedir);
+    Configuration(const QString& configpath, const QString& cachedir);
 
-    virtual ~ConfigurationManager() = default;
+    virtual ~Configuration() = default;
 
     /**
      * return compile time version string

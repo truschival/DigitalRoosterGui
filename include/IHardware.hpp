@@ -63,7 +63,7 @@ public:
     virtual AlsValue read_als_sensor() = 0;
 
     /** need virtual destructor */
-    virtual ~IHardware();
+    virtual ~IHardware()=default;
 
 public slots:
     /**

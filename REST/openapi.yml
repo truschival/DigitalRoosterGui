@@ -16,7 +16,7 @@ servers:
     variables:
       server:
         default: http://digitalrooster:6666
-    
+
 ###############################################################################
 components:
   # HTTP responses in case of errors
@@ -28,13 +28,13 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ResourceUuid'  
+            $ref: '#/components/schemas/ResourceUuid'
     InvalidRequest:
       description: Invalid request parameters!
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Error'  
+            $ref: '#/components/schemas/Error'
     NotFound:
       description: The specified resource was not found
       content:
@@ -47,7 +47,7 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/Error'
-             
+
   # Objects #
   schemas:
     # Schema for error response body
@@ -87,7 +87,7 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/Station'
-   
+
     # PodcastSource definition
     Podcast:
       required:
@@ -101,14 +101,16 @@ components:
         url:
           type: string
         updateInterval:
-          type: integer  
-    
+          type: integer
+        maxEpisodes:
+          type: integer
+
     # Array of PodcastSources
     Podcasts:
       type: array
       items:
         $ref: '#/components/schemas/Podcast'
-    
+
     # Alarm definition
     Alarm:
       required:
@@ -134,7 +136,7 @@ components:
           type: integer
         id:
           type: string
-    
+
     # Alarm array
     Alarms:
       type: array
@@ -189,8 +191,8 @@ paths:
         401:
           $ref: '#/components/responses/Unauthorized'
         404:
-          $ref: '#/components/responses/NotFound'        
-                
+          $ref: '#/components/responses/NotFound'
+
     post: # Create a stream
       operationId: iradio.create
       tags:
@@ -209,10 +211,10 @@ paths:
         401:
           $ref: '#/components/responses/Unauthorized'
         403:
-          $ref: '#/components/responses/InvalidRequest' 
+          $ref: '#/components/responses/InvalidRequest'
         404:
-          $ref: '#/components/responses/NotFound'  
-          
+          $ref: '#/components/responses/NotFound'
+
 # Manipulate single Radios Stream
   /radios/{id}:
 
@@ -233,9 +235,9 @@ paths:
         401:
           $ref: '#/components/responses/Unauthorized'
         403:
-          $ref: '#/components/responses/InvalidRequest' 
+          $ref: '#/components/responses/InvalidRequest'
         404:
-          $ref: '#/components/responses/NotFound' 
+          $ref: '#/components/responses/NotFound'
 
     delete: # delete stream identified by id
       operationId: iradio.delete
@@ -246,11 +248,11 @@ paths:
         - $ref: '#/components/parameters/id'
       responses:
         200:
-          $ref: '#/components/responses/Success'        
+          $ref: '#/components/responses/Success'
         401:
           $ref: '#/components/responses/Unauthorized'
         404:
-          $ref: '#/components/responses/NotFound'  
+          $ref: '#/components/responses/NotFound'
 
 ###############################################################################
 # Podcast Sources
@@ -273,9 +275,9 @@ paths:
         401:
           $ref: '#/components/responses/Unauthorized'
         403:
-          $ref: '#/components/responses/InvalidRequest' 
+          $ref: '#/components/responses/InvalidRequest'
         404:
-          $ref: '#/components/responses/NotFound' 
+          $ref: '#/components/responses/NotFound'
 
     post: # Add a podcast source with RSS feed
       operationId: podcasts.create
@@ -295,7 +297,7 @@ paths:
         401:
           $ref: '#/components/responses/Unauthorized'
         403:
-          $ref: '#/components/responses/InvalidRequest' 
+          $ref: '#/components/responses/InvalidRequest'
 
   /podcasts/{id}:
     get: # read single podcast by id
@@ -315,9 +317,9 @@ paths:
         401:
           $ref: '#/components/responses/Unauthorized'
         403:
-          $ref: '#/components/responses/InvalidRequest' 
+          $ref: '#/components/responses/InvalidRequest'
         404:
-          $ref: '#/components/responses/NotFound' 
+          $ref: '#/components/responses/NotFound'
 
     delete: # delete podcasts identified by id
       operationId: podcasts.delete
@@ -332,10 +334,10 @@ paths:
         401:
           $ref: '#/components/responses/Unauthorized'
         403:
-          $ref: '#/components/responses/InvalidRequest' 
+          $ref: '#/components/responses/InvalidRequest'
         404:
-          $ref: '#/components/responses/NotFound'        
-          
+          $ref: '#/components/responses/NotFound'
+
 ################################################################################
 # Alarms
   /alarms:
@@ -375,9 +377,9 @@ paths:
         401:
           $ref: '#/components/responses/Unauthorized'
         403:
-          $ref: '#/components/responses/InvalidRequest' 
+          $ref: '#/components/responses/InvalidRequest'
         404:
-          $ref: '#/components/responses/NotFound' 
+          $ref: '#/components/responses/NotFound'
 
   /alarms/{id}:
     get: # read single alarm by id
@@ -397,7 +399,7 @@ paths:
         401:
           $ref: '#/components/responses/Unauthorized'
         403:
-          $ref: '#/components/responses/InvalidRequest' 
+          $ref: '#/components/responses/InvalidRequest'
         404:
           $ref: '#/components/responses/NotFound'
 
@@ -414,6 +416,6 @@ paths:
         401:
           $ref: '#/components/responses/Unauthorized'
         403:
-          $ref: '#/components/responses/InvalidRequest' 
+          $ref: '#/components/responses/InvalidRequest'
         404:
-          $ref: '#/components/responses/NotFound' 
+          $ref: '#/components/responses/NotFound'

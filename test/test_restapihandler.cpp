@@ -9,11 +9,12 @@
 
 #include <chrono>
 #include <vector>
+#include <optional>
 #include <gtest/gtest.h>
 #include <pistache/http.h>
 
 #include "common.hpp"
-#include "cm_mock.hpp" /* mock configuration manager */
+#include "config_mock.hpp" /* mock configuration manager */
 
 using namespace DigitalRooster;
 using namespace DigitalRooster::REST;
@@ -25,25 +26,25 @@ using ::testing::AtLeast;
 
 /*****************************************************************************/
 TEST(RestAdapter, getUintNotAvailableDefaultToMin) {
-    auto query = Pistache::Optional<std::string>();
+    auto query = std::optional<std::string>{};
     ASSERT_EQ(get_val_from_query_within_range(query, 2, 5), 2);
 }
 
 /*****************************************************************************/
 TEST(RestAdapter, getUintNegativeDefaultToMin) {
-    Pistache::Optional<std::string> query = Pistache::Some<std::string>("-123");
+    auto query = std::optional<std::string>{"-123"};
     ASSERT_EQ(get_val_from_query_within_range(query, 5, 100), 5);
 }
 
 /*****************************************************************************/
 TEST(RestAdapter, getUintUnConvertableDefaultToMin) {
-    Pistache::Optional<std::string> query = Pistache::Some<std::string>("FOO");
+    auto query = std::optional<std::string>{"FOO"};
     ASSERT_EQ(get_val_from_query_within_range(query, 5, 100), 5);
 }
 
 /*****************************************************************************/
 TEST(RestAdapter, getUintOutOfRangeCapMax) {
-    Pistache::Optional<std::string> query = Pistache::Some<std::string>("100");
+    auto query = std::optional<std::string>{"100"};
     ASSERT_EQ(get_val_from_query_within_range(query, 5, 50), 50);
 }
 

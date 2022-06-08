@@ -10,7 +10,7 @@
 #include <exception>
 
 #include "appconstants.hpp"
-#include "configuration_manager.hpp"
+#include "configuration.hpp"
 #include "wifi_control.hpp"
 #include "wpa_ctrl/wpa_ctrl.h"
 
@@ -19,12 +19,12 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.WifiControl");
 
 /****************************************************************************/
-WifiControl* WifiControl::get_instance(ConfigurationManager* cm) {
+WifiControl* WifiControl::get_instance(Configuration* config) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     static WifiControl instance;
     // only if not initialized and we have a control_manager
-    if (!instance.ctrl && cm) {
-        instance.wpa_supplicant_sock_path = cm->get_wpa_socket_name();
+    if (!instance.ctrl && config) {
+        instance.wpa_supplicant_sock_path = config->get_wpa_socket_name();
         try {
             instance.connect_wpa_control_socket();
             instance.ctrl_notifier = std::make_unique<QSocketNotifier>(
@@ -139,7 +139,7 @@ void WifiControl::parse_event(const QString& e_string) {
 }
 
 /****************************************************************************/
-void WifiControl::ctrl_event(int fd) {
+void WifiControl::ctrl_event(int /* fd */) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     char buf[128] = {};
     while (wpa_ctrl_pending(ctrl) > 0) {
@@ -208,7 +208,7 @@ WifiNetwork DigitalRooster::line_to_network(const QStringRef& line) {
 /****************************************************************************/
 std::vector<WifiNetwork> DigitalRooster::parse_scanresult(
     const char* buffer, size_t len) {
-    QString results(buffer);
+    auto results = QString::fromLocal8Bit(buffer,len);
     auto lines = results.splitRef("\n");
     std::vector<WifiNetwork> cont;
     /*

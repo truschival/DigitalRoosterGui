@@ -21,7 +21,8 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.Weather");
 
 /*****************************************************************************/
 Weather::Weather(const IWeatherConfigStore& store, QObject* parent)
-    : cm(store) {
+    : QObject(parent)
+    , config(store) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     // timer starts refresh, refresh calls downloader
@@ -35,9 +36,9 @@ Weather::Weather(const IWeatherConfigStore& store, QObject* parent)
     timer.setInterval(duration_cast<milliseconds>(update_interval));
     timer.setSingleShot(false);
     timer.start();
-    weather_downloader.doDownload(create_weather_url(cm.get_weather_config()));
+    weather_downloader.doDownload(create_weather_url(config.get_weather_config()));
     forecast_downloader.doDownload(
-        create_forecast_url(cm.get_weather_config()));
+        create_forecast_url(config.get_weather_config()));
 }
 
 /*****************************************************************************/
@@ -58,9 +59,9 @@ std::chrono::seconds Weather::get_update_interval() const {
 void Weather::refresh() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     /* restart downloads */
-    weather_downloader.doDownload(create_weather_url(cm.get_weather_config()));
+    weather_downloader.doDownload(create_weather_url(config.get_weather_config()));
     forecast_downloader.doDownload(
-        create_forecast_url(cm.get_weather_config()));
+        create_forecast_url(config.get_weather_config()));
     timer.start();
 }
 
@@ -106,7 +107,7 @@ QUrl Weather::get_weather_icon_url() const {
 WeatherStatus* Weather::get_weather(int idx) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     try {
-        auto ret = new WeatherStatus(&weather.at(idx));
+        auto* ret = new WeatherStatus(&weather.at(idx));
         return ret;
     } catch (std::out_of_range&) {
         qCCritical(CLASS_LC) << "Forecast index out of range!";
@@ -127,7 +128,7 @@ void Weather::parse_forecast(const QByteArray& content) {
     // QJson is very forgiving if "list" does not exist or is not an array
     // default will be created
     auto fc_array = doc["list"].toArray();
-    if (fc_array.size() <= 0) {
+    if (fc_array.empty()) {
         qCWarning(CLASS_LC) << "no forecast 'list' found!";
         return;
     }

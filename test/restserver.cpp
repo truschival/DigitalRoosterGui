@@ -12,7 +12,7 @@
 
 #include "RestApi.hpp"
 #include "appconstants.hpp"
-#include "configuration_manager.hpp"
+#include "configuration.hpp"
 #include "testcommon.hpp"
 #include "util.hpp"
 
@@ -36,10 +36,10 @@ int main(int argc, char** argv) {
     setup_tests();
     qDebug() << argv[0];
 
-    ConfigurationManager cm(
+    Configuration config(
         cmdline.value(CMD_ARG_CONFIG_FILE), cmdline.value(CMD_ARG_CACHE_DIR));
-    RestApi restserver(cm, cm, cm, cm, cm);
-    cm.update_configuration();
+    RestApi restserver(config, config, config, config, config);
+    config.update_configuration();
 
     /*
      * coverage data is only generated if program is not killed forcefully

@@ -28,19 +28,19 @@ double MediaPlayer::get_volume() const {
 /*****************************************************************************/
 void MediaPlayer::set_muted(bool muted) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return do_set_muted(muted);
+    do_set_muted(muted);
 }
 
 /*****************************************************************************/
 void MediaPlayer::set_volume(double volume) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << volume;
-    return do_set_volume(std::clamp(volume, 0.0, 100.0));
+    do_set_volume(std::clamp(volume, 0.0, 100.0));
 }
 
 /*****************************************************************************/
 void MediaPlayer::increment_volume(double increment) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return do_increment_volume(increment);
+    do_increment_volume(increment);
 }
 
 /*****************************************************************************/

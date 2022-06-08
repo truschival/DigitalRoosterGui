@@ -1,3 +1,4 @@
+
 /******************************************************************************
  * \filename
  * \brief
@@ -27,6 +28,7 @@
 #include <memory>
 #include <vector>
 
+#include "appconstants.hpp"
 #include "PlayableItem.hpp"
 #include "UpdateTask.hpp"
 #include "podcast_serializer.hpp"
@@ -35,7 +37,7 @@ namespace DigitalRooster {
 class HttpClient; // forward declaration
 
 /**
- * Class represeting information form an RSS Podcast feed with
+ * Class representing information form an RSS Podcast feed with
  * some meta information and \ref DigitalRooster::PodcastEpisode
  */
 class PodcastSource : public QObject {
@@ -156,7 +158,7 @@ public:
     /**
      * show max_episodes in the list
      */
-    int get_max_episodes() const {
+    size_t get_max_episodes() const {
         return max_episodes;
     };
 
@@ -380,7 +382,7 @@ private:
     /**
      * show max_episodes in the list
      */
-    int max_episodes = std::numeric_limits<int>::max();
+    size_t max_episodes = DigitalRooster::DEFAULT_MAX_EPISODES;
 
     /**
      * Interval in ms for auto refresh of content

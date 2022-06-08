@@ -23,10 +23,10 @@ static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.PodcastSourceModel");
 PodcastSourceModel::PodcastSourceModel(
     IPodcastStore& store, MediaPlayer& mp, QObject* parent)
     : QAbstractListModel(parent)
-    , cm(store)
+    , config(store)
     , mpp(mp) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto v = cm.get_podcast_sources();
+    auto v = config.get_podcast_sources();
     for (const auto& ps : v) {
         connect(ps.get(), &PodcastSource::titleChanged, this,
             &PodcastSourceModel::newDataAvailable);
@@ -48,7 +48,7 @@ QHash<int, QByteArray> PodcastSourceModel::roleNames() const {
 
 int PodcastSourceModel::rowCount(const QModelIndex& /*parent */) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    return cm.get_podcast_sources().size();
+    return config.get_podcast_sources().size();
 }
 
 /*****************************************************************************/
@@ -61,7 +61,7 @@ void PodcastSourceModel::newDataAvailable() {
 PodcastEpisodeModel* PodcastSourceModel::get_episodes(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
-    auto v = cm.get_podcast_sources();
+    auto v = config.get_podcast_sources();
     /* static cast only if index >= 0 and thus can be converted */
     if (index < 0 || static_cast<size_t>(index) >= v.size()) {
         qCCritical(CLASS_LC) << Q_FUNC_INFO << "index out of range " << index;
@@ -77,7 +77,7 @@ PodcastEpisodeModel* PodcastSourceModel::get_episodes(int index) {
 /*****************************************************************************/
 QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto v = cm.get_podcast_sources();
+    auto v = config.get_podcast_sources();
 
     /* static cast only if index.row() is >= 0 and thus can be converted */
     if (index.row() < 0 || static_cast<size_t>(index.row()) >= v.size()) {
@@ -108,7 +108,7 @@ QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
 void PodcastSourceModel::refresh(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     try {
-        cm.get_podcast_source_by_index(index)->refresh();
+        config.get_podcast_source_by_index(index)->refresh();
     } catch (std::out_of_range&) {
         qCCritical(CLASS_LC) << "index out of range " << index;
     }
@@ -118,7 +118,7 @@ void PodcastSourceModel::refresh(int index) {
 void PodcastSourceModel::purge(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     try {
-        cm.get_podcast_source_by_index(index)->purge();
+        config.get_podcast_source_by_index(index)->purge();
     } catch (std::out_of_range&) {
         qCCritical(CLASS_LC) << "index out of range " << index;
     }
@@ -129,7 +129,7 @@ void PodcastSourceModel::remove(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     beginRemoveRows(QModelIndex(), index, index);
     try {
-        cm.remove_podcast_source_by_index(index);
+        config.remove_podcast_source_by_index(index);
     } catch (std::out_of_range&) {
         qCCritical(CLASS_LC) << "index out of range " << index;
     }

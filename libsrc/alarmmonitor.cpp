@@ -32,7 +32,6 @@ AlarmMonitor::AlarmMonitor(MediaPlayer& player,
             if (error != QMediaPlayer::NoError &&
                 fallback_alarm_timer.isActive()) {
                 qCWarning(CLASS_LC) << "player error occurred";
-                set_state(FallBackMode);
                 trigger_fallback_behavior();
             }
         });

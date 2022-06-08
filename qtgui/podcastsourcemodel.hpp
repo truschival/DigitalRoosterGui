@@ -62,7 +62,7 @@ protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
-    IPodcastStore& cm;
+    IPodcastStore& config;
     MediaPlayer& mpp;
 };
 
