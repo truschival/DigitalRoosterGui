@@ -205,12 +205,13 @@ void DigitalRooster::parse_podcast_source_from_json(
     auto ts_str = tl_obj[KEY_TIMESTAMP].toString();
     QDateTime timestamp;
     if (!ts_str.isEmpty()) {
-        timestamp = QDateTime::fromString(ts_str);
+        timestamp = QDateTime::fromString(ts_str, Qt::ISODate);
     }
     if (!timestamp.isValid()) {
         qCCritical(CLASS_LC)
-            << "no valid timestamp in file - will not restore data";
-        throw PodcastSourceJSonCorrupted("invalid timestamp");
+            << ts_str << "invalid timestamp - will not restore data";
+        throw PodcastSourceJSonCorrupted(
+            ts_str.toStdString() + " - invalid timestamp");
     }
     if (ps->get_last_updated().isValid() &&
         ps->get_last_updated() > timestamp) {
@@ -233,7 +234,7 @@ void DigitalRooster::parse_podcast_source_from_json(
 QJsonObject DigitalRooster::json_from_podcast_source(const PodcastSource* ps) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonObject ps_obj = ps->to_json_object();
-    ps_obj[KEY_TIMESTAMP] = wallclock->now().toString();
+    ps_obj[KEY_TIMESTAMP] = wallclock->now().toString(Qt::ISODate);
     ps_obj[KEY_DESCRIPTION] = ps->get_description();
     ps_obj[KEY_ICON_URL] = ps->get_image_url().toString();
     ps_obj[KEY_IMAGE_CACHE] = ps->get_image_file_path();
