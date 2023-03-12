@@ -32,7 +32,7 @@ void HttpClient::doDownload(const QUrl& url) {
     connect(reply, &QNetworkReply::sslErrors, this, &HttpClient::sslErrors);
 #endif
 
-    currentDownloads.push_back(reply);
+    pending_downloads.push_back(reply);
 }
 /*****************************************************************************/
 
@@ -45,7 +45,8 @@ bool HttpClient::isHttpRedirect(QNetworkReply* reply) {
 }
 /*****************************************************************************/
 
-void HttpClient::sslErrors(const QList<QSslError>& sslErrors) {
+void HttpClient::
+    sslErrors(const QList<QSslError>& sslErrors) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 #if QT_CONFIG(ssl)
     for (const QSslError& error : sslErrors)
@@ -71,7 +72,7 @@ void HttpClient::downloadFinished(QNetworkReply* reply) {
     }
 
     auto end_it =
-        std::remove(currentDownloads.begin(), currentDownloads.end(), reply);
-    currentDownloads.erase(end_it, currentDownloads.end());
+        std::remove(pending_downloads.begin(), pending_downloads.end(), reply);
+    pending_downloads.erase(end_it, pending_downloads.end());
     reply->deleteLater();
 }

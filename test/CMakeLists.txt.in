@@ -25,6 +25,7 @@ ExternalProject_Add(GTestExternal
   TIMEOUT 10
   SOURCE_DIR        "${GTEST_PREFIX}/googletest-src"
   BINARY_DIR        "${GTEST_PREFIX}/googletest-build"
+  DOWNLOAD_EXTRACT_TIMESTAMP On
   CONFIGURE_COMMAND ""
   BUILD_COMMAND     ""
   INSTALL_COMMAND   ""
