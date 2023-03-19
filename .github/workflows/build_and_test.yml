@@ -46,11 +46,11 @@ jobs:
           mkdir -p $INSTALL_DIR_HOST
           chmod 777 $BUILD_DIR_HOST $INSTALL_DIR_HOST
 
-      - name: Pull docker container
+      - name: Pull build-container image
         run: docker pull $BUILD_IMAGE
         timeout-minutes: 5
 
-      - name: Start Docker
+      - name: Start build container (buildc)
         run: >
           docker run -itd -u $UID:$GID --privileged --name $CONTAINER_NAME
           -v$GITHUB_WORKSPACE:$SRC_DIR
@@ -78,8 +78,9 @@ jobs:
           openapi-file: "REST/openapi.yml"
 
       - name: Prepare Python
-        run: |
-          docker exec -w $SRC_DIR $CONTAINER_NAME python3 -m pip install -r python-client/requirements.txt
+        run: >
+          docker exec -w $SRC_DIR $CONTAINER_NAME python3 -m pip
+          install -r python-client/requirements.txt
 
       - name: Run tests
         run: docker exec -w $BUILD_DIR $CONTAINER_NAME ctest -V
@@ -87,7 +88,8 @@ jobs:
       - name: Package Test output for analysis
         if: failure()
         run: >
-          tar -C ${{ env.BUILD_DIR_HOST }} -czf ${{ env.BUILD_DIR_HOST }}/${{ env.TEST_ARTIFACT }}
+          tar -C ${{ env.BUILD_DIR_HOST }} -czf
+          ${{ env.BUILD_DIR_HOST }}/${{ env.TEST_ARTIFACT }}
           test_trace.log gtest_results.xml
 
       - name: Upload program trace
