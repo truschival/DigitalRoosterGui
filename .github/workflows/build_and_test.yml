@@ -21,99 +21,104 @@ jobs:
       TEST_ARTIFACT: test-trace.tgz
       INSTALL_DIR: /tmp/install
     steps:
-    - name: Clone Repository
-      uses: actions/checkout@v1
-      
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v1
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.PULL_SECRET }}
-        
-    - name: Check Environment
-      run: |
-        docker --version
-        echo "USER: $USER ($UID:$GID)"
-        echo "github workspace: $GITHUB_WORKSPACE"
-        echo "host dir: $BUILD_DIR_HOST"
-        echo "container build dir: $BUILD_DIR"
-        echo "container src_dir: $SRC_DIR"
-        
-    - name: Create build dir
-      run: |
-        mkdir -p $BUILD_DIR_HOST
-        mkdir -p $INSTALL_DIR_HOST
-        chmod 777 $BUILD_DIR_HOST $INSTALL_DIR_HOST
-        
-    - name: Pull docker container
-      run: docker pull $BUILD_IMAGE
-      timeout-minutes: 5
-      
-    - name: Start Docker
-      run: >
-        docker run -itd -u $UID:$GID --privileged --name $CONTAINER_NAME
-        -v$GITHUB_WORKSPACE:$SRC_DIR
-        -v$BUILD_DIR_HOST:$BUILD_DIR
-        -v$INSTALL_DIR_HOST:$INSTALL_DIR
-        $BUILD_IMAGE
-        
-    - name: Configure
-      run: >
-        docker exec $CONTAINER_NAME cmake
-        -DCMAKE_BUILD_TYPE=Debug
-        -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY=On
-        -H$SRC_DIR -B$BUILD_DIR
-        -DBUILD_TESTS=On -DTEST_COVERAGE=On -DBUILD_GTEST_FROM_SRC=On
-        -DREST_API=On
-        
-    - name: Build
-      run: docker exec $CONTAINER_NAME cmake --build $BUILD_DIR --parallel
-      
-    - name: Get OpenAPI client
-      run: |
-        docker exec -w $SRC_DIR $CONTAINER_NAME buildscripts/get_openapi_client.py
-        
-    - name: Prepare Python
-      run: |
-        docker exec -w $SRC_DIR $CONTAINER_NAME python3 -m pip install nulltype
-        
-    - name: Run tests
-      run: docker exec -w $BUILD_DIR $CONTAINER_NAME ctest -V
-      
-    - name: Package Test output for analysis
-      if: failure()
-      run: >
-        tar -C ${{ env.BUILD_DIR_HOST }} -czf ${{ env.BUILD_DIR_HOST }}/${{ env.TEST_ARTIFACT }}
-        test_trace.log gtest_results.xml
-        
-    - name: Upload program trace
-      if: failure()
-      uses: actions/upload-artifact@v1
-      with:
-        name: ${{ env.TEST_ARTIFACT }}
-        path: ${{ env.BUILD_DIR_HOST }}/${{ env.TEST_ARTIFACT }}
-        
-    - name: Collect coverage
-      run: >
-        docker exec -w $BUILD_DIR $CONTAINER_NAME
-        lcov --directory .
-        --capture --output-file $BUILD_DIR/coverage.info
-        
-    - name: Prune 3rd party code from coverage info
-      run: >
-        docker exec -w $BUILD_DIR $CONTAINER_NAME
-        lcov --remove $BUILD_DIR/coverage.info
-        --output-file $BUILD_DIR/coverage.info
-        "/usr/*" "*/GTestExternal/*" "*/__/*"
-        
-    - name: Upload coverage to codecov
-      uses: codecov/codecov-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-        file: /tmp/build/coverage.info
-        
-    - name: Test make install
-      run: >
-        docker exec -w $BUILD_DIR -eDESTDIR=$INSTALL_DIR $CONTAINER_NAME
-        cmake --build $BUILD_DIR --target install
+      - name: Clone Repository
+        uses: actions/checkout@v1
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.PULL_SECRET }}
+
+      - name: Check Environment
+        run: |
+          docker --version
+          echo "USER: $USER ($UID:$GID)"
+          echo "github workspace: $GITHUB_WORKSPACE"
+          echo "host dir: $BUILD_DIR_HOST"
+          echo "container build dir: $BUILD_DIR"
+          echo "container src_dir: $SRC_DIR"
+
+      - name: Create build dir
+        run: |
+          mkdir -p $BUILD_DIR_HOST
+          mkdir -p $INSTALL_DIR_HOST
+          chmod 777 $BUILD_DIR_HOST $INSTALL_DIR_HOST
+
+      - name: Pull build-container image
+        run: docker pull $BUILD_IMAGE
+        timeout-minutes: 5
+
+      - name: Start build container (buildc)
+        run: >
+          docker run -itd -u $UID:$GID --privileged --name $CONTAINER_NAME
+          -v$GITHUB_WORKSPACE:$SRC_DIR
+          -v$BUILD_DIR_HOST:$BUILD_DIR
+          -v$INSTALL_DIR_HOST:$INSTALL_DIR
+          $BUILD_IMAGE
+
+      - name: Configure
+        run: >
+          docker exec $CONTAINER_NAME cmake
+          -DCMAKE_BUILD_TYPE=Debug
+          -DCMAKE_EXPORT_NO_PACKAGE_REGISTRY=On
+          -H$SRC_DIR -B$BUILD_DIR
+          -DBUILD_TESTS=On -DTEST_COVERAGE=On -DBUILD_GTEST_FROM_SRC=On
+          -DREST_API=On
+
+      - name: Build
+        run: docker exec $CONTAINER_NAME cmake --build $BUILD_DIR --parallel
+
+      - name: Generate OpenAPI python client
+        uses: openapi-generators/openapitools-generator-action@v1
+        with:
+          generator: python
+          config-file: "REST/generator-config.json"
+          openapi-file: "REST/openapi.yml"
+
+      - name: Prepare Python
+        run: >
+          docker exec -w $SRC_DIR $CONTAINER_NAME python3 -m pip
+          install -r python-client/requirements.txt
+
+      - name: Run tests
+        run: docker exec -w $BUILD_DIR $CONTAINER_NAME ctest -V
+
+      - name: Package Test output for analysis
+        if: failure()
+        run: >
+          tar -C ${{ env.BUILD_DIR_HOST }} -czf
+          ${{ env.BUILD_DIR_HOST }}/${{ env.TEST_ARTIFACT }}
+          test_trace.log gtest_results.xml
+
+      - name: Upload program trace
+        if: failure()
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ env.TEST_ARTIFACT }}
+          path: ${{ env.BUILD_DIR_HOST }}/${{ env.TEST_ARTIFACT }}
+
+      - name: Collect coverage
+        run: >
+          docker exec -w $BUILD_DIR $CONTAINER_NAME
+          lcov --directory .
+          --capture --output-file $BUILD_DIR/coverage.info
+
+      - name: Prune 3rd party code from coverage info
+        run: >
+          docker exec -w $BUILD_DIR $CONTAINER_NAME
+          lcov --remove $BUILD_DIR/coverage.info
+          --output-file $BUILD_DIR/coverage.info
+          "/usr/*" "*/GTestExternal/*" "*/__/*"
+
+      - name: Upload coverage to codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: /tmp/build/coverage.info
+
+      - name: Test make install
+        run: >
+          docker exec -w $BUILD_DIR -eDESTDIR=$INSTALL_DIR $CONTAINER_NAME
+          cmake --build $BUILD_DIR --target install
