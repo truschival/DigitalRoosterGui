@@ -72,14 +72,14 @@ ApplicationWindow {
 
             Label {
                 id: nextAlarm
-                text: alarmdispatcher.upcoming_alarm_info != "" ?
+                text: alarmdispatcher.upcoming_alarm_info !== "" ?
                     "<span style='font-family: materialdesignicons; font-size: 16pt;'>\uf021</span>
                      <span style='font-family: DejaVu Sans Condensed Bold, sans-serif; font-size: 16pt; font-weight: normal'>"+
                     alarmdispatcher.upcoming_alarm_info+"</span>"
                     :"<span style='font-family: materialdesignicons; font-size: 16pt; font-weight: bold'>\uf023</span>";
                 textFormat: Text.RichText
                 Layout.fillWidth: true
-                visible: (playerProxy.playbackState != MediaPlayer.PlayingState)
+                visible: (playerProxy.playbackState !== MediaPlayer.PlayingState)
             }
 
             Label{

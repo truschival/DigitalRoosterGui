@@ -39,6 +39,8 @@ Rectangle{
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             Layout.bottomMargin: Style.itemMargins.slim;
             color: Style.colors.primaryText;
+            maximumLineCount: 2
+            wrapMode: Text.WordWrap
         }
 
         Text {
@@ -58,22 +60,6 @@ Rectangle{
             elide: Text.ElideRight
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
             Layout.topMargin: Style.itemMargins.slim;
-            color: Style.colors.primaryText;
-        }
-
-        Text {
-            id:episodeDescription
-            text: description ;
-            wrapMode: Text.WordWrap
-            font: Style.font.flowText;
-            lineHeight : 0.8;
-            elide: Text.ElideRight
-            Layout.preferredWidth: parent.width-16
-            Layout.preferredHeight: parent.heigth*0.5
-            Layout.maximumWidth: parent.width-4
-            Layout.maximumHeight: parent.heigth*0.6
-            Layout.columnSpan: 2
-            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             color: Style.colors.primaryText;
         }
     }
