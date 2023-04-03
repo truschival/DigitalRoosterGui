@@ -32,7 +32,7 @@ namespace DigitalRooster {
 class HttpClient : public QObject {
     Q_OBJECT
     QNetworkAccessManager manager;
-    std::vector<QNetworkReply*> currentDownloads;
+    std::vector<QNetworkReply*> pending_downloads;
 
 public:
     HttpClient();

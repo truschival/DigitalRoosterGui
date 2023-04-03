@@ -62,23 +62,21 @@ QtObject {
         property font weatherTime: Qt.font({
             family: "DejaVu Sans",
             weight: Font.DemiBold,
-            pixelSize: scaleFont(12),
+            pixelSize: scaleFont(14),
             preferShaping: false
         });
 
         property font listItemHead: Qt.font({
             family: "DejaVu Sans Condensed",
             weight: Font.DemiBold,
-            letterSpacing:-1,
-            pixelSize: scaleFont(12),
+            pixelSize: scaleFont(14),
             preferShaping: false
         });
 
         property font listItemHeadListened: Qt.font({
             family: "DejaVu Sans Condensed",
             weight: Font.Normal,
-            letterSpacing:-1,
-            pixelSize: scaleFont(12),
+            pixelSize: scaleFont(14),
             preferShaping: false
         });
 
@@ -86,15 +84,7 @@ QtObject {
             family: "DejaVu Sans Condensed",
             weight: Font.DemiBold,
             letterSpacing:-1,
-            pixelSize: scaleFont(10),
-            preferShaping: false
-        });
-
-        property font boldLabel: Qt.font({
-            family: "DejaVu Sans Condensed",
-            weight: Font.Bold,
-            letterSpacing:-1,
-            pixelSize: scaleFont(10),
+            pixelSize: scaleFont(12),
             preferShaping: false
         });
 
@@ -102,7 +92,7 @@ QtObject {
             family: "DejaVu Sans Condensed",
             weight: Font.Normal,
             letterSpacing:-1,
-            pixelSize: scaleFont(10),
+            pixelSize: scaleFont(12),
             preferShaping: false
         });
 

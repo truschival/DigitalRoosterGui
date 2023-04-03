@@ -32,7 +32,7 @@ Rectangle{
             Layout.maximumHeight: DEFAULT_ICON_WIDTH;
             Layout.maximumWidth : DEFAULT_ICON_WIDTH;
             Layout.rowSpan: 2
-            Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter
+            Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter;
             Layout.leftMargin: 1;
             fillMode: Image.Pad
             source: logo_image
@@ -41,8 +41,10 @@ Rectangle{
         Text {
             text: display_name;
             font: Style.font.listItemHead;
+            wrapMode: Text.WordWrap;
+            maximumLineCount: 2
             elide: Text.ElideRight;
-            Layout.alignment: Qt.AlignLeft| Qt.AlignTop
+            Layout.alignment: Qt.AlignLeft| Qt.AlignVCenter;
             Layout.fillWidth: true;
             color: Style.colors.primaryText;
         }
@@ -53,20 +55,6 @@ Rectangle{
             font: Style.font.valueLabel;
             Layout.preferredWidth: (parent.with-podcasticon.width)*0.2
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
-            color: Style.colors.primaryText;
-        }
-
-        Text {
-            text: description ;
-            elide: Text.ElideRight;
-            wrapMode: Text.WordWrap;
-            font: Style.font.flowText;
-            lineHeight: 0.8;
-            Layout.topMargin: 0;
-            Layout.columnSpan: 2;
-            Layout.fillWidth: true;
-            Layout.maximumHeight: parent.height/1.8
-            Layout.alignment: Qt.AlignLeft| Qt.AlignTop
             color: Style.colors.primaryText;
         }
     }

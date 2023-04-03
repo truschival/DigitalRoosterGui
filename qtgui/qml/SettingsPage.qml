@@ -20,19 +20,6 @@ Page {
         anchors.margins: Style.itemMargins.medium;
 
         Text{
-            text: "Revision: ";
-            font: Style.font.label;
-            color: Style.colors.primaryText;
-            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-        }
-        Text{
-            text: config.revision;
-            font: Style.font.valueLabel;
-            color: Style.colors.primaryText;
-            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-        }
-
-        Text{
             text: "Build: ";
             font: Style.font.label;
             color: Style.colors.primaryText;
@@ -40,7 +27,7 @@ Page {
         }
 
         Text{
-            text: config.buildtime;
+            text: config.revision + " | " +config.buildtime;
             font: Style.font.valueLabel;
             color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignTop
@@ -72,7 +59,7 @@ Page {
         }
         Text{
             text: "change brightness";
-            font: Style.font.boldLabel;
+            font: Style.font.label;
             color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
@@ -88,7 +75,7 @@ Page {
         }
         Text{
             text: "sleep timeout";
-            font: Style.font.boldLabel;
+            font: Style.font.label;
             color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
@@ -104,7 +91,7 @@ Page {
         }
         Text{
             text: "Wifi";
-            font: Style.font.boldLabel;
+            font: Style.font.label;
             color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }

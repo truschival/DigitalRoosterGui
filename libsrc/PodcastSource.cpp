@@ -68,7 +68,7 @@ void PodcastSource::add_episode(
         episodes.insert(iterator, episode);
         /* Remove oldest episode if max episodes has been reached */
         if (episodes.size() > max_episodes) {
-            qInfo(CLASS_LC) << "max episodes reached, removing";
+            qCDebug(CLASS_LC) << "max episodes reached, removing";
             episodes.pop_back();
         }
     }

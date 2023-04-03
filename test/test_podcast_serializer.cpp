@@ -47,8 +47,8 @@ public:
 class PodcastSourceMock_episodes : public PodcastSourceMock {
 public:
     explicit PodcastSourceMock_episodes(){};
-    MOCK_CONST_METHOD0(
-        get_episodes_impl, const std::vector<std::shared_ptr<PodcastEpisode>>&());
+    MOCK_CONST_METHOD0(get_episodes_impl,
+        const std::vector<std::shared_ptr<PodcastEpisode>>&());
 };
 
 /******************************************************************************/
@@ -135,8 +135,8 @@ TEST_F(SerializerFixture, serializePodcastSource) {
 
     auto json_obj = json_from_podcast_source(&psmock);
     ASSERT_EQ(json_obj[KEY_DESCRIPTION].toString(), expected_desc);
-    ASSERT_EQ(
-        json_obj[KEY_TIMESTAMP].toString(), expected_timestamp.toString());
+    ASSERT_EQ(json_obj[KEY_TIMESTAMP].toString(),
+        expected_timestamp.toString(Qt::ISODate));
     ASSERT_EQ(json_obj[KEY_ICON_URL].toString(), expected_image_url.toString());
     ASSERT_EQ(json_obj[JSON_KEY_TITLE].toString(), expected_title);
 }
@@ -166,7 +166,7 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_PsWasNeverUpdated) {
 
     QJsonObject json_ps;
     json_ps[JSON_KEY_TITLE] = expected_title;
-    json_ps[KEY_TIMESTAMP] = expected_timestamp.toString();
+    json_ps[KEY_TIMESTAMP] = expected_timestamp.toString(Qt::ISODate);
     parse_podcast_source_from_json(json_ps, &psmock);
 
     ASSERT_EQ(psmock.get_title_nonmock(), expected_title);
@@ -187,7 +187,7 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_PsRecentlyUpdated) {
         .WillRepeatedly(ReturnRef(update_timestamp));
     QJsonObject json_ps;
     json_ps[JSON_KEY_TITLE] = QString("some_old_title");
-    json_ps[KEY_TIMESTAMP] = expected_timestamp.toString();
+    json_ps[KEY_TIMESTAMP] = expected_timestamp.toString(Qt::ISODate);
     parse_podcast_source_from_json(json_ps, &psmock);
 
     ASSERT_EQ(psmock.get_title_nonmock(), expected_title);
@@ -204,7 +204,7 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_Add2Episodes) {
 
     QJsonObject json_ps;
     json_ps[JSON_KEY_TITLE] = expected_title;
-    json_ps[KEY_TIMESTAMP] = expected_timestamp.toString();
+    json_ps[KEY_TIMESTAMP] = expected_timestamp.toString(Qt::ISODate);
 
     QJsonArray episodes_array;
     episodes_array.append(episode1_json);
@@ -231,7 +231,7 @@ TEST_F(SerializerFixture, PodcastSourceFromJson_UpdateEpisodePosition) {
 
     QJsonObject json_ps;
     json_ps[JSON_KEY_TITLE] = expected_title;
-    json_ps[KEY_TIMESTAMP] = expected_timestamp.toString();
+    json_ps[KEY_TIMESTAMP] = expected_timestamp.toString(Qt::ISODate);
     QJsonArray episodes_array;
     episodes_array.append(episode1_json);
     episode1_json[KEY_POSITION] = 130;
@@ -251,7 +251,7 @@ TEST_F(SerializerFixture, readFromFileInvalidTimestamp) {
     QFile test_file(test_file_name);
     test_file.open(QIODevice::ReadWrite | QIODevice::Text);
     QTextStream stream(&test_file);
-    stream <<  R"({
+    stream << R"({
     	    "timestamp": 5,
     		"url": "https://podcasts.com/some.rss",
     	    "title": "SomeTitle"
@@ -289,14 +289,15 @@ TEST_F(SerializerFixture, readFromFile) {
     QString test_file_name("some_test_file.json");
     /* create file to read */
     QFile test_file(test_file_name);
-    test_file.open(QIODevice::ReadWrite | QIODevice::Text | QIODevice::Truncate);
+    test_file.open(
+        QIODevice::ReadWrite | QIODevice::Text | QIODevice::Truncate);
     QTextStream stream(&test_file);
     stream << R"({
              "title": "foo",
              "description": "some fancy description",
              "icon-cached": "/foo/bar/baz.jpg",
              "icon": "http://some.remote.com/baz.jpg",
-             "timestamp": "Fr Feb 15 14:21:57 2019",
+             "timestamp": "2023-02-14T21:20:13",
              "Episodes": [
               { "id": "xx-yyy",
                 "duration": 3582395,
@@ -374,8 +375,9 @@ TEST_F(SerializerFixture, fullRoundTrip) {
 
 /******************************************************************************/
 TEST_F(SerializerFixture, purgeDeletesCacheFile) {
-	auto uid = QUuid::fromString(QString("{5c81821d-17fc-44d5-ae45-5ab24ffd1d50}"));
-	QString test_file_name =
+    auto uid =
+        QUuid::fromString(QString("{5c81821d-17fc-44d5-ae45-5ab24ffd1d50}"));
+    QString test_file_name =
         cache_dir.filePath(uid.toString(QUuid::WithoutBraces));
     /* create file to read */
     QFile test_file(test_file_name);
@@ -387,14 +389,15 @@ TEST_F(SerializerFixture, purgeDeletesCacheFile) {
     "description": "Some Description",
 	"icon": "https://some.remote.url/test.jpg",
     "icon-cached": "/tmp/local_cache/foo.jpg",
-    "timestamp": "Thu Nov 14 19:48:55 2019",
+    "timestamp": "2023-02-14T21:20:13",
 	"url": "https://alternativlos.org/alternativlos.rss",
     "title": "MyTitle1"
 	})";
     test_file.close();
     ASSERT_TRUE(test_file.exists());
 
-    PodcastSource source(QUrl("https://alternativlos.org/alternativlos.rss"),uid);
+    PodcastSource source(
+        QUrl("https://alternativlos.org/alternativlos.rss"), uid);
     auto serializer = std::make_unique<PodcastSerializer>(
         cache_dir, &source, std::chrono::milliseconds(50));
 

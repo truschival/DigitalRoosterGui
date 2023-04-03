@@ -46,7 +46,7 @@ Menu {
         }
         Text{
             text: "shutdown";
-            font: Style.font.boldLabel;
+            font: Style.font.label;
             color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }
@@ -63,7 +63,7 @@ Menu {
         }
         Text{
             text: "reboot";
-            font: Style.font.boldLabel;
+            font: Style.font.label;
             color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         }

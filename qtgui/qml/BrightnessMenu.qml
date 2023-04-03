@@ -47,7 +47,7 @@ Menu {
 
         Text{
             text: "Active brightness:";
-            font: Style.font.boldLabel;
+            font: Style.font.label;
             color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
             Layout.leftMargin: Style.itemMargins.wide;
@@ -68,7 +68,7 @@ Menu {
 
         Text{
             text: "Standby brightness:";
-            font: Style.font.boldLabel;
+            font: Style.font.label;
             color: Style.colors.primaryText;
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
             Layout.leftMargin: Style.itemMargins.wide;
