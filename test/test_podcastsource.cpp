@@ -29,7 +29,8 @@ public:
     PodcastSourceFixture()
         : cache_dir(DEFAULT_CACHE_DIR_PATH)
         , uid(QUuid::createUuid())
-        , ps(QUrl("https://alternativlos.org/alternativlos.rss"), uid)
+        , ps(QUrl("https://raw.githubusercontent.com/truschival/"
+                    "DigitalRoosterGui/develop/test/alternativlos.rss"), uid)
         , image_url("https://raw.githubusercontent.com/truschival/"
                     "DigitalRoosterGui/develop/test/old_icon.png")
         , cache_file(

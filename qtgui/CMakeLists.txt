@@ -23,18 +23,22 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 #-------------------------------------------------------------------------------
 SET(OTHER_LIBS "")
 SET(PROJECT_CORE_LIB "")
-if(TARGET digitalrooster)
-  add_library(${PROJECT_NAME}::digitalrooster ALIAS digitalrooster)
-else()
-  find_package(${PROJECT_NAME} COMPONENTS digitalrooster CONFIG REQUIRED)
+if(NOT TARGET ${PROJECT_NAME}::digitalrooster)
+  if(TARGET digitalrooster)
+    add_library(${PROJECT_NAME}::digitalrooster ALIAS digitalrooster)
+  else()
+    find_package(${PROJECT_NAME} COMPONENTS digitalrooster CONFIG REQUIRED)
+  endif()
 endif()
 LIST(APPEND PROJECT_CORE_LIB digitalrooster)
 
 if(REST_API)
-  if(TARGET restconfig)
-    add_library(${PROJECT_NAME}::restconfig ALIAS restconfig)
-  else()
-    find_package(${PROJECT_NAME} COMPONENTS restconfig CONFIG REQUIRED)
+  if(NOT TARGET ${PROJECT_NAME}::restconfig)
+    if(TARGET restconfig)
+      add_library(${PROJECT_NAME}::restconfig ALIAS restconfig)
+    else()
+      find_package(${PROJECT_NAME} COMPONENTS restconfig CONFIG REQUIRED)
+    endif()
   endif()
   LIST(APPEND REST_LIB restconfig)
 endif(REST_API)
@@ -65,10 +69,15 @@ SET(MOC_SRC
   ${CMAKE_CURRENT_SOURCE_DIR}/wifilistmodel.hpp
   )
 
+SET(QRC_SRC
+  qml/qml.qrc
+  externalRes/external.qrc
+  )
+  
 # Data resources (fonts,images etc.)
 qt5_add_resources(QRC_DATA externalRes/external.qrc)
 # QML sources for Qt5QuickCompiler
-qtquick_compiler_add_resources(QML_QRC_OBJECTS qml/qml.qrc)
+# qtquick_compiler_add_resources(QML_QRC_OBJECTS qml/qml.qrc)
 
 #------------------------------
 # add compile definitions
@@ -88,8 +97,9 @@ ADD_EXECUTABLE(${COMPONENT_NAME}
   ${SRCS}
   ${UI_HDRS}
   ${MOC_SRC}
-  ${QML_QRC_OBJECTS}
-  ${QRC_DATA}
+  ${QRC_SRC} # uncompiled resources
+  ${QML_QRC_OBJECTS} # compiled resources
+  ${QRC_DATA} 
   )
 
 SET_TARGET_PROPERTIES(${COMPONENT_NAME}

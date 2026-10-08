@@ -3,7 +3,7 @@
 # copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de> Licensed under GNU
 # PUBLIC LICENSE Version 3 or later
 
-cmake_minimum_required(VERSION 3.10..3.18)
+cmake_minimum_required(VERSION 4.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_COLOR_MAKEFILE ON)
@@ -39,7 +39,7 @@ option(HAS_WPA_SUPPLICANT "Target has wpa_supplicant" Off)
 option(REST_API "Use the REST API" Off)
 option(PROFILE "Build with Profiling" Off)
 option(TEST_COVERAGE "Test Coverage" Off)
-option(BUILD_GTEST_FROM_SRC "Rebuild google test as external project" On)
+option(BUILD_GTEST_FROM_SRC "Download and build google test from source via FetchContent" On)
 option(BUILD_SHARED_LIBS "Build shared libraries (DLLs)." Off)
 
 # most likely we have wpa_supplicant on Unix,linux etc.
