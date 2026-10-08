@@ -42,7 +42,7 @@ class BrightnessControl : public QObject {
             set_active_brightness NOTIFY active_brightness_changed)
     Q_PROPERTY(int standby_brightness READ get_standby_brightness WRITE
             set_standby_brightness NOTIFY standby_brightness_changed)
-    Q_PROPERTY(bool has_sensor READ has_als_sensor)
+    Q_PROPERTY(bool has_sensor READ has_als_sensor CONSTANT)
     Q_PROPERTY(bool feedback READ adaptive_mode WRITE set_adaptive_mode NOTIFY
             adaptive_mode_changed)
 public:

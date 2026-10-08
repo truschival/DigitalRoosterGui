@@ -7,8 +7,6 @@ import QtQuick 2.11
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.11
 
-import QtQuick.Extras 1.4
-
 import "Jsutil.js" as Util
 
 Menu {
@@ -45,8 +43,10 @@ Menu {
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
         }
 
-        Tumbler{
+        Tumbler {
             id: sleepTimeoutTumbler
+            model: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120];
+            visibleItemCount: 3
             Layout.maximumHeight: 120;
             Layout.preferredHeight: 100;
             Layout.fillHeight: true;
@@ -54,20 +54,13 @@ Menu {
             Layout.margins: Style.itemMargins.medium;
             Layout.alignment: Qt.AlignCenter| Qt.AlignTop
 
-            TumblerColumn {
-                id: sleepTimeoutMinutes
-                model: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120];
-                width:  64;
-                delegate: Text {
-                    text: styleData.value;
-                    font: Style.font.tumbler;
-                    verticalAlignment: Text.AlignVCenter;
-                    horizontalAlignment: Text.AlignHCenter;
-                    anchors.margins: 0;
-                    topPadding: 0;
-                    bottomPadding: 0;
-                    opacity: 0.3 + Math.max(0, 1 - Math.abs(styleData.displacement)) * 0.7
-                }
+            delegate: Text {
+                text: modelData;
+                font: Style.font.tumbler;
+                color: Style.colors.primaryText;
+                verticalAlignment: Text.AlignVCenter;
+                horizontalAlignment: Text.AlignHCenter;
+                opacity: 0.3 + Math.max(0, 1 - Math.abs(Tumbler.displacement)) * 0.7
             }
         }
 
@@ -78,7 +71,7 @@ Menu {
             Layout.preferredWidth: sleepTimeoutMenuCancel.width;
             Layout.alignment: Qt.AlignLeft| Qt.AlignTop
             onClicked: {
-                var minutes = (sleepTimeoutTumbler.currentIndexAt(0)+1) *10;
+                var minutes = (sleepTimeoutTumbler.currentIndex + 1) * 10;
                 sleeptimer.sleep_timeout_min = minutes;
                 sleepTimeoutMenu.close();
             }
@@ -98,7 +91,7 @@ Menu {
 
     onAboutToShow : {
         var idx = (sleeptimer.sleep_timeout_min/10)-1
-        sleepTimeoutTumbler.setCurrentIndexAt(0, idx);
+        sleepTimeoutTumbler.currentIndex = idx;
         sleepTimeOutMenuCloseTimer.start();
     }
 

@@ -9,8 +9,8 @@ import QtQuick.Controls 2.4
 import ruschi.PodcastEpisodeModel 1.0
 
 ListView {
-    width: parent.width
-    height: parent.height;
+    width: stackView.width;
+    height: stackView.height;
 
     rebound: listBoundTransition;
 
@@ -20,9 +20,5 @@ ListView {
         id: ped
     }
 
-    Connections {
-        function onFlickStarted () {
-            viewResetTimer.restart();
-        }
-    }
+    onFlickStarted: viewResetTimer.restart()
 }

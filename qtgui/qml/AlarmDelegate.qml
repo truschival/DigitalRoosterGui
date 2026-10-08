@@ -12,7 +12,7 @@ import "Jsutil.js" as Util
 
 Rectangle{
     id: alarmDelegate
-    width: parent.width;
+    width: ListView.view ? ListView.view.width : Style.canvasWidth;
     height: Style.contentHeight/3;
     radius: 3;
     border.width: 1;
@@ -53,11 +53,11 @@ Rectangle{
         Switch{
             id: enaAlarm;
 
-            position: alarmEnabled;
+            checked: alarmEnabled;
             text: alarmEnabled ? qsTr("on") : qsTr("off")
 
             onCheckedChanged:{
-                alarmlistmodel.set_enabled(index, position)
+                alarmlistmodel.set_enabled(index, checked)
             }
         }
 

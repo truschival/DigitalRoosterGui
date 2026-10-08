@@ -26,28 +26,34 @@ find_package(Threads REQUIRED)
 #-------------------------------------------------------------------------------
 
 SET(DUT_LIBS "")
-IF(TARGET digitalrooster)
-  add_library(${PROJECT_NAME}::digitalrooster ALIAS digitalrooster)
-ELSE()
-  find_package(${PROJECT_NAME} COMPONENTS digitalrooster CONFIG REQUIRED)
+IF(NOT TARGET ${PROJECT_NAME}::digitalrooster)
+  IF(TARGET digitalrooster)
+    add_library(${PROJECT_NAME}::digitalrooster ALIAS digitalrooster)
+  ELSE()
+    find_package(${PROJECT_NAME} COMPONENTS digitalrooster CONFIG REQUIRED)
+  ENDIF()
 ENDIF()
 LIST(APPEND DUT_LIBS digitalrooster)
 
 IF(UNIX)
   # target wpa_ctrl only exist ifdef UNIX
-  IF(TARGET wpa_ctrl)
-    add_library(${PROJECT_NAME}::wpa_ctrl ALIAS wpa_ctrl)
-  ELSE()
-    find_package(${PROJECT_NAME} COMPONENTS wpa_ctrl CONFIG REQUIRED)
+  IF(NOT TARGET ${PROJECT_NAME}::wpa_ctrl)
+    IF(TARGET wpa_ctrl)
+      add_library(${PROJECT_NAME}::wpa_ctrl ALIAS wpa_ctrl)
+    ELSE()
+      find_package(${PROJECT_NAME} COMPONENTS wpa_ctrl CONFIG REQUIRED)
+    ENDIF()
   ENDIF()
   LIST(APPEND DUT_LIBS wpa_ctrl)
 ENDIF(UNIX)
 
 IF(REST_API)
-  IF(TARGET restconfig)
-    add_library(${PROJECT_NAME}::restconfig ALIAS restconfig)
-  ELSE()
-    find_package(${PROJECT_NAME} COMPONENTS restconfig CONFIG REQUIRED)
+  IF(NOT TARGET ${PROJECT_NAME}::restconfig)
+    IF(TARGET restconfig)
+      add_library(${PROJECT_NAME}::restconfig ALIAS restconfig)
+    ELSE()
+      find_package(${PROJECT_NAME} COMPONENTS restconfig CONFIG REQUIRED)
+    ENDIF()
   ENDIF()
   LIST(APPEND DUT_LIBS restconfig)
 ENDIF(REST_API)
@@ -59,99 +65,28 @@ SET(CPP_DEFS "")
 LIST(APPEND CPP_DEFS "")
 
 #-------------------------------------------------------------------------------
-IF(NOT BUILD_GTEST_FROM_SRC)
+if(NOT BUILD_GTEST_FROM_SRC)
   # Use prebuilt google_test
   find_package(GTest REQUIRED)
+else()
+  # Prevent overriding the parent project's compiler/linker settings on Windows
+  set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-ELSE(NOT BUILD_GTEST_FROM_SRC)
-  include(ExternalProject)
+  include(FetchContent)
+  FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/refs/tags/v1.16.0.tar.gz
+  )
+  FetchContent_MakeAvailable(googletest)
+endif()
 
-  #--------------------------------------------------------------------------
-  # Google Test as external project
-  # Why - see http://code.google.com/p/googletest/wiki/FAQ#
-  # How - borrowed form stackexchange
-  #		(http://stackoverflow.com/questions/9689183/cmake-googletest)
-  # http://stackoverflow.com/questions/9689183/cmake-googletest
-  # http://www.kitware.com/media/html/BuildingExternalProjectsWithCMake2.8.html
-  # https://github.com/google/googletest/tree/master/googletest#incorporating-into-an-existing-cmake-project
-  #--------------------------------------------------------------------------
-  SET(GTEST_PREFIX "${CMAKE_CURRENT_BINARY_DIR}/GTestExternal/")
-
-  # Download and unpack googletest at configure time
-  configure_file(CMakeLists.txt.in ${GTEST_PREFIX}/CMakeLists.txt)
-
-  message(STATUS "Executing cmake on generated Download CMakeLists.txt")
-  execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}"  .
-    RESULT_VARIABLE result
-    WORKING_DIRECTORY ${GTEST_PREFIX} )
-  IF(result)
-    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-  ENDIF()
-
-  message(STATUS "Building google test" )
-  execute_process(COMMAND ${CMAKE_COMMAND} --build  ${GTEST_PREFIX}
-    RESULT_VARIABLE result
-    WORKING_DIRECTORY ${GTEST_PREFIX}/googletest-build )
-
-  IF(result)
-    message(FATAL_ERROR "Build step for googletest failed: ${result}")
-  ENDIF()
-
-  # Prevent overriding the parent project's compiler/linker
-  # settings on Windows
-  SET(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-  # Add googletest directly to our build. This defines
-  # the gtest and gtest_main targets.
-  add_subdirectory(
-    ${GTEST_PREFIX}/googletest-src
-    ${GTEST_PREFIX}/googletest-build
-    EXCLUDE_FROM_ALL)
-
-  set(LIBPREFIX "${CMAKE_STATIC_LIBRARY_PREFIX}")
-  set(LIBSUFFIX "${CMAKE_STATIC_LIBRARY_SUFFIX}")
-
-  set(GTEST_INCLUDES "${GTEST_PREFIX}/googletest-src/googletest/include")
-  set(GMOCK_INCLUDES "${GTEST_PREFIX}/googletest-src/googlemock/include")
-
-  set(GTEST_LIBRARY  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${LIBPREFIX}gtest")
-  set(GTEST_MAINLIB  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${LIBPREFIX}gtest_main")
-
-  set(GMOCK_LIBRARY  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${LIBPREFIX}gmock")
-  set(GMOCK_MAINLIB  "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${LIBPREFIX}gmock_main")
-
-  add_library(GTest IMPORTED STATIC GLOBAL)
-  set_target_properties(GTest PROPERTIES
-    IMPORTED_LOCATION "${GTEST_LIBRARY}${LIBSUFFIX}"
-    IMPORTED_LOCATION_DEBUG  "${GTEST_LIBRARY}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
-    INTERFACE_INCLUDE_DIRECTORIES     "${GTEST_INCLUDES};${GMOCK_INCLUDES}"
-    IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}")
-
-  add_library(GTestMain IMPORTED STATIC GLOBAL)
-  set_target_properties(GTestMain PROPERTIES
-    IMPORTED_LOCATION "${GTEST_MAINLIB}${LIBSUFFIX}"
-    IMPORTED_LOCATION_DEBUG  "${GTEST_MAINLIB}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
-    INTERFACE_INCLUDE_DIRECTORIES      "${GTEST_INCLUDES}"
-    IMPORTED_LINK_INTERFACE_LIBRARIES  GTest)
-
-  add_library(GMock IMPORTED STATIC GLOBAL)
-  set_target_properties(GMock PROPERTIES
-    IMPORTED_LOCATION "${GMOCK_LIBRARY}${LIBSUFFIX}"
-    IMPORTED_LOCATION_DEBUG  "${GMOCK_LIBRARY}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
-    INTERFACE_INCLUDE_DIRECTORIES     "${GTEST_INCLUDES};${GMOCK_INCLUDES}"
-    IMPORTED_LINK_INTERFACE_LIBRARIES "${CMAKE_THREAD_LIBS_INIT}")
-
-  add_library(GMockMain IMPORTED STATIC GLOBAL)
-  set_target_properties(GMockMain PROPERTIES
-    IMPORTED_LOCATION "${GMOCK_MAINLIB}${LIBSUFFIX}"
-    IMPORTED_LOCATION_DEBUG  "${GMOCK_MAINLIB}${CMAKE_DEBUG_POSTFIX}${LIBSUFFIX}"
-    INTERFACE_INCLUDE_DIRECTORIES      "${GTEST_INCLUDES};${GMOCK_INCLUDES}"
-    IMPORTED_LINK_INTERFACE_LIBRARIES  GMock )
-
-  add_dependencies(GTest gtest_main gtest)
-  add_dependencies(GMock gmock_main gmock)
-
-ENDIF(NOT BUILD_GTEST_FROM_SRC)
+# Aliases for compatibility
+if(NOT TARGET GTest AND TARGET gtest)
+  add_library(GTest ALIAS gtest)
+endif()
+if(NOT TARGET GMock AND TARGET gmock)
+  add_library(GMock ALIAS gmock)
+endif()
 
 #------------------------------
 # Test input files
@@ -257,8 +192,8 @@ TARGET_INCLUDE_DIRECTORIES(${GEST_BINARY_NAME}
 TARGET_LINK_LIBRARIES(
   ${GEST_BINARY_NAME}
   ${DUT_LIBS}   # Units under test
-  GMock # main not required, implemented in test.cpp
-  GTest
+  GTest::gmock # main not required, implemented in test.cpp
+  GTest::gtest
   Qt5::Test
   OpenSSL::Crypto
   OpenSSL::SSL
@@ -269,6 +204,8 @@ IF(TEST_COVERAGE)
   IF(NOT MSVC)
     #Remove googletest, autogenerated QT code and headers for testcoverage
     SET(COVERAGE_EXCLUDES
+      '*_deps*'
+      '*googletest-src*'
       '*GTestExternal/*'
       '*PistacheExternal/*'
       "*_autogen*"

@@ -6,7 +6,6 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.11
-import QtQuick.Extras 1.4
 
 import ruschi.Alarm 1.0
 import "Jsutil.js" as Util
@@ -28,41 +27,60 @@ Popup {
         rows: 4;
         columns:2;
 
-        Tumbler{
+        RowLayout {
             id: timeTumbler
+            spacing: 2
             Layout.maximumHeight: 100
+            Layout.preferredHeight: 100
             Layout.rowSpan: 2
-            Layout.alignment: Qt.AlignLeft| Qt.AlignTop
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
 
-            TumblerColumn {
+            Tumbler {
                 id: hoursTumbler
                 model: 24
-                width: 46;
+                visibleItemCount: 3
+                Layout.preferredWidth: 46
+                Layout.fillHeight: true
                 delegate: Text {
-                    text: styleData.value
-                    font: Style.font.tumbler;
+                    text: modelData < 10 ? "0" + modelData : modelData
+                    font: Style.font.tumbler
+                    color: Style.colors.primaryText
                     horizontalAlignment: Text.AlignHCenter
-                    opacity: 0.4 + Math.max(0, 1 - Math.abs(styleData.displacement)) * 0.6
+                    verticalAlignment: Text.AlignVCenter
+                    opacity: 0.4 + Math.max(0, 1 - Math.abs(Tumbler.displacement)) * 0.6
                 }
             }
-            TumblerColumn {
+
+            Text {
+                text: ":"
+                font: Style.font.tumbler
+                color: Style.colors.primaryText
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            Tumbler {
                 id: minutesTumbler
                 model: 60
-                width:  46;
+                visibleItemCount: 3
+                Layout.preferredWidth: 46
+                Layout.fillHeight: true
                 delegate: Text {
-                    text: styleData.value
-                    font: Style.font.tumbler;
+                    text: modelData < 10 ? "0" + modelData : modelData
+                    font: Style.font.tumbler
+                    color: Style.colors.primaryText
                     horizontalAlignment: Text.AlignHCenter
-                    opacity: 0.4 + Math.max(0, 1 - Math.abs(styleData.displacement)) * 0.6
+                    verticalAlignment: Text.AlignVCenter
+                    opacity: 0.4 + Math.max(0, 1 - Math.abs(Tumbler.displacement)) * 0.6
                 }
             }
-        } //Tumbler
+        }
 
         Switch{
             id: enaAlarm;
             Layout.alignment: Qt.AlignLeft| Qt.AlignTop
-            position: currentAlarm.enabled
-            text: currentAlarm.enabled ? qsTr("on") : qsTr("off")
+            checked: currentAlarm.enabled
+            text: checked ? qsTr("on") : qsTr("off")
         }
 
         ComboBox {
@@ -96,8 +114,8 @@ Popup {
             onClicked: {
                 // Time from tumbler
                 var now = new Date();
-                var h_idx =timeTumbler.currentIndexAt(0);
-                var m_idx = timeTumbler.currentIndexAt(1);
+                var h_idx = hoursTumbler.currentIndex;
+                var m_idx = minutesTumbler.currentIndex;
                 now.setHours(h_idx, m_idx, 0);
                 currentAlarm.time = now;
                 alarmlistmodel.update_row(alarmlistmodel.currentIndex);
@@ -106,7 +124,7 @@ Popup {
                 // alarm period
                 currentAlarm.period_id = period.currentIndex;
                 // enabled?
-                currentAlarm.enabled= enaAlarm.position
+                currentAlarm.enabled= enaAlarm.checked
                 // update list view
                 alarmlistmodel.update_row(alarmlistmodel.currentIndex)
                 close();
@@ -125,8 +143,8 @@ Popup {
     } // Gridlayout
 
     onAboutToShow : {
-        timeTumbler.setCurrentIndexAt(0,Util.get_hours(currentAlarm.time))
-        timeTumbler.setCurrentIndexAt(1,Util.get_minutes(currentAlarm.time))
+        hoursTumbler.currentIndex = Util.get_hours(currentAlarm.time);
+        minutesTumbler.currentIndex = Util.get_minutes(currentAlarm.time);
 
         for (var i=0; i<iradiolistmodel.rowCount() ; i++){
             if(iradiolistmodel.get_station_url(i) === currentAlarm.url){

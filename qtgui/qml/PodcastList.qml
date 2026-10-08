@@ -20,11 +20,7 @@ ListView {
 
     model: podcastmodel
 
-    Connections {
-        function onFlickStarted() {
-            viewResetTimer.restart();
-        }
-    }
+    onFlickStarted: viewResetTimer.restart()
 
     PodcastContextMenu{
         id: podcastControl;

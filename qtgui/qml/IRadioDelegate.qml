@@ -11,7 +11,7 @@ import ruschi.PlayableItem 1.0
 
 Rectangle{
     id: iradiodelegatearea
-    width: parent.width;
+    width: ListView.view ? ListView.view.width : Style.canvasWidth;
     height: Style.contentHeight/4;
     radius: 3;
     border.width: 1;
@@ -25,8 +25,8 @@ Rectangle{
         verticalAlignment: Text.AlignVCenter;
         anchors.fill: parent;
         anchors.margins: Style.itemMargins.medium;
-        color: iradiolist.currentItem === parent ?
-            Style.colors.selected : Style.colors.primaryText ;
+        color: ListView.isCurrentItem ?
+            Style.colors.selected : Style.colors.primaryText;
     }
 
     MouseArea {

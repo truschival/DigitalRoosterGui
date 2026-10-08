@@ -266,6 +266,10 @@ int main(int argc, char* argv[]) {
     ctxt->setContextProperty("FONT_SCALING", QVariant::fromValue(dpi));
 
     view.load(QUrl("qrc:/main.qml"));
+    if (view.rootObjects().isEmpty()) {
+        qCCritical(MAIN) << "Failed to load QML root object!";
+        return -1;
+    }
 
     /* Start in standby mode - defined in qtgui/CMakeLists.txt */
 #ifndef HARDWARE_STUB

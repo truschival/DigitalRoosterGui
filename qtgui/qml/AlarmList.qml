@@ -30,6 +30,7 @@ ListView {
     model: alarmlistmodel
 
     RoundButton {
+        parent: alarmlist
         text: qsTr("+")
         highlighted: true
         width: 56;

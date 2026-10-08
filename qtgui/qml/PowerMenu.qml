@@ -29,7 +29,9 @@ Menu {
         powerMenuCloseTimer.start();
     }
 
-    GridLayout {
+    contentItem: GridLayout {
+        anchors.fill: parent;
+        anchors.margins: Style.itemMargins.medium;
         rows: 2;
         columns: 2;
         rowSpacing: Style.itemSpacings.medium;
