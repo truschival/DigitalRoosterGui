@@ -126,8 +126,9 @@ ApplicationWindow {
                 }
 
                 Shortcut {
-                    sequence: StandardKey.Back
-                    onActivated: backButton.onClicked();
+                    sequences: [StandardKey.Back]
+                    enabled: backButton.visible
+                    onActivated: backButton.clicked()
                 }
             }
         }

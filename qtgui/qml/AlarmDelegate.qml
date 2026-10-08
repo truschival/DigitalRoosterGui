@@ -54,9 +54,9 @@ Rectangle{
             id: enaAlarm;
 
             checked: alarmEnabled;
-            text: alarmEnabled ? qsTr("on") : qsTr("off")
+            text: checked ? qsTr("on") : qsTr("off")
 
-            onCheckedChanged:{
+            onToggled: {
                 alarmlistmodel.set_enabled(index, checked)
             }
         }
