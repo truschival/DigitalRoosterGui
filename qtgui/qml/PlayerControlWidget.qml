@@ -24,13 +24,11 @@ Popup {
         onTriggered: playerControlWidget.close();
     }
 
-    GridLayout{
+    contentItem: GridLayout {
         columns: 3;
         rows: 3;
         columnSpacing: Style.itemSpacings.medium;
         rowSpacing: Style.itemSpacings.dense;
-        anchors.margins: 0;
-        anchors.fill: parent;
 
         Text{
             id: currentMediaTitle

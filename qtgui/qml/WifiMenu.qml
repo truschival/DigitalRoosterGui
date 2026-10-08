@@ -17,9 +17,9 @@ Menu {
     enter: dialogFadeInTransition;
     exit: dialogFadeOutTransition;
 
+    padding: Style.itemMargins.slim;
+
     contentItem: GridLayout {
-        anchors.fill: parent;
-        anchors.margins: Style.itemMargins.slim;
         clip: true;
         rows: 3;
         columns: 2;

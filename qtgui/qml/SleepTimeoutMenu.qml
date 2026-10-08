@@ -24,11 +24,11 @@ Menu {
         onTriggered: parent.close();
     }
 
+    padding: Style.itemMargins.slim;
+
     contentItem: GridLayout {
-        anchors.fill: parent;
-        anchors.margins: Style.itemMargins.slim;
         rows: 3;
-        columns:2;
+        columns: 2;
         columnSpacing: Style.itemSpacings.medium;
         rowSpacing: Style.itemSpacings.dense;
 

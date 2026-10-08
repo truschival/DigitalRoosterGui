@@ -20,8 +20,9 @@ Menu {
         onTriggered: volumePopUp.close()
     }
 
+    padding: Style.itemMargins.dense;
+
     contentItem: GridLayout {
-        anchors.fill: parent;
         rowSpacing: Style.itemSpacings.dense;
         columnSpacing: Style.itemSpacings.dense;
         rows: 2;

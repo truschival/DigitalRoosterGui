@@ -18,14 +18,13 @@ Popup {
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
     enter: dialogFadeInTransition;
     exit: dialogFadeOutTransition;
+    padding: Style.itemMargins.slim;
 
     contentItem: GridLayout {
         columnSpacing: Style.itemSpacings.dense;
         rowSpacing: 0;
-        anchors.fill: parent;
-        anchors.margins: Style.itemMargins.slim;
         rows: 4;
-        columns:2;
+        columns: 2;
 
         RowLayout {
             id: timeTumbler
@@ -79,7 +78,7 @@ Popup {
         Switch{
             id: enaAlarm;
             Layout.alignment: Qt.AlignLeft| Qt.AlignTop
-            checked: currentAlarm.enabled
+            checked: currentAlarm ? currentAlarm.enabled : false
             text: checked ? qsTr("on") : qsTr("off")
         }
 
@@ -93,12 +92,12 @@ Popup {
                 ListElement { text: qsTr("Weekend") }
                 ListElement { text: qsTr("Workdays") }
             }
-            currentIndex: currentAlarm.period_id;
+            currentIndex: currentAlarm ? currentAlarm.period_id : 0;
         }
 
         ComboBox {
             id: stations
-            Layout.preferredWidth: parent.width
+            Layout.fillWidth: true
             Layout.alignment: Qt.AlignLeft| Qt.AlignTop
             Layout.columnSpan: 2
 
@@ -143,8 +142,13 @@ Popup {
     } // Gridlayout
 
     onAboutToShow : {
+        if (!currentAlarm)
+            return;
+
         hoursTumbler.currentIndex = Util.get_hours(currentAlarm.time);
         minutesTumbler.currentIndex = Util.get_minutes(currentAlarm.time);
+        enaAlarm.checked = currentAlarm.enabled;
+        period.currentIndex = currentAlarm.period_id;
 
         for (var i=0; i<iradiolistmodel.rowCount() ; i++){
             if(iradiolistmodel.get_station_url(i) === currentAlarm.url){
