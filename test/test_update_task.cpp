@@ -21,7 +21,8 @@ TEST(TestDownload, parsed) {
         QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
 
     PodcastSource ps(
-        QUrl("https://alternativlos.org/alternativlos.rss"));
+        QUrl("https://raw.githubusercontent.com/truschival/"
+                    "DigitalRoosterGui/develop/test/alternativlos.rss"));
     QSignalSpy spy(&ps, SIGNAL(titleChanged()));
     UpdateTask task(&ps);
     ASSERT_TRUE(spy.wait());
@@ -34,7 +35,8 @@ TEST(TestDownload, donotReEmitEpisodesChanged) {
         QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
 
     PodcastSource ps(
-        QUrl("https://alternativlos.org/alternativlos.rss"));
+        QUrl("https://raw.githubusercontent.com/truschival/"
+                    "DigitalRoosterGui/develop/test/alternativlos.rss"));
     QSignalSpy spy(&ps, SIGNAL(titleChanged()));
     UpdateTask task(&ps);
     spy.wait(1000);
