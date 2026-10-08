@@ -48,8 +48,7 @@ Popup {
         IconButton {
             id: backwardBtn
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
-            Layout.minimumWidth: parent.width/3 - 20;
-            Layout.preferredWidth: parent.width/3 ;
+            Layout.fillWidth: true;
             text: "\uf45f";
             onClicked: {
                 interactiontimer.restart()
@@ -92,8 +91,7 @@ Popup {
         IconButton {
             id: forwardBtn
             Layout.alignment: Qt.AlignLeft| Qt.AlignTop
-            Layout.minimumWidth: parent.width/3 - 20;
-            Layout.preferredWidth: parent.width/3 ;
+            Layout.fillWidth: true;
 
             text: "\uf211"
             onClicked: {

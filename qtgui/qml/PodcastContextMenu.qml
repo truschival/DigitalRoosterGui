@@ -26,7 +26,9 @@ Menu {
         podcastCtxMenuCloseTimer.start();
     }
 
-    GridLayout {
+    contentItem: GridLayout {
+        anchors.fill: parent;
+        anchors.margins: Style.itemMargins.medium;
         rows: 4;
         columns: 2;
         rowSpacing: Style.itemSpacings.dense;
@@ -38,9 +40,9 @@ Menu {
             elide: Text.ElideMiddle;
             color: Style.colors.primaryText;
 
-            Layout.columnSpan:2;
-            Layout.margins:Style.itemMargins.slim;
-            Layout.maximumWidth: parent.width;
+            Layout.columnSpan: 2;
+            Layout.margins: Style.itemMargins.slim;
+            Layout.fillWidth: true;
             Layout.alignment: Qt.AlignCenter | Qt.AlignTop
         }
 

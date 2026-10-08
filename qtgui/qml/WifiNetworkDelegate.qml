@@ -8,7 +8,7 @@ import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.11
 
 Rectangle{
-    width: parent.width;
+    width: ListView.view ? ListView.view.width : Style.canvasWidth;
     height: Style.contentHeight/4;
     radius: 3;
     border.width: 1;

@@ -17,14 +17,12 @@ Menu {
     enter: dialogFadeInTransition;
     exit: dialogFadeOutTransition;
 
-    GridLayout{
-        height: wifiMenu.height;
-        anchors.leftMargin: Style.itemMargins.slim;
-        anchors.rightMargin: Style.itemMargins.slim;
-        anchors.topMargin: Style.itemMargins.slim;
+    contentItem: GridLayout {
+        anchors.fill: parent;
+        anchors.margins: Style.itemMargins.slim;
         clip: true;
-        rows:3;
-        columns:2;
+        rows: 3;
+        columns: 2;
 
         IconButton{
             text: "\uf453";

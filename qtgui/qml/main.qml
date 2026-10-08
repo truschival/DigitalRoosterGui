@@ -22,7 +22,6 @@ ApplicationWindow {
     height: Style.canvasHeight;
 
     Material.theme: Material.Dark
-    Material.accent: Material.Red
 
     property alias playerControlWidget: playerControlWidget
     property string functionMode: "Clock"
@@ -150,7 +149,7 @@ ApplicationWindow {
 
         Timer {
             id: autocloseTimer
-            interval: 5000
+            interval: 6000
             running: true
             repeat: false
             onTriggered: drawer.close();
@@ -161,8 +160,6 @@ ApplicationWindow {
             anchors.fill: parent
             spacing: Style.itemSpacings.dense;
             anchors.margins: Style.itemMargins.slim;
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.verticalCenter: parent.verticalCenter
 
             focus: true;
             currentIndex: -1;
@@ -222,10 +219,10 @@ ApplicationWindow {
 
     PlayerControlWidget {
         id: playerControlWidget;
-        width: parent.width*0.85;
-        height: parent.height*0.55;
+        width: applicationWindow.width * 0.85;
+        height: applicationWindow.height * 0.55;
         x: Math.round((applicationWindow.width - width) / 2)
-        y: Math.round((applicationWindow.height - height) *0.6)+Style.itemMargins.wide;
+        y: Math.round((applicationWindow.height - height) * 0.6) + Style.itemMargins.wide;
     }
 
     VolumePopup {

@@ -79,8 +79,8 @@ Popup {
         Switch{
             id: enaAlarm;
             Layout.alignment: Qt.AlignLeft| Qt.AlignTop
-            position: currentAlarm.enabled
-            text: currentAlarm.enabled ? qsTr("on") : qsTr("off")
+            checked: currentAlarm.enabled
+            text: checked ? qsTr("on") : qsTr("off")
         }
 
         ComboBox {
@@ -124,7 +124,7 @@ Popup {
                 // alarm period
                 currentAlarm.period_id = period.currentIndex;
                 // enabled?
-                currentAlarm.enabled= enaAlarm.position
+                currentAlarm.enabled= enaAlarm.checked
                 // update list view
                 alarmlistmodel.update_row(alarmlistmodel.currentIndex)
                 close();

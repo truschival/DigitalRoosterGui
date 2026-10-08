@@ -26,12 +26,14 @@ Item{
 		minutes=  date.getMinutes()
 		hours = date.getHours()
 		night = ( hours < 7 || hours > 19 );
-		datestring_lz = date.toDateString("ddd dd.MM.yyyy");
+		datestring_lz = Qt.formatDate(date, "ddd dd.MM.yyyy");
 		timestring_lz_hh_mm = Util.add_leading_zero(hours) + ":"
 			+ Util.add_leading_zero(minutes) ;
 		timestring_lz = timestring_lz_hh_mm + ":"
 			+ Util.add_leading_zero(seconds)
 	}
+
+	Component.onCompleted: timeChanged()
 
 	Timer {
 		interval: 500; running: true; repeat: true;

@@ -29,9 +29,9 @@ Menu {
         brightnessMenuCloseTimer.start();
     }
 
-    ColumnLayout{
-        anchors.leftMargin: Style.itemMargins.wide;
-        anchors.rightMargin: Style.itemMargins.wide;
+    contentItem: ColumnLayout {
+        anchors.fill: parent;
+        anchors.margins: Style.itemMargins.wide;
         spacing: 0;
 
         CheckBox {

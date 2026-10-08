@@ -53,7 +53,7 @@ Rectangle{
             text: episode_count;
             wrapMode: Text.WordWrap;
             font: Style.font.valueLabel;
-            Layout.preferredWidth: (parent.with-podcasticon.width)*0.2
+            Layout.preferredWidth: (parent.width - podcasticon.width) * 0.2
             Layout.alignment: Qt.AlignRight | Qt.AlignTop
             color: Style.colors.primaryText;
         }

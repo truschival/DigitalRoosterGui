@@ -33,13 +33,13 @@ Rectangle {
             font: Style.font.weatherInfo;
             color: Style.colors.primaryText;
             style: Text.Outline;
-            styleColor: Style.colors.selected;
+            styleColor: "black";
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter;
             z:1; //cover icon if needed
         }
 
         Image {
-            id: condition_icon;
+            id: conditionIconImage;
             fillMode: Image.PreserveAspectFit
             Layout.margins: -8;
             Layout.minimumWidth: 50;
@@ -50,7 +50,7 @@ Rectangle {
         }
 
         Text{
-            id: timestamp;
+            id: timestampLabel;
             text: "23:55";
             font: Style.font.weatherTime;
             color: Style.colors.primaryText;
@@ -61,9 +61,9 @@ Rectangle {
     }
 
     function update(weather){
-        timestamp.text  = Qt.formatTime(weather.timestamp,"hh:mm");
+        timestampLabel.text  = Qt.formatTime(weather.timestamp,"hh:mm");
         temp.text = Math.round(weather.temp)+"\u00B0C";
-        condition_icon.source = weather.icon_url;
+        conditionIconImage.source = weather.icon_url;
     }
 
     MouseArea{
