@@ -30,13 +30,15 @@ find_package(
 set(OTHER_LIBS "")
 
 # target wpa_ctrl always exists (the content depends on HAS_WPA_SUPPLICANT)
-if(TARGET wpa_ctrl)
-    add_library(${PROJECT_NAME}::wpa_ctrl ALIAS wpa_ctrl)
-else()
-    find_package(
-        ${PROJECT_NAME}
-        COMPONENTS wpa_ctrl CONFIG
-        REQUIRED)
+if(NOT TARGET ${PROJECT_NAME}::wpa_ctrl)
+    if(TARGET wpa_ctrl)
+        add_library(${PROJECT_NAME}::wpa_ctrl ALIAS wpa_ctrl)
+    else()
+        find_package(
+            ${PROJECT_NAME}
+            COMPONENTS wpa_ctrl CONFIG
+            REQUIRED)
+    endif()
 endif()
 list(APPEND OTHER_LIBS wpa_ctrl)
 
