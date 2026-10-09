@@ -149,10 +149,13 @@ bool HardwareControlMk3::als_sensor_available() const {
 }
 
 /*****************************************************************************/
-uint16_t read_sensor(std::ifstream& fs) {
+static uint16_t read_sensor(std::ifstream& fs) {
     uint16_t val = 0;
-    fs >> val;
+    /* a previous read error leaves the stream failed, a transient I/O error
+     * must not disable the sensor for good */
+    fs.clear();
     fs.seekg(0, std::ios_base::beg);
+    fs >> val;
     return val;
 }
 
@@ -229,6 +232,8 @@ void HardwareControlMk3::set_backlight(int brightness_in) {
         static_cast<int>(BRIGHTNESS_VAL_MAX - brightness * BRIGHTNESS_SLOPE);
     qCDebug(CLASS_LC) << "brightness:" << brightness << "pwm val:" << pwm_val;
     try {
+        // recover from a previous write error
+        backlight_pwm.clear();
         backlight_pwm << pwm_val << std::endl;
     } catch (std::exception& exc) {
         qCCritical(CLASS_LC) << "cannot set brightness:" << exc.what();
