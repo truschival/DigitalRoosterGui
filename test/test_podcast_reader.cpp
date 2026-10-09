@@ -160,3 +160,28 @@ TEST_F(PodcastReaderFixture, parseInfo_bad_missing_url) {
 }
 
 /******************************************************************************/
+
+/******************************************************************************/
+TEST(PodcastReader, channelImageDoesNotOverrideTitle) {
+    PodcastSource ps(QUrl("https://example.org/feed.rss"));
+    update_podcast(ps, QByteArray(R"(<?xml version="1.0"?>
+<rss version="2.0"><channel>
+  <title>
+    <![CDATA[Real Title]]>
+  </title>
+  <link>https://example.org</link>
+  <image>
+    <title>Image Title</title>
+    <link>https://example.org/image</link>
+    <url>https://example.org/image.png</url>
+  </image>
+  <item>
+    <title><![CDATA[Episode]]> 1</title>
+    <enclosure url="https://example.org/ep1.mp3" type="audio/mpeg"/>
+  </item>
+</channel></rss>)"));
+    EXPECT_EQ(ps.get_title(), QString("Real Title"));
+    EXPECT_EQ(ps.get_link(), QUrl("https://example.org"));
+    ASSERT_EQ(ps.get_episodes().size(), 1);
+    EXPECT_EQ(ps.get_episodes()[0]->get_title(), QString("Episode 1"));
+}

@@ -42,6 +42,16 @@ static QTime tryParse(const QString& timestring) {
 }
 
 /*****************************************************************************/
+/**
+ * Read the complete text of the current element, also if it is split in
+ * several tokens e.g. whitespace and CDATA sections
+ */
+static QString element_text(QXmlStreamReader& xml) {
+    return xml.readElementText(QXmlStreamReader::IncludeChildElements)
+        .trimmed();
+}
+
+/*****************************************************************************/
 void parse_episodes(PodcastSource& podcastsource, QXmlStreamReader& xml) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (xml.tokenType() != QXmlStreamReader::StartElement ||
@@ -59,32 +69,25 @@ void parse_episodes(PodcastSource& podcastsource, QXmlStreamReader& xml) {
         if (xml.tokenType() == QXmlStreamReader::StartElement) {
             if (xml.namespaceUri() == "") {
                 if (xml.name() == "title") {
-                    xml.readNext();
-                    ep->set_title(xml.text().toString());
+                    ep->set_title(element_text(xml));
                 } else if (xml.name() == "description") {
-                    xml.readNext();
-                    ep->set_description(xml.text().toString());
+                    ep->set_description(element_text(xml));
                 } else if (xml.name() == "enclosure") {
                     // no readnext if we look at attributes
                     ep->set_url(QUrl(xml.attributes().value("url").toString()));
                 } else if (xml.name() == "pubDate") {
-                    xml.readNext();
                     ep->set_publication_date(QDateTime::fromString(
-                        xml.text().toString(), Qt::DateFormat::RFC2822Date));
+                        element_text(xml), Qt::DateFormat::RFC2822Date));
                 } else if (xml.name() == "guid") {
-                    xml.readNext();
-                    ep->set_guid(xml.text().toString());
+                    ep->set_guid(element_text(xml));
                 }
             } else if (xml.namespaceUri() ==
                 "http://www.itunes.com/dtds/podcast-1.0.dtd") {
                 if (xml.name() == "duration") {
-                    xml.readNext();
-                    auto time = tryParse(xml.text().toString());
+                    auto time = tryParse(element_text(xml));
                     ep->set_duration(QTime(0, 0).secsTo(time) * 1000);
-                }
-                if (xml.name() == "author") {
-                    xml.readNext();
-                    ep->set_publisher(xml.text().toString());
+                } else if (xml.name() == "author") {
+                    ep->set_publisher(element_text(xml));
                 }
             }
         }
@@ -127,19 +130,16 @@ void parse_channel(PodcastSource& podcastsource, QXmlStreamReader& xml) {
                     << "StartElement (" << xml.tokenType() << ")" << xml.name();
                 if (xml.name() == "item") {
                     parse_episodes(podcastsource, xml);
+                } else if (xml.name() == "image") {
+                    /* title, link of the channel image are not the
+                     * channel's title and link */
+                    xml.skipCurrentElement();
                 } else if (xml.name() == "title") {
-                    xml.readNext();
-                    qCDebug(CLASS_LC)
-                        << "title: " << xml.name() << " : " << xml.text();
-                    podcastsource.set_title(xml.text().toString());
+                    podcastsource.set_title(element_text(xml));
                 } else if (xml.name() == "description") {
-                    xml.readNext();
-                    qCDebug(CLASS_LC)
-                        << "description: " << xml.name() << " : " << xml.text();
-                    podcastsource.set_description(xml.text().toString());
+                    podcastsource.set_description(element_text(xml));
                 } else if (xml.name() == "link") {
-                    xml.readNext();
-                    podcastsource.set_link(xml.text().toString());
+                    podcastsource.set_link(element_text(xml));
                 }
             } else if (xml.namespaceUri() ==
                 "http://www.itunes.com/dtds/podcast-1.0.dtd") {
