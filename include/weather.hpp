@@ -41,8 +41,8 @@ class WeatherStatus : public QObject {
     Q_OBJECT
     Q_PROPERTY(QDateTime timestamp READ get_timestamp)
     Q_PROPERTY(double temp READ get_temperature)
-    Q_PROPERTY(double temp_min READ get_max_temperature)
-    Q_PROPERTY(double temp_max READ get_min_temperature)
+    Q_PROPERTY(double temp_min READ get_min_temperature)
+    Q_PROPERTY(double temp_max READ get_max_temperature)
     Q_PROPERTY(QUrl icon_url READ get_weather_icon_url)
 public:
     WeatherStatus() = default;
