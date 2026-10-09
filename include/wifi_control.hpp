@@ -146,7 +146,7 @@ private:
     /**
      * Buffer to hold reply of command
      */
-    char reply[2048] = {};
+    char reply[4096] = {};
     size_t reply_size;
 
     /**
@@ -164,6 +164,12 @@ private:
      * Notifier for watching asynchornous events from wpa_ctrl socket
      */
     std::unique_ptr<QSocketNotifier> ctrl_notifier;
+
+    /**
+     * Connect to wpa_supplicant if not yet connected
+     * @return true if connected
+     */
+    bool ensure_connected();
 
     /**
      * Send read scan_results from wpa_ctrl
