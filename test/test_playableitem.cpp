@@ -10,6 +10,7 @@
 #include <gtest/gtest.h>
 
 #include "PlayableItem.hpp"
+#include "appconstants.hpp"
 
 using namespace DigitalRooster;
 using namespace ::testing;
@@ -127,3 +128,13 @@ TEST(PlayableItem, from_json_invalid_uuid) {
 }
 
 /*****************************************************************************/
+
+/*****************************************************************************/
+TEST(PlayableItem, NotListenedBelowThreshold) {
+    PodcastEpisode episode("Foo", QUrl("http://www.heise.de"));
+    episode.set_duration(1000);
+    episode.set_position(DigitalRooster::MIN_LISTENED_PERC * 10 - 1);
+    ASSERT_FALSE(episode.already_listened());
+    episode.set_position(DigitalRooster::MIN_LISTENED_PERC * 10);
+    ASSERT_TRUE(episode.already_listened());
+}
