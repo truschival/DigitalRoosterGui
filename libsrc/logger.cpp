@@ -5,6 +5,7 @@
  */
 
 #include <memory>
+#include <mutex>
 #include <stdexcept>
 #include <system_error>
 
@@ -19,8 +20,12 @@ namespace DigitalRooster {
 
 static std::shared_ptr<QFile> logfile;
 
+/* REST handlers log from worker threads, QFile is not thread-safe */
+static std::mutex log_mtx;
+
 static void messageHandler(
     QtMsgType type, const QMessageLogContext& context, const QString& msg) {
+    std::lock_guard<std::mutex> lock(log_mtx);
     static bool initialized = false;
 
     QTextStream out(logfile.get());
