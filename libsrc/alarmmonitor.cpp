@@ -27,10 +27,10 @@ AlarmMonitor::AlarmMonitor(MediaPlayer& player,
     QObject::connect(&mpp,
         static_cast<void (MediaPlayer::*)(QMediaPlayer::Error)>(
             &MediaPlayer::error),
-        [&](QMediaPlayer::Error error) {
-            /* if any error occurs while we are expecting or playing an alarm */
-            if (error != QMediaPlayer::NoError &&
-                fallback_alarm_timer.isActive()) {
+        this, [this](QMediaPlayer::Error error) {
+            /* if any error occurs while we are expecting an alarm to play,
+             * errors of the fallback playlist itself are ignored */
+            if (error != QMediaPlayer::NoError && state == Armed) {
                 qCWarning(CLASS_LC) << "player error occurred";
                 trigger_fallback_behavior();
             }
@@ -46,12 +46,18 @@ AlarmMonitor::AlarmMonitor(MediaPlayer& player,
      */
     fallback_alarm_timer.setSingleShot(true);
     fallback_alarm_timer.setInterval(timeout);
-    QObject::connect(
-        &fallback_alarm_timer, &QTimer::timeout, [&]() {
-            qCDebug(CLASS_LC)
-                << "fallback_alarm_timer elapsed without player error!";
-            set_state(Idle);
-        });
+    QObject::connect(&fallback_alarm_timer, &QTimer::timeout, this, [this]() {
+        /* A stream can hang in loading/buffering without ever reporting an
+         * error - only disarm if the alarm is actually audible */
+        if (mpp.playback_state() != QMediaPlayer::PlayingState) {
+            qCWarning(CLASS_LC) << "alarm not playing after timeout!";
+            trigger_fallback_behavior();
+            return;
+        }
+        qCDebug(CLASS_LC)
+            << "fallback_alarm_timer elapsed without player error!";
+        set_state(Idle);
+    });
 }
 
 /*****************************************************************************/
@@ -80,6 +86,7 @@ void AlarmMonitor::alarm_triggered(const DigitalRooster::Alarm* alarm) {
 /*****************************************************************************/
 void AlarmMonitor::trigger_fallback_behavior() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    fallback_alarm_timer.stop();
     fallback_alarm.setCurrentIndex(0);
     set_state(FallBackMode);
     mpp.set_volume(DEFAULT_FALLBACK_VOLUME);
