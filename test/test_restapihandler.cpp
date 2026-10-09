@@ -7,7 +7,10 @@
 #include <ApiHandler.hpp>
 #include <QJsonArray>
 
+#include <QCoreApplication>
 #include <chrono>
+#include <future>
+#include <thread>
 #include <vector>
 #include <optional>
 #include <gtest/gtest.h>
@@ -90,3 +93,35 @@ TEST(RestAdapter, cfrEndAndOutOfBounds) {
 }
 
 /*****************************************************************************/
+
+/*****************************************************************************/
+template <typename T>
+T wait_processing_events(std::future<T>& fut) {
+    while (fut.wait_for(10ms) != std::future_status::ready) {
+        QCoreApplication::processEvents();
+    }
+    return fut.get();
+}
+
+/*****************************************************************************/
+TEST(RestAdapter, runInThreadOfExecutesInContextThread) {
+    QObject ctx;
+    std::thread::id exec_thread;
+    auto fut = std::async(std::launch::async, [&]() {
+        return run_in_thread_of(ctx, [&]() {
+            exec_thread = std::this_thread::get_id();
+            return 42;
+        });
+    });
+    ASSERT_EQ(wait_processing_events(fut), 42);
+    ASSERT_EQ(exec_thread, std::this_thread::get_id());
+}
+
+/*****************************************************************************/
+TEST(RestAdapter, runInThreadOfPropagatesExceptions) {
+    QObject ctx;
+    auto fut = std::async(std::launch::async, [&]() {
+        run_in_thread_of(ctx, []() { throw std::out_of_range("no item"); });
+    });
+    ASSERT_THROW(wait_processing_events(fut), std::out_of_range);
+}

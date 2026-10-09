@@ -14,6 +14,7 @@
 
 #include <pistache/http.h>
 #include <pistache/router.h>
+#include <QObject>
 #include <string>
 
 #include "IPodcastStore.hpp"
@@ -28,7 +29,8 @@ namespace REST {
          * @param ps backend that provides access list of PodcastSource
          * @param router
          */
-        PodcastApi(IPodcastStore& ps, Pistache::Rest::Router& router);
+        PodcastApi(IPodcastStore& ps, Pistache::Rest::Router& router,
+            QObject& context);
 
         /**
          * resource name under \ref{API_URL_BASE}
@@ -75,6 +77,10 @@ namespace REST {
          * Backend handling for storing PodcastSource in configuration
          */
         IPodcastStore& podcaststore;
+        /**
+         * Object in the application thread to access the store from
+         */
+        QObject& context;
         /**
          * API resource name
          */

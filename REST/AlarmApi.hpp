@@ -14,6 +14,7 @@
 
 #include <pistache/http.h>
 #include <pistache/router.h>
+#include <QObject>
 #include <string>
 
 #include "IAlarmStore.hpp"
@@ -30,7 +31,8 @@ namespace REST {
          * @param alarmstore backend that provides access to Alarm list
          * @param router
          */
-        AlarmApi(IAlarmStore& station, Pistache::Rest::Router& router);
+        AlarmApi(IAlarmStore& station, Pistache::Rest::Router& router,
+            QObject& context);
 
         /**
          * resource name under \ref{API_URL_BASE}
@@ -77,6 +79,10 @@ namespace REST {
          * Backend handling internet Alarm stations in configuration
          */
         IAlarmStore& alarmstore;
+        /**
+         * Object in the application thread to access the store from
+         */
+        QObject& context;
         /**
          * API resource name
          */

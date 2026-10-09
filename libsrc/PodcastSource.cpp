@@ -346,7 +346,6 @@ std::shared_ptr<PodcastSource> PodcastSource::from_json_object(
     }
     ps->set_update_interval(
         std::chrono::seconds(json[KEY_UPDATE_INTERVAL].toInt(3600)));
-    ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
     return ps;
 }
 

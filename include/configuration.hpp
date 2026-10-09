@@ -392,6 +392,13 @@ private:
     void reload_after_change();
 
     /**
+     * Attach serializer and update task to a podcast source and get notified
+     * about changes
+     * @param ps podcast source
+     */
+    void setup_podcast_source(const std::shared_ptr<PodcastSource>& ps);
+
+    /**
      * actually set active brightness
      * @param brightness - new actual brightness
      */

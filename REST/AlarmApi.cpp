@@ -27,8 +27,10 @@ using namespace DigitalRooster::REST;
 static Q_LOGGING_CATEGORY(CLASS_LC, "AlarmApi");
 
 /*****************************************************************************/
-AlarmApi::AlarmApi(IAlarmStore& as, Pistache::Rest::Router& router)
-    : alarmstore(as) {
+AlarmApi::AlarmApi(IAlarmStore& as, Pistache::Rest::Router& router,
+    QObject& ctx)
+    : alarmstore(as)
+    , context(ctx) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     // Access list or create new station
@@ -49,79 +51,51 @@ AlarmApi::AlarmApi(IAlarmStore& as, Pistache::Rest::Router& router)
 void AlarmApi::read_alarm_list(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    respond_json_array(alarmstore.get_alarms(), request, response);
+    handle_request(response, [&]() {
+        auto all = run_in_thread_of(
+            context, [this]() { return to_json_array(alarmstore.get_alarms()); });
+        respond_json_array(all, request, response);
+    });
 }
 
 /*****************************************************************************/
+// coverity[PASS_BY_VALUE]
 void AlarmApi::get_alarm(const Pistache::Rest::Request& request,
-    // coverity[PASS_BY_VALUE]
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-
-    try {
-        // Massively ugly casting to get something convertible to QUuid...
-        auto uid = QUuid::fromString(
-            QLatin1String(request.param(":uid").as<std::string>().c_str()));
-        QJsonDocument jd;
-        auto result = alarmstore.get_alarm(uid);
-        jd.setObject(result->to_json_object());
-        response.setMime(Pistache::Http::Mime::MediaType::fromString("application/json"));
-        response.send(Pistache::Http::Code::Ok, jd.toJson().toStdString());
-    } catch (std::out_of_range& oor) {
-        response.setMime(
-             Pistache::Http::Mime::MediaType::fromString("application/json"));
-          // wrong UUID provided
-        response.send(
-            Pistache::Http::Code::Bad_Request, BAD_REQUEST_NO_ITEM_WITH_UUID);
-    } catch (std::exception& exc) {
-        // some other error occurred -> 500
-        InternalErrorJson je(exc, 500);
-        response.send(Pistache::Http::Code::Internal_Server_Error, je);
-    }
+    handle_request(response, [&]() {
+        auto uid = uid_from_request(request);
+        auto obj = run_in_thread_of(context,
+            [this, uid]() { return alarmstore.get_alarm(uid)->to_json_object(); });
+        respond_json_object(obj, response);
+    });
 }
 
 /*****************************************************************************/
+// coverity[PASS_BY_VALUE]
 void AlarmApi::add_alarm(const Pistache::Rest::Request& request,
-    /* coverity[PASS_BY_VALUE] */
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    try {
-        auto alm =
-            Alarm::from_json_object(qjson_form_std_string(request.body()));
-        alarmstore.add_alarm(alm);
-        respond_SuccessCreated(alm, response);
-    } catch (std::invalid_argument& ia) {
-        InternalErrorJson je(ia, 400);
-        response.setMime(
-             Pistache::Http::Mime::MediaType::fromString("application/json"));
-        response.send(Pistache::Http::Code::Bad_Request, je);
-    } catch (std::exception& exc) {
-        // some other error occurred -> 500
-        InternalErrorJson je(exc, 500);
-        response.send(Pistache::Http::Code::Internal_Server_Error, je);
-    }
+    handle_request(response, [&]() {
+        auto json = qjson_form_std_string(request.body());
+        // create QObjects in the application thread
+        auto id = run_in_thread_of(context, [this, json]() {
+            auto item = Alarm::from_json_object(json);
+            alarmstore.add_alarm(item);
+            return item->get_id();
+        });
+        respond_SuccessCreated(id, response);
+    });
 }
 
 /*****************************************************************************/
-/* coverity[PASS_BY_VALUE] - Pistache API does a std::move down the line */
+// coverity[PASS_BY_VALUE] - Pistache API does a std::move down the line
 void AlarmApi::delete_alarm(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    try {
-        // Massively ugly casting to get something convertible to QUuid...
-        auto uid = QUuid::fromString(
-            QLatin1String(request.param(":uid").as<std::string>().c_str()));
-        alarmstore.delete_alarm(uid);
+    handle_request(response, [&]() {
+        auto uid = uid_from_request(request);
+        run_in_thread_of(context, [this, uid]() { alarmstore.delete_alarm(uid); });
         response.send(Pistache::Http::Code::Ok); // DELETE ok without MIME TYPE
-    } catch (std::out_of_range& oor) {
-        response.setMime(
-             Pistache::Http::Mime::MediaType::fromString("application/json"));
-        // wrong UUID provided
-        response.send(
-            Pistache::Http::Code::Bad_Request, BAD_REQUEST_NO_ITEM_WITH_UUID);
-    } catch (std::exception& exc) {
-        // some other error occurred -> 500
-        InternalErrorJson je(exc, 500);
-        response.send(Pistache::Http::Code::Internal_Server_Error, je);
-    }
+    });
 }

@@ -56,9 +56,9 @@ ApiHandler::ApiHandler(DigitalRooster::IWeatherConfigStore& ws,
     DigitalRooster::IStationStore& sts, DigitalRooster::ITimeOutStore& tos,
     Pistache::Address addr)
     : endpoint(addr)
-    , alarmapi(as, router)
-    , radioapi(sts, router)
-    , podcastsapi(ps, router) {
+    , alarmapi(as, router, app_thread_context)
+    , radioapi(sts, router, app_thread_context)
+    , podcastsapi(ps, router, app_thread_context) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     auto opts =
@@ -73,6 +73,12 @@ ApiHandler::ApiHandler(DigitalRooster::IWeatherConfigStore& ws,
     endpoint.setHandler(router.handler());
     endpoint.serveThreaded();
 };
+
+/*****************************************************************************/
+ApiHandler::~ApiHandler() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    endpoint.shutdown();
+}
 
 /*****************************************************************************/
 void ApiHandler::default_handler(const Pistache::Rest::Request& request,

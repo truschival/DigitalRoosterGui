@@ -13,14 +13,21 @@
 #ifndef _REST_COMMON_HPP_
 #define _REST_COMMON_HPP_
 
+#include <chrono>
+#include <future>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <string>
-#include <optional>
+#include <type_traits>
 
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonValue>
+#include <QMetaObject>
+#include <QObject>
+#include <QThread>
+#include <QUuid>
 #include <pistache/endpoint.h>
 #include <pistache/http.h>
 #include <pistache/router.h>
@@ -39,6 +46,55 @@ namespace REST {
      */
     const std::string BAD_REQUEST_NO_ITEM_WITH_UUID =
         R"({"code":400, "message": "no item for this UUID"})";
+
+    /**
+     * Maximum time a REST request waits for the application thread
+     */
+    const std::chrono::seconds APP_THREAD_TIMEOUT(5);
+
+    /**
+     * Execute a function in the thread of a QObject, i.e. the Qt main thread,
+     * and wait for its result.
+     * Pistache handlers run in worker threads but the configuration and its
+     * QObjects must only be accessed from the main thread.
+     * Exceptions thrown by f are rethrown in the calling thread.
+     * @param context object living in the target thread
+     * @param f callable, has to capture request data by value because it may
+     *        still be executed after a timeout
+     * @return result of f
+     * @throws std::runtime_error if the main thread does not respond in time
+     */
+    template <typename F>
+    auto run_in_thread_of(QObject& context, F f) -> std::invoke_result_t<F> {
+        using R = std::invoke_result_t<F>;
+        if (QThread::currentThread() == context.thread()) {
+            return f();
+        }
+        auto task = std::make_shared<std::packaged_task<R()>>(std::move(f));
+        auto result = task->get_future();
+        QMetaObject::invokeMethod(
+            &context, [task]() { (*task)(); }, Qt::QueuedConnection);
+        if (result.wait_for(APP_THREAD_TIMEOUT) != std::future_status::ready) {
+            throw std::runtime_error("application did not respond in time");
+        }
+        return result.get();
+    }
+
+    /**
+     * Serialize all items of a container in a JSON array
+     * @tparam T container with pointers to objects that implement
+     * to_json_object()
+     * @param all container
+     * @return JSON array of all items
+     */
+    template <typename T>
+    QJsonArray to_json_array(const T& all) {
+        QJsonArray j;
+        for (const auto& p : all) {
+            j.push_back(QJsonValue(p->to_json_object()));
+        }
+        return j;
+    }
 
     /**
      * Helper structure to package exceptions and reformat them into
@@ -103,19 +159,15 @@ namespace REST {
     /**
      * Simple Helper function that creates a HTTP response with a JSON array of
      * the requested objects
-     * @tparam T some container type
-     * @tparam T
-     * @param all container with pointers to objects that implement
-     * to_json_object()
+     * @param all JSON array of all items
      * @param request query with possibly "length" and "offset" parameters
      * @param response output writer
      */
-    template <typename T>
-    void respond_json_array(const T& all,
+    inline void respond_json_array(const QJsonArray& all,
         const Pistache::Rest::Request& request,
         Pistache::Http::ResponseWriter& response) {
 
-        auto max_size = all.size();
+        int max_size = all.size();
         int offset = 0;
         auto offset_param = request.query().get("offset");
         if (offset_param.has_value()) {
@@ -133,8 +185,8 @@ namespace REST {
 
         try {
             QJsonArray j;
-            for (const auto& p : container_from_range(all, offset, length)) {
-                j.push_back(QJsonValue(p->to_json_object()));
+            for (int i = offset; i < std::min(offset + length, max_size); i++) {
+                j.push_back(all.at(i));
             }
             QJsonDocument jdoc;
             jdoc.setArray(j);
@@ -154,19 +206,67 @@ namespace REST {
      * Helper function to make a correct SuccessCreated JSON response with the
      * unique id as only content. Used for creation of Alarm, podcastSources and
      * PlayableItem i.e. RadioStations
-     * @tparam T a (smart) pointer to an object that implemntes QUuid get_id()
-     * @param item created item
+     * @param id unique id of created item
      * @param response
      */
-    template <typename T>
-    void respond_SuccessCreated(
-        const T& item, Pistache::Http::ResponseWriter& response) {
+    inline void respond_SuccessCreated(
+        const QUuid& id, Pistache::Http::ResponseWriter& response) {
         QJsonDocument jd;
         QJsonObject o;
-        o["id"] = item->get_id().toString(QUuid::WithoutBraces);
+        o["id"] = id.toString(QUuid::WithoutBraces);
         jd.setObject(o);
         response.setMime(Pistache::Http::Mime::MediaType::fromString("application/json"));
         response.send(Pistache::Http::Code::Ok, jd.toJson().toStdString());
+    }
+
+    /**
+     * Send a single JSON object
+     * @param obj content
+     * @param response
+     */
+    inline void respond_json_object(
+        const QJsonObject& obj, Pistache::Http::ResponseWriter& response) {
+        QJsonDocument jd(obj);
+        response.setMime(
+            Pistache::Http::Mime::MediaType::fromString("application/json"));
+        response.send(Pistache::Http::Code::Ok, jd.toJson().toStdString());
+    }
+
+    /**
+     * Read the UUID path parameter ":uid" of a request
+     * @param request
+     * @return uuid, null if not parsable
+     */
+    inline QUuid uid_from_request(const Pistache::Rest::Request& request) {
+        return QUuid::fromString(
+            QLatin1String(request.param(":uid").as<std::string>().c_str()));
+    }
+
+    /**
+     * Run a request handler and translate exceptions into error responses
+     * @param response output writer
+     * @param f handler function
+     */
+    template <typename F>
+    void handle_request(Pistache::Http::ResponseWriter& response, F f) {
+        try {
+            f();
+        } catch (std::out_of_range&) {
+            // wrong UUID provided
+            response.setMime(Pistache::Http::Mime::MediaType::fromString(
+                "application/json"));
+            response.send(Pistache::Http::Code::Bad_Request,
+                BAD_REQUEST_NO_ITEM_WITH_UUID);
+        } catch (std::invalid_argument& ia) {
+            InternalErrorJson je(ia, 400);
+            response.setMime(Pistache::Http::Mime::MediaType::fromString(
+                "application/json"));
+            response.send(Pistache::Http::Code::Bad_Request, je);
+        } catch (std::exception& exc) {
+            // some other error occurred -> 500
+            InternalErrorJson je(exc, 500);
+            response.send(Pistache::Http::Code::Internal_Server_Error, je);
+        }
     }
 
 

@@ -14,6 +14,7 @@
 
 #include <pistache/http.h>
 #include <pistache/router.h>
+#include <QObject>
 #include <string>
 
 #include "IStationStore.hpp"
@@ -28,7 +29,8 @@ namespace REST {
          * @param station backend that provides access to radio stations
          * @param router
          */
-        RadioApi(IStationStore& station, Pistache::Rest::Router& router);
+        RadioApi(IStationStore& station, Pistache::Rest::Router& router,
+            QObject& context);
 
         /**
          * resource name under \ref{API_URL_BASE}
@@ -75,6 +77,10 @@ namespace REST {
          * Backend handling internet radio stations in configuration
          */
         IStationStore& stationstore;
+        /**
+         * Object in the application thread to access the store from
+         */
+        QObject& context;
         /**
          * API resource name
          */

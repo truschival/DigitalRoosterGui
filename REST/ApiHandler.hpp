@@ -19,6 +19,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonValue>
+#include <QObject>
 
 #include <pistache/endpoint.h>
 #include <pistache/http.h>
@@ -49,6 +50,14 @@ namespace REST {
             DigitalRooster::ITimeOutStore& tos, Pistache::Address addr);
 
         /**
+         * Stop worker threads before the APIs they use are destroyed
+         */
+        ~ApiHandler();
+
+        ApiHandler(const ApiHandler& rhs) = delete;
+        ApiHandler& operator=(const ApiHandler& rhs) = delete;
+
+        /**
          * Read list of podcast sources
          * @param request
          * @param response
@@ -73,6 +82,11 @@ namespace REST {
             Pistache::Http::ResponseWriter response);
 
     private:
+        /**
+         * Object living in the application thread, REST handlers run in
+         * Pistache worker threads and access the stores through it
+         */
+        QObject app_thread_context;
         Pistache::Http::Endpoint endpoint;
         Pistache::Rest::Router router;
         REST::AlarmApi alarmapi;

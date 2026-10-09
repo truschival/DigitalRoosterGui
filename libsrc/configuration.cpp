@@ -250,6 +250,25 @@ void Configuration::read_radio_streams(const QJsonObject& appconfig) {
 }
 
 /*****************************************************************************/
+void Configuration::setup_podcast_source(
+    const std::shared_ptr<PodcastSource>& ps) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto serializer =
+        std::make_unique<PodcastSerializer>(application_cache_dir, ps.get());
+    // populate podcast source from cached info
+    serializer->restore_info();
+    // Move ownership to Podcast Source and setup signal/slot
+    // connections
+    ps->set_serializer(std::move(serializer));
+
+    ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
+
+    // Get notifications if name etc. changes
+    connect(ps.get(), &PodcastSource::dataChanged, this,
+        &Configuration::dataChanged);
+}
+
+/*****************************************************************************/
 void Configuration::read_podcasts(const QJsonObject& appconfig) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonArray podcasts =
@@ -257,19 +276,7 @@ void Configuration::read_podcasts(const QJsonObject& appconfig) {
     for (const auto pc : podcasts) {
         try {
             auto ps = PodcastSource::from_json_object(pc.toObject());
-            auto serializer = std::make_unique<PodcastSerializer>(
-                application_cache_dir, ps.get());
-            // populate podcast source from cached info
-            serializer->restore_info();
-            // Move ownership to Podcast Source and setup signal/slot
-            // connections
-            ps->set_serializer(std::move(serializer));
-
-            ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
-
-            // Get notifications if name etc. changes
-            connect(ps.get(), &PodcastSource::dataChanged, this,
-                &Configuration::dataChanged);
+            setup_podcast_source(ps);
             podcast_sources.push_back(ps);
         } catch (std::invalid_argument& exc) {
             qCDebug(CLASS_LC) << "invalid argument" << exc.what();
@@ -630,6 +637,7 @@ Configuration::get_stations() const {
 void Configuration::add_podcast_source(
     std::shared_ptr<PodcastSource> podcast) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    setup_podcast_source(podcast);
     this->podcast_sources.push_back(podcast);
     dataChanged();
     emit podcast_sources_changed();
