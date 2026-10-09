@@ -6,6 +6,7 @@
 
 #include <QLoggingCategory>
 #include <QSaveFile>
+#include <QTimer>
 #include <QStandardPaths>
 #include <QString>
 #include <QTime>
@@ -112,8 +113,11 @@ Configuration::Configuration(
     filewatcher.addPath(path);
 
     // store connection to disconnect during write_config_file
-    fwConn = connect(&filewatcher, &QFileSystemWatcher::fileChanged, this,
-        &Configuration::fileChanged);
+    // creating the default configuration already connected the filewatcher
+    if (!fwConn) {
+        fwConn = connect(&filewatcher, &QFileSystemWatcher::fileChanged, this,
+            &Configuration::fileChanged);
+    }
 
     // Event loop timer every 5 seconds to update remaining time
     evt_timer_id = startTimer(std::chrono::seconds(5));
@@ -122,11 +126,22 @@ Configuration::Configuration(
 /*****************************************************************************/
 void Configuration::timerEvent(QTimerEvent* evt) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (evt->timerId() == evt_timer_id && dirty) {
-        store_current_config();
-        dirty = !dirty; // toggle
+    if (evt->timerId() == evt_timer_id) {
+        // reset before storing, changes during the store are saved next time
+        if (dirty.exchange(false)) {
+            store_current_config();
+        }
     } else {
         QObject::timerEvent(evt);
+    }
+}
+
+/*****************************************************************************/
+Configuration::~Configuration() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    // store changes of the last seconds before shutdown
+    if (dirty.exchange(false)) {
+        store_current_config();
     }
 }
 
@@ -134,11 +149,24 @@ void Configuration::timerEvent(QTimerEvent* evt) {
 void Configuration::refresh_configuration() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
+    auto content = get_json_from_file(get_configuration_path());
+    /* A syntax error would result in an empty configuration that is written
+     * back and replaces the file the user is just editing */
+    QJsonParseError parse_error;
+    auto doc = QJsonDocument::fromJson(content.toUtf8(), &parse_error);
+    if (parse_error.error != QJsonParseError::NoError || !doc.isObject()) {
+        qCCritical(CLASS_LC)
+            << "invalid configuration:" << parse_error.errorString()
+            << "at offset" << parse_error.offset
+            << "- keeping current configuration";
+        return;
+    }
     alarms.clear();
     podcast_sources.clear();
     stream_sources.clear();
-    auto content = get_json_from_file(get_configuration_path());
     parse_json(content.toUtf8());
+    // configuration was just read from file, nothing to store
+    dirty = false;
     emit configuration_changed();
 }
 
@@ -293,9 +321,37 @@ void Configuration::dataChanged() {
 }
 
 /*****************************************************************************/
-void Configuration::fileChanged(const QString& /*path*/) {
+void Configuration::fileChanged(const QString& path) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    refresh_configuration();
+    /* Editors save by replacing the file, the watcher then drops the path.
+     * The new file may not exist yet when we get notified. */
+    if (!filewatcher.files().contains(path)) {
+        if (!QFile::exists(path)) {
+            QTimer::singleShot(
+                FILE_REAPPEAR_TIMEOUT, this, [this, path]() {
+                    if (QFile::exists(path)) {
+                        filewatcher.addPath(path);
+                        reload_after_change();
+                    } else {
+                        qCWarning(CLASS_LC) << "configuration file removed";
+                    }
+                });
+            return;
+        }
+        filewatcher.addPath(path);
+    }
+    reload_after_change();
+}
+
+/*****************************************************************************/
+void Configuration::reload_after_change() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    // Exceptions must not escape a slot
+    try {
+        refresh_configuration();
+    } catch (const std::system_error& exc) {
+        qCCritical(CLASS_LC) << "cannot read configuration:" << exc.what();
+    }
 }
 
 /*****************************************************************************/
@@ -335,6 +391,7 @@ bool Configuration::backlight_control_enabled() const {
 void Configuration::enable_backlight_control(bool ena) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     backlight_control_act = ena;
+    dirty = true;
 }
 
 /*****************************************************************************/
@@ -394,14 +451,12 @@ void Configuration::write_config_file(const QJsonObject& appconfig) {
     filewatcher.removePath(file_path);
 
     QSaveFile config_file(file_path);
-    try {
-        config_file.open(
-            QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
-        QJsonDocument doc(appconfig);
-        config_file.write(doc.toJson());
-        config_file.commit();
-    } catch (std::exception& exc) {
-        qCCritical(CLASS_LC) << exc.what();
+    QJsonDocument doc(appconfig);
+    if (!config_file.open(
+            QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text) ||
+        config_file.write(doc.toJson()) < 0 || !config_file.commit()) {
+        qCCritical(CLASS_LC)
+            << "writing configuration failed:" << config_file.errorString();
     }
     // Reconnect filewatcher to be notified if someone else changes file
     fwConn = connect(&filewatcher, &QFileSystemWatcher::fileChanged, this,

@@ -64,7 +64,7 @@ public:
      */
     Configuration(const QString& configpath, const QString& cachedir);
 
-    virtual ~Configuration() = default;
+    virtual ~Configuration();
 
     /**
      * return compile time version string
@@ -385,6 +385,11 @@ private:
      * Update all configuration items
      */
     void refresh_configuration();
+
+    /**
+     * Reread configuration after the file changed, logs read errors
+     */
+    void reload_after_change();
 
     /**
      * actually set active brightness

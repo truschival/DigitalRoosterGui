@@ -245,6 +245,11 @@ const std::chrono::minutes DEFAULT_SLEEP_TIMEOUT(60);
 const std::chrono::milliseconds ALS_SAMPLING_PERIOD(300);
 
 /**
+ * Time to wait for a configuration file replaced by an editor to reappear
+ */
+const std::chrono::milliseconds FILE_REAPPEAR_TIMEOUT(500);
+
+/**
  * Default output volume
  */
 const double DEFAULT_VOLUME = 25;

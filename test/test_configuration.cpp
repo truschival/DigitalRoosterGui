@@ -537,3 +537,32 @@ TEST_F(ConfigurationFixture, changeSleepTimeoutMinutes) {
 }
 
 /*****************************************************************************/
+
+/*****************************************************************************/
+TEST_F(ConfigurationFixture, invalidJsonKeepsConfiguration) {
+    auto alarm_count = config->get_alarms().size();
+    ASSERT_GT(alarm_count, 0);
+    {
+        QFile tf(filename);
+        tf.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
+        tf.write("{ \"Alarms\": [ ");
+    }
+    config->update_configuration();
+    ASSERT_EQ(config->get_alarms().size(), alarm_count);
+
+    // broken file is not overwritten with an empty configuration
+    config.reset();
+    QFile tf(filename);
+    tf.open(QIODevice::ReadOnly | QIODevice::Text);
+    ASSERT_EQ(tf.readAll(), QByteArray("{ \"Alarms\": [ "));
+}
+
+/*****************************************************************************/
+TEST_F(ConfigurationFixture, backlightControlIsStored) {
+    config->enable_backlight_control(false);
+    // destructor stores pending changes
+    config.reset();
+    Configuration control(filename, cache_dir);
+    control.update_configuration();
+    ASSERT_FALSE(control.backlight_control_enabled());
+}
