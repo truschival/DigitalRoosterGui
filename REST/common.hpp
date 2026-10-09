@@ -23,6 +23,7 @@
 
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QJsonValue>
 #include <QMetaObject>
 #include <QObject>
@@ -44,8 +45,8 @@ namespace REST {
     /**
      * Reponse to send if we didn't find a element with given UUID
      */
-    const std::string BAD_REQUEST_NO_ITEM_WITH_UUID =
-        R"({"code":400, "message": "no item for this UUID"})";
+    const std::string NOT_FOUND_NO_ITEM_WITH_UUID =
+        R"({"code":404, "message": "no item for this UUID"})";
 
     /**
      * Maximum time a REST request waits for the application thread
@@ -109,12 +110,11 @@ namespace REST {
         int error_code;
 
         operator std::string() const {
-            std::stringstream ss;
-            ss << "{";
-            ss << R"("code":)" << error_code;
-            ss << R"(,"message":")" << message;
-            ss << R"("})";
-            return ss.str();
+            // QJsonDocument escapes quotes and control characters in message
+            QJsonObject o;
+            o["code"] = error_code;
+            o["message"] = QString::fromStdString(message);
+            return QJsonDocument(o).toJson(QJsonDocument::Compact).toStdString();
         }
     };
 
@@ -149,6 +149,13 @@ namespace REST {
         const std::optional<std::string>& query, int min, int max);
 
     /**
+     * Like get_val_from_query_within_range() but returns fallback if the
+     * query value is missing or not a number
+     */
+    int get_val_from_query_within_range(const std::optional<std::string>& query,
+        int min, int max, int fallback);
+
+    /**
      * Convenience function to get a QJsonObject from a std::string
      * @throws std::invalid_argument if string is not json parsable
      * @param data some json string
@@ -178,9 +185,9 @@ namespace REST {
         int length = max_size;
         auto length_param = request.query().get("length");
         if (length_param.has_value()) {
-            // length between 0 and max_size-offset
+            // length between 0 and max_size-offset, invalid: all remaining
             length = get_val_from_query_within_range(
-                length_param, 1, max_size - offset);
+                length_param, 1, max_size - offset, max_size - offset);
         }
 
         try {
@@ -195,7 +202,8 @@ namespace REST {
                 Pistache::Http::Code::Ok, jdoc.toJson().toStdString());
         } catch (std::exception& e) {
             InternalErrorJson je(e, 500);
-            // send a 500 error - NO MIME TYPE!
+            response.setMime(Pistache::Http::Mime::MediaType::fromString(
+                "application/json"));
             response.send(Pistache::Http::Code::Internal_Server_Error, je);
             return;
         }
@@ -252,11 +260,11 @@ namespace REST {
         try {
             f();
         } catch (std::out_of_range&) {
-            // wrong UUID provided
+            // unknown or malformed UUID provided
             response.setMime(Pistache::Http::Mime::MediaType::fromString(
                 "application/json"));
-            response.send(Pistache::Http::Code::Bad_Request,
-                BAD_REQUEST_NO_ITEM_WITH_UUID);
+            response.send(
+                Pistache::Http::Code::Not_Found, NOT_FOUND_NO_ITEM_WITH_UUID);
         } catch (std::invalid_argument& ia) {
             InternalErrorJson je(ia, 400);
             response.setMime(Pistache::Http::Mime::MediaType::fromString(
@@ -265,6 +273,8 @@ namespace REST {
         } catch (std::exception& exc) {
             // some other error occurred -> 500
             InternalErrorJson je(exc, 500);
+            response.setMime(Pistache::Http::Mime::MediaType::fromString(
+                "application/json"));
             response.send(Pistache::Http::Code::Internal_Server_Error, je);
         }
     }
