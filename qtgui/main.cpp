@@ -173,12 +173,10 @@ int main(int argc, char* argv[]) {
     Weather weather(config);
     SleepTimer sleeptimer(config);
 
-    /* Brightness control sends pwm update requests to Hardware */
+    /* Brightness control sends pwm update requests to Hardware and
+     * subscribes to the light sensor only if adaptive mode is enabled */
     BrightnessControl brightness(config, &hwctrl);
-    QObject::connect(&brightness, &BrightnessControl::brightness_changed,
-        &hwctrl, &Hal::IHardware::set_backlight);
-    QObject::connect(&hwctrl, &Hal::IHardware::als_value_changed, &brightness,
-        &BrightnessControl::als_value_changed);
+    brightness.set_adaptive_mode(config.backlight_control_enabled());
 
     PowerControl power;
     /* Power controls backlight */

@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 #include <numeric>
 
 #include "IBrightnessStore.hpp"
@@ -54,7 +55,7 @@ void BrightnessControl::subscribe_als_value_change() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     if (hwctrl->als_sensor_available()) {
         connect(hwctrl, &Hal::IHardware::als_value_changed, this,
-            &BrightnessControl::als_value_changed);
+            &BrightnessControl::als_value_changed, Qt::UniqueConnection);
     }
 }
 
@@ -70,16 +71,18 @@ Hal::AlsValue BrightnessControl::filter_sensor(
     als_readings[1][0] = brightness.green;
     als_readings[2][0] = brightness.blue;
     als_readings[3][0] = brightness.clear;
-    // Low pass filter
+    // Low pass filter, clamp before conversion to uint16_t
+    auto lowpass = [](const std::array<double, 3>& readings) {
+        auto val = std::inner_product(
+            readings.begin(), readings.end(), filter_coeffs.begin(), 0.0);
+        return static_cast<uint16_t>(std::clamp(
+            val, 0.0, double(std::numeric_limits<uint16_t>::max())));
+    };
     Hal::AlsValue filtered;
-    filtered.red = std::inner_product(als_readings[0].begin(),
-        als_readings[0].end(), filter_coeffs.begin(), 0.0);
-    filtered.green = std::inner_product(als_readings[1].begin(),
-        als_readings[1].end(), filter_coeffs.begin(), 0.0);
-    filtered.blue = std::inner_product(als_readings[2].begin(),
-        als_readings[2].end(), filter_coeffs.begin(), 0.0);
-    filtered.clear = std::inner_product(als_readings[3].begin(),
-        als_readings[3].end(), filter_coeffs.begin(), 0.0);
+    filtered.red = lowpass(als_readings[0]);
+    filtered.green = lowpass(als_readings[1]);
+    filtered.blue = lowpass(als_readings[2]);
+    filtered.clear = lowpass(als_readings[3]);
 
     qCDebug(CLASS_LC) << "r" << filtered.red << "g" << filtered.green << "b"
                       << filtered.blue << "c" << filtered.clear;
