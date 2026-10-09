@@ -85,8 +85,11 @@ void setup_log_facility(const QCommandLineParser& cmdline) {
 /*****************************************************************************/
 QUrl valid_url_from_string(const QString& urlstr) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto url = QUrl::fromEncoded(urlstr.toLocal8Bit(), QUrl::StrictMode);
-    if (!url.isValid()) {
+    /* Tolerant mode accepts URLs with unencoded spaces and non-ASCII
+     * characters as written by older versions. Without a scheme the string
+     * would be accepted as a relative path, which is not a media URL. */
+    auto url = QUrl(urlstr, QUrl::TolerantMode);
+    if (!url.isValid() || url.scheme().isEmpty()) {
         throw std::invalid_argument("Url invalid!");
     }
     return url;

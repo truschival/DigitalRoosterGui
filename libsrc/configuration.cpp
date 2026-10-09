@@ -263,6 +263,7 @@ void Configuration::read_alarms(const QJsonObject& appconfig) {
     for (const auto al : alarm_config) {
         try {
             auto alarm = Alarm::from_json_object(al.toObject());
+            alarm->set_default_timeout(global_alarm_timeout);
             connect(alarm.get(), &Alarm::dataChanged, this,
                 &Configuration::alarm_data_changed);
             alarms.push_back(alarm);
@@ -504,6 +505,7 @@ void Configuration::delete_alarm(const QUuid& id) {
 /*****************************************************************************/
 void Configuration::add_alarm(std::shared_ptr<Alarm> alarm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    alarm->set_default_timeout(global_alarm_timeout);
     this->alarms.push_back(alarm);
     connect(alarm.get(), &Alarm::dataChanged, this,
         &Configuration::alarm_data_changed);
