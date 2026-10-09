@@ -3,7 +3,7 @@
 # copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de> Licensed under GNU
 # PUBLIC LICENSE Version 3 or later
 
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.16...4.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_COLOR_MAKEFILE ON)
