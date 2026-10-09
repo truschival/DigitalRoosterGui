@@ -50,6 +50,12 @@ public:
     Q_INVOKABLE QUrl get_station_url(int index);
     Q_INVOKABLE void send_to_player(int index);
 
+public slots:
+    /**
+     * Configuration changed, e.g. stations added or removed
+     */
+    void reload();
+
 protected:
     QHash<int, QByteArray> roleNames() const;
 

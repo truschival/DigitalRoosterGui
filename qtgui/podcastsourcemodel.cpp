@@ -8,6 +8,7 @@
 #include <QDebug>
 #include <QHash>
 #include <QLoggingCategory>
+#include <QQmlEngine>
 
 
 #include "PodcastSource.hpp"
@@ -26,11 +27,18 @@ PodcastSourceModel::PodcastSourceModel(
     , config(store)
     , mpp(mp) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto v = config.get_podcast_sources();
-    for (const auto& ps : v) {
+    reload();
+}
+
+/*****************************************************************************/
+void PodcastSourceModel::reload() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    beginResetModel();
+    for (const auto& ps : config.get_podcast_sources()) {
         connect(ps.get(), &PodcastSource::titleChanged, this,
-            &PodcastSourceModel::newDataAvailable);
+            &PodcastSourceModel::newDataAvailable, Qt::UniqueConnection);
     }
+    endResetModel();
 }
 
 /*****************************************************************************/
@@ -61,23 +69,24 @@ void PodcastSourceModel::newDataAvailable() {
 PodcastEpisodeModel* PodcastSourceModel::get_episodes(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
-    auto v = config.get_podcast_sources();
+    const auto& v = config.get_podcast_sources();
     /* static cast only if index >= 0 and thus can be converted */
     if (index < 0 || static_cast<size_t>(index) >= v.size()) {
         qCCritical(CLASS_LC) << Q_FUNC_INFO << "index out of range " << index;
         return nullptr;
     }
 
-    /* Lifetime will be managed in QML!
-     * TODO: check logs for dtor call*/
     qCInfo(CLASS_LC) << "Creating new PodcastEpisodeModel";
-    return new PodcastEpisodeModel(&(v[index]->get_episodes()), mpp, this);
+    /* No parent, the QML garbage collector deletes the model */
+    auto model = new PodcastEpisodeModel(v[index], mpp);
+    QQmlEngine::setObjectOwnership(model, QQmlEngine::JavaScriptOwnership);
+    return model;
 }
 
 /*****************************************************************************/
 QVariant PodcastSourceModel::data(const QModelIndex& index, int role) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto v = config.get_podcast_sources();
+    const auto& v = config.get_podcast_sources();
 
     /* static cast only if index.row() is >= 0 and thus can be converted */
     if (index.row() < 0 || static_cast<size_t>(index.row()) >= v.size()) {
@@ -127,11 +136,10 @@ void PodcastSourceModel::purge(int index) {
 /*****************************************************************************/
 void PodcastSourceModel::remove(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    beginRemoveRows(QModelIndex(), index, index);
+    /* the model is reset by podcast_sources_changed() */
     try {
         config.remove_podcast_source_by_index(index);
     } catch (std::out_of_range&) {
         qCCritical(CLASS_LC) << "index out of range " << index;
     }
-    endRemoveRows();
 }

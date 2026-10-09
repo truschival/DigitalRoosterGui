@@ -58,13 +58,13 @@ T* find_by_id(
 template <typename T>
 void delete_by_id(std::vector<std::shared_ptr<T>>& container, const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto old_end = container.end();
+    auto old_size = container.size();
     container.erase(std::remove_if(container.begin(), container.end(),
                         [&](const std::shared_ptr<T> item) {
                             return item->get_id() == id;
                         }),
         container.end());
-    if (old_end == container.end()) {
+    if (old_size == container.size()) {
         throw std::out_of_range("");
     }
 }
@@ -677,8 +677,9 @@ PodcastSource* Configuration::get_podcast_source_by_index(
 /*****************************************************************************/
 void Configuration::remove_podcast_source_by_index(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    assert((index >= 0) &&
-        (podcast_sources.begin() + index < podcast_sources.end()));
+    if (index < 0 || static_cast<size_t>(index) >= podcast_sources.size()) {
+        throw std::out_of_range("no podcast source at index");
+    }
     podcast_sources.erase(podcast_sources.begin() + index);
     emit podcast_sources_changed();
     emit dataChanged();

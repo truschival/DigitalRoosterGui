@@ -56,6 +56,11 @@ public:
     Q_INVOKABLE void remove(int index);
 
 public slots:
+    /**
+     * Configuration changed, e.g. podcast sources added or removed
+     */
+    void reload();
+
     void newDataAvailable();
 
 protected:

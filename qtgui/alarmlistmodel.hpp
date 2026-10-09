@@ -70,6 +70,12 @@ public:
     /** Hook to request update of model */
     Q_INVOKABLE void update_row(int);
 
+public slots:
+    /**
+     * Configuration changed, e.g. alarms added or removed
+     */
+    void reload();
+
 protected:
     QHash<int, QByteArray> roleNames() const;
 

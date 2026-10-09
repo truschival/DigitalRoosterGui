@@ -566,3 +566,12 @@ TEST_F(ConfigurationFixture, backlightControlIsStored) {
     control.update_configuration();
     ASSERT_FALSE(control.backlight_control_enabled());
 }
+
+/*****************************************************************************/
+TEST_F(ConfigurationFixture, deletePodcastByInvalidIndexThrows) {
+    auto size = static_cast<int>(config->get_podcast_sources().size());
+    ASSERT_THROW(
+        config->remove_podcast_source_by_index(size), std::out_of_range);
+    ASSERT_THROW(config->remove_podcast_source_by_index(-1), std::out_of_range);
+    ASSERT_EQ(config->get_podcast_sources().size(), size);
+}

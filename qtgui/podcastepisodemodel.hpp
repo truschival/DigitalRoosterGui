@@ -22,6 +22,7 @@ namespace DigitalRooster {
 
 class Configuration;
 class PodcastEpisode;
+class PodcastSource;
 class MediaPlayer;
 
 /**
@@ -32,8 +33,7 @@ class PodcastEpisodeModel : public QAbstractListModel {
     Q_PROPERTY(int currentIndex READ get_current_index WRITE set_current_index
             NOTIFY current_index_changed)
 public:
-    PodcastEpisodeModel(
-        const std::vector<std::shared_ptr<PodcastEpisode>>* episodes,
+    PodcastEpisodeModel(std::shared_ptr<PodcastSource> source,
         MediaPlayer& mp, QObject* parent = nullptr);
 
     enum PodcastEpisodeRoles {
@@ -50,9 +50,6 @@ public:
     int rowCount(const QModelIndex& parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
-
-    void set_episodes(
-        const std::vector<std::shared_ptr<PodcastEpisode>>* episodes);
 
     const QString& getName() {
         return name;
@@ -83,7 +80,16 @@ protected:
     QHash<int, QByteArray> roleNames() const;
 
 private:
-    const std::vector<std::shared_ptr<PodcastEpisode>>* episodes;
+    /**
+     * Shared ownership keeps the episodes valid even if the podcast source is
+     * removed from the configuration while the model is still in use in QML
+     */
+    std::shared_ptr<PodcastSource> source;
+
+    /**
+     * episodes of source, empty if there is no source
+     */
+    const std::vector<std::shared_ptr<PodcastEpisode>>& episodes() const;
     MediaPlayer& mpp;
     int currentIndex = -1;
     QString name;

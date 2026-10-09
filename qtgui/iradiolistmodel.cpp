@@ -41,14 +41,22 @@ int IRadioListModel::rowCount(const QModelIndex& /*parent */) const {
 
 /*****************************************************************************/
 QUrl IRadioListModel::get_station_url(int index) {
-    auto pi = config.get_stations().at(index);
-    return pi->get_url();
+    const auto& stations = config.get_stations();
+    if (index < 0 || static_cast<size_t>(index) >= stations.size()) {
+        qCCritical(CLASS_LC) << Q_FUNC_INFO << "index out of range " << index;
+        return QUrl();
+    }
+    return stations[index]->get_url();
 }
 
 /*****************************************************************************/
 void IRadioListModel::send_to_player(int index) {
-    auto station = config.get_stations().at(index);
-    mpp.set_media(station);
+    const auto& stations = config.get_stations();
+    if (index < 0 || static_cast<size_t>(index) >= stations.size()) {
+        qCCritical(CLASS_LC) << Q_FUNC_INFO << "index out of range " << index;
+        return;
+    }
+    mpp.set_media(stations[index]);
     mpp.play();
 }
 
@@ -72,4 +80,11 @@ QVariant IRadioListModel::data(const QModelIndex& index, int role) const {
     }
 
     return QVariant();
+}
+
+/*****************************************************************************/
+void IRadioListModel::reload() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    beginResetModel();
+    endResetModel();
 }

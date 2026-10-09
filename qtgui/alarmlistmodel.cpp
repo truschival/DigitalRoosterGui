@@ -121,7 +121,10 @@ bool AlarmListModel::removeRows(
 /*****************************************************************************/
 int AlarmListModel::delete_alarm(qint64 row) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << row;
-    beginRemoveRows(QModelIndex(), row, row);
+    if (!check_selection(row)) {
+        return -1;
+    }
+    /* the model is reset by alarms_changed() */
     try {
         auto alarm = config.get_alarms().at(row);
         if (alarm) {
@@ -130,7 +133,6 @@ int AlarmListModel::delete_alarm(qint64 row) {
     } catch (std::out_of_range&) {
         qCWarning(CLASS_LC) << Q_FUNC_INFO << " Alarm not found! ";
     }
-    endRemoveRows();
     return 0;
 };
 
@@ -144,11 +146,17 @@ DigitalRooster::Alarm* AlarmListModel::create_alarm() {
      * the user pressed cancel
      */
     new_alarm->set_time(QTime::fromString("06:30", "hh:mm"));
-    beginInsertRows(QModelIndex(), rowCount(), rowCount());
     QQmlEngine::setObjectOwnership(new_alarm.get(), QQmlEngine::CppOwnership);
-    /* new_alarm is not only on the stack. Ownership shared with IAlarmStore*/
+    /* new_alarm is not only on the stack. Ownership shared with IAlarmStore
+     * the model is reset by alarms_changed() */
     config.add_alarm(new_alarm);
-    endInsertRows();
     return new_alarm.get();
 }
 /******************************************************************************/
+
+/*****************************************************************************/
+void AlarmListModel::reload() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    beginResetModel();
+    endResetModel();
+}
