@@ -28,7 +28,7 @@ export GITHUB_WORKSPACE=$SRC_DIR
 # install directory in container
 export INSTALL_DIR=/tmp/install
 
-export BUILD_IMAGE=ghcr.io/truschival/devlinuxqt-pistache:v1.2.0
+export BUILD_IMAGE=ghcr.io/truschival/devlinuxqtquick2:latest
 export CONTAINER_NAME=buildc
 export TEST_ARTIFACT=test-trace.tgz
 

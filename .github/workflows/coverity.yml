@@ -10,25 +10,28 @@ on:
 jobs:
   run_coverity:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     env:
       BUILD_DIR_HOST: /tmp/build
       BUILD_DIR: /build
       SRC_DIR: /src
-      BUILD_IMAGE: ghcr.io/truschival/devlinuxqt-pistache:v1.1.0
+      BUILD_IMAGE: ghcr.io/truschival/devlinuxqtquick2:latest
       CONTAINER_NAME: buildc
       COVERITY_INSTALL_DIR: /tmp/coverity
       COVERITY_RESULT_DIR: cov-int
       COVERITY_TARBALL: digitalrooster_coverity.tar.bz2
     steps:
-    - name: Clone Repository
-      uses: actions/checkout@v1
+      - name: Clone Repository
+        uses: actions/checkout@v7
 
-    - name: Login to GitHub Container Registry
-      uses: docker/login-action@v1
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.PULL_SECRET }}  
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Check Environment
       run: |
