@@ -114,8 +114,8 @@ python3 buildscripts/get_openapi_client.py
 If you prefer not to install dependencies on your host machine, the pre-built container image includes all required tools and libraries:
 
 ```sh
-podman pull ghcr.io/truschival/devlinuxqt-pistache:v1.2.0
-podman run -it --privileged --name build_container ghcr.io/truschival/devlinuxqt-pistache:v1.2.0
+podman pull ghcr.io/truschival/devlinuxqtquick2:latest
+podman run -it --privileged --name build_container ghcr.io/truschival/devlinuxqtquick2:latest
 ```
 
 *(Docker can also be used interchangeably with Podman).*
