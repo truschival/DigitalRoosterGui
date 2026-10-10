@@ -77,6 +77,7 @@ jobs:
         uses: openapi-generators/openapitools-generator-action@v1
         with:
           generator: python
+          generator-tag: v6.5.0
           config-file: "REST/generator-config.json"
           openapi-file: "REST/openapi.yml"
 
