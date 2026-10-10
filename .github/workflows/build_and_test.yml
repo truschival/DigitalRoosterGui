@@ -11,6 +11,9 @@ on:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     env:
       BUILD_DIR_HOST: /tmp/build
       INSTALL_DIR_HOST: /tmp/install
@@ -22,14 +25,14 @@ jobs:
       INSTALL_DIR: /tmp/install
     steps:
       - name: Clone Repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v7
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.PULL_SECRET }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check Environment
         run: |
@@ -94,7 +97,7 @@ jobs:
 
       - name: Upload program trace
         if: failure()
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.TEST_ARTIFACT }}
           path: ${{ env.BUILD_DIR_HOST }}/${{ env.TEST_ARTIFACT }}
@@ -113,7 +116,7 @@ jobs:
           "/usr/*" "*/GTestExternal/*" "*/__/*"
 
       - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: /tmp/build/coverage.info
