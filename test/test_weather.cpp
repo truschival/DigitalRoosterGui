@@ -410,3 +410,12 @@ TEST(WeatherCfg, throwNoApiToken) {
         WeatherConfig::from_json_object(jdoc.object()), std::invalid_argument);
 }
 /*****************************************************************************/
+
+/*****************************************************************************/
+TEST_F(WeatherFile, MinMaxProperties) {
+    Weather dut(config);
+    dut.parse_forecast(forecastFile.readAll());
+    auto* fc = dut.get_weather(1);
+    ASSERT_DOUBLE_EQ(fc->property("temp_min").toDouble(), 25.06);
+    ASSERT_DOUBLE_EQ(fc->property("temp_max").toDouble(), 26.16);
+}

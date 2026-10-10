@@ -428,3 +428,82 @@ TEST_F(AlarmNextInstance, WorkdaysWednesdayPast) {
     auto expected = QDateTime::fromString("2020-11-19T08:45:00", Qt::ISODate);
     ASSERT_EQ(DigitalRooster::get_next_instance(al), expected);
 }
+
+/*****************************************************************************/
+TEST_F(AlarmNextInstance, DailyExactlyNowIsTomorrow) {
+    al.set_period(Alarm::Daily);
+    auto now = QDateTime::fromString("2020-11-18T08:45:00", Qt::ISODate);
+    auto expected = QDateTime::fromString("2020-11-19T08:45:00", Qt::ISODate);
+    ASSERT_EQ(DigitalRooster::get_next_instance(al, now), expected);
+}
+
+/*****************************************************************************/
+TEST(Alarm, enableEmitsState) {
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
+        QTime::fromString("08:45:00", "hh:mm:ss"));
+    QSignalSpy spy(&al, SIGNAL(enabled_changed(bool)));
+    al.enable(false);
+    ASSERT_EQ(spy.count(), 1);
+    ASSERT_FALSE(spy.takeFirst().at(0).toBool());
+}
+
+/*****************************************************************************/
+TEST(Alarm, periodChangeEmitsDataChanged) {
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
+        QTime::fromString("08:45:00", "hh:mm:ss"));
+    QSignalSpy spy(&al, SIGNAL(dataChanged()));
+    al.set_period(Alarm::Workdays);
+    ASSERT_EQ(spy.count(), 1);
+}
+
+/*****************************************************************************/
+TEST(Alarm, jsonRoundTripSpecialUrl) {
+    Alarm al(QUrl("http://example.org/a b/ü.mp3"),
+        QTime::fromString("08:45:00", "hh:mm:ss"));
+    auto restored = Alarm::from_json_object(al.to_json_object());
+    ASSERT_EQ(restored->get_media_url(), al.get_media_url());
+}
+
+/*****************************************************************************/
+TEST(Alarm, jsonReadsDecodedUrl) {
+    // older versions wrote decoded URLs
+    auto json = QJsonDocument::fromJson(R"({
+            "period": "daily",
+            "time": "06:30",
+            "url": "http://example.org/a b/ü.mp3"
+        })")
+                    .object();
+    auto alarm = Alarm::from_json_object(json);
+    ASSERT_EQ(alarm->get_media_url().path(), QString("/a b/ü.mp3"));
+}
+
+/*****************************************************************************/
+TEST(Alarm, customTimeoutIsSerialized) {
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
+        QTime::fromString("08:45:00", "hh:mm:ss"));
+    ASSERT_FALSE(al.to_json_object().contains(KEY_ALARM_TIMEOUT));
+    al.set_timeout(std::chrono::minutes(7));
+    auto restored = Alarm::from_json_object(al.to_json_object());
+    ASSERT_EQ(restored->get_timeout(), std::chrono::minutes(7));
+}
+
+/*****************************************************************************/
+TEST(Alarm, defaultTimeoutDoesNotOverrideCustom) {
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
+        QTime::fromString("08:45:00", "hh:mm:ss"));
+    al.set_default_timeout(std::chrono::minutes(30));
+    ASSERT_EQ(al.get_timeout(), std::chrono::minutes(30));
+    al.set_timeout(std::chrono::minutes(7));
+    al.set_default_timeout(std::chrono::minutes(30));
+    ASSERT_EQ(al.get_timeout(), std::chrono::minutes(7));
+}
+
+/*****************************************************************************/
+TEST(Alarm, volumeIsClamped) {
+    Alarm al(QUrl("http://st01.dlf.de/dlf/01/128/mp3/stream.mp3"),
+        QTime::fromString("08:45:00", "hh:mm:ss"));
+    al.set_volume(150);
+    ASSERT_EQ(al.get_volume(), 100);
+    al.set_volume(-5);
+    ASSERT_EQ(al.get_volume(), 0);
+}

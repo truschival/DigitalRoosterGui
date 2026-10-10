@@ -13,6 +13,7 @@
 #ifndef _ALARMDISPATCHER_HPP_
 #define _ALARMDISPATCHER_HPP_
 
+#include <QDateTime>
 #include <QObject>
 #include <QTimer>
 
@@ -87,9 +88,25 @@ private:
     std::shared_ptr<DigitalRooster::Alarm> upcoming_alarm;
 
     /**
+     * Instance of upcoming_alarm the timer is running for
+     */
+    QDateTime scheduled_instance;
+
+    /**
+     * Instance of the alarm dispatched last, alarms are only scheduled after
+     * this instance even if the timer fired slightly early
+     */
+    QDateTime last_dispatched;
+
+    /**
      * Trigger Timer for upcoming alarm
      */
     QTimer timer;
+
+    /**
+     * Point in time from which on alarms are scheduled
+     */
+    QDateTime reference_time() const;
 
     /**
      * Convenience method to dispatch alarm to receivers

@@ -3,7 +3,7 @@
 # copyright (c) 2020  Thomas Ruschival <thomas@ruschival.de> Licensed under GNU
 # PUBLIC LICENSE Version 3 or later
 
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.16...4.0)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_COLOR_MAKEFILE ON)
@@ -18,7 +18,7 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMakeModules/)
 message(STATUS "Running ${CMAKE_COMMAND} v${CMAKE_VERSION}")
 project(
     DigitalRooster
-    VERSION 1.5.1
+    VERSION 1.6.0
     DESCRIPTION "A digital alarm clock and podcast player"
     LANGUAGES CXX C)
 

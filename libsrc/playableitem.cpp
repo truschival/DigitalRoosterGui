@@ -184,9 +184,8 @@ void PodcastEpisode::set_position(qint64 newVal) {
 
     auto d = get_duration();
     if (d != 0 && !listened) {
-        // current positon is at least 10%
-        auto perc = (MIN_LISTENED_PERC * get_position()) / d;
-        if (perc >= 1) {
+        // current position is at least MIN_LISTENED_PERC percent
+        if (get_position() * 100 >= MIN_LISTENED_PERC * d) {
             listened = true;
             emit listened_changed(true);
         };

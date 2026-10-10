@@ -245,6 +245,21 @@ const std::chrono::minutes DEFAULT_SLEEP_TIMEOUT(60);
 const std::chrono::milliseconds ALS_SAMPLING_PERIOD(300);
 
 /**
+ * Podcast update interval if not configured
+ */
+const std::chrono::seconds DEFAULT_PODCAST_UPDATE_INTERVAL(3600);
+
+/**
+ * Minimum podcast update interval accepted from configuration
+ */
+const std::chrono::seconds MIN_PODCAST_UPDATE_INTERVAL(60);
+
+/**
+ * Time to wait for a configuration file replaced by an editor to reappear
+ */
+const std::chrono::milliseconds FILE_REAPPEAR_TIMEOUT(500);
+
+/**
  * Default output volume
  */
 const double DEFAULT_VOLUME = 25;

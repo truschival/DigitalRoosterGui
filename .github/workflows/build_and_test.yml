@@ -11,25 +11,28 @@ on:
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     env:
       BUILD_DIR_HOST: /tmp/build
       INSTALL_DIR_HOST: /tmp/install
       BUILD_DIR: /build
       SRC_DIR: /src
-      BUILD_IMAGE: ghcr.io/truschival/devlinuxqt-pistache:v1.2.0
+      BUILD_IMAGE: ghcr.io/truschival/devlinuxqtquick2:latest
       CONTAINER_NAME: buildc
       TEST_ARTIFACT: test-trace.tgz
       INSTALL_DIR: /tmp/install
     steps:
       - name: Clone Repository
-        uses: actions/checkout@v1
+        uses: actions/checkout@v7
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.PULL_SECRET }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check Environment
         run: |
@@ -74,6 +77,7 @@ jobs:
         uses: openapi-generators/openapitools-generator-action@v1
         with:
           generator: python
+          generator-tag: v6.5.0
           config-file: "REST/generator-config.json"
           openapi-file: "REST/openapi.yml"
 
@@ -94,7 +98,7 @@ jobs:
 
       - name: Upload program trace
         if: failure()
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.TEST_ARTIFACT }}
           path: ${{ env.BUILD_DIR_HOST }}/${{ env.TEST_ARTIFACT }}
@@ -113,7 +117,7 @@ jobs:
           "/usr/*" "*/GTestExternal/*" "*/__/*"
 
       - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           file: /tmp/build/coverage.info

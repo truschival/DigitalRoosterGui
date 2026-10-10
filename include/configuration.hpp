@@ -64,7 +64,7 @@ public:
      */
     Configuration(const QString& configpath, const QString& cachedir);
 
-    virtual ~Configuration() = default;
+    virtual ~Configuration();
 
     /**
      * return compile time version string
@@ -385,6 +385,18 @@ private:
      * Update all configuration items
      */
     void refresh_configuration();
+
+    /**
+     * Reread configuration after the file changed, logs read errors
+     */
+    void reload_after_change();
+
+    /**
+     * Attach serializer and update task to a podcast source and get notified
+     * about changes
+     * @param ps podcast source
+     */
+    void setup_podcast_source(const std::shared_ptr<PodcastSource>& ps);
 
     /**
      * actually set active brightness

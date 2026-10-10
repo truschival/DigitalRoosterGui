@@ -77,6 +77,8 @@ TEST(AlarmMonitor, triggersFallbackForError) {
 TEST(AlarmMonitor, idleAfterTimeout) {
     // Nice mock - we don't care about calls to player
     NiceMock<PlayerMock> player;
+    ON_CALL(player, do_playback_state())
+        .WillByDefault(Return(QMediaPlayer::PlayingState));
     AlarmMonitor mon(player, 800ms);
 
     auto alm = std::make_shared<DigitalRooster::Alarm>(
@@ -110,4 +112,42 @@ TEST(AlarmMonitor, noFallBackIfStoppedNormally) {
     player.playback_state_changed(QMediaPlayer::PlayingState);
     mon.stop();
     ASSERT_EQ(mon.get_state(), AlarmMonitor::Idle);
+}
+
+/*****************************************************************************/
+TEST(AlarmMonitor, fallbackIfNotPlayingAfterTimeout) {
+    NiceMock<PlayerMock> player;
+    // Stream hangs in buffering, never reports an error
+    ON_CALL(player, do_playback_state())
+        .WillByDefault(Return(QMediaPlayer::StoppedState));
+    AlarmMonitor mon(player, 200ms);
+
+    auto alm = std::make_shared<DigitalRooster::Alarm>(
+        QUrl("https://raw.githubusercontent.com/truschival/"
+             "DigitalRoosterGui/develop/test/testaudio.mp3"),
+        QTime::currentTime().addSecs(1), Alarm::Daily);
+
+    EXPECT_CALL(player, do_set_playlist(_)).Times(1);
+    mon.alarm_triggered(alm.get());
+    QSignalSpy spy(&player, SIGNAL(error(QMediaPlayer::Error)));
+    spy.wait(500);
+    ASSERT_EQ(mon.get_state(), AlarmMonitor::FallBackMode);
+}
+
+/*****************************************************************************/
+TEST(AlarmMonitor, errorInFallbackIsIgnored) {
+    NiceMock<PlayerMock> player;
+    AlarmMonitor mon(player);
+
+    auto alm = std::make_shared<DigitalRooster::Alarm>(
+        QUrl("https://raw.githubusercontent.com/truschival/"
+             "DigitalRoosterGui/develop/test/testaudio.mp3"),
+        QTime::currentTime().addSecs(1), Alarm::Daily);
+
+    // Only the first error switches to fallback
+    EXPECT_CALL(player, do_set_playlist(_)).Times(1);
+    mon.alarm_triggered(alm.get());
+    player.emitError(QMediaPlayer::NetworkError);
+    player.emitError(QMediaPlayer::ResourceError);
+    ASSERT_EQ(mon.get_state(), AlarmMonitor::FallBackMode);
 }

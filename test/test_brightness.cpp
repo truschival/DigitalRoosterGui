@@ -289,3 +289,17 @@ TEST_F(BrightnessFixture, CmProxyGetBrightnessValues) {
     EXPECT_EQ(dut.get_active_brightness(), 35);
     EXPECT_EQ(dut.get_standby_brightness(), 20);
 }
+
+/*****************************************************************************/
+TEST_F(BrightnessFixture, AdaptiveModeSubscribesOnce) {
+    EXPECT_CALL(config, backlight_control_enabled())
+        .WillRepeatedly(Return(true));
+    EXPECT_CALL(hwctrl, als_sensor_available()).WillRepeatedly(Return(true));
+    EXPECT_CALL(config, get_active_brightness()).WillRepeatedly(Return(10));
+    BrightnessControl dut(config, &hwctrl);
+    dut.set_adaptive_mode(true);
+    dut.set_adaptive_mode(true);
+    // one sensor value results in one backlight update
+    EXPECT_CALL(hwctrl, set_backlight(_)).Times(1);
+    emit hwctrl.als_value_changed({20, 24, 28, 45});
+}

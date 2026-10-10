@@ -398,3 +398,15 @@ TEST(PodcastSource, fromBadJsonInvalidMaxEpisodes) {
     auto ps = PodcastSource::from_json_object(jdoc.object());
     EXPECT_EQ(ps->get_max_episodes(), DEFAULT_MAX_EPISODES);
 }
+
+/*****************************************************************************/
+TEST(PodcastSource, updateIntervalHasMinimum) {
+    auto jdoc = QJsonDocument::fromJson(R"({
+        "url": "https://alternativlos.org/alternativlos.rss",
+        "updateInterval": 0
+    })");
+    auto ps = PodcastSource::from_json_object(jdoc.object());
+    ASSERT_EQ(ps->get_update_interval(), MIN_PODCAST_UPDATE_INTERVAL);
+    ps->set_update_interval(std::chrono::seconds(0));
+    ASSERT_GT(ps->get_update_interval(), std::chrono::seconds(0));
+}

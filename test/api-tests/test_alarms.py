@@ -69,9 +69,9 @@ def test_get_alarm_by_wrong_id(api_client):
     with pytest.raises(ApiException) as apiexc:
         c.alarms_read_one(
             path_params={'id': "c0ffee00-404c-f776-8619-3c4c2c4da212"})
-    assert apiexc.value.status == 400
+    assert apiexc.value.status == 404
     msg = json.loads(apiexc.value.body)
-    assert msg['code'] == 400
+    assert msg['code'] == 404
     assert msg['message'] != ''
 
 
@@ -134,4 +134,4 @@ def test_delete_invalid_alarm(api_client):
     with pytest.raises(ApiException) as apiexc:
         c.alarms_delete(
             path_params={'id': "c0ffee00-404c-f776-8619-3c4c2c4da212"})
-    assert apiexc.value.status == 400
+    assert apiexc.value.status == 404

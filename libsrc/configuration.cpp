@@ -6,6 +6,7 @@
 
 #include <QLoggingCategory>
 #include <QSaveFile>
+#include <QTimer>
 #include <QStandardPaths>
 #include <QString>
 #include <QTime>
@@ -57,13 +58,13 @@ T* find_by_id(
 template <typename T>
 void delete_by_id(std::vector<std::shared_ptr<T>>& container, const QUuid& id) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    auto old_end = container.end();
+    auto old_size = container.size();
     container.erase(std::remove_if(container.begin(), container.end(),
                         [&](const std::shared_ptr<T> item) {
                             return item->get_id() == id;
                         }),
         container.end());
-    if (old_end == container.end()) {
+    if (old_size == container.size()) {
         throw std::out_of_range("");
     }
 }
@@ -112,8 +113,11 @@ Configuration::Configuration(
     filewatcher.addPath(path);
 
     // store connection to disconnect during write_config_file
-    fwConn = connect(&filewatcher, &QFileSystemWatcher::fileChanged, this,
-        &Configuration::fileChanged);
+    // creating the default configuration already connected the filewatcher
+    if (!fwConn) {
+        fwConn = connect(&filewatcher, &QFileSystemWatcher::fileChanged, this,
+            &Configuration::fileChanged);
+    }
 
     // Event loop timer every 5 seconds to update remaining time
     evt_timer_id = startTimer(std::chrono::seconds(5));
@@ -122,11 +126,22 @@ Configuration::Configuration(
 /*****************************************************************************/
 void Configuration::timerEvent(QTimerEvent* evt) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (evt->timerId() == evt_timer_id && dirty) {
-        store_current_config();
-        dirty = !dirty; // toggle
+    if (evt->timerId() == evt_timer_id) {
+        // reset before storing, changes during the store are saved next time
+        if (dirty.exchange(false)) {
+            store_current_config();
+        }
     } else {
         QObject::timerEvent(evt);
+    }
+}
+
+/*****************************************************************************/
+Configuration::~Configuration() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    // store changes of the last seconds before shutdown
+    if (dirty.exchange(false)) {
+        store_current_config();
     }
 }
 
@@ -134,11 +149,24 @@ void Configuration::timerEvent(QTimerEvent* evt) {
 void Configuration::refresh_configuration() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
+    auto content = get_json_from_file(get_configuration_path());
+    /* A syntax error would result in an empty configuration that is written
+     * back and replaces the file the user is just editing */
+    QJsonParseError parse_error;
+    auto doc = QJsonDocument::fromJson(content.toUtf8(), &parse_error);
+    if (parse_error.error != QJsonParseError::NoError || !doc.isObject()) {
+        qCCritical(CLASS_LC)
+            << "invalid configuration:" << parse_error.errorString()
+            << "at offset" << parse_error.offset
+            << "- keeping current configuration";
+        return;
+    }
     alarms.clear();
     podcast_sources.clear();
     stream_sources.clear();
-    auto content = get_json_from_file(get_configuration_path());
     parse_json(content.toUtf8());
+    // configuration was just read from file, nothing to store
+    dirty = false;
     emit configuration_changed();
 }
 
@@ -222,6 +250,25 @@ void Configuration::read_radio_streams(const QJsonObject& appconfig) {
 }
 
 /*****************************************************************************/
+void Configuration::setup_podcast_source(
+    const std::shared_ptr<PodcastSource>& ps) {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    auto serializer =
+        std::make_unique<PodcastSerializer>(application_cache_dir, ps.get());
+    // populate podcast source from cached info
+    serializer->restore_info();
+    // Move ownership to Podcast Source and setup signal/slot
+    // connections
+    ps->set_serializer(std::move(serializer));
+
+    ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
+
+    // Get notifications if name etc. changes
+    connect(ps.get(), &PodcastSource::dataChanged, this,
+        &Configuration::dataChanged);
+}
+
+/*****************************************************************************/
 void Configuration::read_podcasts(const QJsonObject& appconfig) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QJsonArray podcasts =
@@ -229,19 +276,7 @@ void Configuration::read_podcasts(const QJsonObject& appconfig) {
     for (const auto pc : podcasts) {
         try {
             auto ps = PodcastSource::from_json_object(pc.toObject());
-            auto serializer = std::make_unique<PodcastSerializer>(
-                application_cache_dir, ps.get());
-            // populate podcast source from cached info
-            serializer->restore_info();
-            // Move ownership to Podcast Source and setup signal/slot
-            // connections
-            ps->set_serializer(std::move(serializer));
-
-            ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
-
-            // Get notifications if name etc. changes
-            connect(ps.get(), &PodcastSource::dataChanged, this,
-                &Configuration::dataChanged);
+            setup_podcast_source(ps);
             podcast_sources.push_back(ps);
         } catch (std::invalid_argument& exc) {
             qCDebug(CLASS_LC) << "invalid argument" << exc.what();
@@ -263,6 +298,7 @@ void Configuration::read_alarms(const QJsonObject& appconfig) {
     for (const auto al : alarm_config) {
         try {
             auto alarm = Alarm::from_json_object(al.toObject());
+            alarm->set_default_timeout(global_alarm_timeout);
             connect(alarm.get(), &Alarm::dataChanged, this,
                 &Configuration::alarm_data_changed);
             alarms.push_back(alarm);
@@ -292,9 +328,37 @@ void Configuration::dataChanged() {
 }
 
 /*****************************************************************************/
-void Configuration::fileChanged(const QString& /*path*/) {
+void Configuration::fileChanged(const QString& path) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    refresh_configuration();
+    /* Editors save by replacing the file, the watcher then drops the path.
+     * The new file may not exist yet when we get notified. */
+    if (!filewatcher.files().contains(path)) {
+        if (!QFile::exists(path)) {
+            QTimer::singleShot(
+                FILE_REAPPEAR_TIMEOUT, this, [this, path]() {
+                    if (QFile::exists(path)) {
+                        filewatcher.addPath(path);
+                        reload_after_change();
+                    } else {
+                        qCWarning(CLASS_LC) << "configuration file removed";
+                    }
+                });
+            return;
+        }
+        filewatcher.addPath(path);
+    }
+    reload_after_change();
+}
+
+/*****************************************************************************/
+void Configuration::reload_after_change() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    // Exceptions must not escape a slot
+    try {
+        refresh_configuration();
+    } catch (const std::system_error& exc) {
+        qCCritical(CLASS_LC) << "cannot read configuration:" << exc.what();
+    }
 }
 
 /*****************************************************************************/
@@ -334,6 +398,7 @@ bool Configuration::backlight_control_enabled() const {
 void Configuration::enable_backlight_control(bool ena) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     backlight_control_act = ena;
+    dirty = true;
 }
 
 /*****************************************************************************/
@@ -393,14 +458,12 @@ void Configuration::write_config_file(const QJsonObject& appconfig) {
     filewatcher.removePath(file_path);
 
     QSaveFile config_file(file_path);
-    try {
-        config_file.open(
-            QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
-        QJsonDocument doc(appconfig);
-        config_file.write(doc.toJson());
-        config_file.commit();
-    } catch (std::exception& exc) {
-        qCCritical(CLASS_LC) << exc.what();
+    QJsonDocument doc(appconfig);
+    if (!config_file.open(
+            QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text) ||
+        config_file.write(doc.toJson()) < 0 || !config_file.commit()) {
+        qCCritical(CLASS_LC)
+            << "writing configuration failed:" << config_file.errorString();
     }
     // Reconnect filewatcher to be notified if someone else changes file
     fwConn = connect(&filewatcher, &QFileSystemWatcher::fileChanged, this,
@@ -504,6 +567,7 @@ void Configuration::delete_alarm(const QUuid& id) {
 /*****************************************************************************/
 void Configuration::add_alarm(std::shared_ptr<Alarm> alarm) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    alarm->set_default_timeout(global_alarm_timeout);
     this->alarms.push_back(alarm);
     connect(alarm.get(), &Alarm::dataChanged, this,
         &Configuration::alarm_data_changed);
@@ -573,6 +637,7 @@ Configuration::get_stations() const {
 void Configuration::add_podcast_source(
     std::shared_ptr<PodcastSource> podcast) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    setup_podcast_source(podcast);
     this->podcast_sources.push_back(podcast);
     dataChanged();
     emit podcast_sources_changed();
@@ -612,8 +677,9 @@ PodcastSource* Configuration::get_podcast_source_by_index(
 /*****************************************************************************/
 void Configuration::remove_podcast_source_by_index(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    assert((index >= 0) &&
-        (podcast_sources.begin() + index < podcast_sources.end()));
+    if (index < 0 || static_cast<size_t>(index) >= podcast_sources.size()) {
+        throw std::out_of_range("no podcast source at index");
+    }
     podcast_sources.erase(podcast_sources.begin() + index);
     emit podcast_sources_changed();
     emit dataChanged();

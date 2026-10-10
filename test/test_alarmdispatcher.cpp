@@ -208,3 +208,37 @@ TEST_F(AlarmDispatcherFixture, AlarmTriggersReschedule) {
     ASSERT_GT(next_delta.count(), 23 * 3600 * 1000);
     ASSERT_LT(next_delta.count(), 24 * 3600 * 1000);
 }
+
+/*****************************************************************************/
+TEST_F(AlarmDispatcherFixture, NoDoubleDispatchIfTimerFiresEarly) {
+    /* Clock stays before the alarm time, as if the timer fired early */
+    EXPECT_CALL(*(mc.get()), get_time())
+        .Times(AnyNumber())
+        .WillRepeatedly(Return(
+            QDateTime::fromString("2020-11-22T08:29:59.700", Qt::ISODateWithMs)));
+
+    QSignalSpy spy2(dut.get(), SIGNAL(alarm_triggered(DigitalRooster::Alarm*)));
+    dut->check_alarms();
+    spy2.wait(1000);
+    ASSERT_EQ(spy2.count(), 1);
+    // Next instance is tomorrow, not the same alarm again
+    ASSERT_EQ(dut->get_upcoming_alarm_info(), QString("Mon 08:30"));
+    spy2.wait(500);
+    ASSERT_EQ(spy2.count(), 1);
+}
+
+/*****************************************************************************/
+TEST_F(AlarmDispatcherFixture, OnceAlarmIsDisabledAfterTrigger) {
+    alm1->set_period(Alarm::Once);
+    EXPECT_CALL(*(mc.get()), get_time())
+        .Times(AnyNumber())
+        .WillRepeatedly(
+            Return(QDateTime::fromString("2020-11-22T08:29:59", Qt::ISODate)));
+
+    QSignalSpy spy2(dut.get(), SIGNAL(alarm_triggered(DigitalRooster::Alarm*)));
+    dut->check_alarms();
+    spy2.wait(1500);
+    ASSERT_EQ(spy2.count(), 1);
+    ASSERT_FALSE(alm1->is_enabled());
+    ASSERT_EQ(dut->get_upcoming_alarm_info(), QString(""));
+}

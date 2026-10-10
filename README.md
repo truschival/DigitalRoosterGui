@@ -12,7 +12,7 @@ Linux with a small touch display.
 This repository is part of a larger project. For more information head to
 [www.digitalrooster.dev](https://www.digitalrooster.dev)
 
-Microsoft Windows and Desktop GNU/Linux systems are supported for development.
+Desktop GNU/Linux systems are supported for development.
 
 ![DigitalRooster on hardware](./documentation/figs/Demo_on_hardware.jpg)
 

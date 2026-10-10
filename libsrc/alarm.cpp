@@ -47,7 +47,7 @@ void Alarm::enable(bool state) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << state;
     enabled = state;
     emit dataChanged();
-    emit enabled_changed(true);
+    emit enabled_changed(state);
 }
 
 /*****************************************************************************/
@@ -76,6 +76,7 @@ void Alarm::set_period(Alarm::Period period) {
     this->period = period;
     emit period_changed(period);
     emit period_changed(get_period_string());
+    emit dataChanged();
 }
 
 /*****************************************************************************/
@@ -178,14 +179,24 @@ QJsonObject Alarm::to_json_object() const {
     alarmcfg[KEY_ALARM_PERIOD] = alarm_period_to_string(this->get_period());
     alarmcfg[JSON_KEY_TIME] = this->get_time().toString("hh:mm");
     alarmcfg[KEY_VOLUME] = this->get_volume();
-    alarmcfg[KEY_URI] = this->get_media_url().toString();
+    // FullyEncoded: valid_url_from_string() must be able to parse it again
+    alarmcfg[KEY_URI] = this->get_media_url().toString(QUrl::FullyEncoded);
     alarmcfg[KEY_ENABLED] = this->is_enabled();
+    if (custom_timeout) {
+        alarmcfg[KEY_ALARM_TIMEOUT] = static_cast<qint64>(timeout.count());
+    }
     return alarmcfg;
 }
 
 
 /*****************************************************************************/
 QDateTime DigitalRooster::get_next_instance(const Alarm& alm) {
+    return get_next_instance(alm, wallclock->now());
+}
+
+/*****************************************************************************/
+QDateTime DigitalRooster::get_next_instance(
+    const Alarm& alm, const QDateTime& now) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     QDateTime next;
 
@@ -195,8 +206,6 @@ QDateTime DigitalRooster::get_next_instance(const Alarm& alm) {
     }
 
     next.setTime(alm.get_time());
-    // current DateTime instance
-    auto now = wallclock->now();
     auto dow = now.date().dayOfWeek();
     // preliminary date, today
     next.setDate(now.date());
@@ -206,7 +215,7 @@ QDateTime DigitalRooster::get_next_instance(const Alarm& alm) {
     // is today, or if passed, tomorrow at the same time
     case Alarm::Daily:
     case Alarm::Once:
-        if (now.time() > alm.get_time()) {
+        if (now.time() >= alm.get_time()) {
             next = next.addDays(1);
         }
         break;
@@ -214,7 +223,7 @@ QDateTime DigitalRooster::get_next_instance(const Alarm& alm) {
         // any enabled weekend alarm has it's next instance on a Saturday or
         // Sunday If today is Saturday or Sunday and the time has passed -> add
         // one day.
-        if (dow >= Qt::Saturday && now.time() > alm.get_time()) {
+        if (dow >= Qt::Saturday && now.time() >= alm.get_time()) {
             next = next.addDays(1);
         }
         // If spilled over from Sunday to Monday or next is a workday, add
@@ -225,7 +234,7 @@ QDateTime DigitalRooster::get_next_instance(const Alarm& alm) {
         break;
     case Alarm::Workdays:
         // Monday to friday, add 1 day if time has passed
-        if (dow < Qt::Saturday && now.time() > alm.get_time()) {
+        if (dow < Qt::Saturday && now.time() >= alm.get_time()) {
             next = next.addDays(1);
         }
         // Today is Weekend, schedule for monday

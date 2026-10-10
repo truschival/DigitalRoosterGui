@@ -172,3 +172,6 @@ CMakeSettings.json
 
 # python client created during test
 python-client*
+
+# Python virtual environment
+.venv/

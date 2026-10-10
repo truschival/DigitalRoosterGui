@@ -56,9 +56,9 @@ ApiHandler::ApiHandler(DigitalRooster::IWeatherConfigStore& ws,
     DigitalRooster::IStationStore& sts, DigitalRooster::ITimeOutStore& tos,
     Pistache::Address addr)
     : endpoint(addr)
-    , alarmapi(as, router)
-    , radioapi(sts, router)
-    , podcastsapi(ps, router) {
+    , alarmapi(as, router, app_thread_context)
+    , radioapi(sts, router, app_thread_context)
+    , podcastsapi(ps, router, app_thread_context) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
     auto opts =
@@ -75,9 +75,17 @@ ApiHandler::ApiHandler(DigitalRooster::IWeatherConfigStore& ws,
 };
 
 /*****************************************************************************/
+ApiHandler::~ApiHandler() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    endpoint.shutdown();
+}
+
+/*****************************************************************************/
 void ApiHandler::default_handler(const Pistache::Rest::Request& request,
     Pistache::Http::ResponseWriter response) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    response.setMime(
+        Pistache::Http::Mime::MediaType::fromString("application/json"));
     response.send(Pistache::Http::Code::Not_Found,
         R"({"code": 404, "message": "The resource or method does not exist!"})");
 }
@@ -89,7 +97,10 @@ QJsonObject DigitalRooster::REST::qjson_form_std_string(
     QJsonParseError perr;
     auto jd = QJsonDocument::fromJson(data.c_str(), &perr);
     if (perr.error != QJsonParseError::NoError) {
-        throw std::invalid_argument(data + " is not valid JSON");
+        // do not echo the request body
+        throw std::invalid_argument("request is not valid JSON: " +
+            perr.errorString().toStdString() + " at offset " +
+            std::to_string(perr.offset));
     }
     return jd.object();
 }
@@ -97,15 +108,24 @@ QJsonObject DigitalRooster::REST::qjson_form_std_string(
 /*****************************************************************************/
 int DigitalRooster::REST::get_val_from_query_within_range(
     const std::optional<std::string>& query, int min, int max) {
+    return get_val_from_query_within_range(query, min, max, min);
+}
+
+/*****************************************************************************/
+int DigitalRooster::REST::get_val_from_query_within_range(
+    const std::optional<std::string>& query, int min, int max, int fallback) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 
-    int val = min;
+    int val = fallback;
     try {
         val = std::stoi(query.value());
     } catch (const std::bad_optional_access& e) {
         qCCritical(CLASS_LC) << Q_FUNC_INFO << e.what();
     } catch (const std::invalid_argument& e) {
         qCCritical(CLASS_LC) << Q_FUNC_INFO << e.what();
+    } catch (const std::out_of_range& e) {
+        // number does not fit into int, cap at the matching limit
+        val = (query.value().find('-') != std::string::npos) ? min : max;
     }
     // cap val at lower end
     val = (val < min) ? min : val;

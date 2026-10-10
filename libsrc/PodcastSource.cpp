@@ -81,7 +81,8 @@ void PodcastSource::add_episode(
 /*****************************************************************************/
 void PodcastSource::set_update_interval(std::chrono::seconds interval) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    update_interval = interval;
+    /* a zero interval would download the feed continuously */
+    update_interval = std::max(interval, std::chrono::seconds(1));
     if (updater != nullptr) {
         updater->set_update_interval(interval);
     }
@@ -345,8 +346,9 @@ std::shared_ptr<PodcastSource> PodcastSource::from_json_object(
         qCWarning(CLASS_LC) << exc.what() << "- will use default";
     }
     ps->set_update_interval(
-        std::chrono::seconds(json[KEY_UPDATE_INTERVAL].toInt(3600)));
-    ps->set_update_task(std::make_unique<UpdateTask>(ps.get()));
+        std::max(std::chrono::seconds(json[KEY_UPDATE_INTERVAL].toInt(
+                     DEFAULT_PODCAST_UPDATE_INTERVAL.count())),
+            MIN_PODCAST_UPDATE_INTERVAL));
     return ps;
 }
 

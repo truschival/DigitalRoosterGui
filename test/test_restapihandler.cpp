@@ -7,7 +7,10 @@
 #include <ApiHandler.hpp>
 #include <QJsonArray>
 
+#include <QCoreApplication>
 #include <chrono>
+#include <future>
+#include <thread>
 #include <vector>
 #include <optional>
 #include <gtest/gtest.h>
@@ -90,3 +93,74 @@ TEST(RestAdapter, cfrEndAndOutOfBounds) {
 }
 
 /*****************************************************************************/
+
+/*****************************************************************************/
+template <typename T>
+T wait_processing_events(std::future<T>& fut) {
+    while (fut.wait_for(10ms) != std::future_status::ready) {
+        QCoreApplication::processEvents();
+    }
+    return fut.get();
+}
+
+/*****************************************************************************/
+TEST(RestAdapter, runInThreadOfExecutesInContextThread) {
+    QObject ctx;
+    std::thread::id exec_thread;
+    auto fut = std::async(std::launch::async, [&]() {
+        return run_in_thread_of(ctx, [&]() {
+            exec_thread = std::this_thread::get_id();
+            return 42;
+        });
+    });
+    ASSERT_EQ(wait_processing_events(fut), 42);
+    ASSERT_EQ(exec_thread, std::this_thread::get_id());
+}
+
+/*****************************************************************************/
+TEST(RestAdapter, runInThreadOfPropagatesExceptions) {
+    QObject ctx;
+    auto fut = std::async(std::launch::async, [&]() {
+        run_in_thread_of(ctx, []() { throw std::out_of_range("no item"); });
+    });
+    ASSERT_THROW(wait_processing_events(fut), std::out_of_range);
+}
+
+/*****************************************************************************/
+TEST(RestAdapter, getValOverflowCapsAtLimits) {
+    ASSERT_EQ(get_val_from_query_within_range(
+                  std::optional<std::string>{"99999999999"}, 0, 50),
+        50);
+    ASSERT_EQ(get_val_from_query_within_range(
+                  std::optional<std::string>{"-99999999999"}, 0, 50),
+        0);
+}
+
+/*****************************************************************************/
+TEST(RestAdapter, getValInvalidReturnsFallback) {
+    auto query = std::optional<std::string>{"abc"};
+    ASSERT_EQ(get_val_from_query_within_range(query, 1, 10, 10), 10);
+}
+
+/*****************************************************************************/
+TEST(RestAdapter, errorJsonIsEscaped) {
+    std::invalid_argument exc(R"(bad "quoted" input)");
+    InternalErrorJson je(exc, 400);
+    QJsonParseError perr;
+    auto doc = QJsonDocument::fromJson(
+        QByteArray::fromStdString(std::string(je)), &perr);
+    ASSERT_EQ(perr.error, QJsonParseError::NoError);
+    ASSERT_EQ(doc.object()["code"].toInt(), 400);
+    ASSERT_EQ(doc.object()["message"].toString(),
+        QString(R"(bad "quoted" input)"));
+}
+
+/*****************************************************************************/
+TEST(RestAdapter, invalidJsonIsNotEchoed) {
+    try {
+        qjson_form_std_string("{ secret body");
+        FAIL();
+    } catch (std::invalid_argument& exc) {
+        ASSERT_EQ(std::string(exc.what()).find("secret"), std::string::npos);
+    }
+}

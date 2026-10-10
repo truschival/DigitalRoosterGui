@@ -25,28 +25,35 @@ WifiControl* WifiControl::get_instance(Configuration* config) {
     // only if not initialized and we have a control_manager
     if (!instance.ctrl && config) {
         instance.wpa_supplicant_sock_path = config->get_wpa_socket_name();
-        try {
-            instance.connect_wpa_control_socket();
-            instance.ctrl_notifier = std::make_unique<QSocketNotifier>(
-                wpa_ctrl_get_fd(instance.ctrl), QSocketNotifier::Read);
-
-            connect(instance.ctrl_notifier.get(), &QSocketNotifier::activated,
-                &instance, &WifiControl::ctrl_event);
-
-        } catch (std::system_error& exc) {
-            qCCritical(CLASS_LC) << exc.what();
-        } catch (std::exception& exc) {
-            qCCritical(CLASS_LC) << exc.what();
-        }
+        instance.ensure_connected();
     }
     return &instance;
+}
+
+/****************************************************************************/
+bool WifiControl::ensure_connected() {
+    qCDebug(CLASS_LC) << Q_FUNC_INFO;
+    if (ctrl) {
+        return true;
+    }
+    /* wpa_supplicant may not have been running when we started */
+    try {
+        connect_wpa_control_socket();
+        ctrl_notifier = std::make_unique<QSocketNotifier>(
+            wpa_ctrl_get_fd(ctrl), QSocketNotifier::Read);
+        connect(ctrl_notifier.get(), &QSocketNotifier::activated, this,
+            &WifiControl::ctrl_event);
+    } catch (std::exception& exc) {
+        qCCritical(CLASS_LC) << exc.what();
+    }
+    return ctrl != nullptr;
 }
 /****************************************************************************/
 WifiControl::WifiControl(QObject* parent)
     : QObject(parent)
     , ctrl(nullptr)
     , scan_stat(Idle)
-    , reply_size(sizeof(reply)) {
+    , reply_size(0) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
 }
 
@@ -144,7 +151,10 @@ void WifiControl::ctrl_event(int /* fd */) {
     char buf[128] = {};
     while (wpa_ctrl_pending(ctrl) > 0) {
         auto buf_len = sizeof(buf);
-        wpa_ctrl_recv(ctrl, buf, &buf_len);
+        if (wpa_ctrl_recv(ctrl, buf, &buf_len) < 0) {
+            qCCritical(CLASS_LC) << "wpa_ctrl_recv failed";
+            break;
+        }
         auto e_string = QString::fromLocal8Bit(buf, buf_len);
         qCDebug(CLASS_LC) << "[monitor] CTRL:" << e_string << ":" << buf_len;
         parse_event(e_string);
@@ -154,19 +164,24 @@ void WifiControl::ctrl_event(int /* fd */) {
 /****************************************************************************/
 void WifiControl::request_wrapper(const QString& cmd) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << cmd;
-    assert(ctrl);
-    size_t buf_size = sizeof(reply);
-    auto res = wpa_ctrl_request(
-        ctrl, cmd.toStdString().c_str(), cmd.size(), reply, &buf_size, nullptr);
+    if (!ensure_connected()) {
+        throw std::runtime_error("no connection to wpa_supplicant");
+    }
+    auto cmd_bytes = cmd.toUtf8();
+    // keep space for terminating null
+    reply_size = sizeof(reply) - 1;
+    auto res = wpa_ctrl_request(ctrl, cmd_bytes.constData(), cmd_bytes.size(),
+        reply, &reply_size, nullptr);
     if (res < 0) {
+        reply_size = 0;
         throw std::runtime_error("wpa_ctrl_request failed");
     }
+    reply[reply_size] = '\0';
 }
 
 /****************************************************************************/
 void WifiControl::read_scan_results() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    assert(ctrl);
     std::lock_guard<std::mutex> lock(wpa_mtx);
     try {
         request_wrapper("SCAN_RESULTS");
@@ -179,12 +194,12 @@ void WifiControl::read_scan_results() {
 /****************************************************************************/
 void WifiControl::start_scan() {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    assert(ctrl);
     std::lock_guard<std::mutex> lock(wpa_mtx);
     try {
         request_wrapper("SCAN");
     } catch (std::exception& exc) {
         qCCritical(CLASS_LC) << " SCAN:" << exc.what();
+        set_scan_status(ScanFailed);
     }
 }
 
@@ -193,7 +208,8 @@ WifiNetwork DigitalRooster::line_to_network(const QStringRef& line) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
     auto list = line.split("\t");
 
-    if (list.size() > 3) {
+    // bssid, frequency, signal level, flags, ssid
+    if (list.size() >= 5) {
         auto name = list.at(4).toString();
         auto bssid = list.at(0).toString();
         auto signal = list.at(2).toInt();

@@ -145,6 +145,9 @@ int main(int argc, char* argv[]) {
     AlarmDispatcher alarmdispatcher(config);
     QObject::connect(&config, &Configuration::alarms_changed,
         &alarmdispatcher, &AlarmDispatcher::check_alarms);
+    /* configuration file was read again, alarms are new objects */
+    QObject::connect(&config, &Configuration::configuration_changed,
+        &alarmdispatcher, &AlarmDispatcher::check_alarms);
     AlarmMonitor alarmmonitor(playerproxy, std::chrono::seconds(20));
     QObject::connect(&alarmdispatcher, &AlarmDispatcher::alarm_triggered,
         &alarmmonitor, &AlarmMonitor::alarm_triggered);
@@ -153,16 +156,27 @@ int main(int argc, char* argv[]) {
     AlarmListModel alarmlistmodel(config);
     IRadioListModel iradiolistmodel(config, playerproxy);
     WifiListModel wifilistmodel;
+    /* Models must follow changes from REST API or configuration file */
+    QObject::connect(&config, &Configuration::podcast_sources_changed, &psmodel,
+        &PodcastSourceModel::reload);
+    QObject::connect(&config, &Configuration::alarms_changed, &alarmlistmodel,
+        &AlarmListModel::reload);
+    QObject::connect(&config, &Configuration::stations_changed,
+        &iradiolistmodel, &IRadioListModel::reload);
+    QObject::connect(&config, &Configuration::configuration_changed, &psmodel,
+        &PodcastSourceModel::reload);
+    QObject::connect(&config, &Configuration::configuration_changed,
+        &alarmlistmodel, &AlarmListModel::reload);
+    QObject::connect(&config, &Configuration::configuration_changed,
+        &iradiolistmodel, &IRadioListModel::reload);
 
     Weather weather(config);
     SleepTimer sleeptimer(config);
 
-    /* Brightness control sends pwm update requests to Hardware */
+    /* Brightness control sends pwm update requests to Hardware and
+     * subscribes to the light sensor only if adaptive mode is enabled */
     BrightnessControl brightness(config, &hwctrl);
-    QObject::connect(&brightness, &BrightnessControl::brightness_changed,
-        &hwctrl, &Hal::IHardware::set_backlight);
-    QObject::connect(&hwctrl, &Hal::IHardware::als_value_changed, &brightness,
-        &BrightnessControl::als_value_changed);
+    brightness.set_adaptive_mode(config.backlight_control_enabled());
 
     PowerControl power;
     /* Power controls backlight */

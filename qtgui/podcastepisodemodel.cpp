@@ -12,6 +12,7 @@
 #include <QRegExp>
 
 #include "PlayableItem.hpp"
+#include "PodcastSource.hpp"
 #include "mediaplayerproxy.hpp"
 #include "podcastepisodemodel.hpp"
 
@@ -20,12 +21,26 @@ using namespace DigitalRooster;
 static Q_LOGGING_CATEGORY(CLASS_LC, "DigitalRooster.PodcastEpisodeModel");
 /*****************************************************************************/
 PodcastEpisodeModel::PodcastEpisodeModel(
-    const std::vector<std::shared_ptr<PodcastEpisode>>* ep, MediaPlayer& mp,
-    QObject* parent)
+    std::shared_ptr<PodcastSource> ps, MediaPlayer& mp, QObject* parent)
     : QAbstractListModel(parent)
-    , episodes(ep)
+    , source(std::move(ps))
     , mpp(mp) {
 	qCInfo(CLASS_LC) << Q_FUNC_INFO;
+    if (source) {
+        // episodes are added or removed when the podcast is updated
+        connect(source.get(), &PodcastSource::episodes_count_changed, this,
+            [this]() {
+                beginResetModel();
+                endResetModel();
+            });
+    }
+}
+
+/*****************************************************************************/
+const std::vector<std::shared_ptr<PodcastEpisode>>&
+PodcastEpisodeModel::episodes() const {
+    static const std::vector<std::shared_ptr<PodcastEpisode>> no_episodes;
+    return source ? source->get_episodes() : no_episodes;
 }
 
 /*****************************************************************************/
@@ -48,25 +63,19 @@ QHash<int, QByteArray> PodcastEpisodeModel::roleNames() const {
 }
 
 /*****************************************************************************/
-void PodcastEpisodeModel::set_episodes(
-    const std::vector<std::shared_ptr<PodcastEpisode>>* ep) {
-    episodes = ep;
-}
-
-/*****************************************************************************/
 int PodcastEpisodeModel::rowCount(const QModelIndex& /*parent */) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO;
-    if (!episodes) {
-    	qCWarning(CLASS_LC) << " no episodes ";
-        return 0;
-    }
-    return episodes->size();
+    return episodes().size();
 }
 
 /*****************************************************************************/
 PodcastEpisode* PodcastEpisodeModel::get_episode(int index) {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << index;
-    auto ep = episodes->at(index).get();
+    if (index < 0 || static_cast<size_t>(index) >= episodes().size()) {
+        qCCritical(CLASS_LC) << Q_FUNC_INFO << "index out of range " << index;
+        return nullptr;
+    }
+    auto ep = episodes()[index].get();
     QQmlEngine::setObjectOwnership(ep, QQmlEngine::CppOwnership);
     return ep;
 }
@@ -74,7 +83,11 @@ PodcastEpisode* PodcastEpisodeModel::get_episode(int index) {
 /*****************************************************************************/
 void PodcastEpisodeModel::send_to_player(int index) {
 	qCDebug(CLASS_LC) << Q_FUNC_INFO << index;
-	auto ep = episodes->at(index);
+    if (index < 0 || static_cast<size_t>(index) >= episodes().size()) {
+        qCCritical(CLASS_LC) << Q_FUNC_INFO << "index out of range " << index;
+        return;
+    }
+    auto ep = episodes()[index];
     mpp.set_media(ep);
     mpp.play();
 }
@@ -82,18 +95,15 @@ void PodcastEpisodeModel::send_to_player(int index) {
 /*****************************************************************************/
 QVariant PodcastEpisodeModel::data(const QModelIndex& index, int role) const {
     qCDebug(CLASS_LC) << Q_FUNC_INFO << index;
-    if (!episodes)
-        return QVariant();
-
     /* static cast only if index.row() is >= 0 and thus can be converted */
     if (index.row() < 0 ||
-        static_cast<size_t>(index.row()) >= episodes->size()) {
+        static_cast<size_t>(index.row()) >= episodes().size()) {
         qCCritical(CLASS_LC) << Q_FUNC_INFO << "index out of range " << index;
         return QVariant();
     }
 
     QString desc;
-    auto ep = episodes->at(index.row());
+    auto ep = episodes()[index.row()];
     auto duration = QTime::fromMSecsSinceStartOfDay(ep->get_duration());
 
     switch (role) {

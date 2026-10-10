@@ -148,6 +148,7 @@ SET(TEST_HARNESS_SRCS
   ${CMAKE_CURRENT_SOURCE_DIR}/test_update_task.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_volume_button.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/test_weather.cpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/test_wifi_parser.cpp
   )
 
 IF(REST_API)

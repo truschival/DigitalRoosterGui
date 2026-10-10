@@ -20,6 +20,7 @@
 #include <QUrl>
 #include <QUuid>
 
+#include <algorithm>
 #include <chrono>
 #include <memory>
 
@@ -127,7 +128,7 @@ public:
      * @param volume
      */
     void set_volume(int volume) {
-        this->volume = volume;
+        this->volume = std::clamp(volume, 0, 100);
     }
 
     /**
@@ -138,11 +139,23 @@ public:
         return timeout;
     }
     /**
-     * Duration for alarm to stop automatically
+     * Duration for alarm to stop automatically, specific for this alarm
      * @param  timeout in minutes
      */
     void set_timeout(std::chrono::minutes timeout) {
         this->timeout = timeout;
+        custom_timeout = true;
+    }
+
+    /**
+     * Application wide default timeout, only applied if this alarm has no
+     * specific timeout configured
+     * @param  timeout in minutes
+     */
+    void set_default_timeout(std::chrono::minutes timeout) {
+        if (!custom_timeout) {
+            this->timeout = timeout;
+        }
     }
 
     /**
@@ -237,6 +250,11 @@ private:
     std::chrono::minutes timeout;
 
     /**
+     * timeout was configured for this alarm (and has to be serialized)
+     */
+    bool custom_timeout = false;
+
+    /**
      * Default volume for alarm
      */
     int volume = DEFAULT_ALARM_VOLUME;
@@ -263,6 +281,14 @@ QString alarm_period_to_string(const Alarm::Period period);
  * @return next time this alarm will be ready to run
  */
 QDateTime get_next_instance(const Alarm& alm);
+
+/**
+ * Calculate the next trigger instance of the alarm after a reference time
+ * @param alm get instance for this Alarm
+ * @param now reference time, an instance at exactly this time is skipped
+ * @return next time this alarm will be ready to run
+ */
+QDateTime get_next_instance(const Alarm& alm, const QDateTime& now);
 
 /**
  * Comparison Operators to make Alarms comparable by their next execution

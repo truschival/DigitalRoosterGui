@@ -1,171 +1,196 @@
-# Build configuration for GNU/Linux and Windows
+# Build configuration for GNU/Linux
 
-DigitalRooster requires OpenSSL >1.0.2 and >QT 5.11 to run.
-For the build a C++17 Compiler, cmake-3.10 are required.
+DigitalRooster requires OpenSSL >= 1.1.1 (or OpenSSL 3.x) and Qt >= 5.12 to run.
+For building, a C++17 compiler and CMake >= 3.16 are required.
 
-DigitalRooster is developped on Debian GNU/Linux using gcc 8.x
-with QT 5.12. Any recent Linux distribution should work
+DigitalRooster is developed on Debian GNU/Linux (Debian 13 Trixie / testing / sid) using GCC or Clang
+with Qt 5.15. Any recent Linux distribution should work.
 
-On Windows the build was tested with QT5.10 Open Source license
-with Visual Studio 2017 Community on Windows 7 and Windows 10.
-
-## Linux prerequisites
-
-QT5.10 is included in Debian Buster or later. Ubuntu should also work.
-
-(1)  Setup the basic development environment.
-
-``` sh
-apt-get install -y \
-        bc cmake curl git \
-        build-essential g++ gcc \
-        doxygen lcov gcovr \
-        autoconf automake libtool pkg-config \
-        flex bison zip unzip \
-        libssl-dev uuid-dev
-```
-
-(2) Install QT5 development libraries
-
-``` sh
-apt-get install -y \
-       qt5-default qtbase5-dev-tools \
-       qtdeclarative5-dev qtmultimedia5-dev \
-       qtquickcontrols2-5-dev qtdeclarative5-dev-tools
-```
-
-(3) Build and install libpistache
-
-If you configure DigitalRoosterGui with  `-DREST_API=On` make sure you have
-[pistache](http://pistache.io/) installed.
-Unfortunately there are no packages for Debian (yet).
-There is a [PPA for ubuntu](https://launchpad.net/~pistache+team/+archive/ubuntu/unstable)
-
-Compiling and installing libpistache is pretty straight-forward.
-
-``` sh
-mkdir -p pistache && cd pistache
-git clone https://github.com/oktal/pistache.git pistache_src
-cd pistache_src
-mkdir build && cd build
-cmake -DPISTACHE_USE_SSL=On ../
-cmake --build . --parallel --target install
-sudo ldconfig
-```
-
-(4) Python libraries for REST API integration tests
-
-This is only needed if you want to generate and run the python3 integration
-tests in [test/api-tests](../test/api-tests)
-The following command installs libraries for python 2.x and python 3 on Debian.
-``` sh
-apt-get install -y \
-    python3-pytest python-pytest \
-    python3-pytest-cov \
-    python3-pytest-runner python-pytest-runner \
-    python3-certifi python-certifi\
-    python3-urllib3 python-urllib3 \
-    python3-setuptools python-setuptools\
-    python3-dateutil python-dateutil \
-    python3-six python-six \
-    python3-requests python-requests \
-    python3-git
-```
 ---
 
-## Docker container for build
+## Linux prerequisites (Debian Trixie / Debian 13)
 
-If you don't want to install packages on your machine the docker image
-[ruschi/devlinuxqt-pistache](https://hub.docker.com/r/ruschi/devlinuxqt-pistache)
-includes all dependencies to build and run DigitalRooster.
+### (1) Setup the basic development environment
 
-``` sh
-docker pull ruschi/devlinuxqt-pistache
-docker run -it --privileged --name build_container ruschi/devlinuxqtquick2
+Install the essential build tools, compilers, libraries, and utilities via APT:
+
+```sh
+sudo apt-get update && sudo apt-get install -y \
+    bc cmake ninja-build curl git \
+    build-essential g++ gcc \
+    doxygen lcov gcovr \
+    autoconf automake libtool pkgconf \
+    flex bison zip unzip \
+    libssl-dev uuid-dev
 ```
 
-Some versions of [docker do not allow the statx system
-call](https://github.com/docker/for-linux/issues/208) which is used by the QT
-buildtools during MOC generation.  A workaround is to start the docker container
-in privileged mode using `--privileged`.
+> **Notes on Debian Trixie:**
+> - `pkgconf` replaces the deprecated/transitional `pkg-config` package.
+> - `ninja-build` is recommended for fast, parallel CMake builds (using `-G Ninja`).
+
+### (2) Install Qt5 development libraries and runtime modules
+
+Install the Qt5 development packages:
+
+```sh
+sudo apt-get install -y \
+    qtbase5-dev qtbase5-dev-tools \
+    qtdeclarative5-dev qtdeclarative5-dev-tools \
+    qtmultimedia5-dev qtquickcontrols2-5-dev
+```
+
+To run the DigitalRooster GUI application on your Linux desktop, also install the necessary QML modules and multimedia backend plugins:
+
+```sh
+sudo apt-get install -y \
+    qml-module-qtquick2 \
+    qml-module-qtquick-controls2 \
+    qml-module-qtquick-layouts \
+    qml-module-qtmultimedia \
+    qml-module-qtquick-window2 \
+    libqt5multimedia5-plugins
+```
+
+> **Notes on Debian Trixie:**
+> - The obsolete `qt5-default` metapackage has been removed from Debian since Bullseye and is not available in Trixie. Qt build tools and libraries are configured directly via `qtbase5-dev` and `qtbase5-dev-tools`.
+
+### (3) Install libpistache (for REST API)
+
+If you configure DigitalRooster with `-DREST_API=On`, Pistache is required.
+
+In Debian Trixie (Debian 13), Pistache is available as an official Debian package:
+
+```sh
+sudo apt-get install -y libpistache-dev
+```
+
+### (4) Python 3 and PyPI packages for REST API integration tests
+
+Running the Python integration tests in [test/api-tests](../test/api-tests) and generating the OpenAPI client requires Python 3. The test runner and dependencies are installed from **PyPI** inside a Python virtual environment (rather than through Debian system packages).
+
+Install the system Python 3 and venv module:
+
+```sh
+sudo apt-get install -y python3 python3-venv python3-pip
+```
+
+Set up and activate a virtual environment in the repository, and install the required test packages from PyPI using `requirements.txt`:
+
+```sh
+# Create virtual environment
+python3 -m venv .venv
+
+# Activate virtual environment
+source .venv/bin/activate
+
+# Install required Python dependencies from PyPI
+pip install -r requirements.txt
+```
+
+To generate the Python client module before running the REST API tests, you can use the containerized generator:
+
+```sh
+podman run --rm -v $(pwd):/local:z \
+    docker.io/openapitools/openapi-generator-cli:v6.5.0 generate \
+    -i /local/REST/openapi.yml \
+    -g python \
+    -c /local/REST/generator-config.json \
+    -o /local/python-client
+```
+
+Or run the client retrieval script (fetches based on your pushed GitHub commit):
+
+```sh
+# Run within active virtual environment:
+python3 buildscripts/get_openapi_client.py
+```
+
+> **Tip:** When running tests with `ctest`, ensure your virtual environment is active (`source .venv/bin/activate`) so that `pytest` and the client modules from PyPI are found.
+
+---
+
+## Container build (Docker / Podman)
+
+If you prefer not to install dependencies on your host machine, the pre-built container image includes all required tools and libraries:
+
+```sh
+podman pull ghcr.io/truschival/devlinuxqtquick2:latest
+podman run -it --privileged --name build_container ghcr.io/truschival/devlinuxqtquick2:latest
+```
+
+*(Docker can also be used interchangeably with Podman).*
 
 ---
 
 ## Build Steps
 
-All steps to build and run unit tests on your machine in a docker container are
-listed the script [buildscripts/build_local.sh](../buildscripts/build_local.sh)
+All steps to build and run unit tests locally in a container are demonstrated in the script [buildscripts/build_local.sh](../buildscripts/build_local.sh).
 
-### Options & Defaults (compilation flags & targets)
+### CMake Options & Defaults
 
--   `-DBUILD_TESTS=On`           build unit tests
+| Option | Default | Description |
+|---|---|---|
+| `-DBUILD_TESTS` | `On` | Build unit tests |
+| `-DBUILD_GTEST_FROM_SRC` | `On` | Download GoogleTest via FetchContent and build from source |
+| `-DREST_API` | `Off` | Enable REST API support (requires libpistache) |
+| `-DREST_API_PORT` | `6666` | Default TCP listen port for REST API |
+| `-DPROFILE` | `Off` | Build with profiling flags |
+| `-DTEST_COVERAGE` | `Off` | Enable code coverage instrumentation |
 
--   `-DBUILD_GTEST_FROM_SRC=On`  download GoogleTest and build it from source
-                                  (`OFF` requires gtest as external project)
+### Build Walkthrough
 
--   `-DREST_API=On`               provide a REST API for json configuration
+**(1) Setup directories and checkout**
 
--   `-DREST_API_PORT=6666`       Default TCP listen port for REST API
-
--   `-DPROFILING=On`              profiling build for Visual Studio
-
--   `-DTEST_COVERAGE=Off`        code coverage
-
-The following commands will checkout the sources to `/tmp/checkout/`, create a
-build directory in `/tmp/build/` configure and build DigitalRooster.
-
-(1) Setup directories and checkout
-
-``` sh
+```sh
 export SRC_DIR=/tmp/checkout
 export BUILD_DIR=/tmp/build
 git clone https://github.com/truschival/DigitalRoosterGui.git $SRC_DIR
 ```
 
-(2) Configuration
+**(2) Configuration**
 
-``` sh
-cmake -G "Eclipse CDT4 - Unix Makefiles"  \
-    -H$SRC_DIR -B$BUILD_DIR  \
+```sh
+cmake -S $SRC_DIR -B $BUILD_DIR \
     -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_ECLIPSE_MAKE_ARGUMENTS=-j9 \
-    -DCMAKE_ECLIPSE_GENERATE_SOURCE_PROJECT=true \
     -DBUILD_TESTS=On \
     -DBUILD_GTEST_FROM_SRC=On \
     -DTEST_COVERAGE=On \
-	-DREST_API=On
+    -DREST_API=On
 ```
 
-(3) Build
+*(You can add `-G Ninja` if you have `ninja-build` installed for faster builds).*
 
-``` sh
-cmake --build $BUILD_DIR
+**(3) Build**
+
+```sh
+cmake --build $BUILD_DIR --parallel
 ```
 
-### Optional post build steps
+### Optional post-build steps
 
 #### Run Tests
 
-``` sh
-cd $BUILD_DIR
-ctest -V
+Ensure your virtual environment is activated if running REST API integration tests:
+
+```sh
+ctest --test-dir $BUILD_DIR -V
 ```
 
 or with lcov coverage output as HTML:
 
-``` sh
-cmake --build $BUILD_DIR --target DigitalRooster_gtest_coverage
+```sh
+cmake --build $BUILD_DIR --target digitalrooster_gtest_coverage
 ```
 
 #### Create Doxygen documentation (if Doxygen is installed)
 
-``` sh
-make --build $BUILD_DIR --target DOC
+```sh
+cmake --build $BUILD_DIR --target apidoc
 ```
 
 #### Packaging (optional)
 
-``` sh
+```sh
 cd $BUILD_DIR
 cpack
 ```
