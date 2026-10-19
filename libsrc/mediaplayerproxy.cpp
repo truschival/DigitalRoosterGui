@@ -216,10 +216,7 @@ void MediaPlayerProxy::do_set_volume(double volume) {
     linear_volume = volume;
     emit volume_changed(volume);
 
-    /* backend works with logarithmic volume */
-    auto adjusted_volume = QAudio::convertVolume(volume / qreal(100.0),
-        QAudio::LogarithmicVolumeScale, QAudio::LinearVolumeScale);
-    backend->setVolume(qRound(adjusted_volume * 100.0));
+    backend->setVolume(qRound(volume));
 }
 
 /*****************************************************************************/
